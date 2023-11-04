@@ -7,6 +7,7 @@
 
 #include <clydesdale_engine/util/logger.hpp>
 #include <clydesdale_engine/util/asset_manager.hpp>
+#include <clydesdale_engine/interface/element.hpp>
 #include <space_game/simulation/world.hpp>
 
 namespace Clydesdale {
@@ -16,6 +17,8 @@ namespace Clydesdale {
         private:
             unsigned int width, height;
             sf::View imGuiCamera = sf::View(sf::FloatRect(0, 0, width, height));
+
+            Interface::Element testElement;
 
         public:
             Clydesdale::Util::AssetManager assetManager;

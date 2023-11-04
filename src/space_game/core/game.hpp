@@ -1,3 +1,4 @@
+#pragma once
 #include <clydesdale_engine/core/application.hpp>
 
 namespace SpaceGame {

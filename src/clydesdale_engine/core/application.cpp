@@ -31,6 +31,10 @@ Application::~Application(){
 }
 
 void Application::run(){
+    testElement = Interface::Element(150, 50, 300, 150);
+    Interface::Element newElement = Interface::Element(testElement, 5, 5, 290, 20);
+    newElement.shape.setFillColor(sf::Color::Red);
+
     // Start game loop
     while(window.isOpen()){
         // Handle control events
@@ -59,6 +63,7 @@ void Application::run(){
         window.clear();
         draw();
         window.setView(imGuiCamera);
+        window.draw(testElement);
         ImGui::SFML::Render(window);
         window.display();
     }
