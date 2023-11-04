@@ -1,7 +1,7 @@
 #include "world.hpp"
 #include <cstddef>
 
-using namespace Krypton::Simulation;
+using namespace SpaceGame::Simulation;
 
 World::World(unsigned int width, unsigned int height) : width(width), height(height) {
     cellArray = new Cell*[width * height];

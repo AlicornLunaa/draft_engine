@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Krypton {
+namespace SpaceGame {
     namespace Simulation {
         enum class CellType {
             STONE,

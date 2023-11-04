@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(krypton VERSION 0.1.0 LANGUAGES CXX)
+project(space_game VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
@@ -14,8 +14,12 @@ FetchContent_Declare(imgui
 FetchContent_Declare(imgui-sfml
     GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git
     GIT_TAG 2.6.x)
+FetchContent_Declare(box2d
+    GIT_REPOSITORY https://github.com/erincatto/box2d.git
+    GIT_TAG main)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(imgui)
+FetchContent_MakeAvailable(box2d)
 
 set(IMGUI_DIR ${imgui_SOURCE_DIR})
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
@@ -25,7 +29,7 @@ set(SOURCE src/main.cpp src/util/asset_manager.cpp src/util/logger.cpp src/core/
 set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system)
 
 add_executable(${PROJECT_NAME} ${SOURCE})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML -static)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(WIN32)

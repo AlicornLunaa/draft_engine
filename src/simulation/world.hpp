@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "cell.hpp"
 
-namespace Krypton {
+namespace SpaceGame {
     namespace Simulation {
         class World {
         private:

@@ -5,7 +5,7 @@
 #include "ansi_colors.hpp"
 #include "logger.hpp"
 
-using namespace Krypton;
+using namespace SpaceGame;
 using namespace Util;
 
 // Constructors

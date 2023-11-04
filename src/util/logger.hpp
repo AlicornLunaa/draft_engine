@@ -3,7 +3,7 @@
 #include <string>
 #include "ansi_colors.hpp"
 
-namespace Krypton {
+namespace SpaceGame {
     namespace Util {
         namespace Logger {
             enum class Level { INFO, WARNING, SEVERE, CRITICAL };

@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
-namespace Krypton {
+namespace SpaceGame {
     namespace Util {
         // Structure to hold the rectangle and the texture reference
         struct TextureRegion {

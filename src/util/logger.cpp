@@ -2,7 +2,7 @@
 #include <vector>
 #include "logger.hpp"
 
-using namespace Krypton;
+using namespace SpaceGame;
 using namespace Util;
 
 void Logger::print(const Level level, const std::string& name, const std::string& str){

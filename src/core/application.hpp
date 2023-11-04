@@ -9,7 +9,7 @@
 #include "../util/asset_manager.hpp"
 #include "../simulation/world.hpp"
 
-namespace Krypton {
+namespace SpaceGame {
     namespace Core {
         class Application {
         private:
@@ -22,7 +22,7 @@ namespace Krypton {
             Simulation::World world = Simulation::World(50, 50);
 
         public:
-            Krypton::Util::AssetManager assetManager;
+            SpaceGame::Util::AssetManager assetManager;
             
             Application(const char* title, const unsigned int width, const unsigned int height);
             Application(const Application& rhs) = delete;

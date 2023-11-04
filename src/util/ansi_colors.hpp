@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Krypton {
+namespace SpaceGame {
     namespace Util {
         namespace Color {
             const char Reset[] = "\033[0m";

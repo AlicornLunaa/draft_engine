@@ -1,12 +1,12 @@
 #include "application.hpp"
 
-using namespace Krypton::Core;
-using namespace Krypton::Util;
+using namespace SpaceGame::Core;
+using namespace SpaceGame::Util;
 
 Application::Application(const char* title, const unsigned int width, const unsigned int height)
         : window(sf::RenderWindow(sf::VideoMode(width, height), title)) {
     // Feedback
-    Logger::println(Logger::Level::INFO, "Krypton", "Initializing...");
+    Logger::println(Logger::Level::INFO, "Space Game", "Initializing...");
 
     // Assets
     assetManager.queueTexture("./assets/textures/test_image_1.png");
@@ -26,12 +26,12 @@ Application::Application(const char* title, const unsigned int width, const unsi
     }
 
     // Final feedback
-    Logger::println(Logger::Level::INFO, "Krypton", "Finished");
+    Logger::println(Logger::Level::INFO, "Space Game", "Finished");
 }
 
 Application::~Application(){
     // Cleanup
-    Logger::println(Logger::Level::INFO, "Krypton", "Exitting...");
+    Logger::println(Logger::Level::INFO, "Space Game", "Exitting...");
     ImGui::SFML::Shutdown();
 }
 
