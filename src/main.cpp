@@ -1,9 +1,9 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include "util/logger.hpp"
-#include "core/application.hpp"
+#include <clydesdale_engine/core/application.hpp>
+#include <clydesdale_engine/util/logger.hpp>
 
-using namespace SpaceGame;
+using namespace Clydesdale;
 
 int main(int argc, char** argv){
     // Make sure game can run, handle arguments, etc

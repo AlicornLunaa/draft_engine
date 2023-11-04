@@ -21,14 +21,24 @@ FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(imgui)
 FetchContent_MakeAvailable(box2d)
 
+set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system)
 set(IMGUI_DIR ${imgui_SOURCE_DIR})
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
 FetchContent_MakeAvailable(imgui-sfml)
 
-set(SOURCE src/main.cpp src/util/asset_manager.cpp src/util/logger.cpp src/core/application.cpp src/simulation/world.cpp)
-set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system)
 
-add_executable(${PROJECT_NAME} ${SOURCE})
+set(ENGINE_SOURCES
+    src/clydesdale_engine/core/application.cpp
+    src/clydesdale_engine/util/logger.cpp
+    src/clydesdale_engine/util/asset_manager.cpp)
+
+set(GAME_SOURCES
+    src/main.cpp
+    src/space_game/simulation/world.cpp)
+
+
+add_executable(${PROJECT_NAME} ${ENGINE_SOURCES} ${GAME_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE src/)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML -static)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
