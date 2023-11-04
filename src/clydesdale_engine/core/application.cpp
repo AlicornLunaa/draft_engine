@@ -6,7 +6,7 @@ using namespace Clydesdale::Util;
 Application::Application(const char* title, const unsigned int width, const unsigned int height)
         : window(sf::RenderWindow(sf::VideoMode(width, height), title)) {
     // Feedback
-    Logger::println(Logger::Level::INFO, "Space Game", "Initializing...");
+    Logger::println(Logger::Level::INFO, "Clydesdale", "Initializing...");
 
     // Assets
     assetManager.queueTexture("./assets/textures/test_image_1.png");
@@ -24,14 +24,17 @@ Application::Application(const char* title, const unsigned int width, const unsi
         Logger::println(Logger::Level::CRITICAL, "ImGUI", "Failed to initialize, exitting.");
         exit(1);
     }
+    auto& imGuiIO = ImGui::GetIO();
+    imGuiIO.IniFilename = nullptr;
+    imGuiIO.LogFilename = nullptr;
 
     // Final feedback
-    Logger::println(Logger::Level::INFO, "Space Game", "Finished");
+    Logger::println(Logger::Level::INFO, "Clydesdale", "Finished");
 }
 
 Application::~Application(){
     // Cleanup
-    Logger::println(Logger::Level::INFO, "Space Game", "Exitting...");
+    Logger::println(Logger::Level::INFO, "Clydesdale", "Exitting...");
     ImGui::SFML::Shutdown();
 }
 
@@ -53,6 +56,9 @@ void Application::run(){
             switch(event.type){
             case sf::Event::Closed:
                 window.close();
+                break;
+            case sf::Event::MouseWheelScrolled:
+                camera.zoom(1.f + 0.1f * event.mouseWheelScroll.delta);
                 break;
             }
         }
@@ -77,8 +83,11 @@ void Application::run(){
 
         // Handle SFML rendering
         window.clear();
+        window.setView(camera);
         window.draw(sprite);
         world.draw(window);
+        
+        window.setView(uiCamera);
         ImGui::SFML::Render(window);
         window.display();
     }
