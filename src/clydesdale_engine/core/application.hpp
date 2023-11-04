@@ -14,24 +14,23 @@ namespace Clydesdale {
         
         class Application {
         private:
-            sf::RenderWindow window;
-            sf::Event event;
-            sf::Clock deltaClock;
-            sf::Time deltaTime;
-            sf::Time lastTime;
-
-            sf::View uiCamera = sf::View(sf::FloatRect(0, 0, 1280, 720));
-            sf::View camera = sf::View(sf::FloatRect(0, 0, 640, 480));
-
-            SpaceGame::Simulation::World world = SpaceGame::Simulation::World(50, 50);
+            unsigned int width, height;
+            sf::View imGuiCamera = sf::View(sf::FloatRect(0, 0, width, height));
 
         public:
             Clydesdale::Util::AssetManager assetManager;
+            sf::RenderWindow window;
+            sf::Clock deltaClock;
+            sf::Time deltaTime;
+            sf::Event event;
             
             Application(const char* title, const unsigned int width, const unsigned int height);
             Application(const Application& rhs) = delete;
             ~Application();
 
+            virtual void handleEvent() = 0;
+            virtual void init() = 0;
+            virtual void draw() = 0;
             void run();
         };
 

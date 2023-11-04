@@ -34,6 +34,7 @@ set(ENGINE_SOURCES
 
 set(GAME_SOURCES
     src/main.cpp
+    src/space_game/core/game.cpp
     src/space_game/simulation/world.cpp)
 
 
