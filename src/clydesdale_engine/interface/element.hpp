@@ -7,6 +7,7 @@ namespace Clydesdale {
 
         class Element : public sf::Drawable {
         private:
+            Element* parent = nullptr;
             std::vector<Element*> children;
 
             virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
@@ -18,6 +19,8 @@ namespace Clydesdale {
             Element(float x, float y, float width, float height);
             Element(Element& parent, float x, float y, float width, float height);
             ~Element();
+
+            void update(sf::RenderWindow& window, float deltaTime, sf::Transform transform = sf::Transform::Identity);
         };
 
     }

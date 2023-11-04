@@ -1,5 +1,6 @@
 #include "element.hpp"
 #include <iostream>
+#include <clydesdale_engine/util/logger.hpp>
 using namespace Clydesdale::Interface;
 
 Element::Element() {
@@ -13,14 +14,38 @@ Element::Element(float x, float y, float width, float height) : Element() {
 }
 
 Element::Element(Element& parent, float x, float y, float width, float height) : Element(x, y, width, height) {
+    this->parent = &parent;
     parent.children.push_back(this);
 }
 
 Element::~Element(){}
 
+void Element::update(sf::RenderWindow& window, float deltaTime, sf::Transform transform){
+    sf::Vector2i mouse = sf::Mouse::getPosition(window);
+    sf::FloatRect rect = shape.getGlobalBounds();
+
+    if(parent){
+        // Parent exists, move the transform for it
+        transform *= parent->shape.getTransform();
+    }
+
+    rect = transform.transformRect(rect);
+    
+    if(rect.contains({ (float)mouse.x, (float)mouse.y })){
+        shape.setFillColor(sf::Color::Green);
+    } else {
+        shape.setFillColor(sf::Color::White);
+    }
+
+    // Update children
+    for(auto* ptr : children){
+        ptr->update(window, deltaTime, transform);
+    }
+}
+
 void Element::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     // Draw main element
-    sf::RenderStates newState = sf::RenderStates(shape.getTransform());
+    sf::RenderStates newState = sf::RenderStates(states.transform * shape.getTransform());
     target.draw(shape, states);
 
     // Draw children

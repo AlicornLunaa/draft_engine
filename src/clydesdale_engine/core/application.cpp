@@ -52,6 +52,7 @@ void Application::run(){
         }
 
         deltaTime = deltaClock.restart();
+        testElement.update(window, deltaTime.asSeconds());
         ImGui::SFML::Update(window, deltaTime);
 
         // Handle ImGUI rendering
