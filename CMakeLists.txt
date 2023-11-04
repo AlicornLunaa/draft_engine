@@ -19,6 +19,10 @@ FetchContent_Declare(box2d
     GIT_TAG main)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(imgui)
+
+option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" OFF)
+option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
+option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 FetchContent_MakeAvailable(box2d)
 
 set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system)
@@ -41,7 +45,7 @@ set(GAME_SOURCES
 
 add_executable(${PROJECT_NAME} ${ENGINE_SOURCES} ${GAME_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src/)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML -static)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML box2d -static)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(WIN32)
