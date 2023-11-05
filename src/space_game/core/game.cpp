@@ -9,10 +9,12 @@ Game::Game() : Application("Space Game", 1280, 720) {
 
     // Basic allocations
     const sf::SoundBuffer& soundBuffer = assetManager.getAudio("./assets/audio/boo_womp.mp3");
-    sf::Texture& texture1 = assetManager.getTexture("./assets/textures/test_image_1.png");
-    texture1.setSmooth(false);
+    texture1 = &assetManager.getTexture("./assets/textures/test_image_1.png");
+    texture2 = &assetManager.getTexture("./assets/textures/test_image_3.png");
+    texture1->setSmooth(false);
 
-    sprite = sf::Sprite(texture1);
+    shader = &assetManager.getShader("./assets/shaders/default");
+    sprite = sf::Sprite(*texture1);
     sound = sf::Sound(soundBuffer);
 }
 
@@ -30,6 +32,7 @@ void Game::init(){
     // Assets
     assetManager.queueTexture("./assets/textures/test_image_1.png");
     assetManager.queueTexture("./assets/textures/test_image_2.jpg");
+    assetManager.queueTexture("./assets/textures/test_image_3.png");
     assetManager.queueShader("./assets/shaders/default");
     assetManager.queueShader("./assets/shaders/invert");
     assetManager.queueAudio("./assets/audio/boo_womp.mp3");
@@ -42,6 +45,11 @@ void Game::init(){
 
 void Game::draw(){
     window.setView(camera);
-    window.draw(sprite);
-    world.draw(window);
+
+    sprite.setPosition(1280/2 - 64, 720/2 - 64);
+    shader->setUniform("texture1", *texture1);
+    shader->setUniform("texture2", *texture2);
+    window.draw(sprite, shader);
+
+    // world.draw(window);
 }

@@ -53,19 +53,21 @@ void Application::run(){
         }
 
         deltaTime = deltaClock.restart();
-        testElement.update(window, deltaTime.asSeconds());
+        // testElement.update(window, deltaTime.asSeconds());
         ImGui::SFML::Update(window, deltaTime);
 
         // Handle ImGUI rendering
         ImGui::Begin("Stats");
         ImGui::Text("FPS: %02d", (int)(1.f / deltaTime.asSeconds()));
+        if(ImGui::Button("Reload"))
+            assetManager.reload();
         ImGui::End();
 
         // Handle SFML rendering
         window.clear();
         draw();
         window.setView(imGuiCamera);
-        window.draw(testElement);
+        // window.draw(testElement);
         ImGui::SFML::Render(window);
         window.display();
     }

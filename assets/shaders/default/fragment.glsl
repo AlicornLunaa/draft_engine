@@ -1,8 +1,8 @@
-#version 330 core
+#version 120 core
 
-out vec4 FragColor;
+uniform sampler2D texture1;
+uniform sampler2D texture2;
 
-void main()
-{
-    FragColor = vec4(1, 1, 0, 1);
+void main() {
+    gl_FragColor = texture2D(texture1, gl_TexCoord[0].xy) * texture2D(texture2, gl_TexCoord[0].xy);
 } 
