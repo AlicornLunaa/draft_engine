@@ -20,6 +20,8 @@ Element::Element(Element& parent, float x, float y, float width, float height) :
 
 Element::~Element(){}
 
+void Element::clicked(){}
+
 void Element::update(sf::RenderWindow& window, float deltaTime, sf::Transform transform){
     sf::Vector2i mouse = sf::Mouse::getPosition(window);
     sf::FloatRect rect = shape.getGlobalBounds();
@@ -32,9 +34,7 @@ void Element::update(sf::RenderWindow& window, float deltaTime, sf::Transform tr
     rect = transform.transformRect(rect);
     
     if(rect.contains({ (float)mouse.x, (float)mouse.y })){
-        shape.setFillColor(sf::Color::Green);
-    } else {
-        shape.setFillColor(sf::Color::White);
+        clicked();
     }
 
     // Update children

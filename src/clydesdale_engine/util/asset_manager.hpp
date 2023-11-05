@@ -28,6 +28,10 @@ namespace Clydesdale {
             std::vector<sf::Shader*> shaderArray;
             std::unordered_map<std::string, size_t> shaderMap;
 
+            std::vector<std::string> fontQueue;
+            std::vector<sf::Font> fontArray;
+            std::unordered_map<std::string, size_t> fontMap;
+
         public:
             AssetManager();
             ~AssetManager();
@@ -39,15 +43,18 @@ namespace Clydesdale {
             void queueTexture(const std::string& path);
             void queueAudio(const std::string& path);
             void queueShader(const std::string& path);
+            void queueFont(const std::string& path);
 
             sf::Texture& getTexture(const std::string& name) const;
             const sf::SoundBuffer& getAudio(const std::string& name) const;
             sf::Shader& getShader(const std::string& name) const;
+            const sf::Font& getFont(const std::string& name) const;
 
         private:
             void loadTexture(sf::Texture& texture, const std::string& path);
             void loadAudio(sf::SoundBuffer* audio, const std::string& path);
             void loadShader(sf::Shader* shader, const std::string& path);
+            void loadFont(sf::Font& shader, const std::string& path);
         };
         
     }

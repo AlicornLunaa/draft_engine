@@ -32,6 +32,10 @@ void AssetManager::clear(){
     for(auto* ptr : shaderArray)
         delete ptr;
     shaderArray.clear();
+
+    fontQueue.clear();
+    fontMap.clear();
+    fontArray.clear();
 }
 
 void AssetManager::reload(){
@@ -50,6 +54,11 @@ void AssetManager::reload(){
     for(size_t i = 0; i < shaderQueue.size(); i++){
         const std::string& path = shaderQueue[i];
         loadShader(shaderArray[i], path);
+    }
+
+    for(size_t i = 0; i < fontQueue.size(); i++){
+        const std::string& path = fontQueue[i];
+        loadFont(fontArray[i], path);
     }
 }
 
@@ -72,6 +81,12 @@ void AssetManager::load(){
         shaderMap[path] = (shaderArray.size() - 1);
         loadShader(shaderArray.back(), path);
     }
+
+    for(const std::string& path : fontQueue){
+        fontArray.push_back(sf::Font());
+        fontMap[path] = (fontArray.size() - 1);
+        loadFont(fontArray.back(), path);
+    }
 }
 
 void AssetManager::queueTexture(const std::string& path){
@@ -84,6 +99,10 @@ void AssetManager::queueAudio(const std::string& path) {
 
 void AssetManager::queueShader(const std::string& path) {
     shaderQueue.push_back(path);
+}
+
+void AssetManager::queueFont(const std::string& path) {
+    fontQueue.push_back(path);
 }
 
 sf::Texture& AssetManager::getTexture(const std::string& name) const {
@@ -118,6 +137,17 @@ sf::Shader& AssetManager::getShader(const std::string& name) const {
     }
     
     return *shaderArray[shaderMap.at(name)];
+}
+
+const sf::Font& AssetManager::getFont(const std::string& name) const {
+    const auto& result = fontMap.find(name);
+
+    if(result == fontMap.end()){
+        Logger::println(Logger::Level::SEVERE, "Asset Manager", "Failed to find font " + name);
+        return fontArray[0];
+    }
+    
+    return fontArray[fontMap.at(name)];
 }
 
 // Private functionsz
@@ -167,5 +197,13 @@ void AssetManager::loadShader(sf::Shader* shader, const std::string& path){
             Logger::printRaw(std::string(Color::Red) + "Not found");
         }
         Logger::printRaw(std::string(Color::Reset) + "\n");
+    }
+}
+
+void AssetManager::loadFont(sf::Font& font, const std::string& path){
+    if(!font.loadFromFile(path)){
+        Logger::println(Logger::Level::SEVERE, "Asset Manager", "Failed to load font " + path);
+    } else {
+        Logger::println(Logger::Level::INFO, "Asset Manager", "Loaded font " + path);
     }
 }

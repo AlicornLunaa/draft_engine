@@ -33,6 +33,7 @@ void Game::init(){
     assetManager.queueShader("./assets/shaders/default");
     assetManager.queueShader("./assets/shaders/invert");
     assetManager.queueAudio("./assets/audio/boo_womp.mp3");
+    assetManager.queueFont("./assets/fonts/default.ttf");
     assetManager.load();
 
     // Window settings

@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include <clydesdale_engine/interface.hpp>
 
 using namespace Clydesdale::Core;
 using namespace Clydesdale::Util;
@@ -31,9 +32,9 @@ Application::~Application(){
 }
 
 void Application::run(){
-    testElement = Interface::Element(150, 50, 300, 150);
-    Interface::Element newElement = Interface::Element(testElement, 5, 5, 290, 20);
-    newElement.shape.setFillColor(sf::Color::Red);
+    Interface::Element testElement = Interface::Element(150, 50, 300, 150);
+    Interface::Panel newElement = Interface::Panel(testElement, sf::Color::Red, 5, 5, 290, 20);
+    Interface::Button btn = Interface::Button(testElement, sf::Color::Cyan, assetManager.getFont("./assets/fonts/default.ttf"), "Test Button", 5, 5, 290, 20);
 
     // Start game loop
     while(window.isOpen()){
