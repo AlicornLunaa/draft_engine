@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 using namespace SpaceGame;
+using namespace Clydesdale;
 
 Game::Game() : Application("Space Game", 1280, 720) {
     // Initialize everything needed for the game
@@ -13,9 +14,14 @@ Game::Game() : Application("Space Game", 1280, 720) {
     texture2 = &assetManager.getTexture("./assets/textures/test_image_3.png");
     texture1->setSmooth(false);
 
-    shader = &assetManager.getShader("./assets/shaders/default");
+    shader = &assetManager.getShader("./assets/shaders/lighting_specular");
     sprite = sf::Sprite(*texture1);
     sound = sf::Sound(soundBuffer);
+    sprite.setPosition(1280/2 - 256, 720/2 - 64);
+    
+    entt::entity entity = mRegistry.create();
+    mRegistry.emplace<ECS::TransformComponent>(entity);
+    mRegistry.emplace<ECS::SpriteComponent>(entity, &sprite);
 }
 
 Game::~Game(){}
@@ -35,6 +41,7 @@ void Game::init(){
     assetManager.queueTexture("./assets/textures/test_image_3.png");
     assetManager.queueShader("./assets/shaders/default");
     assetManager.queueShader("./assets/shaders/invert");
+    assetManager.queueShader("./assets/shaders/lighting_specular");
     assetManager.queueAudio("./assets/audio/boo_womp.mp3");
     assetManager.queueFont("./assets/fonts/default.ttf");
     assetManager.load();
@@ -44,12 +51,29 @@ void Game::init(){
 }
 
 void Game::draw(){
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
+        camera.move(-100 * deltaTime.asSeconds(), 0);
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+        camera.move(100 * deltaTime.asSeconds(), 0);
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+        camera.move(0, -100 * deltaTime.asSeconds());
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+        camera.move(0, 100 * deltaTime.asSeconds());
+    }
+    
     window.setView(camera);
 
-    sprite.setPosition(1280/2 - 64, 720/2 - 64);
-    shader->setUniform("texture1", *texture1);
-    shader->setUniform("texture2", *texture2);
-    window.draw(sprite, shader);
-
-    // world.draw(window);
+    auto view = mRegistry.view<ECS::SpriteComponent>();
+    for(auto entity : view){
+        ECS::SpriteComponent& spriteComponent = view.get<ECS::SpriteComponent>(entity);
+        
+        if(spriteComponent.shader){
+            window.draw(spriteComponent, spriteComponent.shader);
+        } else {
+            window.draw(spriteComponent);
+        }
+    }
 }

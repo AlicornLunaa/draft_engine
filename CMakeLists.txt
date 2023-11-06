@@ -17,8 +17,12 @@ FetchContent_Declare(imgui-sfml
 FetchContent_Declare(box2d
     GIT_REPOSITORY https://github.com/erincatto/box2d.git
     GIT_TAG main)
+FetchContent_Declare(entt
+    GIT_REPOSITORY https://github.com/skypjack/entt.git
+    GIT_TAG v3.8.x)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(imgui)
+FetchContent_MakeAvailable(entt)
 
 option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" OFF)
 option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
@@ -47,7 +51,7 @@ set(GAME_SOURCES
 
 add_executable(${PROJECT_NAME} ${ENGINE_SOURCES} ${GAME_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src/)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML box2d -static)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML EnTT::EnTT box2d -static)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(WIN32)

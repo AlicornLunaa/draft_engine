@@ -173,30 +173,36 @@ void AssetManager::loadShader(sf::Shader* shader, const std::string& path){
         Logger::println(Logger::Level::SEVERE, "Asset Manager", "Failed to load shader " + path);
     } else {
         // Folder actually exists, load the optional vertex and fragment shaders
-        Logger::println(Logger::Level::INFO, "Asset Manager", "Loading shader " + path);
-        sf::FileInputStream fileStream;
+        Logger::print(Logger::Level::INFO, "Asset Manager", "Loading shader " + path);
+        
+        sf::FileInputStream vertexFileStream;
+        sf::FileInputStream fragmentFileStream;
+        bool vertexSuccess = vertexFileStream.open(path + "/vertex.glsl");
+        bool fragmentSuccess = fragmentFileStream.open(path + "/fragment.glsl");
 
-        // Vertex loading
-        Logger::printRaw(std::string(Color::Reset) + "\tVertex...");
-        if(fileStream.open(path + "/vertex.glsl")){
-            // Vertex shader exists, read it into memory and load the shader
-            shader->loadFromStream(fileStream, sf::Shader::Type::Vertex);
-            Logger::printRaw(std::string(Color::Green) + "Loaded");
-        } else {
-            Logger::printRaw(std::string(Color::Red) + "Not found");
-        }
-        Logger::printRaw("\n");
+        if(vertexSuccess && fragmentSuccess){
+            // Load both
+            shader->loadFromStream(vertexFileStream, fragmentFileStream);
 
-        // Fragment loading
-        Logger::printRaw(std::string(Color::Reset) + "\tFragment...");
-        if(fileStream.open(path + "/fragment.glsl")){
-            // Vertex shader exists, read it into memory and load the shader
-            shader->loadFromStream(fileStream, sf::Shader::Type::Fragment);
-            Logger::printRaw(std::string(Color::Green) + "Loaded");
+            Logger::printRaw(std::string(Color::Reset) + "\n\tVertex...");
+            Logger::printRaw(std::string(Color::Green) + "Loaded\n");
+            Logger::printRaw(std::string(Color::Reset) + "\tFragment...");
+            Logger::printRaw(std::string(Color::Green) + "Loaded\n");
+        } else if(vertexSuccess){
+            // Load just vertex
+            shader->loadFromStream(vertexFileStream, sf::Shader::Type::Vertex);
+
+            Logger::printRaw(std::string(Color::Reset) + "\n\tVertex...");
+            Logger::printRaw(std::string(Color::Green) + "Loaded\n");
+        } else if(fragmentSuccess){
+            // Load just fragment
+            shader->loadFromStream(fragmentFileStream, sf::Shader::Type::Fragment);
+
+            Logger::printRaw(std::string(Color::Reset) + "\n\tFragment...");
+            Logger::printRaw(std::string(Color::Green) + "Loaded\n");
         } else {
-            Logger::printRaw(std::string(Color::Red) + "Not found");
+            Logger::printRaw(std::string(Color::Red) + " Not loaded\n");
         }
-        Logger::printRaw(std::string(Color::Reset) + "\n");
     }
 }
 
