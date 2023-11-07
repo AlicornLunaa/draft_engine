@@ -1,5 +1,5 @@
 #pragma once
-#include <clydesdale_engine/core/application.hpp>
+#include <clydesdale_engine/core.hpp>
 #include <clydesdale_engine/ecs.hpp>
 
 namespace SpaceGame {
@@ -8,7 +8,8 @@ namespace SpaceGame {
         sf::View uiCamera = sf::View(sf::FloatRect(0, 0, 1280, 720));
         sf::View camera = sf::View(sf::FloatRect(0, 0, 1280, 720));
         
-        entt::registry mRegistry;
+        Clydesdale::Core::Scene scene;
+        Clydesdale::Core::Entity entity;
 
         sf::Texture* texture1;
         sf::Texture* texture2;

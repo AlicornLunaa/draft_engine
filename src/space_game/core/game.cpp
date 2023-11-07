@@ -4,7 +4,7 @@
 using namespace SpaceGame;
 using namespace Clydesdale;
 
-Game::Game() : Application("Space Game", 1280, 720) {
+Game::Game() : Application("Space Game", 1280, 720), scene(window) {
     // Initialize everything needed for the game
     init();
 
@@ -19,9 +19,9 @@ Game::Game() : Application("Space Game", 1280, 720) {
     sound = sf::Sound(soundBuffer);
     sprite.setPosition(1280/2 - 256, 720/2 - 64);
     
-    entt::entity entity = mRegistry.create();
-    mRegistry.emplace<ECS::TransformComponent>(entity);
-    mRegistry.emplace<ECS::SpriteComponent>(entity, &sprite);
+    entity = scene.createEntity();
+    entity.addComponent<ECS::TransformComponent>();
+    entity.addComponent<ECS::SpriteComponent>(&sprite);
 }
 
 Game::~Game(){}
@@ -63,12 +63,23 @@ void Game::draw(){
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
         camera.move(0, 100 * deltaTime.asSeconds());
     }
+
+    {
+        auto& transform = entity.getComponent<ECS::TransformComponent>();
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) transform.x += -100 * deltaTime.asSeconds();
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) transform.x += 100 * deltaTime.asSeconds();
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) transform.y += 100 * deltaTime.asSeconds();
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) transform.y += -100 * deltaTime.asSeconds();
+    }
     
     window.setView(camera);
 
-    auto view = mRegistry.view<ECS::SpriteComponent>();
+    auto view = scene.getRegistry().view<ECS::SpriteComponent, ECS::TransformComponent>();
     for(auto entity : view){
-        ECS::SpriteComponent& spriteComponent = view.get<ECS::SpriteComponent>(entity);
+        auto& spriteComponent = view.get<ECS::SpriteComponent>(entity);
+        auto& transform = view.get<ECS::TransformComponent>(entity);
+
+        spriteComponent.sprite->setPosition(transform.x, transform.y);
         
         if(spriteComponent.shader){
             window.draw(spriteComponent, spriteComponent.shader);

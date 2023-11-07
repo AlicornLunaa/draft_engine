@@ -37,6 +37,8 @@ FetchContent_MakeAvailable(imgui-sfml)
 
 set(ENGINE_SOURCES
     src/clydesdale_engine/core/application.cpp
+    src/clydesdale_engine/core/scene.cpp
+    src/clydesdale_engine/core/entity.cpp
     src/clydesdale_engine/util/logger.cpp
     src/clydesdale_engine/util/asset_manager.cpp
     src/clydesdale_engine/interface/element.cpp
