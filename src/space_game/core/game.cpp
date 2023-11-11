@@ -4,7 +4,7 @@
 using namespace SpaceGame;
 using namespace Clydesdale;
 
-Game::Game() : Application("Space Game", 1280, 720), scene1(assetManager, window) {
+Game::Game() : Application("Space Game", 1280, 720) {
     // Assets
     assetManager.queueTexture("./assets/textures/test_image_1.png");
     assetManager.queueTexture("./assets/textures/test_image_2.jpg");
@@ -20,5 +20,11 @@ Game::Game() : Application("Space Game", 1280, 720), scene1(assetManager, window
     window.setFramerateLimit(60);
     
     // Start first scene
-    this->setScene(&scene1);
+    scene1 = new TestScene(assetManager, window);
+    this->setScene(scene1);
+}
+
+Game::~Game(){
+    delete scene1;
+    Application::~Application();
 }

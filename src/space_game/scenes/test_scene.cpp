@@ -2,15 +2,20 @@
 #include <clydesdale_engine/ecs.hpp>
 #include <clydesdale_engine/util/logger.hpp>
 using namespace SpaceGame;
+using namespace Clydesdale;
 
-TestScene::TestScene(Clydesdale::Util::AssetManager& assetManager, sf::RenderWindow& window) : Scene(assetManager, window) {
+Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager){
+    Core::Entity entity = createEntity();
+    entity.addComponent<ECS::TransformComponent>();
+    entity.addComponent<ECS::SpriteComponent>(new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png")));
+    return entity;
+}
+
+TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window) : Scene(assetManager, window) {
     camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     uiCamera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
 
-    sf::Sprite sprite = sf::Sprite(assetManager.getTexture("./assets/test_image_1.png"));
-    Clydesdale::Core::Entity entity = createEntity();
-    entity.addComponent<Clydesdale::ECS::TransformComponent>();
-    entity.addComponent<Clydesdale::ECS::SpriteComponent>(&sprite);
+    createGravEntity(assetManager);
 }
 
 void TestScene::handleEvent(sf::Event event){
@@ -42,14 +47,12 @@ void TestScene::update(sf::Time deltaTime){
 
 void TestScene::render(sf::Time deltaTime){
     Scene::render(deltaTime);
-    
     window->setView(camera);
-    Clydesdale::Util::Logger::printRaw("Hello!\n");
 
-    auto view = registry.view<Clydesdale::ECS::SpriteComponent, Clydesdale::ECS::TransformComponent>();
+    auto view = registry.view<ECS::SpriteComponent, ECS::TransformComponent>();
     for(auto entity : view){
-        auto& spriteComponent = view.get<Clydesdale::ECS::SpriteComponent>(entity);
-        auto& transform = view.get<Clydesdale::ECS::TransformComponent>(entity);
+        auto& spriteComponent = view.get<ECS::SpriteComponent>(entity);
+        auto& transform = view.get<ECS::TransformComponent>(entity);
 
         spriteComponent.sprite->setPosition(transform.x, transform.y);
         
