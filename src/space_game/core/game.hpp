@@ -5,25 +5,9 @@
 namespace SpaceGame {
     class Game : public Clydesdale::Core::Application {
     private:
-        sf::View uiCamera = sf::View(sf::FloatRect(0, 0, 1280, 720));
-        sf::View camera = sf::View(sf::FloatRect(0, 0, 1280, 720));
-        
-        Clydesdale::Core::Scene scene;
-        Clydesdale::Core::Entity entity;
-
-        sf::Texture* texture1;
-        sf::Texture* texture2;
-        sf::Shader* shader;
-        sf::Sprite sprite;
-        sf::Sound sound;
-        SpaceGame::Simulation::World world = SpaceGame::Simulation::World(50, 50);
+        Clydesdale::Core::Scene scene1;
 
     public:
         Game();
-        ~Game();
-
-        void handleEvent();
-        void init();
-        void draw();
     };
 }

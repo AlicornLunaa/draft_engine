@@ -1,8 +1,9 @@
 #include "scene.hpp"
 #include "entity.hpp"
 using namespace Clydesdale::Core;
+using namespace Clydesdale::Util;
 
-Scene::Scene(sf::RenderWindow& window){
+Scene::Scene(AssetManager& assetManager, sf::RenderWindow& window){
     this->window = &window;
 }
 
@@ -14,10 +15,14 @@ Entity Scene::createEntity(){
     return { this, registry.create() };
 }
 
+void Scene::handleEvent(sf::Event event){
+    // TODO: Implementation
+}
+
 void Scene::update(sf::Time deltaTime){
-    
+    // TODO: Implementation
 }
 
 void Scene::render(sf::Time deltaTime){
-    
+    // TODO: Implementation
 }

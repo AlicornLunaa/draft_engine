@@ -5,20 +5,20 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#include <clydesdale_engine/core/scene.hpp>
 #include <clydesdale_engine/util/logger.hpp>
 #include <clydesdale_engine/util/asset_manager.hpp>
-#include <space_game/simulation/world.hpp>
 
 namespace Clydesdale {
     namespace Core {
-        
         class Application {
         private:
             unsigned int width, height;
             sf::View imGuiCamera = sf::View(sf::FloatRect(0, 0, width, height));
+            Scene* activeScene = nullptr;
 
         public:
-            Clydesdale::Util::AssetManager assetManager;
+            Util::AssetManager assetManager;
             sf::RenderWindow window;
             sf::Clock deltaClock;
             sf::Time deltaTime;
@@ -28,11 +28,14 @@ namespace Clydesdale {
             Application(const Application& rhs) = delete;
             ~Application();
 
-            virtual void handleEvent() = 0;
-            virtual void init() = 0;
-            virtual void draw() = 0;
+            void handleEvent();
             void run();
-        };
 
+            void setScene(Scene* scene){ activeScene = scene; }
+            Scene* getScene(){ return activeScene; }
+
+            unsigned int getWidth(){ return width; }
+            unsigned int getHeight(){ return height; }
+        };
     }
 }

@@ -48,7 +48,8 @@ set(ENGINE_SOURCES
 set(GAME_SOURCES
     src/main.cpp
     src/space_game/core/game.cpp
-    src/space_game/simulation/world.cpp)
+    src/space_game/simulation/world.cpp
+    src/space_game/scenes/test_scene.cpp)
 
 
 add_executable(${PROJECT_NAME} ${ENGINE_SOURCES} ${GAME_SOURCES})

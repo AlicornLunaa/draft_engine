@@ -31,6 +31,12 @@ Application::~Application(){
     ImGui::SFML::Shutdown();
 }
 
+void Application::handleEvent(){
+    if(activeScene){
+        activeScene->handleEvent(event);
+    }
+}
+
 void Application::run(){
     Interface::Element testElement = Interface::Element(150, 50, 300, 150);
     Interface::Panel newElement = Interface::Panel(testElement, sf::Color::Red, 5, 5, 290, 20);
@@ -53,21 +59,22 @@ void Application::run(){
         }
 
         deltaTime = deltaClock.restart();
-        // testElement.update(window, deltaTime.asSeconds());
         ImGui::SFML::Update(window, deltaTime);
+        if(activeScene)
+            activeScene->update(deltaTime);
 
         // Handle ImGUI rendering
         ImGui::Begin("Stats");
         ImGui::Text("FPS: %02d", (int)(1.f / deltaTime.asSeconds()));
-        if(ImGui::Button("Reload"))
+        if(ImGui::Button("Reload Assets"))
             assetManager.reload();
         ImGui::End();
 
         // Handle SFML rendering
         window.clear();
-        draw();
+        if(activeScene)
+            activeScene->render(deltaTime);
         window.setView(imGuiCamera);
-        // window.draw(testElement);
         ImGui::SFML::Render(window);
         window.display();
     }
