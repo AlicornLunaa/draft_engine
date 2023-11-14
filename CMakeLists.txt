@@ -29,7 +29,12 @@ option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
 option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 FetchContent_MakeAvailable(box2d)
 
-set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system)
+if(WIN32)
+    set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system)
+elseif(LINUX)
+    set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
+endif()
+
 set(IMGUI_DIR ${imgui_SOURCE_DIR})
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
 FetchContent_MakeAvailable(imgui-sfml)
@@ -64,10 +69,10 @@ if(WIN32)
         COMMENT "Copy OpenAL DLL"
         PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:${PROJECT_NAME}>
         VERBATIM)
+endif()
 
-    add_custom_command(
+add_custom_command(
         TARGET ${PROJECT_NAME}
         COMMENT "Copy Assets"
         POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
         VERBATIM)
-endif()

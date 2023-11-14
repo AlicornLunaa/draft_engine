@@ -25,5 +25,4 @@ Game::Game() : Application("Space Game", 1280, 720) {
 
 Game::~Game(){
     delete scene1;
-    Application::~Application();
 }

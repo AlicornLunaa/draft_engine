@@ -3,18 +3,41 @@
 using namespace SpaceGame;
 using namespace Clyde;
 
-Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager, const sf::Vector2f position){
+Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager, const Math::Vector2f position){
     Core::Entity entity = createEntity();
     entity.addComponent<ECS::TransformComponent>(position, 0.f);
-    entity.addComponent<ECS::SpriteComponent>(new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png")));
+    entity.addComponent<ECS::SpriteComponent>(sprite);
     return entity;
 }
 
 TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window) : Scene(assetManager, window) {
     camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     uiCamera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
+    sprite = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
+
+    b2BodyDef groundBodyDef;
+    groundBodyDef.position.Set(0.0f, -10.0f);
+    ground = world.CreateBody(&groundBodyDef);
+    b2PolygonShape groundBox;
+    groundBox.SetAsBox(50.0f, 10.0f);
+    ground->CreateFixture(&groundBox, 0.f);
+
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.position.Set(0.0f, 4.0f);
+    body = world.CreateBody(&bodyDef);
+    b2PolygonShape dynamicBox;
+    dynamicBox.SetAsBox(1.0f, 1.0f);
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &dynamicBox;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 0.3f;
+    body->CreateFixture(&fixtureDef);
 
     createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+}
+TestScene::~TestScene(){
+    delete sprite;
 }
 
 void TestScene::handleEvent(sf::Event event){
