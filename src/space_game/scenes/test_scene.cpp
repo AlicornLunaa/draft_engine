@@ -1,9 +1,7 @@
 #include "test_scene.hpp"
-#include <clydesdale_engine/ecs.hpp>
-#include <clydesdale_engine/util/logger.hpp>
 
 using namespace SpaceGame;
-using namespace Clydesdale;
+using namespace Clyde;
 
 Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager, const sf::Vector2f position){
     Core::Entity entity = createEntity();

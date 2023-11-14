@@ -1,10 +1,9 @@
 #pragma once
-#include <clydesdale_engine/core.hpp>
-#include <clydesdale_engine/ecs.hpp>
+#include <clydesdale/engine.hpp>
 #include <space_game/scenes/test_scene.hpp>
 
 namespace SpaceGame {
-    class Game : public Clydesdale::Core::Application {
+    class Game : public Clyde::Core::Application {
     private:
         TestScene* scene1;
 

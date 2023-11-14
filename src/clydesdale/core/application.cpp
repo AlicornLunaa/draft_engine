@@ -1,5 +1,5 @@
 #include "application.hpp"
-#include <clydesdale_engine/interface.hpp>
+#include <clydesdale/interface.hpp>
 
 using namespace Clydesdale::Core;
 using namespace Clydesdale::Util;

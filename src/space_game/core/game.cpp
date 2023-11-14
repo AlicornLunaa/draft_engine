@@ -1,8 +1,7 @@
 #include "game.hpp"
-#include <SFML/Graphics.hpp>
 
 using namespace SpaceGame;
-using namespace Clydesdale;
+using namespace Clyde;
 
 Game::Game() : Application("Space Game", 1280, 720) {
     // Assets
