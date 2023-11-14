@@ -11,6 +11,12 @@ int main(int argc, char** argv){
     std::cout << v.x << ", " << v.y << "\n";
     v += x;
     std::cout << v.x << ", " << v.y << "\n";
+    x = v;
+    std::cout << x.x << ", " << x.y << "\n";
+
+    Clyde::Math::Transform trans1 = Clyde::Math::Transform::Identity;
+    Clyde::Math::Transform trans2 = trans1;
+    trans2.rotate(45);
 
     return 0;
 }

@@ -41,6 +41,7 @@ set(ENGINE_SOURCES
     src/clydesdale/core/entity.cpp
     src/clydesdale/util/logger.cpp
     src/clydesdale/util/asset_manager.cpp
+    src/clydesdale/math/transform.cpp
     src/clydesdale/interface/element.cpp
     src/clydesdale/interface/panel.cpp
     src/clydesdale/interface/button.cpp)
