@@ -8,7 +8,7 @@ namespace SpaceGame {
         sf::View uiCamera;
         sf::View camera;
 
-        Clydesdale::Core::Entity createGravEntity(Clydesdale::Util::AssetManager& assetManager);
+        Clydesdale::Core::Entity createGravEntity(Clydesdale::Util::AssetManager& assetManager, const sf::Vector2f position);
 
     public:
         TestScene(Clydesdale::Util::AssetManager& assetManager, sf::RenderWindow& window);

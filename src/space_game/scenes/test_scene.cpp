@@ -5,10 +5,9 @@
 using namespace SpaceGame;
 using namespace Clydesdale;
 
-Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager){
+Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager, const sf::Vector2f position){
     Core::Entity entity = createEntity();
-    entity.addComponent<ECS::TransformComponent>();
-    entity.addComponent<ECS::ControlComponent>();
+    entity.addComponent<ECS::TransformComponent>(position, 0.f);
     entity.addComponent<ECS::SpriteComponent>(new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png")));
     return entity;
 }
@@ -17,7 +16,7 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     uiCamera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
 
-    createGravEntity(assetManager);
+    createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
 }
 
 void TestScene::handleEvent(sf::Event event){
