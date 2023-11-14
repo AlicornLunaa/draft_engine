@@ -24,6 +24,8 @@ void TestScene::handleEvent(sf::Event event){
     case sf::Event::MouseWheelScrolled:
         camera.zoom(1.f + 0.1f * event.mouseWheelScroll.delta);
         break;
+    default:
+        break;
     }
 }
 
@@ -74,7 +76,7 @@ void TestScene::render(sf::Time deltaTime){
         sf::RenderStates states = sf::RenderStates::Default;
         states.shader = spriteComponent.shader;
         states.texture = spriteComponent.sprite->getTexture();
-        states.transform = transformComponent.transform;
+        states.transform = transformComponent;
 
         window->draw(spriteComponent, states);
     }
