@@ -66,16 +66,20 @@ void Application::run(){
         // Handle ImGUI rendering
         ImGui::Begin("Stats");
         ImGui::Text("FPS: %02d", (int)(1.f / deltaTime.asSeconds()));
+        ImGui::Text("Frame time: %f", deltaTime.asSeconds());
         if(ImGui::Button("Reload Assets"))
             assetManager.reload();
         ImGui::End();
 
         // Handle SFML rendering
         window.clear();
+
         if(activeScene)
             activeScene->render(deltaTime);
+
         window.setView(imGuiCamera);
         ImGui::SFML::Render(window);
+
         window.display();
     }
 }

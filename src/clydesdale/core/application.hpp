@@ -13,8 +13,8 @@ namespace Clydesdale::Core {
     class Application {
     private:
         unsigned int width, height;
-        sf::View imGuiCamera = sf::View(sf::FloatRect(0, 0, width, height));
         Scene* activeScene = nullptr;
+        sf::View imGuiCamera = sf::View(sf::FloatRect(0, 0, width, height));
 
     public:
         Util::AssetManager assetManager;

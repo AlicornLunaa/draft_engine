@@ -1,6 +1,6 @@
 #include <iostream>
-#include <vector>
 #include "logger.hpp"
+#include "ansi_colors.hpp"
 
 using namespace Clydesdale::Util;
 

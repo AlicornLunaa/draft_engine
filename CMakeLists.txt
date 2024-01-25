@@ -5,12 +5,12 @@ set(SOURCES
     src/clydesdale/core/application.cpp
     src/clydesdale/core/scene.cpp
     src/clydesdale/core/entity.cpp
-    src/clydesdale/util/logger.cpp
-    src/clydesdale/util/asset_manager.cpp
-    src/clydesdale/math/transform.cpp
     src/clydesdale/interface/element.cpp
     src/clydesdale/interface/panel.cpp
     src/clydesdale/interface/button.cpp
+    src/clydesdale/math/transform.cpp
+    src/clydesdale/util/logger.cpp
+    src/clydesdale/util/asset_manager.cpp
 
     src/space_game/core/game.cpp
     src/space_game/scenes/test_scene.cpp
@@ -20,22 +20,40 @@ set(SOURCES
 )
 
 set(HEADERS
-    src/clydesdale/core/application.cpp
-    src/clydesdale/core/scene.cpp
-    src/clydesdale/core/entity.cpp
-    src/clydesdale/util/logger.cpp
-    src/clydesdale/util/asset_manager.cpp
-    src/clydesdale/math/transform.cpp
-    src/clydesdale/interface/element.cpp
-    src/clydesdale/interface/panel.cpp
-    src/clydesdale/interface/button.cpp
+    src/clydesdale/components/control_component.hpp
+    src/clydesdale/components/empty_component.hpp
+    src/clydesdale/components/sprite_component.hpp
+    src/clydesdale/components/transform_component.hpp
+    src/clydesdale/core/application.hpp
+    src/clydesdale/core/scene.hpp
+    src/clydesdale/core/entity.hpp
+    src/clydesdale/interface/element.hpp
+    src/clydesdale/interface/panel.hpp
+    src/clydesdale/interface/button.hpp
+    src/clydesdale/math/transform.hpp
+    src/clydesdale/math/vector2.hpp
+    src/clydesdale/math/vector3.hpp
+    src/clydesdale/phys/rigid_body.hpp
+    src/clydesdale/util/ansi_colors.hpp
+    src/clydesdale/util/asset_manager.hpp
+    src/clydesdale/util/constants.hpp
+    src/clydesdale/util/logger.hpp
+    src/clydesdale/core.hpp
+    src/clydesdale/ecs.hpp
+    src/clydesdale/engine.hpp
+    src/clydesdale/interface.hpp
+    src/clydesdale/math.hpp
+    src/clydesdale/phys.hpp
+    src/clydesdale/util.hpp
 
     src/space_game/core/game.hpp
     src/space_game/scenes/test_scene.hpp
     src/space_game/simulation/world.hpp
+    src/space_game/simulation/cell.hpp
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(SFML_USE_STATIC_STD_LIBS "Use static libraries" ON)
@@ -68,7 +86,7 @@ set(IMGUI_DIR ${imgui_SOURCE_DIR})
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
 FetchContent_MakeAvailable(imgui-sfml)
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src/)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML EnTT::EnTT box2d -static)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

@@ -1,4 +1,3 @@
-#include <fstream>
 #include <filesystem>
 
 #include "asset_manager.hpp"

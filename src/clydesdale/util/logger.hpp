@@ -1,7 +1,5 @@
 #pragma once
-
 #include <string>
-#include "ansi_colors.hpp"
 
 namespace Clydesdale::Util {
     namespace Logger {

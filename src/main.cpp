@@ -1,4 +1,3 @@
-#include <iostream>
 #include <space_game/core/game.hpp>
 
 int main(int argc, char** argv){

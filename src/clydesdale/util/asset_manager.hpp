@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
