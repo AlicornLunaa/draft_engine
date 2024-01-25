@@ -9,12 +9,9 @@ namespace SpaceGame {
         sf::View camera;
         sf::Sprite* sprite;
 
-        b2Vec2 grav = b2Vec2(0, -10);
-        b2World world = b2World(grav);
-        // Clyde::Phys::RigidBody* ground;
-        // Clyde::Phys::RigidBody* body;
-        b2Body* ground;
-        b2Body* body;
+        Clyde::Phys::World world = Clyde::Phys::World(Clyde::Math::Vector2f(0, -10));
+        Clyde::Phys::RigidBody* ground;
+        Clyde::Phys::RigidBody* body;
 
         Clyde::Core::Entity createGravEntity(Clyde::Util::AssetManager& assetManager, const Clyde::Math::Vector2f position);
 

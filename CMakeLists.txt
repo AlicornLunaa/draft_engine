@@ -33,6 +33,7 @@ set(HEADERS
     src/clydesdale/math/transform.hpp
     src/clydesdale/math/vector2.hpp
     src/clydesdale/math/vector3.hpp
+    src/clydesdale/phys/world.hpp
     src/clydesdale/phys/rigid_body.hpp
     src/clydesdale/util/ansi_colors.hpp
     src/clydesdale/util/asset_manager.hpp

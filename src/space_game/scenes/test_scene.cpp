@@ -17,22 +17,22 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
 
     b2BodyDef groundBodyDef;
     groundBodyDef.position.Set(0.0f, -100.0f);
-    ground = world.CreateBody(&groundBodyDef);
+    ground = world.createBody(&groundBodyDef);
     b2PolygonShape groundBox;
     groundBox.SetAsBox(50.0f, 10.0f);
-    ground->CreateFixture(&groundBox, 0.f);
+    ground->createFixture(&groundBox, 0.f);
 
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
     bodyDef.position.Set(0.0f, 4.0f);
-    body = world.CreateBody(&bodyDef);
+    body = world.createBody(&bodyDef);
     b2PolygonShape dynamicBox;
     dynamicBox.SetAsBox(1.0f, 1.0f);
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &dynamicBox;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.3f;
-    body->CreateFixture(&fixtureDef);
+    body->createFixture(&fixtureDef);
 
     createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
 }
@@ -68,15 +68,15 @@ void TestScene::update(sf::Time deltaTime){
         camera.move(0, 100 * deltaTime.asSeconds());
     }
 
-    world.Step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
+    world.step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
 
     auto view = registry.view<ECS::ControlComponent, ECS::TransformComponent>();
     for(auto entity : view){
         auto& transformComponent = view.get<ECS::TransformComponent>(entity);
 
         Clyde::Math::Transform trans;
-        trans.rotate(body->GetAngle());
-        trans.translate(Clyde::Math::Vector2f(body->GetPosition()));
+        trans.rotate(body->getAngle());
+        trans.translate(Clyde::Math::Vector2f(body->getPosition()));
         transformComponent.transform = trans;
     }
 }
