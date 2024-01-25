@@ -16,7 +16,7 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     sprite = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
 
     b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0.0f, -10.0f);
+    groundBodyDef.position.Set(0.0f, -100.0f);
     ground = world.CreateBody(&groundBodyDef);
     b2PolygonShape groundBox;
     groundBox.SetAsBox(50.0f, 10.0f);
