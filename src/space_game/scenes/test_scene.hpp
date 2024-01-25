@@ -11,6 +11,8 @@ namespace SpaceGame {
 
         b2Vec2 grav = b2Vec2(0, -1);
         b2World world = b2World(grav);
+        // Clyde::Phys::RigidBody* ground;
+        // Clyde::Phys::RigidBody* body;
         b2Body* ground;
         b2Body* body;
 

@@ -68,22 +68,16 @@ void TestScene::update(sf::Time deltaTime){
         camera.move(0, 100 * deltaTime.asSeconds());
     }
 
+    world.Step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
+
     auto view = registry.view<ECS::ControlComponent, ECS::TransformComponent>();
     for(auto entity : view){
         auto& transformComponent = view.get<ECS::TransformComponent>(entity);
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
-            transformComponent.transform.translate(-100 * deltaTime.asSeconds(), 0);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
-            transformComponent.transform.translate(100 * deltaTime.asSeconds(), 0);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
-            transformComponent.transform.translate(0, -100 * deltaTime.asSeconds());
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
-            transformComponent.transform.translate(0, 100 * deltaTime.asSeconds());
-        }
+        Clyde::Math::Transform trans;
+        trans.rotate(body->GetAngle());
+        trans.translate(Clyde::Math::Vector2f(body->GetPosition()));
+        transformComponent.transform = trans;
     }
 }
 
