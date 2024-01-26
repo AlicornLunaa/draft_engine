@@ -5,4 +5,5 @@
 #include "phys.hpp"
 #include "ecs.hpp"
 #include "interface.hpp"
+#include "widgets.hpp"
 namespace Clyde = Clydesdale;

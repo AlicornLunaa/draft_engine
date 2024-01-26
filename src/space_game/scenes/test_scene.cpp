@@ -38,7 +38,7 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     fixtureDef.friction = 0.3f;
     body.createFixture(&fixtureDef);
 
-    createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+    // createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
 }
 TestScene::~TestScene(){
     delete sprite;
@@ -87,6 +87,7 @@ void TestScene::update(sf::Time deltaTime){
 
 void TestScene::render(sf::Time deltaTime){
     Scene::render(deltaTime);
+    console.draw();
     window->setView(camera);
 
     auto view = registry.view<ECS::SpriteComponent, ECS::TransformComponent>();

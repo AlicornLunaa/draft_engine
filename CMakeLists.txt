@@ -11,6 +11,7 @@ set(SOURCES
     src/clydesdale/math/transform.cpp
     src/clydesdale/util/logger.cpp
     src/clydesdale/util/asset_manager.cpp
+    src/clydesdale/widgets/console.cpp
 
     src/space_game/core/game.cpp
     src/space_game/scenes/test_scene.cpp
@@ -39,6 +40,7 @@ set(HEADERS
     src/clydesdale/util/asset_manager.hpp
     src/clydesdale/util/constants.hpp
     src/clydesdale/util/logger.hpp
+    src/clydesdale/widgets/console.hpp
     src/clydesdale/core.hpp
     src/clydesdale/ecs.hpp
     src/clydesdale/engine.hpp
@@ -46,6 +48,7 @@ set(HEADERS
     src/clydesdale/math.hpp
     src/clydesdale/phys.hpp
     src/clydesdale/util.hpp
+    src/clydesdale/widgets.hpp
 
     src/space_game/core/game.hpp
     src/space_game/scenes/test_scene.hpp

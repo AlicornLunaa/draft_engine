@@ -64,6 +64,7 @@ void Application::run(){
             activeScene->update(deltaTime);
 
         // Handle ImGUI rendering
+        ImGui::ShowDemoWindow();
         ImGui::Begin("Stats");
         ImGui::Text("FPS: %02d", (int)(1.f / deltaTime.asSeconds()));
         ImGui::Text("Frame time: %f", deltaTime.asSeconds());
