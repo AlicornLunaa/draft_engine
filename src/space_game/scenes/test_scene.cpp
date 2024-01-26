@@ -23,11 +23,12 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     ground = world.createBody(&groundBodyDef);
     b2PolygonShape groundBox;
     groundBox.SetAsBox(50.0f, 10.0f);
-    ground->createFixture(&groundBox, 0.f);
+    ground.createFixture(&groundBox, 0.f);
 
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
     bodyDef.position.Set(0.0f, 4.0f);
+    bodyDef.angle = 1;
     body = world.createBody(&bodyDef);
     b2PolygonShape dynamicBox;
     dynamicBox.SetAsBox(1.0f, 1.0f);
@@ -35,7 +36,7 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     fixtureDef.shape = &dynamicBox;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.3f;
-    body->createFixture(&fixtureDef);
+    body.createFixture(&fixtureDef);
 
     createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
 }
@@ -78,8 +79,8 @@ void TestScene::update(sf::Time deltaTime){
         auto& transformComponent = view.get<ECS::TransformComponent>(entity);
 
         Clyde::Math::Transform trans;
-        trans.rotate(body->getAngle());
-        trans.translate(Clyde::Math::Vector2f(body->getPosition()));
+        trans.rotate(body.getAngle());
+        trans.translate(Clyde::Math::Vector2f(body.getPosition()));
         transformComponent.transform = trans;
     }
 }

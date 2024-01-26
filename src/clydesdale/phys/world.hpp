@@ -1,5 +1,6 @@
 #pragma once
 #include <box2d/box2d.h>
+#include "rigid_body.hpp"
 
 namespace Clydesdale::Phys {
     class World : private b2World {
@@ -27,7 +28,7 @@ namespace Clydesdale::Phys {
         /// Create a rigid body given a definition. No reference to the definition
         /// is retained.
         /// @warning This function is locked during callbacks.
-        b2Body* createBody(const b2BodyDef* def){ return CreateBody(def); }
+        RigidBody createBody(const b2BodyDef* def){ return RigidBody(CreateBody(def)); }
 
         /// Destroy a rigid body given a definition. No reference to the definition
         /// is retained. This function is locked during callbacks.
