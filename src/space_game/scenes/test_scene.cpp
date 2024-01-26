@@ -1,7 +1,10 @@
 #include "test_scene.hpp"
+#include <nlohmann/json.hpp>
+#include <iostream>
 
 using namespace SpaceGame;
 using namespace Clyde;
+using json = nlohmann::json;
 
 Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager, const Math::Vector2f position){
     Core::Entity entity = createEntity();
