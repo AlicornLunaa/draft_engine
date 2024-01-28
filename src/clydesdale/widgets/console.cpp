@@ -33,11 +33,14 @@ void Console::draw(){
         ImGui::TextWrapped(line.c_str());
 
     // Input handling
-    ImGui::SetNextItemWidth(-FLT_MIN);
+    ImGui::SetNextItemWidth(-72);
     ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
-    ImGui::SetNextItemWidth(-FLT_MIN);
-    if(ImGui::Button("RUN") || sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
+    ImGui::SameLine();
+    if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
         addText(string(inputBuffer, 512));
+
+        for(int i = 0; i < 512; i++)
+            inputBuffer[i] = '\0';
     }
 
     ImGui::End();
