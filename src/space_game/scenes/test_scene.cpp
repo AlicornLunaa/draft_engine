@@ -1,6 +1,7 @@
 #include "test_scene.hpp"
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include <clydesdale/util/logger.hpp>
 
 using namespace SpaceGame;
 using namespace Clyde;
@@ -39,6 +40,10 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     body.createFixture(&fixtureDef);
 
     // createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+
+    console.registerCmd("test_cmd", [](){
+        Util::Logger::println(Util::Logger::Level::INFO, "Console", "Hello world!");
+    });
 }
 TestScene::~TestScene(){
     delete sprite;

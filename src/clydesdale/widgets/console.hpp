@@ -8,15 +8,19 @@
 namespace Clydesdale::Widgets {
     class Console {
     private:
-        // Static variables
-        static char inputBuffer[512];
+        // Constants
+        constexpr static size_t INPUT_SIZE = 512;
+        constexpr static size_t OUTPUT_SIZE = 4096;
+        constexpr static size_t LINE_WIDTH = 64;
 
         // Variables
         std::unordered_map<std::string, std::function<void(void)>> commands;
-        std::vector<std::string> logQueue;
+        char inputBuffer[INPUT_SIZE];
+        char outputBuffer[OUTPUT_SIZE];
+        unsigned int cursor = 0;
 
         // Private functions
-        void addText(const std::string& txt);
+        std::string addText(const std::string& txt);
 
     public:
         // Constructors
