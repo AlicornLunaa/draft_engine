@@ -2,6 +2,7 @@
 #include <clydesdale/util/constants.hpp>
 #include <SFML/Graphics.hpp>
 #include <imgui.h>
+#include <iostream>
 
 using namespace sf;
 using namespace std;
@@ -14,7 +15,6 @@ string Console::addText(const string& txt){
 
     for(size_t i = 0; i < txt.size(); i++){
         outputBuffer[cursor + i] = txt[i];
-        out += txt[i];
 
         if(txt[i] == '\0')
             break;
@@ -24,6 +24,7 @@ string Console::addText(const string& txt){
             cursor++;
         }
 
+        out += txt[i];
         textLength++;
     }
 
@@ -82,25 +83,51 @@ void Console::draw(){
     ImGui::End();
 }
 
-void Console::registerCmd(std::string key, std::function<void(void)> func){
-    commands[key] = func;
+void Console::registerCmd(string key, function<void(void)> func){
+    commandAliases.push_back(key);
+    commandArray.push_back(func);
 }
 
-void Console::deleteCmd(std::string key){
-    commands.erase(key);
+void Console::deleteCmd(string key){
+    // Find the index
+    int index = -1;
+
+    for(int i = 0; i < commandAliases.size(); i++){
+        if(commandAliases[i] == key){
+            index = i;
+            break;
+        }
+    }
+
+    // Remove from records
+    if(index != -1){
+        commandAliases.erase(commandAliases.begin() + index);
+        commandArray.erase(commandArray.begin() + index);
+    }
 }
 
-void Console::print(std::string txt){
+void Console::print(string txt){
     addText(txt);
 }
 
-bool Console::run(std::string key){
-    // TODO: this is so fucked please fix it
-    if(!commands.count(key) == 0)
-        return false;
+bool Console::run(string key){
+    // Find the index
+    int index = -1;
 
-    addText("Ran command: " + key);
-    commands[key]();
+    for(int i = 0; i < commandAliases.size(); i++){
+        if(commandAliases[i] == key){
+            index = i;
+            break;
+        }
+    }
 
-    return true;
+    // Run command
+    if(index != -1){
+        auto& func = commandArray[index];
+        func();
+        addText("Ran command: " + key);
+        return true;
+    }
+
+    return false;
 }

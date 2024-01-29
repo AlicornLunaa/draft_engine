@@ -14,7 +14,8 @@ namespace Clydesdale::Widgets {
         constexpr static size_t LINE_WIDTH = 64;
 
         // Variables
-        std::unordered_map<std::string, std::function<void(void)>> commands;
+        std::vector<std::function<void(void)>> commandArray;
+        std::vector<std::string> commandAliases;
         char inputBuffer[INPUT_SIZE];
         char outputBuffer[OUTPUT_SIZE];
         unsigned int cursor = 0;
