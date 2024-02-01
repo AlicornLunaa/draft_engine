@@ -83,7 +83,7 @@ set(IMGUI_DIR ${imgui_SOURCE_DIR})
 FetchContent_MakeAvailable(imgui-sfml)
 
 if(WIN32)
-    set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system)
+	set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
 elseif(LINUX)
     set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 endif()
@@ -94,7 +94,7 @@ FetchContent_MakeAvailable(imgui-sfml)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src/)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json -static)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
