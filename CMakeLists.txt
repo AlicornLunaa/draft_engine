@@ -97,9 +97,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE src/)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_link_options(${PROJECT_NAME} PRIVATE "-mwindows")
-endif()
 
 if(WIN32)
     add_custom_command(
@@ -107,6 +104,10 @@ if(WIN32)
         COMMENT "Copy OpenAL DLL"
         PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:${PROJECT_NAME}>
         VERBATIM)
+        
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_link_options(${PROJECT_NAME} PRIVATE "-mwindows")
+    endif()
 endif()
 
 add_custom_command(
