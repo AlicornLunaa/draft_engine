@@ -28,7 +28,7 @@ namespace Clydesdale::Phys {
         /// Create a rigid body given a definition. No reference to the definition
         /// is retained.
         /// @warning This function is locked during callbacks.
-        RigidBody createBody(const b2BodyDef* def){ return RigidBody(CreateBody(def)); }
+        RigidBody createBody(const b2BodyDef& def){ return RigidBody(CreateBody(&def)); }
 
         /// Destroy a rigid body given a definition. No reference to the definition
         /// is retained. This function is locked during callbacks.

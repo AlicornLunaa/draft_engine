@@ -21,7 +21,7 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
 
     b2BodyDef groundBodyDef;
     groundBodyDef.position.Set(0.0f, -100.0f);
-    ground = world.createBody(&groundBodyDef);
+    ground = world.createBody(groundBodyDef);
     b2PolygonShape groundBox;
     groundBox.SetAsBox(50.0f, 10.0f);
     ground.createFixture(&groundBox, 0.f);
@@ -30,7 +30,7 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     bodyDef.type = b2_dynamicBody;
     bodyDef.position.Set(0.0f, 4.0f);
     bodyDef.angle = 1;
-    body = world.createBody(&bodyDef);
+    body = world.createBody(bodyDef);
     b2PolygonShape dynamicBox;
     dynamicBox.SetAsBox(1.0f, 1.0f);
     b2FixtureDef fixtureDef;

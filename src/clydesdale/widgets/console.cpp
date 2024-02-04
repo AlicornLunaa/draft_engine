@@ -45,17 +45,6 @@ Console::Console(){
         
     for(int i = 0; i < OUTPUT_SIZE; i++)
         outputBuffer[i] = '\0';
-
-    addText("/*\n"
-            " The Pentium F00F bug, shorthand for F0 0F C7 C8,\n"
-            " the hexadecimal encoding of one offending instruction,\n"
-            " more formally, the invalid operand with locked CMPXCHG8B\n"
-            " instruction bug, is a design flaw in the majority of\n"
-            " Intel Pentium, Pentium MMX, and Pentium OverDrive\n"
-            " processors (all in the P5 microarchitecture).\n"
-            "*/\n\n"
-            "label:\n"
-            "\tlock cmpxchg8b eax\n");
 }
 
 Console::~Console(){}
@@ -63,7 +52,8 @@ Console::~Console(){}
 // Functions
 void Console::draw(){
     // Interface
-    ImGui::Begin("Console");
+    ImGui::SetNextWindowSizeConstraints({ 300, 200 }, { FLT_MAX, FLT_MAX });
+    ImGui::Begin("Console", nullptr);
 
     // List data
     ImGui::InputTextMultiline("##console_logs", outputBuffer, OUTPUT_SIZE, ImVec2(-FLT_MIN, ImGui::GetWindowHeight() - ImGui::GetFrameHeightWithSpacing() * 2 - 16), ImGuiInputTextFlags_ReadOnly);
