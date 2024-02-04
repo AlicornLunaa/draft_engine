@@ -20,6 +20,9 @@ namespace Clydesdale::Widgets {
         char outputBuffer[OUTPUT_SIZE];
         unsigned int cursor = 0;
 
+        bool mOpened = true;
+        bool mKeyPressed = false; // TODO: Remove with custom input system
+
         // Private functions
         std::string addText(const std::string& txt);
 
