@@ -1,6 +1,5 @@
 #pragma once
 #include <clydesdale/engine.hpp>
-#include <box2d/box2d.h>
 
 namespace SpaceGame {
     class TestScene : public Clyde::Core::Scene {

@@ -2,6 +2,12 @@
 #include <box2d/box2d.h>
 
 namespace Clydesdale::Phys {
+    using BodyType = b2BodyType;
+    using BodyDef = b2BodyDef;
+    using FixtureDef = b2FixtureDef;
+    using PolygonShape = b2PolygonShape;
+    using CircleShape = b2CircleShape;
+
     class RigidBody {
     private:
         // Variables
@@ -198,10 +204,10 @@ namespace Clydesdale::Phys {
         inline void setGravityScale(float scale) { body->SetGravityScale(scale); }
 
         /// Set the type of this body. This may alter the mass and velocity.
-        inline void setType(b2BodyType type) { body->SetType(type); }
+        inline void setType(BodyType type) { body->SetType((b2BodyType)type); }
 
         /// Get the type of this body.
-        inline b2BodyType getType() const { return body->GetType(); }
+        inline BodyType getType() const { return (BodyType)body->GetType(); }
 
         /// Should this body be treated like a bullet for continuous collision detection?
         inline void setBullet(bool flag) { body->SetBullet(flag); }

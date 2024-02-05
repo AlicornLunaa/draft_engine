@@ -1,7 +1,7 @@
 #include "test_scene.hpp"
 #include <nlohmann/json.hpp>
-#include <iostream>
 #include <clydesdale/util/logger.hpp>
+#include <iostream>
 
 using namespace SpaceGame;
 using namespace Clyde;
@@ -19,27 +19,27 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     uiCamera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     sprite = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
 
-    b2BodyDef groundBodyDef;
+    Phys::BodyDef groundBodyDef;
+    Phys::PolygonShape groundBox;
     groundBodyDef.position.Set(0.0f, -100.0f);
-    ground = world.createBody(groundBodyDef);
-    b2PolygonShape groundBox;
     groundBox.SetAsBox(50.0f, 10.0f);
+    ground = world.createBody(groundBodyDef);
     ground.createFixture(&groundBox, 0.f);
 
-    b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    Phys::BodyDef bodyDef;
+    Phys::FixtureDef fixtureDef;
+    Phys::PolygonShape dynamicBox;
+    bodyDef.type = Phys::BodyType::b2_dynamicBody;
     bodyDef.position.Set(0.0f, 4.0f);
     bodyDef.angle = 1;
-    body = world.createBody(bodyDef);
-    b2PolygonShape dynamicBox;
     dynamicBox.SetAsBox(1.0f, 1.0f);
-    b2FixtureDef fixtureDef;
     fixtureDef.shape = &dynamicBox;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.3f;
+    body = world.createBody(bodyDef);
     body.createFixture(&fixtureDef);
 
-    // createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+    createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
 
     console.registerCmd("test_cmd", [](){
         Util::Logger::println(Util::Logger::Level::INFO, "Console", "Hello world!");
