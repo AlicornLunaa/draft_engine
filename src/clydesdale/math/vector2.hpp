@@ -10,6 +10,7 @@ namespace Clydesdale::Math {
         Vector2f(const b2Vec2& other) : sf::Vector2f(other.x, other.y) {}
 
         operator b2Vec2 () { return b2Vec2(x, y); }
+        explicit operator const b2Vec2 () { return b2Vec2(x, y); }
     };
 
     class Vector2i : public sf::Vector2i {
@@ -19,6 +20,7 @@ namespace Clydesdale::Math {
         Vector2i(const b2Vec2& other) : sf::Vector2i((int)other.x, (int)other.y) {}
 
         operator b2Vec2 () { return b2Vec2(x, y); }
+        explicit operator const b2Vec2 () { return b2Vec2(x, y); }
     };
 
     class Vector2u : public sf::Vector2u {
@@ -28,5 +30,6 @@ namespace Clydesdale::Math {
         Vector2u(const b2Vec2& other) : sf::Vector2u((unsigned int)other.x, (unsigned int)other.y) {}
 
         operator b2Vec2 () { return b2Vec2(x, y); }
+        explicit operator const b2Vec2 () { return b2Vec2(x, y); }
     };
 }

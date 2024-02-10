@@ -15,9 +15,11 @@ Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager, const
 }
 
 TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window) : Scene(assetManager, window) {
-    camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     uiCamera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     sprite = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
+
+    camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
+    camera.setCenter(0, 0);
 
     Phys::BodyDef groundBodyDef;
     Phys::PolygonShape groundBox;
@@ -39,10 +41,15 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     body = world.createBody(bodyDef);
     body.createFixture(&fixtureDef);
 
-    createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+    // createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+    createGravEntity(assetManager, { 0.f, 0 });
 
     console.registerCmd("test_cmd", [](){
         Util::Logger::println(Util::Logger::Level::INFO, "Console", "Hello world!");
+    });
+
+    console.registerCmd("quit", [this](){
+        this->window->close();
     });
 }
 TestScene::~TestScene(){
@@ -64,28 +71,21 @@ void TestScene::handleEvent(sf::Event event){
 void TestScene::update(sf::Time deltaTime){
     Scene::update(deltaTime);
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-        camera.move(-100 * deltaTime.asSeconds(), 0);
-    }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-        camera.move(100 * deltaTime.asSeconds(), 0);
-    }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-        camera.move(0, -100 * deltaTime.asSeconds());
-    }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-        camera.move(0, 100 * deltaTime.asSeconds());
-    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) camera.move(-100 * deltaTime.asSeconds(), 0);
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) camera.move(100 * deltaTime.asSeconds(), 0);
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) camera.move(0, -100 * deltaTime.asSeconds());
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) camera.move(0, 100 * deltaTime.asSeconds());
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) window->close();
 
     world.step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
 
-    auto view = registry.view<ECS::ControlComponent, ECS::TransformComponent>();
+    auto view = registry.view<ECS::TransformComponent>();
     for(auto entity : view){
         auto& transformComponent = view.get<ECS::TransformComponent>(entity);
 
         Clyde::Math::Transform trans;
         trans.rotate(body.getAngle());
-        trans.translate(Clyde::Math::Vector2f(body.getPosition()));
+        trans.translate(body.getPosition());
         transformComponent.transform = trans;
     }
 }
@@ -93,6 +93,7 @@ void TestScene::update(sf::Time deltaTime){
 void TestScene::render(sf::Time deltaTime){
     Scene::render(deltaTime);
     console.draw();
+
     window->setView(camera);
 
     auto view = registry.view<ECS::SpriteComponent, ECS::TransformComponent>();

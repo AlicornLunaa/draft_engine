@@ -20,7 +20,7 @@ namespace Clydesdale::Widgets {
         char outputBuffer[OUTPUT_SIZE];
         unsigned int cursor = 0;
 
-        bool mOpened = true;
+        bool mOpened = false;
         bool mKeyPressed = false; // TODO: Remove with custom input system
 
         // Private functions
@@ -28,7 +28,7 @@ namespace Clydesdale::Widgets {
 
     public:
         // Constructors
-        Console();
+        Console(bool openByDefault = false);
         ~Console();
 
         // Functions

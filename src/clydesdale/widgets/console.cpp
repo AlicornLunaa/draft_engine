@@ -37,7 +37,10 @@ string Console::addText(const string& txt){
 }
 
 // Constructors
-Console::Console(){
+Console::Console(bool openByDefault){
+    // Open by default flag
+    mOpened = openByDefault;
+
     // Zero out buffers
     for(int i = 0; i < INPUT_SIZE; i++)
         inputBuffer[i] = '\0';

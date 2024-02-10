@@ -10,7 +10,7 @@ namespace SpaceGame {
 
         Clyde::Widgets::Console console;
 
-        Clyde::Phys::World world = Clyde::Phys::World(Clyde::Math::Vector2f(0, -10));
+        Clyde::Phys::World world = Clyde::Phys::World(Clyde::Math::Vector2f(0, 0));
         Clyde::Phys::RigidBody ground;
         Clyde::Phys::RigidBody body;
 
