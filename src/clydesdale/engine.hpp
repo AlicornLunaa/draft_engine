@@ -7,3 +7,4 @@
 #include "interface.hpp"
 #include "widgets.hpp"
 namespace Clyde = Clydesdale;
+namespace Cl = Clydesdale;

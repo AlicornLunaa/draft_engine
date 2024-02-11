@@ -64,6 +64,7 @@ void Console::draw(){
         // Input handling
         ImGui::SetNextItemWidth(-72);
         ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetFrameHeightWithSpacing() - 4);
+        ImGui::SetKeyboardFocusHere();
         ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
         ImGui::SameLine();
         if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && inputBuffer[0] != '\0')){
@@ -80,6 +81,7 @@ void Console::draw(){
     if(Keyboard::isKeyPressed(Keyboard::Tilde) && !mKeyPressed){
         mOpened = !mOpened;
         mKeyPressed = true;
+
     } else if(!Keyboard::isKeyPressed(Keyboard::Tilde) && mKeyPressed){
         mKeyPressed = false;
     }

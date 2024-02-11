@@ -2,30 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
-            "type": "cppdbg",
+            "name": "(lldb) Launch",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/space_game",
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/bin",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "miDebuggerPath": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "CMake: build",
+            "preLaunchTask": "CMake: build"
         }
     ]
 }

@@ -1,7 +1,10 @@
 #include "test_scene.hpp"
+#include "clydesdale/components/transform_component.hpp"
+#include "clydesdale/core/entity.hpp"
+#include "clydesdale/math/vector2.hpp"
 #include <nlohmann/json.hpp>
 #include <clydesdale/util/logger.hpp>
-#include <iostream>
+#include <string>
 
 using namespace SpaceGame;
 using namespace Clyde;
@@ -41,8 +44,14 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     body = world.createBody(bodyDef);
     body.createFixture(&fixtureDef);
 
-    // createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
-    createGravEntity(assetManager, { 0.f, 0 });
+    createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+    targetEntity = createGravEntity(assetManager, { -200, 4.f });
+
+    console.registerCmd("set_pos", [this](){
+        auto& transform = targetEntity.getComponent<ECS::TransformComponent>();
+        transform.transform.translate(128.f, 0);
+        console.print("Test");
+    });
 
     console.registerCmd("test_cmd", [](){
         Util::Logger::println(Util::Logger::Level::INFO, "Console", "Hello world!");
@@ -71,23 +80,24 @@ void TestScene::handleEvent(sf::Event event){
 void TestScene::update(sf::Time deltaTime){
     Scene::update(deltaTime);
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) camera.move(-100 * deltaTime.asSeconds(), 0);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) camera.move(100 * deltaTime.asSeconds(), 0);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) camera.move(0, -100 * deltaTime.asSeconds());
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) camera.move(0, 100 * deltaTime.asSeconds());
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) window->close();
+    if(!console.isOpened()){
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) camera.move(-100 * deltaTime.asSeconds(), 0);
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) camera.move(100 * deltaTime.asSeconds(), 0);
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) camera.move(0, -100 * deltaTime.asSeconds());
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) camera.move(0, 100 * deltaTime.asSeconds());
+    }
 
     world.step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
 
-    auto view = registry.view<ECS::TransformComponent>();
-    for(auto entity : view){
-        auto& transformComponent = view.get<ECS::TransformComponent>(entity);
+    // auto view = registry.view<ECS::TransformComponent>();
+    // for(auto entity : view){
+    //     auto& transformComponent = view.get<ECS::TransformComponent>(entity);
 
-        Clyde::Math::Transform trans;
-        trans.rotate(body.getAngle());
-        trans.translate(body.getPosition());
-        transformComponent.transform = trans;
-    }
+    //     Clyde::Math::Transform trans;
+    //     // trans.rotate(body.getAngle());
+    //     // trans.translate(body.getPosition());
+    //     transformComponent.transform = trans;
+    // }
 }
 
 void TestScene::render(sf::Time deltaTime){

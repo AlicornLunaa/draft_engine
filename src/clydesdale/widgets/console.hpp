@@ -1,6 +1,5 @@
 #pragma once
 
-#include <unordered_map>
 #include <functional>
 #include <vector>
 #include <string>
@@ -37,5 +36,7 @@ namespace Clydesdale::Widgets {
         void deleteCmd(std::string key);
         void print(std::string txt);
         bool run(std::string key);
+
+        inline bool isOpened(){ return mOpened; }
     };
 }
