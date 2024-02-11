@@ -1,7 +1,7 @@
 #pragma once
 #include "element.hpp"
 
-namespace Clydesdale::Interface {
+namespace Clydesdale {
     class Panel : public Element {
     public:
         Panel();

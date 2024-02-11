@@ -3,7 +3,7 @@
 #include <space_game/scenes/test_scene.hpp>
 
 namespace SpaceGame {
-    class Game : public Clyde::Core::Application {
+    class Game : public Clydesdale::Application {
     private:
         TestScene* scene1;
 

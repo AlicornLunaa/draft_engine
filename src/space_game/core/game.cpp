@@ -1,7 +1,7 @@
 #include "game.hpp"
 
 using namespace SpaceGame;
-using namespace Clyde;
+using namespace Clydesdale;
 
 Game::Game() : Application("Space Game", 1280, 720) {
     // Assets

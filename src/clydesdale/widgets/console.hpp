@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-namespace Clydesdale::Widgets {
+namespace Clydesdale {
     class Console {
     private:
         // Constants

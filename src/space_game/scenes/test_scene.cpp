@@ -1,40 +1,37 @@
 #include "test_scene.hpp"
-#include "clydesdale/components/transform_component.hpp"
-#include "clydesdale/core/entity.hpp"
-#include "clydesdale/math/vector2.hpp"
+#include <clydesdale/engine.hpp>
 #include <nlohmann/json.hpp>
-#include <clydesdale/util/logger.hpp>
 #include <string>
 
 using namespace SpaceGame;
-using namespace Clyde;
+using namespace Clydesdale;
 using json = nlohmann::json;
 
-Core::Entity TestScene::createGravEntity(Util::AssetManager& assetManager, const Math::Vector2f position){
-    Core::Entity entity = createEntity();
-    entity.addComponent<ECS::TransformComponent>(position, 0.f);
-    entity.addComponent<ECS::SpriteComponent>(sprite);
+Entity TestScene::createGravEntity(AssetManager& assetManager, const Vector2f position){
+    Entity entity = createEntity();
+    entity.addComponent<TransformComponent>(position, 0.f);
+    entity.addComponent<SpriteComponent>(sprite);
     return entity;
 }
 
-TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window) : Scene(assetManager, window) {
+TestScene::TestScene(AssetManager& assetManager, sf::RenderWindow& window) : Scene(assetManager, window) {
     uiCamera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     sprite = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
 
     camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     camera.setCenter(0, 0);
 
-    Phys::BodyDef groundBodyDef;
-    Phys::PolygonShape groundBox;
+    BodyDef groundBodyDef;
+    PolygonShape groundBox;
     groundBodyDef.position.Set(0.0f, -100.0f);
     groundBox.SetAsBox(50.0f, 10.0f);
     ground = world.createBody(groundBodyDef);
     ground.createFixture(&groundBox, 0.f);
 
-    Phys::BodyDef bodyDef;
-    Phys::FixtureDef fixtureDef;
-    Phys::PolygonShape dynamicBox;
-    bodyDef.type = Phys::BodyType::b2_dynamicBody;
+    BodyDef bodyDef;
+    FixtureDef fixtureDef;
+    PolygonShape dynamicBox;
+    bodyDef.type = BodyType::b2_dynamicBody;
     bodyDef.position.Set(0.0f, 4.0f);
     bodyDef.angle = 1;
     dynamicBox.SetAsBox(1.0f, 1.0f);
@@ -44,17 +41,17 @@ TestScene::TestScene(Util::AssetManager& assetManager, sf::RenderWindow& window)
     body = world.createBody(bodyDef);
     body.createFixture(&fixtureDef);
 
-    createGravEntity(assetManager, { 0, 0 }).addComponent<ECS::ControlComponent>();
+    createGravEntity(assetManager, { 0, 0 }).addComponent<ControlComponent>();
     targetEntity = createGravEntity(assetManager, { -200, 4.f });
 
     console.registerCmd("set_pos", [this](){
-        auto& transform = targetEntity.getComponent<ECS::TransformComponent>();
+        auto& transform = targetEntity.getComponent<TransformComponent>();
         transform.transform.translate(128.f, 0);
         console.print("Test");
     });
 
     console.registerCmd("test_cmd", [](){
-        Util::Logger::println(Util::Logger::Level::INFO, "Console", "Hello world!");
+        Logger::println(Level::INFO, "Console", "Hello world!");
     });
 
     console.registerCmd("quit", [this](){
@@ -89,11 +86,11 @@ void TestScene::update(sf::Time deltaTime){
 
     world.step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
 
-    // auto view = registry.view<ECS::TransformComponent>();
+    // auto view = registry.view<TransformComponent>();
     // for(auto entity : view){
-    //     auto& transformComponent = view.get<ECS::TransformComponent>(entity);
+    //     auto& transformComponent = view.get<TransformComponent>(entity);
 
-    //     Clyde::Math::Transform trans;
+    //     Clyde::Transform trans;
     //     // trans.rotate(body.getAngle());
     //     // trans.translate(body.getPosition());
     //     transformComponent.transform = trans;
@@ -106,10 +103,10 @@ void TestScene::render(sf::Time deltaTime){
 
     window->setView(camera);
 
-    auto view = registry.view<ECS::SpriteComponent, ECS::TransformComponent>();
+    auto view = registry.view<SpriteComponent, TransformComponent>();
     for(auto entity : view){
-        auto& spriteComponent = view.get<ECS::SpriteComponent>(entity);
-        auto& transformComponent = view.get<ECS::TransformComponent>(entity);
+        auto& spriteComponent = view.get<SpriteComponent>(entity);
+        auto& transformComponent = view.get<TransformComponent>(entity);
 
         sf::RenderStates states = sf::RenderStates::Default;
         states.shader = spriteComponent.shader;

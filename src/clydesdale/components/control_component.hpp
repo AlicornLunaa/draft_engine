@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Clydesdale::ECS {
+namespace Clydesdale {
     struct ControlComponent {
         int id = 0; // Dummy data or else EnTT wont recognize it
 

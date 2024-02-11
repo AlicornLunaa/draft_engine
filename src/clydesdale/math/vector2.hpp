@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <box2d/b2_math.h>
 
-namespace Clydesdale::Math {
+namespace Clydesdale {
     class Vector2f : public sf::Vector2f {
     public:
         using sf::Vector2f::Vector2f;

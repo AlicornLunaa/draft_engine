@@ -2,7 +2,7 @@
 #include <box2d/box2d.h>
 #include "rigid_body.hpp"
 
-namespace Clydesdale::Phys {
+namespace Clydesdale {
     class World : private b2World {
     public:
         using b2World::b2World;

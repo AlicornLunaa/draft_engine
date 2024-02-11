@@ -2,23 +2,23 @@
 #include <clydesdale/engine.hpp>
 
 namespace SpaceGame {
-    class TestScene : public Clyde::Core::Scene {
+    class TestScene : public Clydesdale::Scene {
     private:
         sf::View uiCamera;
         sf::View camera;
         sf::Sprite* sprite;
 
-        Cl::Widgets::Console console;
+        Clydesdale::Console console;
 
-        Cl::Phys::World world = Cl::Phys::World(Cl::Math::Vector2f(0, 0));
-        Cl::Phys::RigidBody ground;
-        Cl::Phys::RigidBody body;
-        Cl::Core::Entity targetEntity;
+        Clydesdale::World world = Clydesdale::World(Clydesdale::Vector2f(0, 0));
+        Clydesdale::RigidBody ground;
+        Clydesdale::RigidBody body;
+        Clydesdale::Entity targetEntity;
 
-        Cl::Core::Entity createGravEntity(Cl::Util::AssetManager& assetManager, const Cl::Math::Vector2f position);
+        Clydesdale::Entity createGravEntity(Clydesdale::AssetManager& assetManager, const Clydesdale::Vector2f position);
 
     public:
-        TestScene(Cl::Util::AssetManager& assetManager, sf::RenderWindow& window);
+        TestScene(Clydesdale::AssetManager& assetManager, sf::RenderWindow& window);
         ~TestScene();
 
         void handleEvent(sf::Event event) override;

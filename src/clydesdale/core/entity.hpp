@@ -2,7 +2,7 @@
 #include <entt/entt.hpp>
 #include "scene.hpp"
 
-namespace Clydesdale::Core {
+namespace Clydesdale {
     class Entity {
     private:
         entt::entity entityID = entt::null;

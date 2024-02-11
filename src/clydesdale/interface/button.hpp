@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "element.hpp"
 
-namespace Clydesdale::Interface {
+namespace Clydesdale {
     class Button : public Element {
     public:
         sf::Text label;

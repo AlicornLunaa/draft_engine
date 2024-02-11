@@ -1,9 +1,9 @@
 #pragma once
 #include <entt/entt.hpp>
 #include <SFML/Graphics.hpp>
-#include <clydesdale/util/asset_manager.hpp>
+#include "clydesdale/util/asset_manager.hpp"
 
-namespace Clydesdale::Core {
+namespace Clydesdale {
     class Entity;
 
     class Scene {
@@ -12,7 +12,7 @@ namespace Clydesdale::Core {
         entt::registry registry;
 
     public:
-        Scene(Util::AssetManager& assetManager, sf::RenderWindow& window);
+        Scene(AssetManager& assetManager, sf::RenderWindow& window);
 
         entt::registry& getRegistry();
         Entity createEntity();

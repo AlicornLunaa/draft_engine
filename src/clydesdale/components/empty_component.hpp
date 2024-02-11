@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Clydesdale::ECS {
+namespace Clydesdale {
     struct EmptyComponent {
         EmptyComponent(const EmptyComponent&) = default;
         EmptyComponent() {}

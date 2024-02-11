@@ -1,21 +1,22 @@
 #pragma once
-#include <clydesdale/math.hpp>
+#include "clydesdale/math/transform.hpp"
+#include "clydesdale/math/vector2.hpp"
 
-namespace Clydesdale::ECS {
+namespace Clydesdale {
     struct TransformComponent {
         // Variables
-        Math::Transform transform;
+        Transform transform;
 
         // Constructors
         TransformComponent(const TransformComponent& transform) = default;
 
-        TransformComponent(Math::Vector2f position, float rotation, Math::Vector2f scale){
+        TransformComponent(Vector2f position, float rotation, Vector2f scale){
             transform.scale(scale);
             transform.rotate(rotation);
             transform.translate(position);
         }
 
-        TransformComponent(Math::Vector2f position, float rotation){
+        TransformComponent(Vector2f position, float rotation){
             transform.scale(1, 1);
             transform.rotate(rotation);
             transform.translate(position);
@@ -24,7 +25,7 @@ namespace Clydesdale::ECS {
         TransformComponent() {}
 
         // Operators
-        operator Math::Transform& (){ return transform; }
-        explicit operator const Math::Transform& (){ return transform; }
+        operator Transform& (){ return transform; }
+        explicit operator const Transform& (){ return transform; }
     };
 }

@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
-namespace Clydesdale::Util {
+namespace Clydesdale {
     // Structure to hold the rectangle and the texture reference
     struct TextureRegion {
         sf::Texture& texture;

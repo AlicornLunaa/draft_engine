@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Clydesdale::Util {
+namespace Clydesdale {
     namespace Color {
         const char Reset[] = "\033[0m";
         const char Black[] = "\033[30m";

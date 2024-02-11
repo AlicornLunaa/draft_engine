@@ -5,11 +5,10 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#include <clydesdale/core/scene.hpp>
-#include <clydesdale/util/logger.hpp>
-#include <clydesdale/util/asset_manager.hpp>
+#include "clydesdale/core/scene.hpp"
+#include "clydesdale/util/asset_manager.hpp"
 
-namespace Clydesdale::Core {
+namespace Clydesdale {
     class Application {
     private:
         unsigned int width, height;
@@ -17,7 +16,7 @@ namespace Clydesdale::Core {
         sf::View imGuiCamera = sf::View(sf::FloatRect(0, 0, width, height));
 
     public:
-        Util::AssetManager assetManager;
+        AssetManager assetManager;
         sf::RenderWindow window;
         sf::Clock deltaClock;
         sf::Time deltaTime;

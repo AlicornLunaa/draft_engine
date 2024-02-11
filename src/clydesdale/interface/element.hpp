@@ -2,7 +2,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-namespace Clydesdale::Interface {
+namespace Clydesdale {
     class Element : public sf::Drawable {
     private:
         Element* parent = nullptr;

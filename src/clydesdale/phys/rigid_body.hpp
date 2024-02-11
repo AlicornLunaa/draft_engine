@@ -1,8 +1,8 @@
 #pragma once
 #include <box2d/box2d.h>
-#include <clydesdale/math/vector2.hpp>
+#include "clydesdale/math/vector2.hpp"
 
-namespace Clydesdale::Phys {
+namespace Clydesdale {
     using BodyType = b2BodyType;
     using BodyDef = b2BodyDef;
     using FixtureDef = b2FixtureDef;
@@ -67,25 +67,25 @@ namespace Clydesdale::Phys {
 
         /// Get the world body origin position.
         /// @return the world position of the body's origin.
-        inline const Math::Vector2f getPosition() const { return body->GetPosition(); }
+        inline const Vector2f getPosition() const { return body->GetPosition(); }
 
         /// Get the angle in radians.
         /// @return the current world rotation angle in radians.
         inline float getAngle() const { return body->GetAngle(); }
 
         /// Get the world position of the center of mass.
-        inline const Math::Vector2f getWorldCenter() const { return body->GetWorldCenter(); }
+        inline const Vector2f getWorldCenter() const { return body->GetWorldCenter(); }
 
         /// Get the local position of the center of mass.
-        inline const Math::Vector2f getLocalCenter() const { return body->GetLocalCenter(); }
+        inline const Vector2f getLocalCenter() const { return body->GetLocalCenter(); }
 
         /// Set the linear velocity of the center of mass.
         /// @param v the new linear velocity of the center of mass.
-        inline void setLinearVelocity(const Math::Vector2f& v) { body->SetLinearVelocity(b2Vec2(v.x, v.y)); }
+        inline void setLinearVelocity(const Vector2f& v) { body->SetLinearVelocity(b2Vec2(v.x, v.y)); }
 
         /// Get the linear velocity of the center of mass.
         /// @return the linear velocity of the center of mass.
-        inline const Math::Vector2f getLinearVelocity() const { return body->GetLinearVelocity(); }
+        inline const Vector2f getLinearVelocity() const { return body->GetLinearVelocity(); }
 
         /// Set the angular velocity.
         /// @param omega the new angular velocity in radians/second.
@@ -159,32 +159,32 @@ namespace Clydesdale::Phys {
         /// Get the world coordinates of a point given the local coordinates.
         /// @param localPoint a point on the body measured relative the the body's origin.
         /// @return the same point expressed in world coordinates.
-        inline Math::Vector2f getWorldPoint(const b2Vec2& localPoint) const { return body->GetWorldPoint(localPoint); }
+        inline Vector2f getWorldPoint(const b2Vec2& localPoint) const { return body->GetWorldPoint(localPoint); }
 
         /// Get the world coordinates of a vector given the local coordinates.
         /// @param localVector a vector fixed in the body.
         /// @return the same vector expressed in world coordinates.
-        inline Math::Vector2f getWorldVector(const b2Vec2& localVector) const { return body->GetWorldVector(localVector); }
+        inline Vector2f getWorldVector(const b2Vec2& localVector) const { return body->GetWorldVector(localVector); }
 
         /// Gets a local point relative to the body's origin given a world point.
         /// @param worldPoint a point in world coordinates.
         /// @return the corresponding local point relative to the body's origin.
-        inline Math::Vector2f getLocalPoint(const b2Vec2& worldPoint) const { return body->GetLocalPoint(worldPoint); }
+        inline Vector2f getLocalPoint(const b2Vec2& worldPoint) const { return body->GetLocalPoint(worldPoint); }
 
         /// Gets a local vector given a world vector.
         /// @param worldVector a vector in world coordinates.
         /// @return the corresponding local vector.
-        inline Math::Vector2f getLocalVector(const b2Vec2& worldVector) const { return body->GetLocalVector(worldVector); }
+        inline Vector2f getLocalVector(const b2Vec2& worldVector) const { return body->GetLocalVector(worldVector); }
 
         /// Get the world linear velocity of a world point attached to this body.
         /// @param worldPoint a point in world coordinates.
         /// @return the world velocity of a point.
-        inline Math::Vector2f getLinearVelocityFromWorldPoint(const b2Vec2& worldPoint) const { return body->GetLinearVelocityFromWorldPoint(worldPoint); }
+        inline Vector2f getLinearVelocityFromWorldPoint(const b2Vec2& worldPoint) const { return body->GetLinearVelocityFromWorldPoint(worldPoint); }
 
         /// Get the world velocity of a local point.
         /// @param localPoint a point in local coordinates.
         /// @return the world velocity of a point.
-        inline Math::Vector2f getLinearVelocityFromLocalPoint(const b2Vec2& localPoint) const { return body->GetLinearVelocityFromLocalPoint(localPoint); }
+        inline Vector2f getLinearVelocityFromLocalPoint(const b2Vec2& localPoint) const { return body->GetLinearVelocityFromLocalPoint(localPoint); }
 
         /// Get the linear damping of the body.
         inline float getLinearDamping() const { return body->GetLinearDamping(); }

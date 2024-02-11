@@ -1,3 +1,5 @@
 #include "transform.hpp"
-using namespace Clydesdale::Math;
-const Transform Transform::Identity = Transform(sf::Transform::Identity);
+
+namespace Clydesdale {
+    const Transform Transform::Identity = Transform(sf::Transform::Identity);
+}
