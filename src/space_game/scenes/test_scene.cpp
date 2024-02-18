@@ -45,9 +45,17 @@ namespace SpaceGame {
         targetEntity = createGravEntity(assetManager, { -200, 4.f });
 
         console.registerCmd("set_pos", [this](ConsoleArgs args){
+            if(args.size() < 3){
+                console.print("Usage: " + args[0] + " x y");
+                return false;
+            }
+            
+            float x = stof(args[1]);
+            float y = stof(args[2]);
+            
             auto& transform = targetEntity.getComponent<TransformComponent>();
-            transform.transform.translate(128.f, 0);
-            console.print("Test");
+            transform.transform.translate(x, y);
+            return true;
         });
 
         console.registerCmd("test_cmd", [this](ConsoleArgs args){
@@ -56,10 +64,12 @@ namespace SpaceGame {
             }
 
             Logger::println(Level::INFO, "Console", "Hello world!");
+            return true;
         });
 
         console.registerCmd("quit", [this](ConsoleArgs args){
             this->window->close();
+            return true;
         });
     }
     TestScene::~TestScene(){

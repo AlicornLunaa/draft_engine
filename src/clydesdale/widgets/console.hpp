@@ -6,7 +6,7 @@
 
 namespace Clydesdale {
     using ConsoleArgs = const std::vector<std::string>&;
-    using ConsoleFunc = std::function<void(ConsoleArgs)>;
+    using ConsoleFunc = std::function<bool(ConsoleArgs)>;
 
     class Console {
     private:
@@ -55,9 +55,18 @@ namespace Clydesdale {
             // Run command
             if(index != -1){
                 auto& func = commandArray[index];
-                func({ args... });
-                addText("Ran command: " + key);
-                return true;
+                bool res;
+
+                try {
+                    res = func({ args... });
+                } catch(...){
+                    res = false;
+                }
+                
+                if(res)
+                    addText("Ran command: " + key);
+
+                return res;
             }
 
             return false;
