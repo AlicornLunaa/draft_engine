@@ -5,6 +5,9 @@
 #include <string>
 
 namespace Clydesdale {
+    using ConsoleArgs = const std::vector<std::string>&;
+    using ConsoleFunc = std::function<void(ConsoleArgs)>;
+
     class Console {
     private:
         // Constants
@@ -13,7 +16,7 @@ namespace Clydesdale {
         constexpr static size_t LINE_WIDTH = 64;
 
         // Variables
-        std::vector<std::function<void(void)>> commandArray;
+        std::vector<ConsoleFunc> commandArray;
         std::vector<std::string> commandAliases;
         char inputBuffer[INPUT_SIZE];
         char outputBuffer[OUTPUT_SIZE];
@@ -23,7 +26,8 @@ namespace Clydesdale {
         bool mKeyPressed = false; // TODO: Remove with custom input system
 
         // Private functions
-        std::string addText(const std::string& txt);
+        void parseArguments(const std::string& text, std::vector<std::string>& args);
+        std::string addText(const std::string& text);
 
     public:
         // Constructors
@@ -32,10 +36,32 @@ namespace Clydesdale {
 
         // Functions
         void draw();
-        void registerCmd(std::string key, std::function<void(void)> func);
-        void deleteCmd(std::string key);
-        void print(std::string txt);
-        bool run(std::string key);
+        void registerCmd(const std::string& key, ConsoleFunc func);
+        void deleteCmd(const std::string& key);
+        void print(const std::string& text);
+
+        template<typename... Args>
+        bool run(std::string key, Args... args){
+            // Find the index
+            int index = -1;
+
+            for(int i = 0; i < commandAliases.size(); i++){
+                if(commandAliases[i] == key){
+                    index = i;
+                    break;
+                }
+            }
+
+            // Run command
+            if(index != -1){
+                auto& func = commandArray[index];
+                func({ args... });
+                addText("Ran command: " + key);
+                return true;
+            }
+
+            return false;
+        }
 
         inline bool isOpened(){ return mOpened; }
     };

@@ -1,20 +1,45 @@
 #include "console.hpp"
 #include <SFML/Graphics.hpp>
 #include <imgui.h>
+#include <string>
+#include <vector>
 
 using namespace sf;
 using namespace std;
 
 namespace Clydesdale {
     // Private functions
-    string Console::addText(const string& txt){
+    void Console::parseArguments(const string& text, vector<string>& args){
+        string token = "";
+
+        auto newToken = [&args, &token](){
+            args.push_back(token);
+            token = "";
+        };
+
+        for(size_t i = 0; i < text.size(); i++){
+            char ch = text[i];
+
+            if(ch == ' '){
+                newToken();
+                continue;
+            } else if(ch == '\0') {
+                newToken();
+                break;
+            }
+
+            token += ch;
+        }
+    }
+
+    string Console::addText(const string& text){
         size_t textLength = 0;
         string out = "";
 
-        for(size_t i = 0; i < txt.size(); i++){
-            outputBuffer[cursor + i] = txt[i];
+        for(size_t i = 0; i < text.size(); i++){
+            outputBuffer[cursor + i] = text[i];
 
-            if(txt[i] == '\0')
+            if(text[i] == '\0')
                 break;
 
             if(textLength % LINE_WIDTH == 0 && textLength != 0){
@@ -22,7 +47,7 @@ namespace Clydesdale {
                 cursor++;
             }
 
-            out += txt[i];
+            out += text[i];
             textLength++;
         }
 
@@ -66,8 +91,13 @@ namespace Clydesdale {
             ImGui::SetKeyboardFocusHere();
             ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
             ImGui::SameLine();
+
             if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && inputBuffer[0] != '\0')){
-                run(addText(string(inputBuffer, 512)));
+                string rawCommand(inputBuffer, 512);
+                vector<string> argList;
+                parseArguments(rawCommand, argList);
+                addText(rawCommand);
+                run(argList[0], argList);
 
                 for(int i = 0; i < 512; i++)
                     inputBuffer[i] = '\0';
@@ -86,12 +116,12 @@ namespace Clydesdale {
         }
     }
 
-    void Console::registerCmd(string key, function<void(void)> func){
+    void Console::registerCmd(const string& key, ConsoleFunc func){
         commandAliases.push_back(key);
         commandArray.push_back(func);
     }
 
-    void Console::deleteCmd(string key){
+    void Console::deleteCmd(const string& key){
         // Find the index
         int index = -1;
 
@@ -109,29 +139,7 @@ namespace Clydesdale {
         }
     }
 
-    void Console::print(string txt){
-        addText(txt);
-    }
-
-    bool Console::run(string key){
-        // Find the index
-        int index = -1;
-
-        for(int i = 0; i < commandAliases.size(); i++){
-            if(commandAliases[i] == key){
-                index = i;
-                break;
-            }
-        }
-
-        // Run command
-        if(index != -1){
-            auto& func = commandArray[index];
-            func();
-            addText("Ran command: " + key);
-            return true;
-        }
-
-        return false;
+    void Console::print(const string& text){
+        addText(text);
     }
 }

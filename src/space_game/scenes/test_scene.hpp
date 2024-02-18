@@ -1,6 +1,8 @@
 #pragma once
 #include <clydesdale/engine.hpp>
 
+namespace Cl = Clydesdale;
+
 namespace SpaceGame {
     class TestScene : public Clydesdale::Scene {
     private:
@@ -8,17 +10,17 @@ namespace SpaceGame {
         sf::View camera;
         sf::Sprite* sprite;
 
-        Clydesdale::Console console;
+        Cl::Console console;
 
-        Clydesdale::World world = Clydesdale::World(Clydesdale::Vector2f(0, 0));
-        Clydesdale::RigidBody ground;
-        Clydesdale::RigidBody body;
-        Clydesdale::Entity targetEntity;
+        Cl::World world = Cl::World(Cl::Vector2f(0, 0));
+        Cl::RigidBody ground;
+        Cl::RigidBody body;
+        Cl::Entity targetEntity;
 
-        Clydesdale::Entity createGravEntity(Clydesdale::AssetManager& assetManager, const Clydesdale::Vector2f position);
+        Cl::Entity createGravEntity(Cl::AssetManager& assetManager, const Cl::Vector2f position);
 
     public:
-        TestScene(Clydesdale::AssetManager& assetManager, sf::RenderWindow& window);
+        TestScene(Cl::AssetManager& assetManager, sf::RenderWindow& window);
         ~TestScene();
 
         void handleEvent(sf::Event event) override;
