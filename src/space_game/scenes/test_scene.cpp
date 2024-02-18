@@ -1,4 +1,5 @@
 #include "test_scene.hpp"
+#include "clydesdale/components/rigid_body_component.hpp"
 #include <clydesdale/engine.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -29,19 +30,11 @@ namespace SpaceGame {
         ground.createFixture(&groundBox, 0.f);
 
         BodyDef bodyDef;
-        FixtureDef fixtureDef;
-        PolygonShape dynamicBox;
         bodyDef.type = BodyType::b2_dynamicBody;
-        bodyDef.position.Set(0.0f, 4.0f);
+        bodyDef.position.Set(0.0f, 40.0f);
         bodyDef.angle = 1;
-        dynamicBox.SetAsBox(1.0f, 1.0f);
-        fixtureDef.shape = &dynamicBox;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.3f;
-        body = world.createBody(bodyDef);
-        body.createFixture(&fixtureDef);
 
-        createGravEntity(assetManager, { 0, 0 }).addComponent<ControlComponent>();
+        createGravEntity(assetManager, { 0, 0 }).addComponent<RigidBodyComponent>(world, bodyDef, 1.f, 1.f);
         targetEntity = createGravEntity(assetManager, { -200, 4.f });
 
         console.registerCmd("set_pos", [this](ConsoleArgs args){
@@ -100,15 +93,16 @@ namespace SpaceGame {
 
         world.step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
 
-        // auto view = registry.view<TransformComponent>();
-        // for(auto entity : view){
-        //     auto& transformComponent = view.get<TransformComponent>(entity);
+        auto view = registry.view<TransformComponent, RigidBodyComponent>();
+        for(auto entity : view){
+            auto& transformComponent = view.get<TransformComponent>(entity);
+            auto& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
 
-        //     Clyde::Transform trans;
-        //     // trans.rotate(body.getAngle());
-        //     // trans.translate(body.getPosition());
-        //     transformComponent.transform = trans;
-        // }
+            Transform trans;
+            trans.rotate(rigidBodyComponent.getAngle());
+            trans.translate(rigidBodyComponent.getPosition());
+            transformComponent.transform = trans;
+        }
     }
 
     void TestScene::render(sf::Time deltaTime){

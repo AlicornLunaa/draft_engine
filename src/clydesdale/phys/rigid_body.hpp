@@ -1,5 +1,6 @@
 #pragma once
 #include <box2d/box2d.h>
+#include "box2d/b2_body.h"
 #include "clydesdale/math/vector2.hpp"
 
 namespace Clydesdale {
@@ -13,6 +14,11 @@ namespace Clydesdale {
     private:
         // Variables
         b2Body* body = nullptr;
+
+    protected:
+        // Protected functions
+        inline void setBody(b2Body* bodyPtr){ body = bodyPtr; }
+        inline void setBody(RigidBody& bodyContainer){ body = bodyContainer; }
 
     public:
         // Constructors

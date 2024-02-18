@@ -1,6 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+// TODO: Make memory safe
+
 namespace Clydesdale {
     struct SpriteComponent {
         // Variables

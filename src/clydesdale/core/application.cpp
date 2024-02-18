@@ -71,6 +71,8 @@ namespace Clydesdale {
             ImGui::Text("Frame time: %f", deltaTime.asSeconds());
             if(ImGui::Button("Reload Assets"))
                 assetManager.reload();
+            if(ImGui::Button("Quit"))
+                window.close();
             ImGui::End();
 
             // Handle SFML rendering

@@ -12,9 +12,8 @@ namespace SpaceGame {
 
         Cl::Console console;
 
-        Cl::World world = Cl::World(Cl::Vector2f(0, 0));
+        Cl::World world = Cl::World(Cl::Vector2f(0, -10));
         Cl::RigidBody ground;
-        Cl::RigidBody body;
         Cl::Entity targetEntity;
 
         Cl::Entity createGravEntity(Cl::AssetManager& assetManager, const Cl::Vector2f position);
