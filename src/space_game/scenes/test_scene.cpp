@@ -1,5 +1,6 @@
 #include "test_scene.hpp"
 #include "clydesdale/components/rigid_body_component.hpp"
+#include "clydesdale/core/entity.hpp"
 #include <clydesdale/engine.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -9,31 +10,45 @@ using json = nlohmann::json;
 
 namespace SpaceGame {
     Entity TestScene::createGravEntity(AssetManager& assetManager, const Vector2f position){
+        const auto& textureSize = sprite2->getTexture()->getSize();
+        sprite1->setScale(1.f / textureSize.x, 1.f / textureSize.y);
+        sprite1->setPosition(textureSize.x / -2.f, textureSize.y / -2.f);
+
         Entity entity = createEntity();
         entity.addComponent<TransformComponent>(position, 0.f);
-        entity.addComponent<SpriteComponent>(sprite);
+        entity.addComponent<SpriteComponent>(sprite1);
+        return entity;
+    }
+
+    Entity TestScene::createGroundEntity(AssetManager& assetManager, const Vector2f position, const Vector2f size){
+        BodyDef groundBodyDef;
+        groundBodyDef.position.Set(position.x, position.y);
+
+        const auto& textureSize = sprite2->getTexture()->getSize();
+        sprite2->setScale(size.x / textureSize.x, size.y / textureSize.y);
+        sprite2->setPosition(textureSize.x / -2.f, textureSize.y / -2.f);
+
+        Entity entity = createEntity();
+        entity.addComponent<TransformComponent>(position, 0.f);
+        entity.addComponent<SpriteComponent>(sprite2);
+        entity.addComponent<RigidBodyComponent>(world, groundBodyDef, size.x, size.y);
         return entity;
     }
 
     TestScene::TestScene(AssetManager& assetManager, sf::RenderWindow& window) : Scene(assetManager, window) {
         uiCamera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
-        sprite = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
+        sprite1 = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
+        sprite2 = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_3.png"));
 
         camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
         camera.setCenter(0, 0);
-
-        BodyDef groundBodyDef;
-        PolygonShape groundBox;
-        groundBodyDef.position.Set(0.0f, -100.0f);
-        groundBox.SetAsBox(50.0f, 10.0f);
-        ground = world.createBody(groundBodyDef);
-        ground.createFixture(&groundBox, 0.f);
 
         BodyDef bodyDef;
         bodyDef.type = BodyType::b2_dynamicBody;
         bodyDef.position.Set(0.0f, 40.0f);
         bodyDef.angle = 1;
 
+        createGroundEntity(assetManager, { 0, -100 }, { 50.f, 10.f });
         createGravEntity(assetManager, { 0, 0 }).addComponent<RigidBodyComponent>(world, bodyDef, 1.f, 1.f);
         targetEntity = createGravEntity(assetManager, { -200, 4.f });
 
@@ -66,7 +81,8 @@ namespace SpaceGame {
         });
     }
     TestScene::~TestScene(){
-        delete sprite;
+        delete sprite1;
+        delete sprite2;
     }
 
     void TestScene::handleEvent(sf::Event event){

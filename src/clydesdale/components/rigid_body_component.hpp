@@ -4,6 +4,8 @@
 
 namespace Clydesdale {
     struct RigidBodyComponent : public RigidBody {
+        // Variables
+
         // Constructors
         using RigidBody::RigidBody;
 
@@ -20,5 +22,8 @@ namespace Clydesdale {
             setBody(world.createBody(bodyDef));
             createFixture(&fixtureDef);
         }
+
+        // Functions
+        
     };
 }
