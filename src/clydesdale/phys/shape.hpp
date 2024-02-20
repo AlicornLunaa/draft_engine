@@ -2,6 +2,13 @@
 
 #include <cstddef>
 #include <vector>
+
+#include "box2d/b2_circle_shape.h"
+#include "box2d/b2_edge_shape.h"
+#include "box2d/b2_math.h"
+#include "box2d/b2_polygon_shape.h"
+#include "box2d/b2_shape.h"
+#include "clydesdale/math/transform.hpp"
 #include "clydesdale/math/vector2.hpp"
 
 namespace Clydesdale {
@@ -16,83 +23,95 @@ namespace Clydesdale {
         float friction = 0.2f;
         float restitution = 0.2f;
         float density = 1.0f;
+        Transform transform;
 
         // Constructors
         Shape(const Shape& other) = default;
         Shape(ShapeType type) : type(type) {};
-        ~Shape();
+        virtual ~Shape() = default;
 
         // Functions
-        virtual void getShape() = 0; // TODO: Implement abstract shape
+        virtual bool contains(const Vector2f& point) = 0;
+        virtual const b2Shape* getPhysShape() = 0;
+
+        // Operators
+        virtual operator const b2Shape* () = 0;
     };
 
     class PolygonShape : public Shape {
     private:
         // Variables
-        std::vector<Clydesdale::Vector2f> vertices;
-        std::vector<size_t> indices;
-
-        // Private functions
-        void wrap(); // Simplifies shape with giftwrapping algorithm
-        void simplify(); // Removes useless vertices
+        std::vector<Vector2f> vertices;
+        std::vector<b2Vec2> physVertices;
+        b2PolygonShape physShape;
 
     public:
         // Constructors
         PolygonShape() : Shape(ShapeType::POLYGON) {}
         PolygonShape(const PolygonShape& other);
-        ~PolygonShape();
+        ~PolygonShape() = default;
 
         // Functions
-        void getShape();
+        inline bool contains(const Vector2f& point){ return physShape.TestPoint(transform, { point.x, point.y }); };
+        inline const b2Shape* getPhysShape(){ return &physShape; }
 
         size_t addVertex(Clydesdale::Vector2f vertex);
         bool delVertex(size_t index);
 
         inline Clydesdale::Vector2f getVertex(size_t index){ return vertices[index]; }
         inline size_t getVertexCount(){ return vertices.size(); }
+
+        // Operators
+        inline operator const b2Shape* () { return getPhysShape(); };
     };
 
     class CircleShape : public Shape {
     private:
         // Variables
-        Clydesdale::Vector2f position;
         float radius = 1.f;
+        b2CircleShape physShape;
 
     public:
         // Constructors
         CircleShape() : Shape(ShapeType::CIRCLE) {}
         CircleShape(const CircleShape& other);
-        ~CircleShape();
+        ~CircleShape() = default;
 
         // Functions
-        void getShape();
+        inline bool contains(const Vector2f& point){ return physShape.TestPoint(transform, { point.x, point.y }); };
+        inline const b2Shape* getPhysShape(){ return &physShape; }
 
-        inline void setPosition(Clydesdale::Vector2f pos){ position = pos; }
-        inline void setRadius(float rad){ radius = rad; }
-
-        inline Clydesdale::Vector2f getPosition(){ return position; }
         inline float getRadius(){ return radius; }
+        inline void setRadius(float r){ radius = r; }
+
+        // Operators
+        inline operator const b2Shape* () { return getPhysShape(); };
     };
 
     class EdgeShape : public Shape {
     private:
         // Variables
-        Clydesdale::Vector2f start;
-        Clydesdale::Vector2f end;
+        Vector2f start;
+        Vector2f end;
+        b2EdgeShape physShape;
 
     public:
         // Constructors
         EdgeShape() : Shape(ShapeType::EDGE) {}
         EdgeShape(const EdgeShape& other);
-        ~EdgeShape();
+        ~EdgeShape() = default;
 
         // Functions
-        void getShape();
+        inline bool contains(const Vector2f& point){ return false; };
+        inline const b2Shape* getPhysShape(){ return &physShape; }
 
-        inline void setStart(Clydesdale::Vector2f v){ start = v; }
-        inline void setEnd(Clydesdale::Vector2f v){ end = v; }
+        inline void setStart(Vector2f v){ start = v; }
+        inline void setEnd(Vector2f v){ end = v; }
 
-        inline Clydesdale::Vector2f getStart(){ return start; }
-        inline Clydesdale::Vector2f getEnd(){ return end; }
+        inline Vector2f getStart(){ return start; }
+        inline Vector2f getEnd(){ return end; }
+
+        // Operators
+        inline operator const b2Shape* () { return getPhysShape(); };
     };
 }

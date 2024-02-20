@@ -9,6 +9,8 @@ set(SOURCES
     src/clydesdale/interface/panel.cpp
     src/clydesdale/interface/button.cpp
     src/clydesdale/math/transform.cpp
+    src/clydesdale/phys/collider.cpp
+    src/clydesdale/phys/shape.cpp
     src/clydesdale/util/logger.cpp
     src/clydesdale/util/asset_manager.cpp
     src/clydesdale/widgets/console.cpp
