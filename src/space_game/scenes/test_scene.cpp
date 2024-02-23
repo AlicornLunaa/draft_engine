@@ -1,6 +1,7 @@
 #include "test_scene.hpp"
 #include "clydesdale/components/rigid_body_component.hpp"
 #include "clydesdale/core/entity.hpp"
+#include "clydesdale/util/constants.hpp"
 #include <clydesdale/engine.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -10,10 +11,6 @@ using json = nlohmann::json;
 
 namespace SpaceGame {
     Entity TestScene::createGravEntity(AssetManager& assetManager, const Vector2f position){
-        const auto& textureSize = sprite2->getTexture()->getSize();
-        sprite1->setScale(1.f / textureSize.x, 1.f / textureSize.y);
-        sprite1->setPosition(textureSize.x / -2.f, textureSize.y / -2.f);
-
         Entity entity = createEntity();
         entity.addComponent<TransformComponent>(position, 0.f);
         entity.addComponent<SpriteComponent>(sprite1);
@@ -24,9 +21,9 @@ namespace SpaceGame {
         BodyDef groundBodyDef;
         groundBodyDef.position.Set(position.x, position.y);
 
-        const auto& textureSize = sprite2->getTexture()->getSize();
-        sprite2->setScale(size.x / textureSize.x, size.y / textureSize.y);
-        sprite2->setPosition(textureSize.x / -2.f, textureSize.y / -2.f);
+        // const auto& textureSize = sprite2->getTexture()->getSize();
+        // sprite2->setScale(size.x / textureSize.x, size.y / textureSize.y);
+        // sprite2->setPosition(textureSize.x / -2.f, textureSize.y / -2.f);
 
         Entity entity = createEntity();
         entity.addComponent<TransformComponent>(position, 0.f);
@@ -40,16 +37,20 @@ namespace SpaceGame {
         sprite1 = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
         sprite2 = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_3.png"));
 
+        sprite1->setPosition(-64, -64);
+        sprite2->setPosition(-64, -64);
+
         camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
         camera.setCenter(0, 0);
 
         BodyDef bodyDef;
         bodyDef.type = BodyType::b2_dynamicBody;
-        bodyDef.position.Set(0.0f, 40.0f);
-        bodyDef.angle = 1;
+        bodyDef.position.Set(0.0f, 0.0f);
+        bodyDef.angle = TO_RAD(5);
 
-        createGroundEntity(assetManager, { 0, -100 }, { 50.f, 10.f });
-        createGravEntity(assetManager, { 0, 0 }).addComponent<RigidBodyComponent>(world, bodyDef, 1.f, 1.f);
+        // createGroundEntity(assetManager, { 0, -100 }, { 50.f, 10.f });
+        createGroundEntity(assetManager, { 0, -256 }, { 128.f, 128.f });
+        createGravEntity(assetManager, { 0, 0 }).addComponent<RigidBodyComponent>(world, bodyDef, 128.f, 128.f);
         targetEntity = createGravEntity(assetManager, { -200, 4.f });
 
         console.registerCmd("set_pos", [this](ConsoleArgs args){
@@ -115,8 +116,8 @@ namespace SpaceGame {
             auto& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
 
             Transform trans;
-            trans.rotate(rigidBodyComponent.getAngle());
             trans.translate(rigidBodyComponent.getPosition());
+            trans.rotate(TO_DEG(rigidBodyComponent.getAngle()));
             transformComponent.transform = trans;
         }
     }
