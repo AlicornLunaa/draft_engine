@@ -19,3 +19,10 @@
 - [ ] Create basic player and ship
 - [ ] Create planets and gravity
 - [ ] Create landable planets
+
+## Theories
+- Planets dont need a collider, allowing them to be massive.
+    This is because to keep within the 0.1-10 meter guidelines
+    of box2d, only physics objects should be simulated.
+    Planets will be converted to individual edge shape
+    colliders as the player 'enters' a planet scene.

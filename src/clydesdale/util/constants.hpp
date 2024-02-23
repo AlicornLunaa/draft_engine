@@ -9,3 +9,6 @@
 #define TIME_STEP 1.f/60.f
 #define VELOCITY_ITER 6
 #define POSITION_ITER 2
+#define PPM 128.f
+#define PHYS_TO_PIXELS(x) (x * PPM)
+#define PIXELS_TO_PHYS(x) (x / PPM)

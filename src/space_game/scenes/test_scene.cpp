@@ -21,10 +21,6 @@ namespace SpaceGame {
         BodyDef groundBodyDef;
         groundBodyDef.position.Set(position.x, position.y);
 
-        // const auto& textureSize = sprite2->getTexture()->getSize();
-        // sprite2->setScale(size.x / textureSize.x, size.y / textureSize.y);
-        // sprite2->setPosition(textureSize.x / -2.f, textureSize.y / -2.f);
-
         Entity entity = createEntity();
         entity.addComponent<TransformComponent>(position, 0.f);
         entity.addComponent<SpriteComponent>(sprite2);
@@ -37,21 +33,22 @@ namespace SpaceGame {
         sprite1 = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_1.png"));
         sprite2 = new sf::Sprite(assetManager.getTexture("./assets/textures/test_image_3.png"));
 
-        sprite1->setPosition(-64, -64);
-        sprite2->setPosition(-64, -64);
+        sprite1->setScale(PIXELS_TO_PHYS(1), PIXELS_TO_PHYS(1));
+        sprite2->setScale(PIXELS_TO_PHYS(1), PIXELS_TO_PHYS(1));
+        sprite1->setPosition(PIXELS_TO_PHYS(-64), PIXELS_TO_PHYS(-64));
+        sprite2->setPosition(PIXELS_TO_PHYS(-64), PIXELS_TO_PHYS(-64));
 
-        camera = sf::View(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
+        camera = sf::View(sf::FloatRect(0, 0, PIXELS_TO_PHYS(window.getSize().x), PIXELS_TO_PHYS(window.getSize().y)));
         camera.setCenter(0, 0);
 
         BodyDef bodyDef;
         bodyDef.type = BodyType::b2_dynamicBody;
         bodyDef.position.Set(0.0f, 0.0f);
-        bodyDef.angle = TO_RAD(5);
+        bodyDef.angle = TO_RAD(20);
 
         // createGroundEntity(assetManager, { 0, -100 }, { 50.f, 10.f });
-        createGroundEntity(assetManager, { 0, -256 }, { 128.f, 128.f });
-        createGravEntity(assetManager, { 0, 0 }).addComponent<RigidBodyComponent>(world, bodyDef, 128.f, 128.f);
-        targetEntity = createGravEntity(assetManager, { -200, 4.f });
+        createGroundEntity(assetManager, { 0, -2 }, { 1.f, 1.f });
+        createGravEntity(assetManager, { 0, 0 }).addComponent<RigidBodyComponent>(world, bodyDef, 1.f, 1.f);
 
         console.registerCmd("set_pos", [this](ConsoleArgs args){
             if(args.size() < 3){
@@ -102,10 +99,10 @@ namespace SpaceGame {
         Scene::update(deltaTime);
 
         if(!console.isOpened()){
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) camera.move(-100 * deltaTime.asSeconds(), 0);
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) camera.move(100 * deltaTime.asSeconds(), 0);
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) camera.move(0, -100 * deltaTime.asSeconds());
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) camera.move(0, 100 * deltaTime.asSeconds());
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) camera.move(-10 * deltaTime.asSeconds(), 0);
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) camera.move(10 * deltaTime.asSeconds(), 0);
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) camera.move(0, -10 * deltaTime.asSeconds());
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) camera.move(0, 10 * deltaTime.asSeconds());
         }
 
         world.step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
