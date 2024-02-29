@@ -2,9 +2,12 @@
 #include "clydesdale/components/rigid_body_component.hpp"
 #include "clydesdale/core/entity.hpp"
 #include "clydesdale/util/constants.hpp"
+#include "entt/entity/fwd.hpp"
 #include <clydesdale/engine.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
+
+#include <iostream>
 
 using namespace Clydesdale;
 using json = nlohmann::json;
@@ -46,9 +49,14 @@ namespace SpaceGame {
         bodyDef.position.Set(0.0f, 0.0f);
         bodyDef.angle = TO_RAD(20);
 
+        registry.on_construct<RigidBodyComponent>().connect<[](entt::registry& reg, entt::entity entity){ std::cout << "Created!\n"; }>();
+        registry.on_destroy<RigidBodyComponent>().connect<[](entt::registry& reg, entt::entity entity){ std::cout << "Destroyed!\n"; }>();
+
         // createGroundEntity(assetManager, { 0, -100 }, { 50.f, 10.f });
         createGroundEntity(assetManager, { 0, -2 }, { 1.f, 1.f });
-        createGravEntity(assetManager, { 0, 0 }).addComponent<RigidBodyComponent>(world, bodyDef, 1.f, 1.f);
+
+        targetEntity = createGravEntity(assetManager, { 0, 0 });
+        targetEntity.addComponent<RigidBodyComponent>(world, bodyDef, 1.f, 1.f);
 
         console.registerCmd("set_pos", [this](ConsoleArgs args){
             if(args.size() < 3){
@@ -70,6 +78,12 @@ namespace SpaceGame {
             }
 
             Logger::println(Level::INFO, "Console", "Hello world!");
+            return true;
+        });
+
+        console.registerCmd("delete", [this](ConsoleArgs args){
+            Logger::println(Level::INFO, "Console", "Removing entity");
+            registry.destroy(targetEntity);
             return true;
         });
 

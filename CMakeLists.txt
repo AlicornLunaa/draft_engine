@@ -36,6 +36,7 @@ set(HEADERS
     src/clydesdale/math/transform.hpp
     src/clydesdale/math/vector2.hpp
     src/clydesdale/math/vector3.hpp
+    src/clydesdale/phys/phys_aliases.hpp
     src/clydesdale/phys/world.hpp
     src/clydesdale/phys/rigid_body.hpp
     src/clydesdale/phys/collider.hpp

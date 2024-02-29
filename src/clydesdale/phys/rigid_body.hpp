@@ -1,19 +1,15 @@
 #pragma once
-#include <box2d/box2d.h>
 #include "box2d/b2_body.h"
 #include "clydesdale/math/vector2.hpp"
+#include "clydesdale/phys/collider.hpp"
+#include "clydesdale/phys/phys_aliases.hpp"
 
 namespace Clydesdale {
-    using BodyType = b2BodyType;
-    using BodyDef = b2BodyDef;
-    using FixtureDef = b2FixtureDef;
-    using PolygonShape = b2PolygonShape;
-    using CircleShape = b2CircleShape;
-
     class RigidBody {
     private:
         // Variables
         b2Body* body = nullptr;
+        Collider collider;
 
     protected:
         // Protected functions
@@ -31,7 +27,8 @@ namespace Clydesdale {
         operator const b2Body* () const { return body; }
 
         // Functions
-        bool isValid(){ return body == nullptr; }
+        
+        inline bool isValid(){ return body == nullptr; }
 
         /// Creates a fixture and attach it to this body. Use this function if you need
         /// to set some fixture parameters, like friction. Otherwise you can create the

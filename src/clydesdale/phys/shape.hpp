@@ -1,13 +1,8 @@
 #pragma once
 
-#include <cstddef>
-#include <vector>
-
-#include "box2d/b2_circle_shape.h"
-#include "box2d/b2_edge_shape.h"
-#include "box2d/b2_math.h"
 #include "box2d/b2_polygon_shape.h"
-#include "box2d/b2_shape.h"
+#include "box2d/b2_edge_shape.h"
+#include "box2d/b2_circle_shape.h"
 #include "clydesdale/math/transform.hpp"
 #include "clydesdale/math/vector2.hpp"
 
@@ -55,6 +50,7 @@ namespace Clydesdale {
         inline bool contains(const Vector2f& point){ return physShape.TestPoint(transform, { point.x, point.y }); };
         inline const b2Shape* getPhysShape(){ return &physShape; }
 
+        void setAsBox(float hw, float hy);
         size_t addVertex(Clydesdale::Vector2f vertex);
         bool delVertex(size_t index);
 

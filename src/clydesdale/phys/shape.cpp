@@ -10,6 +10,13 @@ namespace Clydesdale {
         }
     }
 
+    void PolygonShape::setAsBox(float hw, float hy){
+        addVertex({ -hw, -hy });
+        addVertex({ hw, -hy });
+        addVertex({ hw, hy });
+        addVertex({ -hw, hy });
+    }
+
     size_t PolygonShape::addVertex(Clydesdale::Vector2f vertex){
         vertices.push_back(vertex);
         physVertices.push_back(vertex);
