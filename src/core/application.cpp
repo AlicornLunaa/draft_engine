@@ -8,11 +8,11 @@ namespace Draft {
     Application::Application(const char* title, const unsigned int width, const unsigned int height)
             : window(sf::RenderWindow(sf::VideoMode(width, height), title)), width(width), height(height) {
         // Feedback
-        Logger::println(Level::INFO, "Clydesdale", "Initializing...");
+        Logger::println(Level::INFO, "Draft Engine", "Initializing...");
         
         // Make sure game can run, handle arguments, etc
         if(!sf::Shader::isAvailable()){
-            Logger::println(Level::CRITICAL, "Clydesdale", "Shaders unavailable, OpenGL is too old? Cannot continue.");
+            Logger::println(Level::CRITICAL, "Draft Engine", "Shaders unavailable, OpenGL is too old? Cannot continue.");
             exit(1);
         }
 
@@ -28,7 +28,7 @@ namespace Draft {
 
     Application::~Application(){
         // Cleanup
-        Logger::println(Level::INFO, "Clydesdale", "Exitting...");
+        Logger::println(Level::INFO, "Draft Engine", "Exitting...");
         ImGui::SFML::Shutdown();
     }
 
