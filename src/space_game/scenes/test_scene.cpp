@@ -49,6 +49,7 @@ namespace SpaceGame {
         bodyDef.position.Set(0.0f, 0.0f);
         bodyDef.angle = TO_RAD(20);
 
+        // TODO: https://github.com/skypjack/entt/issues/385g
         registry.on_construct<RigidBodyComponent>().connect<[](entt::registry& reg, entt::entity entity){ std::cout << "Created!\n"; }>();
         registry.on_destroy<RigidBodyComponent>().connect<[](entt::registry& reg, entt::entity entity){ std::cout << "Destroyed!\n"; }>();
 
