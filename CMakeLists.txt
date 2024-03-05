@@ -14,6 +14,8 @@ set(SOURCES
     src/util/logger.cpp
     src/util/asset_manager.cpp
     src/widgets/console.cpp
+    src/systems/render_system.cpp
+    src/systems/physics_system.cpp
 )
 
 set(HEADERS
@@ -44,6 +46,7 @@ set(INTERFACES
     include/draft/util/constants.hpp
     include/draft/util/logger.hpp
     include/draft/widgets/console.hpp
+    include/draft/systems.h
     include/draft/engine.hpp
 )
 
