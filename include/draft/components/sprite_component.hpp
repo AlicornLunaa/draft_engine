@@ -1,22 +1,23 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 
-// TODO: Make memory safe
+#include "draft/math/vector2.hpp"
+#include <SFML/Graphics.hpp>
 
 namespace Draft {
     struct SpriteComponent {
         // Variables
-        sf::Sprite* sprite;
         sf::Shader* shader = nullptr;
+
+        Vector2f position = { -0.5f, -0.5f };
+        Vector2f size = { 1, 1 };
+        float rotation = 0.f;
+        
+        unsigned short textureUnit = 0; // Offset for which texture to use
 
         // Constructors
         SpriteComponent(const SpriteComponent&) = default;
-        SpriteComponent(sf::Sprite* sprite) : sprite(sprite) {}
-        SpriteComponent(sf::Sprite* sprite, sf::Shader* shader) : sprite(sprite), shader(shader) {}
-
-        // Operators
-        operator sf::Drawable& (){ return *sprite; }
-        operator sf::Sprite& (){ return *sprite; }
-        operator const sf::Sprite& (){ return *sprite; }
+        SpriteComponent(sf::Shader* shader) : shader(shader) {}
+        SpriteComponent(Vector2f position = { 0, 0 }, Vector2f size = { 1, 1 }, float rotation = 0.f, sf::Shader* shader = nullptr)
+            : shader(shader), position(position), size(size), rotation(rotation) {}
     };
 }

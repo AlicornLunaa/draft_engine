@@ -15,7 +15,6 @@
 #include "draft/phys/world.hpp"
 #include "draft/phys/rigid_body.hpp"
 
-#include <entt/entt.hpp>
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/components/control_component.hpp"

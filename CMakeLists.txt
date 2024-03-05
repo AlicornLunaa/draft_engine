@@ -17,23 +17,12 @@ set(SOURCES
 )
 
 set(HEADERS
-    src/core/application.cpp
-    src/core/scene.cpp
-    src/core/entity.cpp
-    src/interface/element.cpp
-    src/interface/panel.cpp
-    src/interface/button.cpp
-    src/math/transform.cpp
-    src/phys/collider.cpp
-    src/phys/shape.cpp
-    src/util/logger.cpp
-    src/util/asset_manager.cpp
-    src/widgets/console.cpp
 )
 
 set(INTERFACES
     include/draft/components/control_component.hpp
     include/draft/components/empty_component.hpp
+    include/draft/components/texture_component.hpp
     include/draft/components/sprite_component.hpp
     include/draft/components/transform_component.hpp
     include/draft/core/application.hpp
@@ -97,7 +86,7 @@ FetchContent_MakeAvailable(imgui-sfml)
 add_library(${PROJECT_NAME} STATIC)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
