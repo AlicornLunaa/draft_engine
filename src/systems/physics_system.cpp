@@ -11,9 +11,7 @@ void Draft::physicsSystem(entt::registry& registry, World& world){
         auto& transformComponent = view.get<TransformComponent>(entity);
         auto& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
 
-        Transform trans;
-        trans.translate(rigidBodyComponent.getPosition());
-        trans.rotate(TO_DEG(rigidBodyComponent.getAngle()));
-        transformComponent.transform = trans;
+        transformComponent.position = rigidBodyComponent.getPosition();
+        transformComponent.rotation = TO_DEG(rigidBodyComponent.getAngle());
     }
 }
