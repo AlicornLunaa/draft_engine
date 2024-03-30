@@ -1,6 +1,8 @@
 #pragma once
 
+#include "draft/util/circular_buffer.hpp"
 #include <functional>
+#include <sstream>
 #include <vector>
 #include <string>
 
@@ -11,23 +13,27 @@ namespace Draft {
     class Console {
     private:
         // Constants
-        constexpr static size_t INPUT_SIZE = 512;
-        constexpr static size_t OUTPUT_SIZE = 4096;
-        constexpr static size_t LINE_WIDTH = 64;
+        constexpr static size_t INPUT_BUFFER_SIZE = 512;
+        constexpr static size_t OUTPUT_BUFFER_SIZE = 4096;
+        constexpr static size_t MAX_LINES = 32;
 
         // Variables
         std::vector<ConsoleFunc> commandArray;
         std::vector<std::string> commandAliases;
-        char inputBuffer[INPUT_SIZE];
-        char outputBuffer[OUTPUT_SIZE];
-        unsigned int cursor = 0;
+
+        CircularBuffer<std::string> output = CircularBuffer<std::string>(MAX_LINES);
+        std::ostringstream stream;
+        size_t lineWidth = 64;
+
+        char inputBuffer[INPUT_BUFFER_SIZE];
+        char outputBuffer[OUTPUT_BUFFER_SIZE];
 
         bool mOpened = false;
         bool mKeyPressed = false; // TODO: Remove with custom input system
 
         // Private functions
         void parseArguments(const std::string& text, std::vector<std::string>& args);
-        std::string addText(const std::string& text);
+        void constructRawBuffer();
 
     public:
         // Constructors
@@ -64,7 +70,7 @@ namespace Draft {
                 }
                 
                 if(res)
-                    addText("Ran command: " + key);
+                    print("Ran command: " + key + "\n");
 
                 return res;
             }
@@ -73,5 +79,6 @@ namespace Draft {
         }
 
         inline bool isOpened(){ return mOpened; }
+        inline std::ostringstream& getStream(){ return stream; }
     };
 }

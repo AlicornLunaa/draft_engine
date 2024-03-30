@@ -12,3 +12,6 @@
 #define PPM 128.f
 #define PHYS_TO_PIXELS(x) (x * PPM)
 #define PIXELS_TO_PHYS(x) (x / PPM)
+
+#define DEBUG true
+//#define ANSI_SUPPORT

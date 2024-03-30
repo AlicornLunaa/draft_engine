@@ -42,6 +42,7 @@ set(INTERFACES
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
     include/draft/util/ansi_colors.hpp
+    include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
     include/draft/util/constants.hpp
     include/draft/util/logger.hpp
@@ -101,4 +102,4 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

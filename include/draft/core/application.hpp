@@ -7,26 +7,27 @@
 
 #include "draft/core/scene.hpp"
 #include "draft/util/asset_manager.hpp"
+#include "draft/widgets/console.hpp"
 
 namespace Draft {
     class Application {
     private:
         unsigned int width, height;
         Scene* activeScene = nullptr;
-        sf::View imGuiCamera = sf::View(sf::FloatRect(0, 0, width, height));
+        sf::Clock deltaClock;
+        sf::Event event;
+        std::streambuf* oldOutBuf = nullptr;
 
     public:
         AssetManager assetManager;
+        Console console;
         sf::RenderWindow window;
-        sf::Clock deltaClock;
         sf::Time deltaTime;
-        sf::Event event;
         
         Application(const char* title, const unsigned int width, const unsigned int height);
         Application(const Application& rhs) = delete;
         ~Application();
 
-        void handleEvent();
         void run();
 
         void setScene(Scene* scene){ activeScene = scene; }

@@ -1,7 +1,6 @@
+#include <iostream>
+
 #include "draft/core/application.hpp"
-#include "draft/interface/panel.hpp"
-#include "draft/interface/button.hpp"
-#include "draft/interface/element.hpp"
 #include "draft/util/logger.hpp"
 
 namespace Draft {
@@ -12,7 +11,7 @@ namespace Draft {
         
         // Make sure game can run, handle arguments, etc
         if(!sf::Shader::isAvailable()){
-            Logger::println(Level::CRITICAL, "Draft Engine", "Shaders unavailable, OpenGL is too old? Cannot continue.");
+            Logger::println(Level::CRITICAL, "Draft Engine", "Shaders unavailable, maybe OpenGL is too old? Cannot continue.");
             exit(1);
         }
 
@@ -24,27 +23,26 @@ namespace Draft {
         auto& imGuiIO = ImGui::GetIO();
         imGuiIO.IniFilename = nullptr;
         imGuiIO.LogFilename = nullptr;
+
+        // Redirect cout to console
+        oldOutBuf = std::cout.rdbuf(console.getStream().rdbuf());
     }
 
     Application::~Application(){
         // Cleanup
         Logger::println(Level::INFO, "Draft Engine", "Exitting...");
         ImGui::SFML::Shutdown();
-    }
 
-    void Application::handleEvent(){
-        if(activeScene){
-            activeScene->handleEvent(event);
-        }
+        // Restore cout to stdout
+        std::cout.rdbuf(oldOutBuf);
     }
 
     void Application::run(){
-        Element testElement = Element(150, 50, 300, 150);
-        Panel newElement = Panel(testElement, sf::Color::Red, 5, 5, 290, 20);
-        Button btn = Button(testElement, sf::Color::Cyan, assetManager.getFont("./assets/fonts/default.ttf"), "Test Button", 5, 5, 290, 20);
-
-        // Start game loop
+        // Start application loop
         while(window.isOpen()){
+            // Clock reset
+            deltaTime = deltaClock.restart();
+
             // Handle control events
             while(window.pollEvent(event)){
                 ImGui::SFML::ProcessEvent(window, event);
@@ -54,35 +52,22 @@ namespace Draft {
                     window.close();
                     break;
                 default:
-                    handleEvent();
+                    if(activeScene)
+                        activeScene->handleEvent(event);
                     break;
                 }
             }
 
-            deltaTime = deltaClock.restart();
+            // Handle updates and stuff
             ImGui::SFML::Update(window, deltaTime);
             if(activeScene)
                 activeScene->update(deltaTime);
-
-            // Handle ImGUI rendering
-            ImGui::ShowDemoWindow();
-            ImGui::Begin("Stats");
-            ImGui::Text("FPS: %02d", (int)(1.f / deltaTime.asSeconds()));
-            ImGui::Text("Frame time: %f", deltaTime.asSeconds());
-            if(ImGui::Button("Reload Assets"))
-                assetManager.reload();
-            if(ImGui::Button("Quit"))
-                window.close();
-            ImGui::End();
 
             // Handle SFML rendering
             window.clear();
 
             if(activeScene)
                 activeScene->render(deltaTime);
-
-            window.setView(imGuiCamera);
-            ImGui::SFML::Render(window);
 
             window.display();
         }

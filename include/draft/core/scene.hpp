@@ -1,18 +1,19 @@
 #pragma once
 #include <entt/entt.hpp>
 #include <SFML/Graphics.hpp>
-#include "draft/util/asset_manager.hpp"
 
 namespace Draft {
+    class Application;
     class Entity;
 
     class Scene {
     protected:
-        sf::RenderWindow* window = nullptr;
+        Application* app;
         entt::registry registry;
+        sf::View uiCamera;
 
     public:
-        Scene(AssetManager& assetManager, sf::RenderWindow& window);
+        Scene(Application* app);
 
         entt::registry& getRegistry();
         Entity createEntity();
