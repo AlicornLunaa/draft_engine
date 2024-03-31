@@ -20,6 +20,8 @@ set(SOURCES
 )
 
 set(HEADERS
+    src/draft/math/vector2_p.hpp
+    src/draft/math/vector3_p.hpp
 )
 
 set(INTERFACES

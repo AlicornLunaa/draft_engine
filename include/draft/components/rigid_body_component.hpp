@@ -2,6 +2,7 @@
 
 #include "draft/phys/rigid_body.hpp"
 #include "draft/phys/world.hpp"
+#include "box2d/b2_fixture.h"
 
 namespace Draft {
     struct RigidBodyComponent : public RigidBody {

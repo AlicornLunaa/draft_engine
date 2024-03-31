@@ -1,11 +1,13 @@
 #pragma once
-#include <box2d/box2d.h>
+
+#include "box2d/b2_world.h"
+#include "draft/math/vector2.hpp"
 #include "rigid_body.hpp"
 
 namespace Draft {
     class World : private b2World {
     public:
-        using b2World::b2World;
+	    World(const Vector2f& gravity) : b2World({ gravity.x, gravity.y }) {}
 
         /// Register a destruction listener. The listener is owned by you and must
         /// remain in scope.

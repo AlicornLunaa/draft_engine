@@ -16,6 +16,11 @@ namespace Draft {
         TransformComponent() {}
 
         // Operators
-        operator Transform () { return Transform().translate(position).rotate(rotation); }
+        operator Transform () {
+            auto t = Transform();
+            t.translate(position.x, position.y);
+            t.rotate(rotation);
+            return t;
+        }
     };
 }

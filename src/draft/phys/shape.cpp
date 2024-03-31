@@ -1,5 +1,6 @@
 #include "draft/phys/shape.hpp"
 #include "draft/math/vector2.hpp"
+#include "draft/math/vector2_p.hpp"
 
 namespace Draft {
     // Polygon
@@ -19,7 +20,7 @@ namespace Draft {
 
     size_t PolygonShape::addVertex(Vector2f vertex){
         vertices.push_back(vertex);
-        physVertices.push_back(vertex);
+        physVertices.push_back(vector_to_b2(vertex));
         physShape.Set(&physVertices[0], vertices.size());
         return vertices.size() - 1;
     }

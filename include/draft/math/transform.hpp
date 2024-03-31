@@ -1,5 +1,4 @@
 #pragma once
-#include "draft/math/vector2.hpp"
 #include <SFML/Graphics.hpp>
 #include <box2d/b2_math.h>
 
@@ -13,15 +12,15 @@ namespace Draft {
         Transform(const b2Mat33& m) : sf::Transform(m.ex.x, m.ex.y, m.ex.z, m.ey.x, m.ey.y, m.ey.z, m.ez.x, m.ez.y, m.ez.z) {}
         
         operator b2Transform () {
-            Vector2f pos = transformPoint({ 0, 0 });
+            auto pos = transformPoint({ 0, 0 });
             b2Rot rot(0);
-            return b2Transform(pos, rot);
+            return b2Transform({ pos.x, pos.y }, rot);
         }
 
         explicit operator const b2Transform () {
-            Vector2f pos = transformPoint({ 0, 0 });
+            auto pos = transformPoint({ 0, 0 });
             b2Rot rot(0);
-            return b2Transform(pos, rot);
+            return b2Transform({ pos.x, pos.y }, rot);
         }
 
         operator b2Mat33 () {

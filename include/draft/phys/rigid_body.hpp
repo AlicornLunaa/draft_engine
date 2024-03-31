@@ -71,17 +71,17 @@ namespace Draft {
 
         /// Get the world body origin position.
         /// @return the world position of the body's origin.
-        inline const Vector2f getPosition() const { return body->GetPosition(); }
+        inline const Vector2f getPosition() const { auto v = body->GetPosition(); return { v.x, v.y }; }
 
         /// Get the angle in radians.
         /// @return the current world rotation angle in radians.
         inline float getAngle() const { return body->GetAngle(); }
 
         /// Get the world position of the center of mass.
-        inline const Vector2f getWorldCenter() const { return body->GetWorldCenter(); }
+        inline const Vector2f getWorldCenter() const { auto v = body->GetWorldCenter(); return { v.x, v.y }; }
 
         /// Get the local position of the center of mass.
-        inline const Vector2f getLocalCenter() const { return body->GetLocalCenter(); }
+        inline const Vector2f getLocalCenter() const { auto v = body->GetLocalCenter(); return { v.x, v.y }; }
 
         /// Set the linear velocity of the center of mass.
         /// @param v the new linear velocity of the center of mass.
@@ -89,7 +89,7 @@ namespace Draft {
 
         /// Get the linear velocity of the center of mass.
         /// @return the linear velocity of the center of mass.
-        inline const Vector2f getLinearVelocity() const { return body->GetLinearVelocity(); }
+        inline const Vector2f getLinearVelocity() const { auto v = body->GetLinearVelocity(); return { v.x, v.y }; }
 
         /// Set the angular velocity.
         /// @param omega the new angular velocity in radians/second.
@@ -163,32 +163,32 @@ namespace Draft {
         /// Get the world coordinates of a point given the local coordinates.
         /// @param localPoint a point on the body measured relative the the body's origin.
         /// @return the same point expressed in world coordinates.
-        inline Vector2f getWorldPoint(const b2Vec2& localPoint) const { return body->GetWorldPoint(localPoint); }
+        inline Vector2f getWorldPoint(const b2Vec2& localPoint) const { auto v = body->GetWorldPoint(localPoint); return { v.x, v.y }; }
 
         /// Get the world coordinates of a vector given the local coordinates.
         /// @param localVector a vector fixed in the body.
         /// @return the same vector expressed in world coordinates.
-        inline Vector2f getWorldVector(const b2Vec2& localVector) const { return body->GetWorldVector(localVector); }
+        inline Vector2f getWorldVector(const b2Vec2& localVector) const { auto v = body->GetWorldVector(localVector); return { v.x, v.y }; }
 
         /// Gets a local point relative to the body's origin given a world point.
         /// @param worldPoint a point in world coordinates.
         /// @return the corresponding local point relative to the body's origin.
-        inline Vector2f getLocalPoint(const b2Vec2& worldPoint) const { return body->GetLocalPoint(worldPoint); }
+        inline Vector2f getLocalPoint(const b2Vec2& worldPoint) const { auto v = body->GetLocalPoint(worldPoint); return { v.x, v.y }; }
 
         /// Gets a local vector given a world vector.
         /// @param worldVector a vector in world coordinates.
         /// @return the corresponding local vector.
-        inline Vector2f getLocalVector(const b2Vec2& worldVector) const { return body->GetLocalVector(worldVector); }
+        inline Vector2f getLocalVector(const b2Vec2& worldVector) const { auto v = body->GetLocalVector(worldVector); return { v.x, v.y }; }
 
         /// Get the world linear velocity of a world point attached to this body.
         /// @param worldPoint a point in world coordinates.
         /// @return the world velocity of a point.
-        inline Vector2f getLinearVelocityFromWorldPoint(const b2Vec2& worldPoint) const { return body->GetLinearVelocityFromWorldPoint(worldPoint); }
+        inline Vector2f getLinearVelocityFromWorldPoint(const b2Vec2& worldPoint) const { auto v = body->GetLinearVelocityFromWorldPoint(worldPoint); return { v.x, v.y }; }
 
         /// Get the world velocity of a local point.
         /// @param localPoint a point in local coordinates.
         /// @return the world velocity of a point.
-        inline Vector2f getLinearVelocityFromLocalPoint(const b2Vec2& localPoint) const { return body->GetLinearVelocityFromLocalPoint(localPoint); }
+        inline Vector2f getLinearVelocityFromLocalPoint(const b2Vec2& localPoint) const { auto v = body->GetLinearVelocityFromLocalPoint(localPoint); return { v.x, v.y }; }
 
         /// Get the linear damping of the body.
         inline float getLinearDamping() const { return body->GetLinearDamping(); }

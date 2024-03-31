@@ -1,35 +1,44 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include <box2d/b2_math.h>
+
+#include <ostream>
 
 namespace Draft {
-    class Vector2f : public sf::Vector2f {
+    template<typename T>
+    class Vector2 {
     public:
-        using sf::Vector2f::Vector2f;
-        Vector2f(const sf::Vector2f& other) : sf::Vector2f(other.x, other.y) {}
-        Vector2f(const b2Vec2& other) : sf::Vector2f(other.x, other.y) {}
+        // Variables
+        T x;
+        T y;
 
-        operator b2Vec2 () { return b2Vec2(x, y); }
-        explicit operator const b2Vec2 () { return b2Vec2(x, y); }
+        // Constructor
+        Vector2() : x(), y() {};
+        Vector2(T x, T y) : x(x), y(y) {}
+
+        template<typename U>
+        Vector2(const Vector2<U>& other) : x((T)other.x), y((T)other.y) {}
+
+        // Operators
+        Vector2<T> operator- (){ return { -x, -y }; }
+        Vector2<T>& operator+= (const Vector2<T> &r){ x += r.x; y += r.y; return this; }
+        Vector2<T>& operator-= (const Vector2<T> &r){ x -= r.x; y -= r.y; return this; }
+        Vector2<T>& operator*= (T r){ x *= r; y *= r; return this; }
+        Vector2<T>& operator/= (T r){ x /= r; y /= r; return this; }
+        Vector2<T> operator+ (const Vector2<T> &r){ return { x + r.x, y + r.y }; }
+        Vector2<T> operator- (const Vector2<T> &r){ return { x - r.x, y - r.y }; }
+        Vector2<T> operator* (T r){ return { x * r, y * r }; }
+        Vector2<T> operator/ (T r){ return { x / r, y / r }; }
+        T operator* (const Vector2<T> &r){ return (x * r.x + y * r.y); }
+        bool operator== (const Vector2<T> &r){ return (x == r.x && y == r.y); }
+        bool operator!= (const Vector2<T> &r){ return (x != r.x || y != r.y); }
+
+        friend std::ostream& operator<< (std::ostream& stream, const Vector2<T>& v){
+            stream << "(" << v.x << ", " << v.y << ")";
+            return stream;
+        }
     };
 
-    class Vector2i : public sf::Vector2i {
-    public:
-        using sf::Vector2i::Vector2i;
-        Vector2i(const sf::Vector2i& other) : sf::Vector2i(other.x, other.y) {}
-        Vector2i(const b2Vec2& other) : sf::Vector2i((int)other.x, (int)other.y) {}
-
-        operator b2Vec2 () { return b2Vec2(x, y); }
-        explicit operator const b2Vec2 () { return b2Vec2(x, y); }
-    };
-
-    class Vector2u : public sf::Vector2u {
-    public:
-        using sf::Vector2u::Vector2u;
-        Vector2u(const sf::Vector2u& other) : sf::Vector2u(other.x, other.y) {}
-        Vector2u(const b2Vec2& other) : sf::Vector2u((unsigned int)other.x, (unsigned int)other.y) {}
-
-        operator b2Vec2 () { return b2Vec2(x, y); }
-        explicit operator const b2Vec2 () { return b2Vec2(x, y); }
-    };
+    typedef Vector2<float> Vector2f;
+    typedef Vector2<double> Vector2d;
+    typedef Vector2<int> Vector2i;
+    typedef Vector2<unsigned int> Vector2u;
 }
