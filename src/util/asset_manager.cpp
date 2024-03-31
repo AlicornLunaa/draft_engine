@@ -1,7 +1,6 @@
 #include <filesystem>
 
 #include "draft/util/asset_manager.hpp"
-#include "draft/util/ansi_colors.hpp"
 #include "draft/util/logger.hpp"
 
 namespace Draft {
@@ -182,24 +181,24 @@ namespace Draft {
                 // Load both
                 shader->loadFromStream(vertexFileStream, fragmentFileStream);
 
-                Logger::printRaw(std::string(Color::Reset) + "\n\tVertex...");
-                Logger::printRaw(std::string(Color::Green) + "Loaded\n");
-                Logger::printRaw(std::string(Color::Reset) + "\tFragment...");
-                Logger::printRaw(std::string(Color::Green) + "Loaded\n");
+                Logger::printRaw("\tVertex...");
+                Logger::printRaw("Loaded");
+                Logger::printRaw("\tFragment...");
+                Logger::printRaw("Loaded\n");
             } else if(vertexSuccess){
                 // Load just vertex
                 shader->loadFromStream(vertexFileStream, sf::Shader::Type::Vertex);
 
-                Logger::printRaw(std::string(Color::Reset) + "\n\tVertex...");
-                Logger::printRaw(std::string(Color::Green) + "Loaded\n");
+                Logger::printRaw("\tVertex...");
+                Logger::printRaw("Loaded\n");
             } else if(fragmentSuccess){
                 // Load just fragment
                 shader->loadFromStream(fragmentFileStream, sf::Shader::Type::Fragment);
 
-                Logger::printRaw(std::string(Color::Reset) + "\n\tFragment...");
-                Logger::printRaw(std::string(Color::Green) + "Loaded\n");
+                Logger::printRaw("\tFragment...");
+                Logger::printRaw("Loaded\n");
             } else {
-                Logger::printRaw(std::string(Color::Red) + " Not loaded\n");
+                Logger::printRaw(" Not loaded\n");
             }
         }
     }

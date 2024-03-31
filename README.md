@@ -1,7 +1,7 @@
 # Draft Engine
 
 ## Engine goals, loose things to do in free time
-- [ ] Logging system ingame
+- [x] Logging system ingame
 - [ ] Scenegraph
 - [ ] Rendering api
 - [ ] Animation api

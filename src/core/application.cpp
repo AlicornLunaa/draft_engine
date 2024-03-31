@@ -24,8 +24,16 @@ namespace Draft {
         imGuiIO.IniFilename = nullptr;
         imGuiIO.LogFilename = nullptr;
 
+        // Register basic commands
+        console.registerCmd("reload_assets", [this](ConsoleArgs args){
+            assetManager.reload();
+            return true;
+        });
+
         // Redirect cout to console
+        #ifndef DEBUG
         oldOutBuf = std::cout.rdbuf(console.getStream().rdbuf());
+        #endif
     }
 
     Application::~Application(){
@@ -34,7 +42,9 @@ namespace Draft {
         ImGui::SFML::Shutdown();
 
         // Restore cout to stdout
+        #ifndef DEBUG
         std::cout.rdbuf(oldOutBuf);
+        #endif
     }
 
     void Application::run(){
