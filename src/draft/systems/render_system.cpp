@@ -1,4 +1,4 @@
-#include "draft/systems.h"
+#include "draft/systems.hpp"
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/texture_component.hpp"
 #include "draft/components/transform_component.hpp"

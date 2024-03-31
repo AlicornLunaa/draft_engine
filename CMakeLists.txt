@@ -42,15 +42,15 @@ set(INTERFACES
     include/draft/phys/rigid_body.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
-    include/draft/rendering/camera.h
+    include/draft/rendering/camera.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
     include/draft/util/constants.hpp
     include/draft/util/logger.hpp
-    include/draft/util/json.h
+    include/draft/util/json.hpp
     include/draft/widgets/console.hpp
-    include/draft/systems.h
+    include/draft/systems.hpp
     include/draft/engine.hpp
 )
 
