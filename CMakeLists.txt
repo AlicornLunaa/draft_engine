@@ -2,20 +2,21 @@ cmake_minimum_required(VERSION 3.8)
 project("draft_engine" VERSION 0.0.1 LANGUAGES CXX)
 
 set(SOURCES
-    src/core/application.cpp
-    src/core/scene.cpp
-    src/core/entity.cpp
-    src/interface/element.cpp
-    src/interface/panel.cpp
-    src/interface/button.cpp
-    src/math/transform.cpp
-    src/phys/collider.cpp
-    src/phys/shape.cpp
-    src/util/logger.cpp
-    src/util/asset_manager.cpp
-    src/widgets/console.cpp
-    src/systems/render_system.cpp
-    src/systems/physics_system.cpp
+    src/draft/core/application.cpp
+    src/draft/core/scene.cpp
+    src/draft/core/entity.cpp
+    src/draft/interface/element.cpp
+    src/draft/interface/panel.cpp
+    src/draft/interface/button.cpp
+    src/draft/math/transform.cpp
+    src/draft/phys/collider.cpp
+    src/draft/phys/shape.cpp
+    src/draft/util/logger.cpp
+    src/draft/util/json.cpp
+    src/draft/util/asset_manager.cpp
+    src/draft/widgets/console.cpp
+    src/draft/systems/render_system.cpp
+    src/draft/systems/physics_system.cpp
 )
 
 set(HEADERS
@@ -41,11 +42,13 @@ set(INTERFACES
     include/draft/phys/rigid_body.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
+    include/draft/rendering/camera.h
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
     include/draft/util/constants.hpp
     include/draft/util/logger.hpp
+    include/draft/util/json.h
     include/draft/widgets/console.hpp
     include/draft/systems.h
     include/draft/engine.hpp
