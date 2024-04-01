@@ -1,15 +1,10 @@
 #pragma once
+
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
 namespace Draft {
-    // Structure to hold the rectangle and the texture reference
-    struct TextureRegion {
-        sf::Texture& texture;
-        sf::IntRect& region;
-    };
-
     // Owns and manages all resources inside the game
     class AssetManager {
     private:

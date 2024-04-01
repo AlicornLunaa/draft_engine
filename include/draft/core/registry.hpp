@@ -1,10 +1,7 @@
-#ifndef REGISTRY_H
-#define REGISTRY_H
+#pragma once
 
 #include "entt/entt.hpp"
 
 namespace Draft {
     using Registry = entt::registry;
 };
-
-#endif

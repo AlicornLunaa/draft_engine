@@ -5,7 +5,7 @@
 
 namespace Draft {
     Application::Application(const char* title, const unsigned int width, const unsigned int height)
-            : window(width, height, title), width(width), height(height) {
+            : window(width, height, title) {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
         
@@ -16,10 +16,10 @@ namespace Draft {
         }
 
         // ImGUI
-        if(!ImGui::SFML::Init(window.get_impl())){
-            Logger::println(Level::CRITICAL, "ImGUI", "Failed to initialize, exitting.");
-            exit(1);
-        }
+        // if(!ImGui::SFML::Init(window.get_impl())){
+        //     Logger::println(Level::CRITICAL, "ImGUI", "Failed to initialize, exitting.");
+        //     exit(1);
+        // }
         auto& imGuiIO = ImGui::GetIO();
         imGuiIO.IniFilename = nullptr;
         imGuiIO.LogFilename = nullptr;
@@ -55,29 +55,29 @@ namespace Draft {
 
             // Handle control events
             while(window.poll_event(event)){
-                ImGui::SFML::ProcessEvent(window.get_impl(), event);
+                // ImGui::SFML::ProcessEvent(window.get_impl(), event);
 
                 switch(event.type){
                 case sf::Event::Closed:
                     window.close();
                     break;
                 default:
-                    if(activeScene)
-                        activeScene->handleEvent(event);
+                    // if(activeScene)
+                    //     activeScene->handleEvent(event);
                     break;
                 }
             }
 
             // Handle updates and stuff
-            ImGui::SFML::Update(window.get_impl(), deltaTime);
-            if(activeScene)
-                activeScene->update(deltaTime);
+            // ImGui::SFML::Update(window.get_impl(), deltaTime);
+            // if(activeScene)
+            //     activeScene->update(deltaTime);
 
             // Handle SFML rendering
             window.clear();
 
-            if(activeScene)
-                activeScene->render(deltaTime);
+            // if(activeScene)
+            //     activeScene->render(deltaTime);
 
             window.display();
         }

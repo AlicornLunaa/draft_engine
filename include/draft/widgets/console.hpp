@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/util/circular_buffer.hpp"
+
 #include <functional>
 #include <sstream>
 #include <vector>

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "box2d/b2_math.h"
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_edge_shape.h"
 #include "box2d/b2_circle_shape.h"
-#include "draft/math/transform.hpp"
 #include "draft/math/vector2.hpp"
+
+#include <vector>
 
 namespace Draft {
     enum class ShapeType { POLYGON, CIRCLE, EDGE };
@@ -18,7 +20,9 @@ namespace Draft {
         float friction = 0.2f;
         float restitution = 0.2f;
         float density = 1.0f;
-        Transform transform;
+
+        Vector2f position;
+        float rotation;
 
         // Constructors
         Shape(const Shape& other) = default;
@@ -47,7 +51,7 @@ namespace Draft {
         ~PolygonShape() = default;
 
         // Functions
-        inline bool contains(const Vector2f& point){ return physShape.TestPoint(transform, { point.x, point.y }); };
+        inline bool contains(const Vector2f& point){ return physShape.TestPoint(b2Transform({ position.x, position.y }, b2Rot(rotation)), { point.x, point.y }); };
         inline const b2Shape* getPhysShape(){ return &physShape; }
 
         void setAsBox(float hw, float hy);
@@ -74,7 +78,7 @@ namespace Draft {
         ~CircleShape() = default;
 
         // Functions
-        inline bool contains(const Vector2f& point){ return physShape.TestPoint(transform, { point.x, point.y }); };
+        inline bool contains(const Vector2f& point){ return physShape.TestPoint(b2Transform({ position.x, position.y }, b2Rot(rotation)), { point.x, point.y }); };
         inline const b2Shape* getPhysShape(){ return &physShape; }
 
         inline float getRadius(){ return radius; }

@@ -1,5 +1,4 @@
-#ifndef JSON_H
-#define JSON_H
+#pragma once
 
 #include <string>
 
@@ -15,5 +14,3 @@ namespace Draft {
     std::string encode_json(const JSONInterface* data);
     void* decode_json(const std::string& data);
 };
-
-#endif

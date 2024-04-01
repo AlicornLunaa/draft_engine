@@ -7,7 +7,6 @@
 #include "SFML/Graphics/RenderStates.hpp"
 #include "SFML/Graphics/Vertex.hpp"
 #include "SFML/Graphics/VertexBuffer.hpp"
-#include "SFML/Window/ContextSettings.hpp"
 #include "SFML/Window/Cursor.hpp"
 #include "SFML/Window/Event.hpp"
 #include "draft/math/vector2.hpp"
@@ -16,8 +15,6 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-
-namespace sf { class RenderWindow; };
 
 namespace Draft {
     class RenderWindow {
@@ -36,7 +33,6 @@ namespace Draft {
         void set_vertical_sync(bool enabled);
         void set_framerate_limit(unsigned int limit);
 
-        const sf::ContextSettings& get_settings() const;
         bool poll_event(sf::Event& event);
         bool wait_event(sf::Event& event);
         void clear(const sf::Color& color = sf::Color(0, 0, 0, 255));
@@ -75,10 +71,9 @@ namespace Draft {
         Vector2i map_coords_to_pixel(const Vector2f& point) const;
         Vector2i map_coords_to_pixel(const Vector2f& point, const Camera& camera) const;
 
-        sf::RenderWindow& get_impl(); // Internal use
-
     private:
         // pImpl
-        std::unique_ptr<sf::RenderWindow> ptr;
+        struct Impl;
+        std::unique_ptr<Impl> ptr;
     };
 };

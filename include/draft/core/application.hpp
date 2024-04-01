@@ -13,7 +13,6 @@
 namespace Draft {
     class Application {
     private:
-        unsigned int width, height;
         Scene* activeScene = nullptr;
         sf::Clock deltaClock;
         sf::Event event;
@@ -33,8 +32,5 @@ namespace Draft {
 
         void setScene(Scene* scene){ activeScene = scene; }
         Scene* getScene(){ return activeScene; }
-
-        unsigned int getWidth(){ return width; }
-        unsigned int getHeight(){ return height; }
     };
 }

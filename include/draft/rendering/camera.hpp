@@ -1,10 +1,7 @@
-#ifndef CAMERA_H
-#define CAMERA_H
-
-#include "SFML/Graphics/View.hpp"
+#pragma once
 
 namespace Draft {
-    using Camera = sf::View;
-};
+    class Camera {
 
-#endif
+    };
+};

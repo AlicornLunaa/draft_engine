@@ -5,10 +5,6 @@ set(SOURCES
     src/draft/core/application.cpp
     src/draft/core/scene.cpp
     src/draft/core/entity.cpp
-    src/draft/interface/element.cpp
-    src/draft/interface/panel.cpp
-    src/draft/interface/button.cpp
-    src/draft/math/transform.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
     src/draft/rendering/render_window.cpp
@@ -34,15 +30,8 @@ set(INTERFACES
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
     include/draft/core/entity.hpp
-    include/draft/interface/element.hpp
-    include/draft/interface/panel.hpp
-    include/draft/interface/button.hpp
-    include/draft/math/transform.hpp
     include/draft/math/vector2.hpp
     include/draft/math/vector3.hpp
-    include/draft/phys/phys_aliases.hpp
-    include/draft/phys/world.hpp
-    include/draft/phys/rigid_body.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
     include/draft/rendering/camera.hpp
