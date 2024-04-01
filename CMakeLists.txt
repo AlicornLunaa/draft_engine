@@ -8,6 +8,7 @@ set(SOURCES
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
     src/draft/rendering/render_window.cpp
+    src/draft/rendering/shader.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
     src/draft/util/asset_manager.cpp
@@ -36,6 +37,7 @@ set(INTERFACES
     include/draft/phys/shape.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/render_window.hpp
+    include/draft/rendering/shader.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
@@ -49,6 +51,9 @@ set(INTERFACES
 set(SFML_STATIC_LIBRARIES TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(SFML_USE_STATIC_STD_LIBS "Use static libraries" ON)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
@@ -57,12 +62,14 @@ option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
 option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 
 include(FetchContent)
+FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
 FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TAG 2.6.x)
 FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git)
 FetchContent_Declare(imgui-sfml GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git GIT_TAG 2.6.x)
 FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG main)
 FetchContent_Declare(entt GIT_REPOSITORY https://github.com/skypjack/entt.git GIT_TAG v3.8.x)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
+FetchContent_MakeAvailable(glfw)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(imgui)
 FetchContent_MakeAvailable(box2d)
@@ -78,10 +85,6 @@ elseif(LINUX)
     set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 endif()
 
-set(IMGUI_DIR ${imgui_SOURCE_DIR})
-option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
-FetchContent_MakeAvailable(imgui-sfml)
-
 add_library(${PROJECT_NAME} STATIC)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -96,5 +99,5 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
