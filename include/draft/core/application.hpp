@@ -6,6 +6,7 @@
 #include <imgui-SFML.h>
 
 #include "draft/core/scene.hpp"
+#include "draft/rendering/render_window.hpp"
 #include "draft/util/asset_manager.hpp"
 #include "draft/widgets/console.hpp"
 
@@ -21,7 +22,7 @@ namespace Draft {
     public:
         AssetManager assetManager;
         Console console;
-        sf::RenderWindow window;
+        RenderWindow window;
         sf::Time deltaTime;
         
         Application(const char* title, const unsigned int width, const unsigned int height);

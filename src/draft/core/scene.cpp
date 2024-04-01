@@ -8,7 +8,7 @@
 
 namespace Draft {
     Scene::Scene(Application* app) : app(app){
-        this->uiCamera = sf::View(sf::FloatRect(0, 0, app->window.getSize().x, app->window.getSize().y));
+        this->uiCamera = sf::View(sf::FloatRect(0, 0, app->window.get_size().x, app->window.get_size().y));
     }
 
     entt::registry& Scene::getRegistry(){
@@ -36,7 +36,7 @@ namespace Draft {
 
     void Scene::render(sf::Time deltaTime){
         app->console.draw();
-        app->window.setView(uiCamera);
-        ImGui::SFML::Render(app->window);
+        app->window.set_view(uiCamera);
+        ImGui::SFML::Render(app->window.get_impl());
     }
 }

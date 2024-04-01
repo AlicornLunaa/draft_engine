@@ -38,8 +38,8 @@ namespace Draft {
         }
     };
 
-    typedef Vector3<float> Vector2f;
-    typedef Vector3<double> Vector2d;
-    typedef Vector3<int> Vector2i;
-    typedef Vector3<unsigned int> Vector2u;
+    typedef Vector3<float> Vector3f;
+    typedef Vector3<double> Vector3d;
+    typedef Vector3<int> Vector3i;
+    typedef Vector3<unsigned int> Vector3u;
 }

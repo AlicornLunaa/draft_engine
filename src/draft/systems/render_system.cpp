@@ -4,7 +4,7 @@
 #include "draft/components/transform_component.hpp"
 #include "draft/math/vector2_p.hpp"
 
-void Draft::renderSystem(entt::registry& registry, sf::RenderWindow* window){
+void Draft::renderSystem(entt::registry& registry, RenderWindow& window){
     auto view = registry.view<SpriteComponent, TextureComponent, TransformComponent>();
     sf::RectangleShape spriteShape;
     
@@ -23,6 +23,6 @@ void Draft::renderSystem(entt::registry& registry, sf::RenderWindow* window){
         spriteShape.setRotation(spriteComponent.rotation);
         spriteShape.setSize(vector_to_sf(spriteComponent.size));
 
-        window->draw(spriteShape, states);
+        window.draw(spriteShape, states);
     }
 }

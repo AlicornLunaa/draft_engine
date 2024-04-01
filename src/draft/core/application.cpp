@@ -5,7 +5,7 @@
 
 namespace Draft {
     Application::Application(const char* title, const unsigned int width, const unsigned int height)
-            : window(sf::RenderWindow(sf::VideoMode(width, height), title)), width(width), height(height) {
+            : window(width, height, title), width(width), height(height) {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
         
@@ -16,7 +16,7 @@ namespace Draft {
         }
 
         // ImGUI
-        if(!ImGui::SFML::Init(window)){
+        if(!ImGui::SFML::Init(window.get_impl())){
             Logger::println(Level::CRITICAL, "ImGUI", "Failed to initialize, exitting.");
             exit(1);
         }
@@ -49,13 +49,13 @@ namespace Draft {
 
     void Application::run(){
         // Start application loop
-        while(window.isOpen()){
+        while(window.is_open()){
             // Clock reset
             deltaTime = deltaClock.restart();
 
             // Handle control events
-            while(window.pollEvent(event)){
-                ImGui::SFML::ProcessEvent(window, event);
+            while(window.poll_event(event)){
+                ImGui::SFML::ProcessEvent(window.get_impl(), event);
 
                 switch(event.type){
                 case sf::Event::Closed:
@@ -69,7 +69,7 @@ namespace Draft {
             }
 
             // Handle updates and stuff
-            ImGui::SFML::Update(window, deltaTime);
+            ImGui::SFML::Update(window.get_impl(), deltaTime);
             if(activeScene)
                 activeScene->update(deltaTime);
 

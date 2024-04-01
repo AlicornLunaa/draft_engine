@@ -11,6 +11,7 @@ set(SOURCES
     src/draft/math/transform.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
+    src/draft/rendering/render_window.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
     src/draft/util/asset_manager.cpp
@@ -45,6 +46,7 @@ set(INTERFACES
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
     include/draft/rendering/camera.hpp
+    include/draft/rendering/render_window.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
@@ -53,7 +55,6 @@ set(INTERFACES
     include/draft/util/json.hpp
     include/draft/widgets/console.hpp
     include/draft/systems.hpp
-    include/draft/engine.hpp
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)
