@@ -50,6 +50,8 @@ namespace Draft {
 
             // Handle control events
             window.poll_events();
+            window.render();
+            window.swap_buffers();
             // while(window.poll_event(event)){
             //     // ImGui::SFML::ProcessEvent(window.get_impl(), event);
 

@@ -54,6 +54,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
+set(GLAD_API "gl=" CACHE STRING "API type/version pairs, like \"gl=3.2,gles=\", no version means latest")
+set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(SFML_USE_STATIC_STD_LIBS "Use static libraries" ON)
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
@@ -75,6 +78,8 @@ FetchContent_MakeAvailable(imgui)
 FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(entt)
 FetchContent_MakeAvailable(nlohmann_json)
+
+add_subdirectory(vendor/glad)
 
 set(IMGUI_DIR ${imgui_SOURCE_DIR})
 FetchContent_MakeAvailable(imgui-sfml)
@@ -99,5 +104,5 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw glad ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
