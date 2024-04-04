@@ -1,7 +1,9 @@
+#define GLFW_INCLUDE_NONE
 #include "draft/core/application.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/logger.hpp"
+#include "GLFW/glfw3.h"
 #include "glad/gl.h"
 
 namespace Draft {
@@ -47,10 +49,12 @@ namespace Draft {
 
         VertexBuffer testBuffer{};
         testBuffer.buffer(0, {
-            {-0.5f, -0.5f, 0.0f},
-            {0.5f, -0.5f, 0.0f},
-            {0.0f,  0.5f, 0.0f}
-        }); 
+            { 0.5f,  0.5f, 0.0f},  // top right
+            { 0.5f, -0.5f, 0.0f},  // bottom right
+            {-0.5f, -0.5f, 0.0f},  // bottom left
+            {-0.5f,  0.5f, 0.0f}   // top left 
+        });
+        testBuffer.buffer(1, std::vector<int>{0, 1, 2, 0, 2, 3}, GL_ELEMENT_ARRAY_BUFFER);
 
         // Start application loop
         while(window.is_open()){
@@ -61,9 +65,11 @@ namespace Draft {
             window.poll_events();
             window.render();
 
-            testShader.use();
+            testShader.bind();
+            testShader.set_uniform("test_uniform", (float)glfwGetTime());
             testBuffer.bind();
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            testBuffer.unbind();
 
             window.swap_buffers();
             // while(window.poll_event(event)){

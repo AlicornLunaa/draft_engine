@@ -6,10 +6,10 @@
 namespace Draft {
     // Inner class implementation
     template<typename T>
-    VertexBuffer::Buffer<T>::Buffer(const std::vector<T>& data){
+    VertexBuffer::Buffer<T>::Buffer(const std::vector<T>& data, int type){
         glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(T), &data[0], GL_STATIC_DRAW);
+        glBindBuffer(type, vbo);
+        glBufferData(type, data.size() * sizeof(T), &data[0], GL_STATIC_DRAW);
     }
 
     template<typename T>
@@ -32,33 +32,33 @@ namespace Draft {
     }
 
     // Functions
-    void VertexBuffer::buffer(unsigned int index, const std::vector<int>& data){
+    void VertexBuffer::buffer(unsigned int index, const std::vector<int>& data, int type){
         bind();
-        Buffer buffer(data); // RAII implementation for glGenBuffers
+        Buffer buffer(data, type); // RAII implementation for glGenBuffers
         glVertexAttribPointer(index, 1, GL_INT, GL_FALSE, sizeof(int), (void*)0);
         glEnableVertexAttribArray(index);
         unbind();
     }
     
-    void VertexBuffer::buffer(unsigned int index, const std::vector<float>& data){
+    void VertexBuffer::buffer(unsigned int index, const std::vector<float>& data, int type){
         bind();
-        Buffer buffer(data); // RAII implementation for glGenBuffers
+        Buffer buffer(data, type); // RAII implementation for glGenBuffers
         glVertexAttribPointer(index, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
         glEnableVertexAttribArray(index);
         unbind();
     }
 
-    void VertexBuffer::buffer(unsigned int index, const std::vector<Vector2f>& data){
+    void VertexBuffer::buffer(unsigned int index, const std::vector<Vector2f>& data, int type){
         bind();
-        Buffer buffer(data); // RAII implementation for glGenBuffers
+        Buffer buffer(data, type); // RAII implementation for glGenBuffers
         glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2f), (void*)0);
         glEnableVertexAttribArray(index);
         unbind();
     }
 
-    void VertexBuffer::buffer(unsigned int index, const std::vector<Vector3f>& data){
+    void VertexBuffer::buffer(unsigned int index, const std::vector<Vector3f>& data, int type){
         bind();
-        Buffer buffer(data); // RAII implementation for glGenBuffers
+        Buffer buffer(data, type); // RAII implementation for glGenBuffers
         glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3f), (void*)0);
         glEnableVertexAttribArray(index);
         unbind();
