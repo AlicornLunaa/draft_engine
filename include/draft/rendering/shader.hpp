@@ -1,10 +1,17 @@
 #pragma once
 
-#include <memory>
 #include <string>
 
 namespace Draft {
     class Shader {
+    private:
+        // Variables
+        const std::string path;
+        unsigned int shaderId;
+
+        // Private variables
+        void load_shaders(const std::string& shaderPath);
+
     public:
         // Constructors
         Shader(const std::string& shaderPath);
@@ -15,10 +22,7 @@ namespace Draft {
         Shader& operator= (const Shader& other) = delete;
 
         // Functions
-
-    private:
-        // Pimpl
-        struct Impl;
-        std::unique_ptr<Impl> ptr;
+        void use();
+        void set_uniform();
     };
 };

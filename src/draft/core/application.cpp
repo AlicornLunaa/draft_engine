@@ -1,6 +1,8 @@
 #include "draft/core/application.hpp"
 #include "draft/rendering/shader.hpp"
+#include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/logger.hpp"
+#include "glad/gl.h"
 
 namespace Draft {
     Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title) {
@@ -43,6 +45,13 @@ namespace Draft {
     void Application::run(){
         Shader testShader("./assets/shaders/test");
 
+        VertexBuffer testBuffer{};
+        testBuffer.buffer(0, {
+            {-0.5f, -0.5f, 0.0f},
+            {0.5f, -0.5f, 0.0f},
+            {0.0f,  0.5f, 0.0f}
+        }); 
+
         // Start application loop
         while(window.is_open()){
             // Clock reset
@@ -51,6 +60,11 @@ namespace Draft {
             // Handle control events
             window.poll_events();
             window.render();
+
+            testShader.use();
+            testBuffer.bind();
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
             window.swap_buffers();
             // while(window.poll_event(event)){
             //     // ImGui::SFML::ProcessEvent(window.get_impl(), event);
