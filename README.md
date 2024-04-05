@@ -1,4 +1,5 @@
 # Draft Engine
+Just a project to learn computer graphics, openGL, and C++ library creation.
 
 ## Engine goals, loose things to do in free time
 - [x] Logging system ingame
