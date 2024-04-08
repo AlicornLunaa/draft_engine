@@ -43,6 +43,7 @@ namespace Draft {
 
         // Functions
         void draw();
+        void set_open(bool open = true);
         void registerCmd(const std::string& key, ConsoleFunc func);
         void deleteCmd(const std::string& key);
         void print(const std::string& text);

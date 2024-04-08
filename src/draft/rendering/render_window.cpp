@@ -7,6 +7,10 @@
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 using namespace std;
 
 namespace Draft {
@@ -41,9 +45,25 @@ namespace Draft {
 
             // Setup opengl context
             glViewport(0, 0, w, h);
+
+            // Setup imgui
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            auto& imGuiIO = ImGui::GetIO();
+            imGuiIO.IniFilename = nullptr;
+            imGuiIO.LogFilename = nullptr;
+            ImGui::StyleColorsDark();
+            ImGui_ImplGlfw_InitForOpenGL(window, true);
+            ImGui_ImplOpenGL3_Init("#version 450");
         }
 
         ~Impl(){
+            // Cleanup ImGUI
+            ImGui_ImplOpenGL3_Shutdown();
+            ImGui:ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
+
+            // Cleanup opengl
             glfwDestroyWindow(window);
             glfwTerminate();
         }
@@ -56,11 +76,25 @@ namespace Draft {
 
     // Functions
     bool RenderWindow::is_open(){ return !glfwWindowShouldClose(ptr->window); }
-    void RenderWindow::swap_buffers(){ glfwSwapBuffers(ptr->window); }
     void RenderWindow::poll_events(){ glfwPollEvents(); }
 
     void RenderWindow::render(){
+        // Clear window
         glClearColor(0.2, 0.3, 0.4, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // ImGUI frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
+
+    void RenderWindow::swap_buffers(){
+        // Finalize ImGUI
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // Finalize frame
+        glfwSwapBuffers(ptr->window);
     }
 };

@@ -1,13 +1,12 @@
-#include "draft/widgets/console.hpp"
-#include "draft/util/logger.hpp"
-#include <SFML/Graphics.hpp>
 #include <cstddef>
 #include <format>
-#include <imgui.h>
 #include <string>
 #include <vector>
 
-using namespace sf;
+#include "draft/widgets/console.hpp"
+#include "draft/util/logger.hpp"
+#include "imgui.h"
+
 using namespace std;
 
 namespace Draft {
@@ -97,7 +96,8 @@ namespace Draft {
             ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
             ImGui::SameLine();
 
-            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && inputBuffer[0] != '\0')){
+            //! if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && inputBuffer[0] != '\0')){ // TODO: FIX
+            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() })){
                 string rawCommand(inputBuffer, 512);
                 vector<string> argList;
                 parseArguments(rawCommand, argList);
@@ -112,12 +112,16 @@ namespace Draft {
         }
 
         // Handle pressing keys
-        if(Keyboard::isKeyPressed(Keyboard::Tilde) && !mKeyPressed){
-            mOpened = !mOpened;
-            mKeyPressed = true;
-        } else if(!Keyboard::isKeyPressed(Keyboard::Tilde) && mKeyPressed){
-            mKeyPressed = false;
-        }
+        // if(Keyboard::isKeyPressed(Keyboard::Tilde) && !mKeyPressed){
+        //     mOpened = !mOpened;
+        //     mKeyPressed = true;
+        // } else if(!Keyboard::isKeyPressed(Keyboard::Tilde) && mKeyPressed){
+        //     mKeyPressed = false;
+        // }
+    }
+
+    void Console::set_open(bool open){
+        mOpened = open;
     }
 
     void Console::registerCmd(const string& key, ConsoleFunc func){

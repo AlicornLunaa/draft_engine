@@ -1,4 +1,7 @@
 #define GLFW_INCLUDE_NONE
+
+#include <iostream>
+
 #include "draft/core/application.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
@@ -10,30 +13,16 @@ namespace Draft {
     Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title) {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
-        
-        // Make sure game can run, handle arguments, etc
-        // if(!sf::Shader::isAvailable()){
-        //     Logger::println(Level::CRITICAL, "Draft Engine", "Shaders unavailable, maybe OpenGL is too old? Cannot continue.");
-        //     exit(1);
-        // }
-
-        // ImGUI
-        // if(!ImGui::SFML::Init(window.get_impl())){
-        //     Logger::println(Level::CRITICAL, "ImGUI", "Failed to initialize, exitting.");
-        //     exit(1);
-        // }
-        // auto& imGuiIO = ImGui::GetIO();
-        // imGuiIO.IniFilename = nullptr;
-        // imGuiIO.LogFilename = nullptr;
-
-        // Register basic commands
-        // console.registerCmd("reload_assets", [this](ConsoleArgs args){
-        //     assetManager.reload();
-        //     return true;
-        // });
 
         // Redirect cout to console
-        // oldOutBuf = std::cout.rdbuf(console.getStream().rdbuf());
+        oldOutBuf = std::cout.rdbuf(console.getStream().rdbuf());
+
+        // Register basic commands
+        console.registerCmd("reload_assets", [this](ConsoleArgs args){
+            // assetManager.reload();
+            return true;
+        });
+        console.set_open();
     }
 
     Application::~Application(){
@@ -41,7 +30,7 @@ namespace Draft {
         Logger::println(Level::INFO, "Draft Engine", "Exitting...");
 
         // Restore cout to stdout
-        // std::cout.rdbuf(oldOutBuf);
+        std::cout.rdbuf(oldOutBuf);
     }
 
     void Application::run(){
@@ -70,6 +59,8 @@ namespace Draft {
             testBuffer.bind();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             testBuffer.unbind();
+
+            console.draw();
 
             window.swap_buffers();
             // while(window.poll_event(event)){

@@ -69,22 +69,17 @@ option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 include(FetchContent)
 FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
 FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TAG 2.6.x)
-FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git)
-FetchContent_Declare(imgui-sfml GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git GIT_TAG 2.6.x)
 FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG main)
 FetchContent_Declare(entt GIT_REPOSITORY https://github.com/skypjack/entt.git GIT_TAG v3.8.x)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_MakeAvailable(glfw)
 FetchContent_MakeAvailable(SFML)
-FetchContent_MakeAvailable(imgui)
 FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(entt)
 FetchContent_MakeAvailable(nlohmann_json)
 
 add_subdirectory(vendor/glad)
-
-set(IMGUI_DIR ${imgui_SOURCE_DIR})
-FetchContent_MakeAvailable(imgui-sfml)
+add_subdirectory(vendor/imgui)
 
 if(WIN32)
 	set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
@@ -106,5 +101,5 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw glad ImGui-SFML::ImGui-SFML EnTT::EnTT box2d nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw glad imgui EnTT::EnTT box2d nlohmann_json::nlohmann_json)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

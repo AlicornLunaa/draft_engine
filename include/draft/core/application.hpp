@@ -2,6 +2,7 @@
 
 // #include "draft/core/scene.hpp"
 #include "draft/rendering/render_window.hpp"
+#include "draft/widgets/console.hpp"
 
 namespace Draft {
     class Application {
@@ -13,8 +14,8 @@ namespace Draft {
 
     public:
         // AssetManager assetManager;
-        // Console console;
         RenderWindow window;
+        Console console;
         // sf::Time deltaTime;
         
         Application(const char* title, const unsigned int width, const unsigned int height);
