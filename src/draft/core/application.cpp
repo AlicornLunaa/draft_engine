@@ -50,7 +50,7 @@ namespace Draft {
     }
 
     void Application::run(){
-        Matrix<float, 4, 4> transform = Matrix4x4::translation({ 0.5f, 0, 0 });
+        Matrix<float, 4, 4> transform = Matrix4::translation({ 0.5f, 0, 0 });
 
         Shader& testShader = assetManager.getShader("./assets/shaders/test");
         testShader.bind();
@@ -93,7 +93,7 @@ namespace Draft {
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());
-            testShader.set_uniform("transform", transform * Matrix4x4::rotation({ (float)glfwGetTime(), (float)glfwGetTime(), 0 }));
+            testShader.set_uniform("transform", transform * Matrix4::rotation({ (float)glfwGetTime(), (float)glfwGetTime(), 0 }));
             testTexture1.bind(0);
             testTexture2.bind(1);
             testBuffer.bind();
@@ -107,7 +107,7 @@ namespace Draft {
             //     // ImGui::SFML::ProcessEvent(window.get_impl(), event);
 
             //     switch(event.type){
-            //     case sf::Event::Closed:
+            //     case sf::Event::Closed:textureQueue
             //         window.close();
             //         break;
             //     default:

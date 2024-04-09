@@ -51,6 +51,7 @@ namespace Draft {
     }
 
     void Texture::reload(){
+        unbind();
         glDeleteTextures(1, &texId);
         load_texture(path);
     }

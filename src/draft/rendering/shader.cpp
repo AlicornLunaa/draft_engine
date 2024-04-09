@@ -117,6 +117,7 @@ namespace Draft {
     }
 
     void Shader::reload(){
+        unbind();
         glDeleteProgram(shaderId);
         load_shaders(path);
     }
@@ -139,7 +140,7 @@ namespace Draft {
     void Shader::set_uniform(const std::string& name, const Vector2d& value){ glUniform2d(get_location(name), value.x, value.y); }
     void Shader::set_uniform(const std::string& name, const Vector3d& value){ glUniform3d(get_location(name), value.x, value.y, value.z); }
 
-    void Shader::set_uniform(const std::string& name, const Matrix<float, 2, 2>& value){ glUniformMatrix2fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
-    void Shader::set_uniform(const std::string& name, const Matrix<float, 3, 3>& value){ glUniformMatrix3fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
-    void Shader::set_uniform(const std::string& name, const Matrix<float, 4, 4>& value){ glUniformMatrix4fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
+    void Shader::set_uniform(const std::string& name, const Matrix2& value){ glUniformMatrix2fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
+    void Shader::set_uniform(const std::string& name, const Matrix3& value){ glUniformMatrix3fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
+    void Shader::set_uniform(const std::string& name, const Matrix4& value){ glUniformMatrix4fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
 };
