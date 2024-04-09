@@ -3,6 +3,9 @@
 #include <cmath>
 #include <ostream>
 
+#include "draft/math/vector3.hpp"
+#include "draft/math/vector4.hpp"
+
 namespace Draft {
     // Primary template
     template<typename T>
@@ -38,6 +41,9 @@ namespace Draft {
         T operator* (const Vector2<T> &r){ return (x * r.x + y * r.y); }
         bool operator== (const Vector2<T> &r){ return (x == r.x && y == r.y); }
         bool operator!= (const Vector2<T> &r){ return (x != r.x || y != r.y); }
+
+        operator Vector3<T>(){ return { x, y, (T)0 }; }
+        operator Vector4<T>(){ return { x, y, (T)0, (T)0 }; }
 
         friend std::ostream& operator<< (std::ostream& stream, const Vector2<T>& v){
             stream << "(" << v.x << ", " << v.y << ")";

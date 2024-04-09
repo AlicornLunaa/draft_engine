@@ -1,3 +1,4 @@
+#include "draft/math/matrix.hpp"
 #define GLFW_INCLUDE_NONE
 
 
@@ -49,6 +50,9 @@ namespace Draft {
     }
 
     void Application::run(){
+        Matrix4x4 transform = Matrix4x4::identity();
+        transform *= Matrix4x4::translation({ 0.5f, 0, 0 });
+
         Shader& testShader = assetManager.getShader("./assets/shaders/test");
         testShader.bind();
         testShader.set_uniform("myTexture1", 0);
@@ -90,6 +94,7 @@ namespace Draft {
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());
+            testShader.set_uniform("transform", transform);
             testTexture1.bind(0);
             testTexture2.bind(1);
             testBuffer.bind();
