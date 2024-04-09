@@ -84,7 +84,7 @@ namespace Draft {
         // Start application loop
         while(window.is_open()){
             // Clock reset
-            // deltaTime = deltaClock.restart();
+            deltaTime = deltaClock.restart();
 
             // Handle control events
             window.poll_events();

@@ -15,6 +15,7 @@ set(SOURCES
     src/draft/util/json.cpp
     src/draft/util/asset_manager.cpp
     src/draft/util/time.cpp
+    src/draft/util/clock.cpp
     src/draft/widgets/console.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
@@ -52,6 +53,7 @@ set(INTERFACES
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp
+    include/draft/util/clock.hpp
     include/draft/widgets/console.hpp
     include/draft/systems.hpp
 )

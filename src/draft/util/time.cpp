@@ -27,6 +27,7 @@ namespace Draft {
     Time Time::microseconds(int64_t amount){ return Time({ sf::microseconds(amount) }); }
     
     // Operators
+    void Time::operator=(const Time& right){ ptr->time = right.ptr->time; }
     bool Time::operator==(const Time& right){ return (ptr->time == right.ptr->time); }
     bool Time::operator!=(const Time& right){ return (ptr->time != right.ptr->time); }
     bool Time::operator< (const Time& right){ return (ptr->time < right.ptr->time); }

@@ -22,6 +22,7 @@ namespace Draft {
         static Time microseconds(int64_t amount);
 
         // Operators
+        void operator=(const Time& right);
         bool operator==(const Time& right);
         bool operator!=(const Time& right);
         bool operator< (const Time& right);

@@ -3,6 +3,7 @@
 #include "draft/core/scene.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/asset_manager.hpp"
+#include "draft/util/clock.hpp"
 #include "draft/widgets/console.hpp"
 
 namespace Draft {
@@ -10,7 +11,7 @@ namespace Draft {
     private:
         std::streambuf* oldOutBuf = nullptr;
         Scene* activeScene = nullptr;
-        // sf::Clock deltaClock;
+        Clock deltaClock;
         // sf::Event event;
 
     public:
