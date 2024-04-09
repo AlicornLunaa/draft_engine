@@ -88,7 +88,12 @@ namespace Draft {
 
             // Handle control events
             window.poll_events();
-            window.render();
+
+            // Handle updates and stuff
+            // if(activeScene)
+            //     activeScene->update(deltaTime);
+
+            window.clear();
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());
@@ -101,7 +106,6 @@ namespace Draft {
 
             console.draw();
 
-            window.swap_buffers();
             // while(window.poll_event(event)){
             //     // ImGui::SFML::ProcessEvent(window.get_impl(), event);
 
@@ -116,18 +120,10 @@ namespace Draft {
             //     }
             // }
 
-            // Handle updates and stuff
-            // ImGui::SFML::Update(window.get_impl(), deltaTime);
-            // if(activeScene)
-            //     activeScene->update(deltaTime);
-
-            // Handle SFML rendering
-            // window.clear();
-
             // if(activeScene)
             //     activeScene->render(deltaTime);
 
-            // window.display();
+            window.display();
         }
     }
 }

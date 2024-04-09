@@ -17,8 +17,8 @@ namespace Draft {
         // Functions
         bool is_open();
         void poll_events();
-        void swap_buffers();
-        void render();
+        void clear();
+        void display();
 
     private:
         // pImpl

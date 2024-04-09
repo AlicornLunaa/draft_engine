@@ -1,6 +1,6 @@
 #pragma once
 
-// #include "draft/core/scene.hpp"
+#include "draft/core/scene.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/asset_manager.hpp"
 #include "draft/widgets/console.hpp"
@@ -9,7 +9,7 @@ namespace Draft {
     class Application {
     private:
         std::streambuf* oldOutBuf = nullptr;
-        // Scene* activeScene = nullptr;
+        Scene* activeScene = nullptr;
         // sf::Clock deltaClock;
         // sf::Event event;
 

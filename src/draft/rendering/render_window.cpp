@@ -78,7 +78,7 @@ namespace Draft {
     bool RenderWindow::is_open(){ return !glfwWindowShouldClose(ptr->window); }
     void RenderWindow::poll_events(){ glfwPollEvents(); }
 
-    void RenderWindow::render(){
+    void RenderWindow::clear(){
         // Clear window
         glClearColor(0.2, 0.3, 0.4, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -89,7 +89,7 @@ namespace Draft {
         ImGui::NewFrame();
     }
 
-    void RenderWindow::swap_buffers(){
+    void RenderWindow::display(){
         // Finalize ImGUI
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
