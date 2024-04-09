@@ -50,8 +50,7 @@ namespace Draft {
     }
 
     void Application::run(){
-        Matrix4x4 transform = Matrix4x4::identity();
-        transform *= Matrix4x4::translation({ 0.5f, 0, 0 });
+        Matrix<float, 4, 4> transform = Matrix4x4::translation({ 0.5f, 0, 0 });
 
         Shader& testShader = assetManager.getShader("./assets/shaders/test");
         testShader.bind();
@@ -94,7 +93,7 @@ namespace Draft {
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());
-            testShader.set_uniform("transform", transform);
+            testShader.set_uniform("transform", transform * Matrix4x4::rotation({ (float)glfwGetTime(), (float)glfwGetTime(), 0 }));
             testTexture1.bind(0);
             testTexture2.bind(1);
             testBuffer.bind();

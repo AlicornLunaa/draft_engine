@@ -49,8 +49,8 @@ namespace Draft {
         void set_uniform(const std::string& name, const Vector2d& value);
         void set_uniform(const std::string& name, const Vector3d& value);
 
-        void set_uniform(const std::string& name, const Matrix2x2& value);
-        void set_uniform(const std::string& name, const Matrix3x3& value);
-        void set_uniform(const std::string& name, const Matrix4x4& value);
+        void set_uniform(const std::string& name, const Matrix<float, 2, 2>& value);
+        void set_uniform(const std::string& name, const Matrix<float, 3, 3>& value);
+        void set_uniform(const std::string& name, const Matrix<float, 4, 4>& value);
     };
 };

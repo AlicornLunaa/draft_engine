@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iostream>
 
 #include "draft/math/vector2.hpp"
 #include "draft/math/vector3.hpp"
@@ -193,7 +194,7 @@ namespace Draft {
             for(int col = 0; col < cols * 2 + 1; col++){
                 stream << "─";
             }
-            stream << "┘\n";
+            stream << "┘";
 
             return stream;
         }
@@ -204,7 +205,7 @@ namespace Draft {
     class Matrix2 : public Matrix<T, rows, 2> {
     public:
         // Operators
-        operator Matrix<T, rows, 2>&(){ return (Matrix<T, rows, 2>)(*this); }
+        operator Matrix<T, rows, 2>(){ return Matrix(this); }
 
         // Functions
         Vector2<T> operator* (const Vector2<T>& other){
@@ -227,22 +228,22 @@ namespace Draft {
             return mat;
         }
 
-        static Matrix<T, 2, 2> scale(const Vector2<T>& vec){
-            Matrix<T, 2, 2> mat = Matrix<T, 2, 2>::identity();
+        static Matrix2<T, 2> scale(const Vector2<T>& vec){
+            Matrix2<T, 2> mat = Matrix2<T, 2>::identity();
             mat[0][0] = vec.x;
             mat[1][1] = vec.y;
             return mat;
         }
 
-        static Matrix<T, 2, 2> translation(const Vector2<T>& vec){
-            Matrix<T, 2, 2> mat = Matrix<T, 2, 2>::identity();
+        static Matrix2<T, 2> translation(const Vector2<T>& vec){
+            Matrix2<T, 2> mat = Matrix2<T, 2>::identity();
             mat[0][1] = vec.x;
             mat[1][1] = vec.y;
             return mat;
         }
 
-        static Matrix<T, 2, 2> rotation(T angle){
-            Matrix<T, 2, 2> mat = Matrix<T, 2, 2>::identity();
+        static Matrix2<T, 2> rotation(T angle){
+            Matrix<T, 2, 2> mat = Matrix2<T, 2>::identity();
             mat[0][0] = std::cos(angle);
             mat[0][1] = -std::sin(angle);
             mat[1][0] = std::sin(angle);
@@ -255,7 +256,7 @@ namespace Draft {
     class Matrix3 : public Matrix<T, rows, 3> {
     public:
         // Operators
-        operator Matrix<T, rows, 3>&(){ return (Matrix<T, rows, 3>)(*this); }
+        operator Matrix<T, rows, 3>(){ return Matrix(this); }
 
         // Functions
         Vector3<T> operator* (const Vector3<T>& other){
@@ -280,7 +281,7 @@ namespace Draft {
         }
 
         static Matrix<T, 3, 3> scale(const Vector3<T>& vec){
-            Matrix<T, 3, 3> mat = Matrix<T, 3, 3>::identity();
+            Matrix<T, 3, 3> mat = Matrix3<T, 3>::identity();
             mat[0][0] = vec.x;
             mat[1][1] = vec.y;
             mat[2][2] = vec.z;
@@ -288,7 +289,7 @@ namespace Draft {
         }
 
         static Matrix<T, 3, 3> translation(const Vector3<T>& vec){
-            Matrix<T, 3, 3> mat = Matrix<T, 3, 3>::identity();
+            Matrix<T, 3, 3> mat = Matrix3<T, 3>::identity();
             mat[0][2] = vec.x;
             mat[1][2] = vec.y;
             mat[2][2] = vec.z;
@@ -296,19 +297,19 @@ namespace Draft {
         }
 
         static Matrix<T, 3, 3> rotation(const Vector3<T>& angles){
-            Matrix<T, 3, 3> xRotMat = Matrix<T, 3, 3>::identity();
+            Matrix<T, 3, 3> xRotMat = Matrix3<T, 3>::identity();
             xRotMat[1][1] = std::cos(angles.x);
             xRotMat[1][2] = -std::sin(angles.x);
             xRotMat[2][1] = std::sin(angles.x);
             xRotMat[2][2] = std::cos(angles.x);
 
-            Matrix<T, 3, 3> yRotMat = Matrix<T, 3, 3>::identity();
+            Matrix<T, 3, 3> yRotMat = Matrix3<T, 3>::identity();
             yRotMat[0][0] = std::cos(angles.y);
             yRotMat[0][2] = std::sin(angles.y);
             yRotMat[2][0] = -std::sin(angles.y);
             yRotMat[2][2] = std::cos(angles.y);
 
-            Matrix<T, 3, 3> zRotMat = Matrix<T, 3, 3>::identity();
+            Matrix<T, 3, 3> zRotMat = Matrix3<T, 3>::identity();
             zRotMat[0][0] = std::cos(angles.z);
             zRotMat[0][1] = -std::sin(angles.z);
             zRotMat[1][0] = std::sin(angles.z);
@@ -322,7 +323,7 @@ namespace Draft {
     class Matrix4 : public Matrix<T, rows, 4> {
     public:
         // Operators
-        operator Matrix<T, rows, 4>&(){ return (Matrix<T, rows, 4>)(*this); }
+        operator Matrix<T, rows, 4>(){ return Matrix(this); }
 
         // Functions
         Vector4<T> operator* (const Vector4<T>& other){
@@ -348,7 +349,7 @@ namespace Draft {
         }
 
         static Matrix<T, 4, 4> scale(const Vector3<T>& vec){
-            Matrix<T, 4, 4> mat = Matrix<T, 4, 4>::identity();
+            Matrix<T, 4, 4> mat = Matrix4<T, 4>::identity();
             mat[0][0] = vec.x;
             mat[1][1] = vec.y;
             mat[2][2] = vec.z;
@@ -356,7 +357,7 @@ namespace Draft {
         }
 
         static Matrix<T, 4, 4> translation(const Vector3<T>& vec){
-            Matrix<T, 4, 4> mat = Matrix<T, 4, 4>::identity();
+            Matrix<T, 4, 4> mat = Matrix4<T, 4>::identity();
             mat[0][3] = vec.x;
             mat[1][3] = vec.y;
             mat[2][3] = vec.z;
@@ -364,19 +365,19 @@ namespace Draft {
         }
 
         static Matrix<T, 4, 4> rotation(const Vector3<T>& angles){
-            Matrix<T, 4, 4> xRotMat = Matrix<T, 4, 4>::identity();
+            Matrix<T, 4, 4> xRotMat = Matrix4<T, 4>::identity();
             xRotMat[1][1] = std::cos(angles.x);
             xRotMat[1][2] = -std::sin(angles.x);
             xRotMat[2][1] = std::sin(angles.x);
             xRotMat[2][2] = std::cos(angles.x);
 
-            Matrix<T, 4, 4> yRotMat = Matrix<T, 4, 4>::identity();
+            Matrix<T, 4, 4> yRotMat = Matrix4<T, 4>::identity();
             yRotMat[0][0] = std::cos(angles.y);
             yRotMat[0][2] = std::sin(angles.y);
             yRotMat[2][0] = -std::sin(angles.y);
             yRotMat[2][2] = std::cos(angles.y);
 
-            Matrix<T, 4, 4> zRotMat = Matrix<T, 4, 4>::identity();
+            Matrix<T, 4, 4> zRotMat = Matrix4<T, 4>::identity();
             zRotMat[0][0] = std::cos(angles.z);
             zRotMat[0][1] = -std::sin(angles.z);
             zRotMat[1][0] = std::sin(angles.z);
