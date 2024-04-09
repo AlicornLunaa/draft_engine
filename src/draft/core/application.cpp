@@ -1,6 +1,4 @@
-#include "draft/math/matrix.hpp"
 #define GLFW_INCLUDE_NONE
-
 
 #include <iostream>
 
@@ -8,6 +6,7 @@
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
+#include "draft/math/matrix.hpp"
 #include "draft/util/logger.hpp"
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"

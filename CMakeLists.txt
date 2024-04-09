@@ -54,7 +54,6 @@ set(INTERFACES
     include/draft/systems.hpp
 )
 
-set(SFML_STATIC_LIBRARIES TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -72,12 +71,10 @@ option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 
 include(FetchContent)
 FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
-FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TAG 2.6.x)
 FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG main)
 FetchContent_Declare(entt GIT_REPOSITORY https://github.com/skypjack/entt.git GIT_TAG v3.8.x)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_MakeAvailable(glfw)
-FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(entt)
 FetchContent_MakeAvailable(nlohmann_json)
@@ -87,9 +84,9 @@ add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
 
 if(WIN32)
-	set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
+	set(WIN_FLAGS -static)
 elseif(LINUX)
-    set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
+    set(WIN_FLAGS)
 endif()
 
 add_library(${PROJECT_NAME} STATIC)
@@ -106,5 +103,5 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw glad imgui stb EnTT::EnTT box2d nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb EnTT::EnTT box2d nlohmann_json::nlohmann_json ${WIN_FLAGS})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

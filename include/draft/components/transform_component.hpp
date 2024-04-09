@@ -1,7 +1,7 @@
 #pragma once
 
-#include "draft/math/transform.hpp"
 #include "draft/math/vector2.hpp"
+#include "draft/math/matrix.hpp"
 
 namespace Draft {
     struct TransformComponent {
@@ -16,10 +16,10 @@ namespace Draft {
         TransformComponent() {}
 
         // Operators
-        operator Transform () {
-            auto t = Transform();
-            t.translate(position.x, position.y);
-            t.rotate(rotation);
+        operator Matrix4 () {
+            auto t = Matrix4::identity();
+            t *= Matrix4::translation({ position.x, position.y, 0 });
+            t *= Matrix4::rotation({ 0, 0, rotation });
             return t;
         }
     };

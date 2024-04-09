@@ -1,10 +1,10 @@
 #pragma once
 
+#include <string>
+
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector2.hpp"
 #include "draft/math/vector3.hpp"
-
-#include <string>
 
 namespace Draft {
     class Shader {

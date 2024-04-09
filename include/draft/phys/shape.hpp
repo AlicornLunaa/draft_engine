@@ -1,12 +1,12 @@
 #pragma once
 
+#include <vector>
+
 #include "box2d/b2_math.h"
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_edge_shape.h"
 #include "box2d/b2_circle_shape.h"
 #include "draft/math/vector2.hpp"
-
-#include <vector>
 
 namespace Draft {
     enum class ShapeType { POLYGON, CIRCLE, EDGE };
