@@ -15,8 +15,8 @@ namespace Draft {
     public:
         Scene(Application* app);
 
-        Registry& getRegistry();
-        Entity createEntity();
+        Registry& get_registry();
+        Entity create_entity();
         
         // virtual void handleEvent(sf::Event event);
         virtual void update(Time deltaTime);

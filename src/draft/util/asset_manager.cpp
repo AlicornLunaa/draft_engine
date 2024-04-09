@@ -59,13 +59,13 @@ namespace Draft {
         for(const std::string& path : textureQueue){
             textureArray.push_back(new Texture(path));
             textureMap[path] = (textureArray.size() - 1);
-            loadTexture(textureArray.back(), path);
+            load_texture(textureArray.back(), path);
         }
 
         for(const std::string& path : shaderQueue){
             shaderArray.push_back(new Shader(path));
             shaderMap[path] = (shaderArray.size() - 1);
-            loadShader(shaderArray.back(), path);
+            load_shader(shaderArray.back(), path);
         }
 
         // for(const std::string& path : audioQueue){
@@ -81,11 +81,11 @@ namespace Draft {
         // }
     }
 
-    void AssetManager::queueTexture(const std::string& path){
+    void AssetManager::queue_texture(const std::string& path){
         textureQueue.push_back(path);
     }
 
-    void AssetManager::queueShader(const std::string& path) {
+    void AssetManager::queue_shader(const std::string& path) {
         shaderQueue.push_back(path);
     }
 
@@ -97,7 +97,7 @@ namespace Draft {
     //     fontQueue.push_back(path);
     // }
 
-    Texture& AssetManager::getTexture(const std::string& name) const {
+    Texture& AssetManager::get_texture(const std::string& name) const {
         const auto& result = textureMap.find(name);
 
         if(result == textureMap.end()){
@@ -108,7 +108,7 @@ namespace Draft {
         return *textureArray[textureMap.at(name)];
     }
 
-    Shader& AssetManager::getShader(const std::string& name) const {
+    Shader& AssetManager::get_shader(const std::string& name) const {
         const auto& result = shaderMap.find(name);
 
         if(result == shaderMap.end()){
@@ -142,7 +142,7 @@ namespace Draft {
     // }
 
     // Private functionsz
-    void AssetManager::loadTexture(Texture* texture, const std::string& path){
+    void AssetManager::load_texture(Texture* texture, const std::string& path){
         if(!texture->is_loaded()){
             Logger::println(Level::SEVERE, "Asset Manager", "Failed to load texture " + path);
         } else {
@@ -150,7 +150,7 @@ namespace Draft {
         }
     }
 
-    void AssetManager::loadShader(Shader* shader, const std::string& path){
+    void AssetManager::load_shader(Shader* shader, const std::string& path){
         // Check if the main folder exists
         if(!std::filesystem::is_directory(path)){
             Logger::println(Level::SEVERE, "Asset Manager", "Failed to load shader " + path);

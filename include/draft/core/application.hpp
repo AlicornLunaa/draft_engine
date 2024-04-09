@@ -26,7 +26,7 @@ namespace Draft {
 
         void run();
 
-        void setScene(Scene* scene){ activeScene = scene; }
-        Scene* getScene(){ return activeScene; }
+        void set_scene(Scene* scene){ activeScene = scene; }
+        Scene* get_scene(){ return activeScene; }
     };
 }

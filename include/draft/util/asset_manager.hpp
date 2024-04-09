@@ -34,19 +34,19 @@ namespace Draft {
         void reload();
         void load();
 
-        void queueTexture(const std::string& path);
-        void queueShader(const std::string& path);
+        void queue_texture(const std::string& path);
+        void queue_shader(const std::string& path);
         // void queueAudio(const std::string& path);
         // void queueFont(const std::string& path);
 
-        Texture& getTexture(const std::string& name) const;
-        Shader& getShader(const std::string& name) const;
+        Texture& get_texture(const std::string& name) const;
+        Shader& get_shader(const std::string& name) const;
         // const sf::SoundBuffer& getAudio(const std::string& name) const;
         // const sf::Font& getFont(const std::string& name) const;
 
     private:
-        void loadTexture(Texture* texture, const std::string& path);
-        void loadShader(Shader* shader, const std::string& path);
+        void load_texture(Texture* texture, const std::string& path);
+        void load_shader(Shader* shader, const std::string& path);
         // void loadAudio(sf::SoundBuffer* audio, const std::string& path);
         // void loadFont(sf::Font& shader, const std::string& path);
     };

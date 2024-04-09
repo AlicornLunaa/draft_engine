@@ -17,19 +17,19 @@ namespace Draft {
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
 
         // Redirect cout to console
-        oldOutBuf = std::cout.rdbuf(console.getStream().rdbuf());
+        oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
 
         // Register things to load
-        assetManager.queueShader("./assets/shaders/test");
-        assetManager.queueTexture("./assets/textures/test_image_1.png");
-        assetManager.queueTexture("./assets/textures/test_image_3.png");
+        assetManager.queue_shader("./assets/shaders/test");
+        assetManager.queue_texture("./assets/textures/test_image_1.png");
+        assetManager.queue_texture("./assets/textures/test_image_3.png");
         assetManager.load();
 
         // Register basic commands
-        console.registerCmd("reload_assets", [this](ConsoleArgs args){
+        console.register_cmd("reload_assets", [this](ConsoleArgs args){
             assetManager.reload();
 
-            Shader& testShader = assetManager.getShader("./assets/shaders/test");
+            Shader& testShader = assetManager.get_shader("./assets/shaders/test");
             testShader.bind();
             testShader.set_uniform("myTexture1", 0);
             testShader.set_uniform("myTexture2", 1);
@@ -51,14 +51,14 @@ namespace Draft {
     void Application::run(){
         Matrix<float, 4, 4> transform = Matrix4::translation({ 0.5f, 0, 0 });
 
-        Shader& testShader = assetManager.getShader("./assets/shaders/test");
+        Shader& testShader = assetManager.get_shader("./assets/shaders/test");
         testShader.bind();
         testShader.set_uniform("myTexture1", 0);
         testShader.set_uniform("myTexture2", 1);
         testShader.unbind();
 
-        Texture& testTexture1 = assetManager.getTexture("./assets/textures/test_image_1.png");
-        Texture& testTexture2 = assetManager.getTexture("./assets/textures/test_image_3.png");
+        Texture& testTexture1 = assetManager.get_texture("./assets/textures/test_image_1.png");
+        Texture& testTexture2 = assetManager.get_texture("./assets/textures/test_image_3.png");
 
         VertexBuffer testBuffer{};
         testBuffer.buffer(0, {

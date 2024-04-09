@@ -48,7 +48,7 @@ namespace Draft {
         print(level, name, str + "\n");
     }
 
-    void Logger::printRaw(const std::string& str){
+    void Logger::print_raw(const std::string& str){
         std::cout << str;
     }
 }

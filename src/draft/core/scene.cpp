@@ -8,11 +8,11 @@ namespace Draft {
         // this->uiCamera = sf::View(sf::FloatRect(0, 0, app->window.get_size().x, app->window.get_size().y));
     }
 
-    entt::registry& Scene::getRegistry(){
+    entt::registry& Scene::get_registry(){
         return registry;
     }
 
-    Entity Scene::createEntity(){
+    Entity Scene::create_entity(){
         return { this, registry.create() };
     }
 

@@ -11,7 +11,7 @@ using namespace std;
 
 namespace Draft {
     // Private functions
-    void Console::parseArguments(const string& text, vector<string>& args){
+    void Console::parse_arguments(const string& text, vector<string>& args){
         string token = "";
 
         auto newToken = [&args, &token](){
@@ -34,7 +34,7 @@ namespace Draft {
         }
     }
 
-    void Console::constructRawBuffer(){
+    void Console::construct_raw_buffer(){
         // Creates a raw buffer from the input buffer
         for(size_t i = 0; i < OUTPUT_BUFFER_SIZE; i++){
             // Zero out the buffer
@@ -100,7 +100,7 @@ namespace Draft {
             if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() })){
                 string rawCommand(inputBuffer, 512);
                 vector<string> argList;
-                parseArguments(rawCommand, argList);
+                parse_arguments(rawCommand, argList);
                 print(rawCommand + '\n');
                 run(argList[0], argList);
 
@@ -124,13 +124,13 @@ namespace Draft {
         mOpened = open;
     }
 
-    void Console::registerCmd(const string& key, ConsoleFunc func){
+    void Console::register_cmd(const string& key, ConsoleFunc func){
         commandAliases.push_back(key);
         commandArray.push_back(func);
         Logger::println(Level::INFO, "Console", std::format("Command {} registered", key));
     }
 
-    void Console::deleteCmd(const string& key){
+    void Console::delete_cmd(const string& key){
         // Find the index
         int index = -1;
 
@@ -152,6 +152,6 @@ namespace Draft {
     void Console::print(const string& text){
         // Add the text provided to the circular buffer
         output.push(text);
-        constructRawBuffer();
+        construct_raw_buffer();
     }
 }
