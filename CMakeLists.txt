@@ -35,6 +35,7 @@ set(INTERFACES
     include/draft/core/entity.hpp
     include/draft/math/vector2.hpp
     include/draft/math/vector3.hpp
+    include/draft/math/vector4.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
     include/draft/rendering/camera.hpp

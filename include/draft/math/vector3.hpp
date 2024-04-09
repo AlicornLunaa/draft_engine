@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <ostream>
 
 namespace Draft {
@@ -17,6 +18,12 @@ namespace Draft {
 
         template<typename U>
         Vector3(const Vector3<U>& other) : x((T)other.x), y((T)other.y), z((T)other.z) {}
+
+        // Functions
+        inline T lengthSqr(){ return (x * x + y * y + z * z); }
+        inline T length(){ return std::sqrt(lengthSqr()); }
+        inline Vector3<T> normalized(){ return Vector3(this) / length(); }
+        inline Vector3<T> cross(const Vector3<T>& other){ return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x }; }
 
         // Operators
         Vector3<T> operator- (){ return { -x, -y, -z }; }
