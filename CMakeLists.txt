@@ -5,6 +5,7 @@ set(SOURCES
     src/draft/core/application.cpp
     src/draft/core/scene.cpp
     src/draft/core/entity.cpp
+    src/draft/input/keyboard.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
     src/draft/rendering/render_window.cpp
@@ -35,6 +36,9 @@ set(INTERFACES
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
     include/draft/core/entity.hpp
+    include/draft/input/event.hpp
+    include/draft/input/keyboard.hpp
+    include/draft/input/mouse.hpp
     include/draft/math/vector2.hpp
     include/draft/math/vector3.hpp
     include/draft/math/vector4.hpp

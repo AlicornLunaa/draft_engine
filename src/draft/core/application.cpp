@@ -1,3 +1,4 @@
+#include "draft/input/keyboard.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <iostream>
@@ -15,6 +16,7 @@ namespace Draft {
     Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title) {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
+        Keyboard::init(&window);
 
         // Redirect cout to console
         oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
@@ -43,6 +45,7 @@ namespace Draft {
     Application::~Application(){
         // Cleanup
         Logger::println(Level::INFO, "Draft Engine", "Exitting...");
+        Keyboard::cleanup();
 
         // Restore cout to stdout
         std::cout.rdbuf(oldOutBuf);

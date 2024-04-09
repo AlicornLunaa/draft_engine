@@ -27,13 +27,11 @@ namespace Draft {
     //     }
     // }
 
-    // void Scene::update(sf::Time deltaTime){
-    //     // TODO: Implementation
-    // }
+    void Scene::update(Time deltaTime){
+        // TODO: Implementation
+    }
 
-    // void Scene::render(sf::Time deltaTime){
-    //     app->console.draw();
-    //     app->window.set_view(uiCamera);
-    //     ImGui::SFML::Render(app->window.get_impl());
-    // }
+    void Scene::render(Time deltaTime){
+        // TODO: Implementation
+    }
 }

@@ -20,6 +20,9 @@ namespace Draft {
         void clear();
         void display();
 
+        // Internal use functions
+        void* get_raw_window();
+
     private:
         // pImpl
         struct Impl;

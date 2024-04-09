@@ -97,4 +97,8 @@ namespace Draft {
         // Finalize frame
         glfwSwapBuffers(ptr->window);
     }
+
+    void* RenderWindow::get_raw_window(){
+        return (void*)ptr->window;
+    }
 };
