@@ -1,9 +1,6 @@
-#include <format>
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "draft/rendering/texture.hpp"
-#include "draft/util/logger.hpp"
-
 #include "glad/gl.h"
 #include "stb_image.h"
 
@@ -13,11 +10,7 @@ namespace Draft {
         // Load texture from file
         stbi_set_flip_vertically_on_load(true);
         unsigned char *data = stbi_load(texturePath.c_str(), &size.x, &size.y, &nrChannels, 0);
-
-        if(!data){
-            // Error out
-            Logger::println(Level::SEVERE, "Texture", std::format("Failed to load texture {}", texturePath));
-        }
+        loaded = !(bool)(!data);
 
         bind();
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

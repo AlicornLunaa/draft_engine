@@ -12,6 +12,7 @@ namespace Draft {
         std::string path;
         Vector2i size;
         int nrChannels;
+        bool loaded = false;
 
         // Private functions
         void load_texture(const std::string& texturePath);
@@ -27,6 +28,7 @@ namespace Draft {
         ~Texture();
         
         // Functions
+        inline bool is_loaded(){ return loaded; }
         void bind(int unit = 0);
         void unbind();
         void reload();
