@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/core/registry.hpp"
+#include "draft/util/time.hpp"
 
 namespace Draft {
     class Application;
@@ -18,7 +19,7 @@ namespace Draft {
         Entity createEntity();
         
         // virtual void handleEvent(sf::Event event);
-        // virtual void update(sf::Time deltaTime);
-        // virtual void render(sf::Time deltaTime);
+        virtual void update(Time deltaTime);
+        virtual void render(Time deltaTime);
     };
 }

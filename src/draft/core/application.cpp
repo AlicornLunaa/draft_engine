@@ -89,23 +89,6 @@ namespace Draft {
             // Handle control events
             window.poll_events();
 
-            // Handle updates and stuff
-            // if(activeScene)
-            //     activeScene->update(deltaTime);
-
-            window.clear();
-
-            testShader.bind();
-            testShader.set_uniform("testUniform", (float)glfwGetTime());
-            testShader.set_uniform("transform", transform * Matrix4::rotation({ (float)glfwGetTime(), (float)glfwGetTime(), 0 }));
-            testTexture1.bind(0);
-            testTexture2.bind(1);
-            testBuffer.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            testBuffer.unbind();
-
-            console.draw();
-
             // while(window.poll_event(event)){
             //     // ImGui::SFML::ProcessEvent(window.get_impl(), event);
 
@@ -120,9 +103,25 @@ namespace Draft {
             //     }
             // }
 
-            // if(activeScene)
-            //     activeScene->render(deltaTime);
+            // Handle updates and stuff
+            if(activeScene)
+                activeScene->update(deltaTime);
 
+            window.clear();
+
+            if(activeScene)
+                activeScene->render(deltaTime);
+
+            testShader.bind();
+            testShader.set_uniform("testUniform", (float)glfwGetTime());
+            testShader.set_uniform("transform", transform * Matrix4::rotation({ (float)glfwGetTime(), (float)glfwGetTime(), 0 }));
+            testTexture1.bind(0);
+            testTexture2.bind(1);
+            testBuffer.bind();
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            testBuffer.unbind();
+
+            console.draw();
             window.display();
         }
     }

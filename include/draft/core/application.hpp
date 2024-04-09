@@ -17,7 +17,7 @@ namespace Draft {
         AssetManager assetManager;
         RenderWindow window;
         Console console;
-        // sf::Time deltaTime;
+        Time deltaTime;
         
         Application(const char* title, const unsigned int width, const unsigned int height);
         Application(const Application& rhs) = delete;
@@ -25,7 +25,7 @@ namespace Draft {
 
         void run();
 
-        // void setScene(Scene* scene){ activeScene = scene; }
-        // Scene* getScene(){ return activeScene; }
+        void setScene(Scene* scene){ activeScene = scene; }
+        Scene* getScene(){ return activeScene; }
     };
 }
