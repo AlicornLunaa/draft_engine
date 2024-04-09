@@ -5,7 +5,7 @@
 
 namespace Draft {// Enumerators
     enum Key {
-        Space = 32,
+        SPACE = 32,
         APOSTROPHE = 39,
         COMMA = 44,
         MINUS = 45,

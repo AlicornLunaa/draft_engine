@@ -1,4 +1,5 @@
 #include "draft/input/keyboard.hpp"
+#include <string>
 #define GLFW_INCLUDE_NONE
 
 #include <iostream>
@@ -114,6 +115,8 @@ namespace Draft {
 
             if(activeScene)
                 activeScene->render(deltaTime);
+
+            Logger::println(Level::INFO, "Keyboard", "Is space pressed? " + std::string(Keyboard::is_pressed(Key::SPACE) ? "yes" : "no"));
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());

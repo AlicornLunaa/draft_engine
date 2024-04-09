@@ -16,12 +16,14 @@ namespace Draft {
     // Functions
     void Keyboard::init(RenderWindow* window){
         cleanup();
+        Keyboard::window = window;
         glfwSetKeyCallback((GLFWwindow*)window->get_raw_window(), key_callback);
     }
 
     void Keyboard::cleanup(){
         if(!window) return; // Avoid cleaning up nothing
         glfwSetKeyCallback((GLFWwindow*)window->get_raw_window(), nullptr);
+        Keyboard::window = nullptr;
     }
 
     void Keyboard::set_key_released(int key){

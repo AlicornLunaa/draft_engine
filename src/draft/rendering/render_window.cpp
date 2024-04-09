@@ -71,7 +71,6 @@ namespace Draft {
 
     // Definitions
     RenderWindow::RenderWindow(unsigned int width, unsigned int height, const string& title) : ptr(std::make_unique<Impl>(width, height, title)) {}
-
     RenderWindow::~RenderWindow(){}
 
     // Functions
