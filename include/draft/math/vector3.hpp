@@ -4,6 +4,7 @@
 #include <ostream>
 
 namespace Draft {
+    // Primary template
     template<typename T>
     class Vector3 {
     public:
@@ -45,6 +46,7 @@ namespace Draft {
         }
     };
 
+    // Aliases
     typedef Vector3<float> Vector3f;
     typedef Vector3<double> Vector3d;
     typedef Vector3<int> Vector3i;
