@@ -116,6 +116,11 @@ namespace Draft {
         glUseProgram(0);
     }
 
+    void Shader::reload(){
+        glDeleteProgram(shaderId);
+        load_shaders(path);
+    }
+
     void Shader::set_uniform(const std::string& name, bool value){ glUniform1i(get_location(name), value); }
 
     void Shader::set_uniform(const std::string& name, int value){ glUniform1i(get_location(name), value); }

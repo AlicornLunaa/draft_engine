@@ -10,6 +10,7 @@ set(SOURCES
     src/draft/rendering/render_window.cpp
     src/draft/rendering/shader.cpp
     src/draft/rendering/vertex_buffer.cpp
+    src/draft/rendering/texture.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
     src/draft/util/asset_manager.cpp
@@ -40,6 +41,7 @@ set(INTERFACES
     include/draft/rendering/render_window.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/vertex_buffer.hpp
+    include/draft/rendering/texture.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
@@ -80,6 +82,7 @@ FetchContent_MakeAvailable(nlohmann_json)
 
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
+add_subdirectory(vendor/stb)
 
 if(WIN32)
 	set(SFML_LIBS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
@@ -101,5 +104,5 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw glad imgui EnTT::EnTT box2d nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBS} glfw glad imgui stb EnTT::EnTT box2d nlohmann_json::nlohmann_json)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

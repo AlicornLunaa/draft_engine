@@ -28,6 +28,7 @@ namespace Draft {
         // Functions
         void bind();
         void unbind();
+        void reload();
         void set_uniform(const std::string& name, bool value);
         void set_uniform(const std::string& name, int value);
         void set_uniform(const std::string& name, const Vector2i& value);

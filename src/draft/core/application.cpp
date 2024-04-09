@@ -1,9 +1,11 @@
 #define GLFW_INCLUDE_NONE
 
+
 #include <iostream>
 
 #include "draft/core/application.hpp"
 #include "draft/rendering/shader.hpp"
+#include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/logger.hpp"
 #include "GLFW/glfw3.h"
@@ -35,6 +37,13 @@ namespace Draft {
 
     void Application::run(){
         Shader testShader("./assets/shaders/test");
+        testShader.bind();
+        testShader.set_uniform("myTexture1", 0);
+        testShader.set_uniform("myTexture2", 1);
+        testShader.unbind();
+
+        Texture testTexture1("./assets/textures/test_image_1.png");
+        Texture testTexture2("./assets/textures/test_image_3.png");
 
         VertexBuffer testBuffer{};
         testBuffer.buffer(0, {
@@ -43,7 +52,19 @@ namespace Draft {
             {-0.5f, -0.5f, 0.0f},  // bottom left
             {-0.5f,  0.5f, 0.0f}   // top left 
         });
-        testBuffer.buffer(1, std::vector<int>{0, 1, 2, 0, 2, 3}, GL_ELEMENT_ARRAY_BUFFER);
+        testBuffer.buffer(1, {
+            {1.f, 0.f, 0.f},
+            {0.f, 1.f, 0.f},
+            {0.f, 0.f, 1.f},
+            {1.f, 1.f, 0.f}
+        });
+        testBuffer.buffer(2, {
+            {1.f, 1.f},
+            {1.f, 0.f},
+            {0.f, 0.f},
+            {0.f, 1.f}
+        });
+        testBuffer.buffer(3, std::vector<int>{0, 1, 2, 0, 2, 3}, GL_ELEMENT_ARRAY_BUFFER);
 
         // Start application loop
         while(window.is_open()){
@@ -55,7 +76,9 @@ namespace Draft {
             window.render();
 
             testShader.bind();
-            testShader.set_uniform("test_uniform", (float)glfwGetTime());
+            testShader.set_uniform("testUniform", (float)glfwGetTime());
+            testTexture1.bind(0);
+            testTexture2.bind(1);
             testBuffer.bind();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             testBuffer.unbind();
