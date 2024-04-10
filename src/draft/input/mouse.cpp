@@ -51,8 +51,12 @@ namespace Draft {
     }
 
     const Vector2d& Mouse::get_position(){
-        ImGuiIO& io = ImGui::GetIO();
         glfwGetCursorPos((GLFWwindow*)window->get_raw_window(), &position.x, &position.y);
         return position;
+    }
+
+    void Mouse::set_position(const Vector2f& pos){
+        glfwSetCursorPos((GLFWwindow*)window->get_raw_window(), pos.x, pos.y);
+        position.set(pos.x, pos.y);
     }
 };

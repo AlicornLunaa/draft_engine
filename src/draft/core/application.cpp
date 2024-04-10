@@ -1,7 +1,6 @@
-#include "draft/input/keyboard.hpp"
-#include <string>
 #define GLFW_INCLUDE_NONE
 
+#include <string>
 #include <iostream>
 
 #include "draft/core/application.hpp"
@@ -17,8 +16,6 @@ namespace Draft {
     Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title) {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
-        Keyboard::init(&window);
-        Mouse::init(&window);
 
         // Redirect cout to console
         oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
@@ -41,14 +38,15 @@ namespace Draft {
 
             return true;
         });
-        console.set_open();
+        console.register_cmd("set_mouse", [this](ConsoleArgs args){
+            Mouse::set_position({ stof(args[1]), stof(args[2]) });
+            return true;
+        });
     }
 
     Application::~Application(){
         // Cleanup
         Logger::println(Level::INFO, "Draft Engine", "Exitting...");
-        Mouse::cleanup();
-        Keyboard::cleanup();
 
         // Restore cout to stdout
         std::cout.rdbuf(oldOutBuf);
@@ -117,8 +115,6 @@ namespace Draft {
 
             if(activeScene)
                 activeScene->render(deltaTime);
-
-            Logger::println(Level::INFO, "Keyboard", "Is space pressed? " + std::string(Keyboard::is_pressed(Key::SPACE) ? "yes" : "no"));
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());

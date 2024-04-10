@@ -25,6 +25,7 @@ namespace Draft {
         inline T lengthSqr(){ return (x * x + y * y + z * z + w * w); }
         inline T length(){ return std::sqrt(lengthSqr()); }
         inline Vector4<T> normalized(){ return Vector4(this) / length(); }
+        inline void set(T x, T y, T z, T w){ this->x = x; this->y = y; this->z = z; this->w = w; }
 
         // Operators
         Vector4<T> operator- (){ return { -x, -y, -z, -w }; }

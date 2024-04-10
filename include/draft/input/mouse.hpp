@@ -37,5 +37,6 @@ namespace Draft {// Enumerators
         static bool is_pressed(int key);
         static bool is_just_pressed(int key);
         static const Vector2d& get_position();
+        static void set_position(const Vector2f& pos);
     };
 };

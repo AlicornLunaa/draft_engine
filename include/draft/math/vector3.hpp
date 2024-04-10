@@ -27,6 +27,7 @@ namespace Draft {
         inline T length(){ return std::sqrt(lengthSqr()); }
         inline Vector3<T> normalized(){ return Vector3(this) / length(); }
         inline Vector3<T> cross(const Vector3<T>& other){ return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x }; }
+        inline void set(T x, T y, T z){ this->x = x; this->y = y; this->z = z; }
 
         // Operators
         Vector3<T> operator- (){ return { -x, -y, -z }; }

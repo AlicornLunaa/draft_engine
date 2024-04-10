@@ -3,6 +3,8 @@
 #include <format>
 
 #include "draft/rendering/render_window.hpp"
+#include "draft/input/keyboard.hpp"
+#include "draft/input/mouse.hpp"
 #include "draft/util/logger.hpp"
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -53,7 +55,7 @@ namespace Draft {
             imGuiIO.IniFilename = nullptr;
             imGuiIO.LogFilename = nullptr;
             ImGui::StyleColorsDark();
-            ImGui_ImplGlfw_InitForOpenGL(window, true);
+            ImGui_ImplGlfw_InitForOpenGL(window, false);
             ImGui_ImplOpenGL3_Init("#version 450");
         }
 
@@ -67,10 +69,20 @@ namespace Draft {
             glfwDestroyWindow(window);
             glfwTerminate();
         }
+
+        // Functions
+        void initialize_callbacks(){
+            ImGui_ImplGlfw_InstallCallbacks(window);
+        }
     };
 
     // Definitions
-    RenderWindow::RenderWindow(unsigned int width, unsigned int height, const string& title) : ptr(std::make_unique<Impl>(width, height, title)) {}
+    RenderWindow::RenderWindow(unsigned int width, unsigned int height, const string& title) : ptr(std::make_unique<Impl>(width, height, title)) {
+        // Setup inputs
+        Keyboard::init(this);
+        Mouse::init(this);
+        ptr->initialize_callbacks();
+    }
     RenderWindow::~RenderWindow(){}
 
     // Functions
