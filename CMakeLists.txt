@@ -6,6 +6,7 @@ set(SOURCES
     src/draft/core/scene.cpp
     src/draft/core/entity.cpp
     src/draft/input/keyboard.cpp
+    src/draft/input/mouse.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
     src/draft/rendering/render_window.cpp

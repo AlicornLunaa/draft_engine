@@ -1,5 +1,6 @@
 #include "draft/input/keyboard.hpp"
 #include "GLFW/glfw3.h"
+#include "imgui.h"
 
 namespace Draft {
     // Variables
@@ -31,15 +32,17 @@ namespace Draft {
     }
 
     bool Keyboard::is_pressed(int key){
+        ImGuiIO& io = ImGui::GetIO();
         bool res = (glfwGetKey((GLFWwindow*)window->get_raw_window(), key) == GLFW_PRESS);
         lastPressedKeys[key] = res;
-        return res;
+        return res && !io.WantCaptureKeyboard;
     }
 
     bool Keyboard::is_just_pressed(int key){
+        ImGuiIO& io = ImGui::GetIO();
         bool res = (glfwGetKey((GLFWwindow*)window->get_raw_window(), key) == GLFW_PRESS);
         bool oldState = lastPressedKeys[key];
         lastPressedKeys[key] = res;
-        return res && !oldState;
+        return res && !oldState && !io.WantCaptureKeyboard;;
     }
 };

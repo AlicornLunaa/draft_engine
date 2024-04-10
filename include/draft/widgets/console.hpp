@@ -28,9 +28,7 @@ namespace Draft {
 
         char inputBuffer[INPUT_BUFFER_SIZE];
         char outputBuffer[OUTPUT_BUFFER_SIZE];
-
         bool mOpened = false;
-        bool mKeyPressed = false; // TODO: Remove with custom input system
 
         // Private functions
         void parse_arguments(const std::string& text, std::vector<std::string>& args);

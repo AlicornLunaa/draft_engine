@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/core/registry.hpp"
+#include "draft/input/event.hpp"
 #include "draft/util/time.hpp"
 
 namespace Draft {
@@ -18,7 +19,7 @@ namespace Draft {
         Registry& get_registry();
         Entity create_entity();
         
-        // virtual void handleEvent(sf::Event event);
+        virtual void handleEvent(Event event);
         virtual void update(Time deltaTime);
         virtual void render(Time deltaTime);
     };

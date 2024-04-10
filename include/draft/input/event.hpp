@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "draft/input/keyboard.hpp"
+#include "draft/input/mouse.hpp"
 
 namespace Draft {
 	class Event {
@@ -30,7 +31,7 @@ namespace Draft {
 		};
 
 		struct MouseButtonEvent {
-			// Mouse::Button button;
+			Button button;
 			int x;
 			int y;
 		};

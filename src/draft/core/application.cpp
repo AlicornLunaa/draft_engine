@@ -18,6 +18,7 @@ namespace Draft {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
         Keyboard::init(&window);
+        Mouse::init(&window);
 
         // Redirect cout to console
         oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
@@ -46,6 +47,7 @@ namespace Draft {
     Application::~Application(){
         // Cleanup
         Logger::println(Level::INFO, "Draft Engine", "Exitting...");
+        Mouse::cleanup();
         Keyboard::cleanup();
 
         // Restore cout to stdout

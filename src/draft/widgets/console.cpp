@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "draft/widgets/console.hpp"
+#include "draft/input/keyboard.hpp"
 #include "draft/util/logger.hpp"
 #include "imgui.h"
 
@@ -91,8 +92,6 @@ namespace Draft {
             // Input handling
             ImGui::SetNextItemWidth(-72);
             ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetFrameHeightWithSpacing() - 4);
-            if(mKeyPressed)
-                ImGui::SetKeyboardFocusHere();
             ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
             ImGui::SameLine();
 
@@ -112,12 +111,9 @@ namespace Draft {
         }
 
         // Handle pressing keys
-        // if(Keyboard::isKeyPressed(Keyboard::Tilde) && !mKeyPressed){
-        //     mOpened = !mOpened;
-        //     mKeyPressed = true;
-        // } else if(!Keyboard::isKeyPressed(Keyboard::Tilde) && mKeyPressed){
-        //     mKeyPressed = false;
-        // }
+        if(Keyboard::is_just_pressed(Key::GRAVE)){
+            mOpened = !mOpened;
+        }
     }
 
     void Console::set_open(bool open){
