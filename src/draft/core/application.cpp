@@ -38,10 +38,6 @@ namespace Draft {
 
             return true;
         });
-        console.register_cmd("set_mouse", [this](ConsoleArgs args){
-            Mouse::set_position({ stof(args[1]), stof(args[2]) });
-            return true;
-        });
     }
 
     Application::~Application(){
@@ -54,7 +50,7 @@ namespace Draft {
 
     void Application::run(){
         Matrix4 projection = Matrix4::perspective(45.f, 640/480.f, 0.1f, 100.f);
-        Matrix4 transform = Matrix4::translation({ 0.5f, 0, -10.f }) * Matrix4::scale({ 10, 10, 10 });
+        Matrix4 transform = Matrix4::translation({ 0.5f, 0, -25.f }) * Matrix4::scale({ 10, 10, 10 });
 
         Shader& testShader = assetManager.get_shader("./assets/shaders/test");
         testShader.bind();
@@ -73,18 +69,60 @@ namespace Draft {
             {-0.5f,  0.5f, 0.0f}   // top left 
         });
         testBuffer.buffer(1, {
-            {1.f, 0.f, 0.f},
-            {0.f, 1.f, 0.f},
-            {0.f, 0.f, 1.f},
-            {1.f, 1.f, 0.f}
-        });
-        testBuffer.buffer(2, {
             {1.f, 1.f},
             {1.f, 0.f},
             {0.f, 0.f},
             {0.f, 1.f}
         });
-        testBuffer.buffer(3, std::vector<int>{0, 1, 2, 0, 2, 3}, GL_ELEMENT_ARRAY_BUFFER);
+        testBuffer.buffer(2, std::vector<int>{0, 1, 2, 0, 2, 3}, GL_ELEMENT_ARRAY_BUFFER);
+
+        VertexBuffer cubeBuffer{};
+        cubeBuffer.start_buffer({
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        });
+        cubeBuffer.set_attribute(0, 3, sizeof(float) * 5, 0);
+        cubeBuffer.set_attribute(1, 2, sizeof(float) * 5, sizeof(float) * 3);
+        cubeBuffer.end_buffer();
 
         // Start application loop
         while(window.is_open()){
@@ -123,9 +161,12 @@ namespace Draft {
             testShader.set_uniform("projection", projection);
             testTexture1.bind(0);
             testTexture2.bind(1);
-            testBuffer.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            testBuffer.unbind();
+            // testBuffer.bind();
+            // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            // testBuffer.unbind();
+            cubeBuffer.bind();
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            cubeBuffer.unbind();
 
             console.draw();
             window.display();

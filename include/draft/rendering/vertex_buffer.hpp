@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #define GL_ARRAY_BUFFER 0x8892
 
 #include "draft/math/vector2.hpp"
@@ -23,6 +24,7 @@ namespace Draft {
         };
 
         // Variables
+        std::unique_ptr<Buffer<float>> tempBuffer;
         unsigned int vao;
 
     public:
@@ -35,6 +37,10 @@ namespace Draft {
         void buffer(unsigned int index, const std::vector<float>& data, int type = GL_ARRAY_BUFFER);
         void buffer(unsigned int index, const std::vector<Vector2f>& data, int type = GL_ARRAY_BUFFER);
         void buffer(unsigned int index, const std::vector<Vector3f>& data, int type = GL_ARRAY_BUFFER);
+
+        void start_buffer(const std::vector<float>& data, int type = GL_ARRAY_BUFFER);
+        void set_attribute(unsigned int index, unsigned long count, unsigned long stride, unsigned long offset);
+        void end_buffer();
 
         void bind();
         void unbind();

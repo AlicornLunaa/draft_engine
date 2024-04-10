@@ -47,6 +47,7 @@ namespace Draft {
 
             // Setup opengl context
             glViewport(0, 0, w, h);
+            glEnable(GL_DEPTH_TEST);
 
             // Setup imgui
             IMGUI_CHECKVERSION();
@@ -97,7 +98,7 @@ namespace Draft {
     void RenderWindow::clear(){
         // Clear window
         glClearColor(0.2, 0.3, 0.4, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // ImGUI frame
         ImGui_ImplOpenGL3_NewFrame();

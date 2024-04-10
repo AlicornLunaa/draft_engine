@@ -2,6 +2,7 @@
 #include "draft/math/vector2.hpp"
 #include "draft/math/vector3.hpp"
 #include "glad/gl.h"
+#include <memory>
 
 namespace Draft {
     // Inner class implementation
@@ -62,6 +63,21 @@ namespace Draft {
         glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3f), (void*)0);
         glEnableVertexAttribArray(index);
         unbind();
+    }
+
+    void VertexBuffer::start_buffer(const std::vector<float>& data, int type){
+        bind();
+        tempBuffer = std::make_unique<Buffer<float>>(data, type);
+    }
+
+    void VertexBuffer::set_attribute(unsigned int index, unsigned long count, unsigned long stride, unsigned long offset){
+        glVertexAttribPointer(index, count, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+        glEnableVertexAttribArray(index);
+    }
+
+    void VertexBuffer::end_buffer(){
+        unbind();
+        tempBuffer.reset();
     }
 
     void VertexBuffer::bind(){
