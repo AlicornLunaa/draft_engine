@@ -32,7 +32,7 @@ namespace Draft {
             break;
 
         case GLFW_RELEASE:
-            event.type = Event::MouseButtonPressed;
+            event.type = Event::MouseButtonReleased;
             break;
 
         default:

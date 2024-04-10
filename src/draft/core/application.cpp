@@ -1,3 +1,4 @@
+#include "draft/core/scene.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -124,6 +125,9 @@ namespace Draft {
         cubeBuffer.set_attribute(0, 3, sizeof(float) * 5, 0);
         cubeBuffer.set_attribute(1, 2, sizeof(float) * 5, sizeof(float) * 3);
         cubeBuffer.end_buffer();
+
+        Scene testScene{this};
+        set_scene(&testScene);
 
         // Start application loop
         while(window.is_open()){

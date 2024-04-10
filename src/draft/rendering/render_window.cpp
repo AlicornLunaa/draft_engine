@@ -106,9 +106,13 @@ namespace Draft {
     bool RenderWindow::poll_events(Event& event){
         glfwPollEvents();
 
-        event = eventQueue.front();
-        eventQueue.pop();
-        return !eventQueue.empty();
+        if(!eventQueue.empty()){
+            event = eventQueue.front();
+            eventQueue.pop();
+            return true;
+        }
+
+        return false;
     }
 
     void RenderWindow::clear(){
