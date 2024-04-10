@@ -17,14 +17,14 @@ namespace Draft {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
 
-        // Redirect cout to console
-        oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
-
         // Register things to load
         assetManager.queue_shader("./assets/shaders/test");
         assetManager.queue_texture("./assets/textures/test_image_1.png");
         assetManager.queue_texture("./assets/textures/test_image_3.png");
         assetManager.load();
+
+        // Redirect cout to console
+        oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
 
         // Register basic commands
         console.register_cmd("reload_assets", [this](ConsoleArgs args){
@@ -53,7 +53,8 @@ namespace Draft {
     }
 
     void Application::run(){
-        Matrix<float, 4, 4> transform = Matrix4::translation({ 0.5f, 0, 0 });
+        Matrix4 projection = Matrix4::perspective(45.f, 640/480.f, 0.1f, 100.f);
+        Matrix4 transform = Matrix4::translation({ 0.5f, 0, -10.f }) * Matrix4::scale({ 10, 10, 10 });
 
         Shader& testShader = assetManager.get_shader("./assets/shaders/test");
         testShader.bind();
@@ -118,7 +119,8 @@ namespace Draft {
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());
-            testShader.set_uniform("transform", transform * Matrix4::rotation({ (float)glfwGetTime(), (float)glfwGetTime(), 0 }));
+            testShader.set_uniform("model", transform * Matrix4::rotation({ (float)glfwGetTime(), (float)glfwGetTime() * 2, (float)glfwGetTime() * 2.5f }));
+            testShader.set_uniform("projection", projection);
             testTexture1.bind(0);
             testTexture2.bind(1);
             testBuffer.bind();

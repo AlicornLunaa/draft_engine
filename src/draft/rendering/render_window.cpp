@@ -86,6 +86,11 @@ namespace Draft {
     RenderWindow::~RenderWindow(){}
 
     // Functions
+    const Vector2u RenderWindow::get_size(){
+        Vector2i size{};
+        glfwGetWindowSize(ptr->window, &size.x, &size.y);
+        return size;
+    }
     bool RenderWindow::is_open(){ return !glfwWindowShouldClose(ptr->window); }
     void RenderWindow::poll_events(){ glfwPollEvents(); }
 

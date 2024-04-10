@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/math/vector2.hpp"
 #include <memory>
 #include <string>
 
@@ -15,6 +16,7 @@ namespace Draft {
         RenderWindow& operator= (const RenderWindow& other) = delete;
 
         // Functions
+        const Vector2u get_size();
         bool is_open();
         void poll_events();
         void clear();

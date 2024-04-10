@@ -117,6 +117,27 @@ namespace Draft {
             return xRotMat * yRotMat * zRotMat;
         }
 
+        static Matrix<float, 4, 4> orthographic(float left, float right, float bottom, float top, float near, float far){
+            Matrix<float, 4, 4> mat = Matrix<float, 4, 4>::identity();
+            mat[0][0] = 2.f / (right - left);
+            mat[1][1] = 2.f / (top - bottom);
+            mat[2][2] = -2.f / (far - near);
+            mat[0][3] = -((right + left) / (right - left));
+            mat[1][3] = -((top + bottom) / (top - bottom));
+            mat[2][3] = -((far + near) / (far - near));
+            return mat;
+        }
+
+        static Matrix<float, 4, 4> perspective(float fov, float aspect, float near, float far){
+            Matrix<float, 4, 4> mat{};
+            mat[0][0] = 1.f / (aspect * std::tan(fov / 2.f));
+            mat[1][1] = 1.f / std::tan(fov / 2.f);
+            mat[2][2] = -((far + near) / (far - near));
+            mat[3][2] = -1.f;
+            mat[2][3] = -((2 * far * near) / (far - near));
+            return mat;
+        }
+
         // Operators
         T* operator[] (size_t row){ return array[row]; }
         const T* operator[] (size_t row) const { return array[row]; }
