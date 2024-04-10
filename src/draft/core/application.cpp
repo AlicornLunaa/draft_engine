@@ -1,4 +1,3 @@
-#include "draft/rendering/camera.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -6,6 +5,7 @@
 
 #include "draft/core/application.hpp"
 #include "draft/rendering/shader.hpp"
+#include "draft/rendering/camera.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/math/matrix.hpp"
@@ -50,9 +50,8 @@ namespace Draft {
     }
 
     void Application::run(){
-        PerspectiveCamera camera({ 0, 0, -10 }, { 0, 0, 1 }, { 640, 480 }, 45.f);
-        Matrix4 transform = Matrix4::translation({ 0.5f, 0, -25.f }) * Matrix4::scale({ 10, 10, 10 });
-        Matrix4 rotation = Matrix4::identity();
+        PerspectiveCamera camera({ 0, 0, 10 }, { 0, 0, -1 }, { 640, 480 }, 45.f);
+        Matrix4 transform = Matrix4::translation({ 0.f, 0, 0.f }) * Matrix4::scale({ 3, 3, 3 });
 
         Shader& testShader = assetManager.get_shader("./assets/shaders/test");
         testShader.bind();
@@ -157,16 +156,18 @@ namespace Draft {
             if(activeScene)
                 activeScene->render(deltaTime);
 
-            // camera.set_position({ camPos });
+            auto time = (float)glfwGetTime();
+            camera.set_position({ 10 * std::sin(time), -5, 10 * std::cos(time) });
             camera.target({ 0, 0, 0 });
 
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());
-            testShader.set_uniform("model", transform * (rotation *= Matrix4::rotation({ 0.01f, 0.02f, 0.025f })));
+            testShader.set_uniform("model", transform);
             testShader.set_uniform("view", camera.get_view());
             testShader.set_uniform("projection", camera.get_projection());
             testTexture1.bind(0);
             testTexture2.bind(1);
+
             // testBuffer.bind();
             // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             // testBuffer.unbind();

@@ -28,7 +28,7 @@ namespace Draft {
         void target(const Vector3f& target);
         void point(const Vector3f& dir);
 
-        inline void set_position(const Vector3f& vec){ position = vec; }
+        inline void set_position(const Vector3f& vec){ position = vec; point(forward); }
 
         inline const Vector3f& get_position() const { return position; }
         inline const Vector3f& get_forward() const { return forward; }
