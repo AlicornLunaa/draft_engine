@@ -23,27 +23,27 @@ namespace Draft {
         Vector3(const Vector3<U>& other) : x((T)other.x), y((T)other.y), z((T)other.z) {}
 
         // Functions
-        inline T lengthSqr(){ return (x * x + y * y + z * z); }
-        inline T length(){ return std::sqrt(lengthSqr()); }
-        inline Vector3<T> normalized(){ return Vector3(this) / length(); }
-        inline Vector3<T> cross(const Vector3<T>& other){ return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x }; }
+        inline T lengthSqr() const { return (x * x + y * y + z * z); }
+        inline T length() const { return std::sqrt(lengthSqr()); }
+        inline Vector3<T> normalized() const { return Vector3(*this) / length(); }
+        inline Vector3<T> cross(const Vector3<T>& other) const { return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x }; }
         inline void set(T x, T y, T z){ this->x = x; this->y = y; this->z = z; }
 
         // Operators
-        Vector3<T> operator- (){ return { -x, -y, -z }; }
+        Vector3<T> operator- () const { return { -x, -y, -z }; }
         Vector3<T>& operator+= (const Vector3<T> &r){ x += r.x; y += r.y; z += r.z; return this; }
         Vector3<T>& operator-= (const Vector3<T> &r){ x -= r.x; y -= r.y; z -= r.z; return this; }
         Vector3<T>& operator*= (T r){ x *= r; y *= r; z *= r; return this; }
         Vector3<T>& operator/= (T r){ x /= r; y /= r; z /= r; return this; }
-        Vector3<T> operator+ (const Vector3<T> &r){ return { x + r.x, y + r.y, z + r.z }; }
-        Vector3<T> operator- (const Vector3<T> &r){ return { x - r.x, y - r.y, z - r.z }; }
-        Vector3<T> operator* (T r){ return { x * r, y * r, z * r }; }
-        Vector3<T> operator/ (T r){ return { x / r, y / r, z / r }; }
-        T operator* (const Vector3<T> &r){ return (x * r.x + y * r.y + z * r.z); }
-        bool operator== (const Vector3<T> &r){ return (x == r.x && y == r.y && z == r.z); }
-        bool operator!= (const Vector3<T> &r){ return (x != r.x || y != r.y || z != r.z); }
+        Vector3<T> operator+ (const Vector3<T> &r) const { return { x + r.x, y + r.y, z + r.z }; }
+        Vector3<T> operator- (const Vector3<T> &r) const { return { x - r.x, y - r.y, z - r.z }; }
+        Vector3<T> operator* (T r) const { return { x * r, y * r, z * r }; }
+        Vector3<T> operator/ (T r) const { return { x / r, y / r, z / r }; }
+        T operator* (const Vector3<T> &r) const { return (x * r.x + y * r.y + z * r.z); }
+        bool operator== (const Vector3<T> &r) const { return (x == r.x && y == r.y && z == r.z); }
+        bool operator!= (const Vector3<T> &r) const { return (x != r.x || y != r.y || z != r.z); }
         
-        operator Vector4<T>(){ return { x, y, z, (T)0 }; }
+        operator Vector4<T>() const { return { x, y, z, (T)0 }; }
 
         friend std::ostream& operator<< (std::ostream& stream, const Vector3<T>& v){
             stream << "(" << v.x << ", " << v.y << ", " << v.z << ")";

@@ -115,6 +115,11 @@ namespace Draft {
         glfwSwapBuffers(ptr->window);
     }
 
+    void RenderWindow::close(){
+        // Close window
+        glfwSetWindowShouldClose(ptr->window, true);
+    }
+
     void* RenderWindow::get_raw_window(){
         return (void*)ptr->window;
     }

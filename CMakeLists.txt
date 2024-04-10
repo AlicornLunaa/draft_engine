@@ -11,6 +11,7 @@ set(SOURCES
     src/draft/phys/shape.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/shader.cpp
+    src/draft/rendering/camera.cpp
     src/draft/rendering/vertex_buffer.cpp
     src/draft/rendering/texture.cpp
     src/draft/util/logger.cpp

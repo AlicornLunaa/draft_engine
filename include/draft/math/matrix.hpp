@@ -26,11 +26,11 @@ namespace Draft {
         Matrix(const Matrix<U, rows, cols>& other){ this = other; }
 
         // Functions
-        inline const Vector2u& get_size(){ return size; }
+        inline const Vector2u& get_size() const { return size; }
         inline const T& get(size_t row, size_t col) const { return array[row][col]; }
         inline const T* arr_ptr() const { return &array[0][0]; }
 
-        Matrix<T, cols, rows> transpose(){
+        Matrix<T, cols, rows> transpose() const {
             Matrix<T, cols, rows> out{};
 
             for(size_t row = 0; row < rows; row++){
@@ -150,7 +150,7 @@ namespace Draft {
             }
         }
 
-        bool operator== (const Matrix<T, rows, cols> &other){
+        bool operator== (const Matrix<T, rows, cols> &other) const {
             for(size_t row = 0; row < rows; row++){
                 for(size_t col = 0; col < cols; col++){
                     if(array[row][col] != other[row][col]){
@@ -162,7 +162,7 @@ namespace Draft {
             return true;
         }
 
-        bool operator!= (const Matrix<T, rows, cols> &other){ return !(this == other); }
+        bool operator!= (const Matrix<T, rows, cols> &other) const { return !(this == other); }
 
         Matrix<T, rows, cols>& operator+= (const Matrix<T, rows, cols>& other){
             for(size_t row = 0; row < rows; row++){
@@ -212,7 +212,7 @@ namespace Draft {
             return *this;
         }
 
-        Matrix<T, rows, cols> operator+ (const Matrix<T, rows, cols>& other){
+        Matrix<T, rows, cols> operator+ (const Matrix<T, rows, cols>& other) const {
             Matrix<T, rows, cols> out{};
 
             for(size_t row = 0; row < rows; row++){
@@ -224,7 +224,7 @@ namespace Draft {
             return out;
         }
         
-        Matrix<T, rows, cols> operator- (const Matrix<T, rows, cols>& other){
+        Matrix<T, rows, cols> operator- (const Matrix<T, rows, cols>& other) const {
             Matrix<T, rows, cols> out{};
 
             for(size_t row = 0; row < rows; row++){
@@ -236,7 +236,7 @@ namespace Draft {
             return out;
         }
 
-        Matrix<T, rows, cols> operator* (T v){
+        Matrix<T, rows, cols> operator* (T v) const {
             Matrix<T, rows, cols> out{};
 
             for(size_t row = 0; row < rows; row++){
@@ -249,7 +249,7 @@ namespace Draft {
         }
 
         template<size_t rhsCols>
-        Matrix<T, rows, rhsCols> operator* (const Matrix<T, cols, rhsCols>& other){
+        Matrix<T, rows, rhsCols> operator* (const Matrix<T, cols, rhsCols>& other) const {
             Matrix<T, rows, rhsCols> out{};
 
             for(size_t i = 0; i < rows; i++){
@@ -265,7 +265,7 @@ namespace Draft {
             return out;
         }
 
-        Vector2<T> operator* (const Vector2<T>& other){
+        Vector2<T> operator* (const Vector2<T>& other) const {
             Matrix<T, rows, 1> tmp{}; // Makes multiplication easier
             tmp[0][0] = other.x;
             tmp[1][0] = other.y;
@@ -273,7 +273,7 @@ namespace Draft {
             return { tmp[0][0], tmp[1][0] };
         }
 
-        Vector3<T> operator* (const Vector3<T>& other){
+        Vector3<T> operator* (const Vector3<T>& other) const {
             Matrix<T, rows, 1> tmp{}; // Makes multiplication easier
             tmp[0][0] = other.x;
             tmp[1][0] = other.y;
@@ -282,7 +282,7 @@ namespace Draft {
             return { tmp[0][0], tmp[1][0], tmp[2][0] };
         }
 
-        Vector4<T> operator* (const Vector4<T>& other){
+        Vector4<T> operator* (const Vector4<T>& other) const {
             Matrix<T, rows, 1> tmp{}; // Makes multiplication easier
             tmp[0][0] = other.x;
             tmp[1][0] = other.y;

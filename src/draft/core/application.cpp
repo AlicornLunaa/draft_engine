@@ -1,3 +1,4 @@
+#include "draft/rendering/camera.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -49,8 +50,9 @@ namespace Draft {
     }
 
     void Application::run(){
-        Matrix4 projection = Matrix4::perspective(45.f, 640/480.f, 0.1f, 100.f);
+        PerspectiveCamera camera({ 0, 0, -10 }, { 0, 0, 1 }, { 640, 480 }, 45.f);
         Matrix4 transform = Matrix4::translation({ 0.5f, 0, -25.f }) * Matrix4::scale({ 10, 10, 10 });
+        Matrix4 rotation = Matrix4::identity();
 
         Shader& testShader = assetManager.get_shader("./assets/shaders/test");
         testShader.bind();
@@ -155,10 +157,14 @@ namespace Draft {
             if(activeScene)
                 activeScene->render(deltaTime);
 
+            // camera.set_position({ camPos });
+            camera.target({ 0, 0, 0 });
+
             testShader.bind();
             testShader.set_uniform("testUniform", (float)glfwGetTime());
-            testShader.set_uniform("model", transform * Matrix4::rotation({ (float)glfwGetTime(), (float)glfwGetTime() * 2, (float)glfwGetTime() * 2.5f }));
-            testShader.set_uniform("projection", projection);
+            testShader.set_uniform("model", transform * (rotation *= Matrix4::rotation({ 0.01f, 0.02f, 0.025f })));
+            testShader.set_uniform("view", camera.get_view());
+            testShader.set_uniform("projection", camera.get_projection());
             testTexture1.bind(0);
             testTexture2.bind(1);
             // testBuffer.bind();

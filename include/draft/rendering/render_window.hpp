@@ -21,6 +21,7 @@ namespace Draft {
         void poll_events();
         void clear();
         void display();
+        void close();
 
         // Internal use functions
         void* get_raw_window();
