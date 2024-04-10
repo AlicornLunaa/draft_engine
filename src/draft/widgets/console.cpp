@@ -95,8 +95,7 @@ namespace Draft {
             ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
             ImGui::SameLine();
 
-            //! if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && inputBuffer[0] != '\0')){ // TODO: FIX
-            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() })){
+            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (Keyboard::is_just_pressed(Key::ENTER) && inputBuffer[0] != '\0')){
                 string rawCommand(inputBuffer, 512);
                 vector<string> argList;
                 parse_arguments(rawCommand, argList);
