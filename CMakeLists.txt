@@ -38,6 +38,7 @@ set(INTERFACES
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
     include/draft/core/entity.hpp
+    include/draft/input/keys.hpp
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp

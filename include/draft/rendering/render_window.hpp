@@ -1,11 +1,17 @@
 #pragma once
 
+#include "draft/input/event.hpp"
 #include "draft/math/vector2.hpp"
 #include <memory>
+#include <queue>
 #include <string>
 
 namespace Draft {
     class RenderWindow {
+    private:
+        // Variables
+        std::queue<Event> eventQueue{};
+
     public:
         // Constructors
         RenderWindow(unsigned int width, unsigned int height, const std::string& title);
@@ -18,7 +24,7 @@ namespace Draft {
         // Functions
         const Vector2u get_size();
         bool is_open();
-        void poll_events();
+        bool poll_events(Event& event);
         void clear();
         void display();
         void close();

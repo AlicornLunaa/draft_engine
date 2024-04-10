@@ -1,3 +1,4 @@
+#include "draft/input/event.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <format>
@@ -82,9 +83,16 @@ namespace Draft {
         // Setup inputs
         Keyboard::init(this);
         Mouse::init(this);
+
+        Keyboard::add_callback([this](Event e){ eventQueue.emplace(e); });
+        Mouse::add_callback([this](Event e){ eventQueue.emplace(e); });
+
         ptr->initialize_callbacks();
     }
-    RenderWindow::~RenderWindow(){}
+    RenderWindow::~RenderWindow(){
+        Mouse::clear_callbacks();
+        Keyboard::clear_callbacks();
+    }
 
     // Functions
     const Vector2u RenderWindow::get_size(){
@@ -92,8 +100,16 @@ namespace Draft {
         glfwGetWindowSize(ptr->window, &size.x, &size.y);
         return size;
     }
+
     bool RenderWindow::is_open(){ return !glfwWindowShouldClose(ptr->window); }
-    void RenderWindow::poll_events(){ glfwPollEvents(); }
+
+    bool RenderWindow::poll_events(Event& event){
+        glfwPollEvents();
+
+        event = eventQueue.front();
+        eventQueue.pop();
+        return !eventQueue.empty();
+    }
 
     void RenderWindow::clear(){
         // Clear window

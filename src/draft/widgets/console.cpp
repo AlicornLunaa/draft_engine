@@ -5,6 +5,7 @@
 
 #include "draft/widgets/console.hpp"
 #include "draft/input/keyboard.hpp"
+#include "draft/input/keys.hpp"
 #include "draft/util/logger.hpp"
 #include "imgui.h"
 

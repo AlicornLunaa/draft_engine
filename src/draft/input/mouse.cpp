@@ -1,11 +1,13 @@
 #include "draft/input/mouse.hpp"
 #include "GLFW/glfw3.h"
+#include "draft/input/event.hpp"
 #include "imgui.h"
 
 namespace Draft {
     // Variables
     RenderWindow* Mouse::window = nullptr;
     std::unordered_map<int, bool> Mouse::lastPressedKeys{};
+    std::vector<EventCallback> Mouse::callbacks{};
     Vector2d Mouse::position{};
 
     // Raw function
@@ -15,6 +17,31 @@ namespace Draft {
 
         if(action == GLFW_RELEASE){
             Mouse::set_button_released(button);
+        }
+
+        // Convert to draft actions
+        auto pos = Mouse::get_position();
+        Event event{};
+        event.mouseButton.button = button;
+        event.mouseButton.x = pos.x;
+        event.mouseButton.y = pos.y;
+
+        switch(action){
+        case GLFW_PRESS:
+            event.type = Event::MouseButtonPressed;
+            break;
+
+        case GLFW_RELEASE:
+            event.type = Event::MouseButtonPressed;
+            break;
+
+        default:
+            break;
+        }
+
+        for(auto func : Mouse::callbacks){
+            // RenderWindow& window, int key, Action action, int mods
+            func(event);
         }
     }
 
@@ -33,6 +60,14 @@ namespace Draft {
 
     void Mouse::set_button_released(int button){
         lastPressedKeys[button] = false;
+    }
+
+    void Mouse::add_callback(EventCallback func){
+        callbacks.push_back(func);
+    }
+
+    void Mouse::clear_callbacks(){
+        callbacks.clear();
     }
 
     bool Mouse::is_pressed(int button){

@@ -131,21 +131,17 @@ namespace Draft {
             deltaTime = deltaClock.restart();
 
             // Handle control events
-            window.poll_events();
-
-            // while(window.poll_event(event)){
-            //     // ImGui::SFML::ProcessEvent(window.get_impl(), event);
-
-            //     switch(event.type){
-            //     case sf::Event::Closed:textureQueue
-            //         window.close();
-            //         break;
-            //     default:
-            //         // if(activeScene)
-            //         //     activeScene->handleEvent(event);
-            //         break;
-            //     }
-            // }
+            while(window.poll_events(event)){
+                switch(event.type){
+                case Event::Closed:
+                    window.close();
+                    break;
+                default:
+                    if(activeScene)
+                        activeScene->handleEvent(event);
+                    break;
+                }
+            }
 
             // Handle updates and stuff
             if(activeScene)

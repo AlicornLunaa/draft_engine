@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstdint>
-
-#include "draft/input/keyboard.hpp"
-#include "draft/input/mouse.hpp"
+#include <functional>
 
 namespace Draft {
 	class Event {
@@ -14,7 +12,7 @@ namespace Draft {
 		};
 
 		struct KeyEvent {
-			Key code;
+			int code;
 			bool alt;
 			bool control;
 			bool shift;
@@ -31,7 +29,7 @@ namespace Draft {
 		};
 
 		struct MouseButtonEvent {
-			Button button;
+			int button;
 			int x;
 			int y;
 		};
@@ -57,6 +55,7 @@ namespace Draft {
 			TextEntered,
 			KeyPressed,
 			KeyReleased,
+			KeyHold,
 			MouseWheelMoved,
 			MouseWheelScrolled,
 			MouseButtonPressed,
@@ -81,4 +80,6 @@ namespace Draft {
 			MouseWheelScrollEvent mouseWheelScroll;
 		};
 	};
+	
+	typedef std::function<void(Event event)> EventCallback;
 };
