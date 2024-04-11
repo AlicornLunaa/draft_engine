@@ -11,7 +11,27 @@ namespace Draft {
     Vector2d Mouse::position{};
 
     // Raw function
-    void mouse_callback(GLFWwindow* window, int button, int action, int mods){
+    void mouse_enter_callback(GLFWwindow* window, int entered){
+        Event event{};
+        event.type = (entered ? Event::MouseEntered : Event::MouseLeft);
+
+        for(auto func : Mouse::callbacks){
+            func(event);
+        }
+    }
+
+    void mouse_move_callback(GLFWwindow* window, double x, double y){
+        Event event{};
+        event.type = Event::MouseMoved;
+        event.mouseMove.x = x;
+        event.mouseButton.y = y;
+
+        for(auto func : Mouse::callbacks){
+            func(event);
+        }
+    }
+
+    void mouse_click_callback(GLFWwindow* window, int button, int action, int mods){
         ImGuiIO& io = ImGui::GetIO();
         io.AddMouseButtonEvent(button, action == GLFW_PRESS);
 
@@ -40,21 +60,33 @@ namespace Draft {
         }
 
         for(auto func : Mouse::callbacks){
-            // RenderWindow& window, int key, Action action, int mods
             func(event);
         }
+    }
+
+    void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+        Event event{};
+        event.type = Event::MouseWheelScrolled;
+        event.mouseWheelScroll.x = xoffset;
+        event.mouseWheelScroll.y = yoffset;
     }
 
     // Functions
     void Mouse::init(RenderWindow* window){
         cleanup();
         Mouse::window = window;
-        glfwSetMouseButtonCallback((GLFWwindow*)window->get_raw_window(), mouse_callback);
+        glfwSetCursorEnterCallback((GLFWwindow*)window->get_raw_window(), mouse_enter_callback);
+        glfwSetCursorPosCallback((GLFWwindow*)window->get_raw_window(), mouse_move_callback);
+        glfwSetMouseButtonCallback((GLFWwindow*)window->get_raw_window(), mouse_click_callback);
+        glfwSetScrollCallback((GLFWwindow*)window->get_raw_window(), mouse_scroll_callback);
     }
 
     void Mouse::cleanup(){
         if(!window) return; // Avoid cleaning up nothing
+        glfwSetCursorEnterCallback((GLFWwindow*)window->get_raw_window(), nullptr);
+        glfwSetCursorPosCallback((GLFWwindow*)window->get_raw_window(), nullptr);
         glfwSetMouseButtonCallback((GLFWwindow*)window->get_raw_window(), nullptr);
+        glfwSetScrollCallback((GLFWwindow*)window->get_raw_window(), nullptr);
         Mouse::window = nullptr;
     }
 
@@ -68,6 +100,10 @@ namespace Draft {
 
     void Mouse::clear_callbacks(){
         callbacks.clear();
+    }
+
+    bool Mouse::is_hovered(){
+        return glfwGetWindowAttrib((GLFWwindow*)window->get_raw_window(), GLFW_HOVERED);
     }
 
     bool Mouse::is_pressed(int button){

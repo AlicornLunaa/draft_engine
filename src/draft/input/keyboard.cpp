@@ -42,9 +42,14 @@ namespace Draft {
         }
 
         for(auto func : Keyboard::callbacks){
-            // RenderWindow& window, int key, Action action, int mods
             func(event);
         }
+    }
+
+    void text_callback(GLFWwindow* window, unsigned int codepoint){
+        Event event{};
+        event.type = Event::TextEntered;
+        event.text.unicode = codepoint;
     }
 
     // Functions
@@ -52,11 +57,13 @@ namespace Draft {
         cleanup();
         Keyboard::window = window;
         glfwSetKeyCallback((GLFWwindow*)window->get_raw_window(), key_callback);
+        glfwSetCharCallback((GLFWwindow*)window->get_raw_window(), text_callback);
     }
 
     void Keyboard::cleanup(){
         if(!window) return; // Avoid cleaning up nothing
         glfwSetKeyCallback((GLFWwindow*)window->get_raw_window(), nullptr);
+        glfwSetCharCallback((GLFWwindow*)window->get_raw_window(), nullptr);
         Keyboard::window = nullptr;
     }
 

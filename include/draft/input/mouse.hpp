@@ -29,6 +29,7 @@ namespace Draft {
         static void add_callback(EventCallback func);
         static void clear_callbacks();
 
+        static bool is_hovered();
         static bool is_pressed(int key);
         static bool is_just_pressed(int key);
         static const Vector2d& get_position();

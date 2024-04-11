@@ -34,17 +34,9 @@ namespace Draft {
 			int y;
 		};
 
-		struct MouseWheelEvent {
-			int delta;
-			int x;
-			int y;
-		};
-
 		struct MouseWheelScrollEvent {
-			// Mouse::Wheel wheel;
-			float delta;
-			int x;
-			int y;
+			double x;
+			double y;
 		};
 
 		enum EventType {
@@ -52,11 +44,10 @@ namespace Draft {
 			Resized,
 			LostFocus,
 			GainedFocus,
-			TextEntered,
+			TextEntered, 
 			KeyPressed,
 			KeyReleased,
 			KeyHold,
-			MouseWheelMoved,
 			MouseWheelScrolled,
 			MouseButtonPressed,
 			MouseButtonReleased,
@@ -76,7 +67,6 @@ namespace Draft {
 			TextEvent text;
 			MouseMoveEvent mouseMove;
 			MouseButtonEvent mouseButton;
-			MouseWheelEvent mouseWheel;
 			MouseWheelScrollEvent mouseWheelScroll;
 		};
 	};
