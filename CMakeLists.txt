@@ -20,6 +20,7 @@ set(SOURCES
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
     src/draft/widgets/console.cpp
+    src/draft/widgets/stats.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
 )
@@ -62,6 +63,7 @@ set(INTERFACES
     include/draft/util/time.hpp
     include/draft/util/clock.hpp
     include/draft/widgets/console.hpp
+    include/draft/widgets/stats.hpp
     include/draft/systems.hpp
 )
 

@@ -20,6 +20,7 @@ namespace Draft {
         RenderWindow window;
         Console console;
         Time deltaTime;
+        bool debug = true;
         
         Application(const char* title, const unsigned int width, const unsigned int height);
         Application(const Application& rhs) = delete;

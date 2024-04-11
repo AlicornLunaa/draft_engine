@@ -1,16 +1,17 @@
-#include "draft/core/scene.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
 #include <iostream>
 
 #include "draft/core/application.hpp"
+#include "draft/core/scene.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/math/matrix.hpp"
 #include "draft/util/logger.hpp"
+#include "draft/widgets/stats.hpp"
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
 
@@ -174,6 +175,11 @@ namespace Draft {
             cubeBuffer.bind();
             glDrawArrays(GL_TRIANGLES, 0, 36);
             cubeBuffer.unbind();
+
+            if(debug){
+                // Draw debug stuff
+                Stats::draw(*this);
+            }
 
             console.draw();
             window.display();

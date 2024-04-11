@@ -17,9 +17,9 @@ namespace Draft {
     Time::~Time(){}
 
     // Functions
-    inline float Time::as_seconds() const { return ptr->time.asSeconds(); }
-    inline int32_t Time::as_milliseconds() const { return ptr->time.asMilliseconds(); }
-    inline int64_t Time::as_microseconds() const { return ptr->time.asMicroseconds(); }
+    float Time::as_seconds() const { return ptr->time.asSeconds(); }
+    int32_t Time::as_milliseconds() const { return ptr->time.asMilliseconds(); }
+    int64_t Time::as_microseconds() const { return ptr->time.asMicroseconds(); }
 
     // Static functions
     Time Time::seconds(float amount){ return Time({ sf::seconds(amount) }); }
