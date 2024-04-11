@@ -6,6 +6,6 @@ namespace Draft {
     class Application;
 
     namespace Stats {
-        void draw(const Application& app);
+        void draw(Application& app);
     };
 }

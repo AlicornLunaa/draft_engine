@@ -55,7 +55,7 @@ namespace Draft {
 
     void Application::run(){
         PerspectiveCamera camera({ 0, 0, 10 }, { 0, 0, -1 }, { 640, 480 }, 45.f);
-        OrthographicCamera ortho({ 0, 0, 10 }, { 0, 0, -1 }, 0, 512, 0, 512, 0.1f, 100.f);
+        OrthographicCamera ortho({ 0, 0, 10 }, { 0, 0, -1 }, -64, 64, -64, 64, 0.1f, 100.f);
         Matrix4 transform = Matrix4::translation({ 0.f, 0, 0.f }) * Matrix4::scale({ 3, 3, 3 });
 
         Shader& defaultShader = assetManager.get_shader("./assets/shaders/default");
@@ -183,16 +183,16 @@ namespace Draft {
             // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             // testBuffer.unbind();
             
-            cubeBuffer.bind();
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            cubeBuffer.unbind();
+            // cubeBuffer.bind();
+            // glDrawArrays(GL_TRIANGLES, 0, 36);
+            // cubeBuffer.unbind();
 
-            batch.draw(testTexture1, { 0, 0 }, { 128, 128 });
+            batch.draw(testTexture1, { 0, 0 }, { 32, 32 });
 
             // Render the batch
             defaultShader.bind();
-            testShader.set_uniform("view", ortho.get_view());
-            testShader.set_uniform("projection", ortho.get_projection());
+            defaultShader.set_uniform("view", ortho.get_view());
+            defaultShader.set_uniform("projection", ortho.get_projection());
             batch.flush();
 
             // Draw debug stuff
