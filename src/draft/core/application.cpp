@@ -1,4 +1,5 @@
 #include "draft/rendering/batch.hpp"
+#include <cstdlib>
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -55,7 +56,7 @@ namespace Draft {
 
     void Application::run(){
         PerspectiveCamera camera({ 0, 0, 10 }, { 0, 0, -1 }, { 640, 480 }, 45.f);
-        OrthographicCamera ortho({ 0, 0, 10 }, { 0, 0, -1 }, -64, 64, -64, 64, 0.1f, 100.f);
+        OrthographicCamera ortho({ 0, 0, -10 }, { 0, 0, 1 }, 0, 128, 0, 128, 0.1f, 100.f);
         Matrix4 transform = Matrix4::translation({ 0.f, 0, 0.f }) * Matrix4::scale({ 3, 3, 3 });
 
         Shader& defaultShader = assetManager.get_shader("./assets/shaders/default");
@@ -183,11 +184,15 @@ namespace Draft {
             // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             // testBuffer.unbind();
             
-            // cubeBuffer.bind();
-            // glDrawArrays(GL_TRIANGLES, 0, 36);
-            // cubeBuffer.unbind();
+            cubeBuffer.bind();
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            cubeBuffer.unbind();
 
-            batch.draw(testTexture1, { 0, 0 }, { 32, 32 });
+            std::srand(1);
+            batch.draw(testTexture1, { 128 - 33, 1 }, { 32, 32 });
+            batch.draw(testTexture1, { (float)rand() / RAND_MAX * 128, (float)rand() / RAND_MAX * 128 }, { 32, 32 }, 0.f, { 0, 0, 64, 78 });
+            batch.draw(testTexture1, { (float)rand() / RAND_MAX * 128, (float)rand() / RAND_MAX * 128 }, { 32, 32 });
+            batch.draw(testTexture2, { (float)rand() / RAND_MAX * 128, (float)rand() / RAND_MAX * 128 }, { 32, 32 }, 45);
 
             // Render the batch
             defaultShader.bind();

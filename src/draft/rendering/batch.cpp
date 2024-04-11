@@ -1,6 +1,7 @@
 #include "draft/rendering/batch.hpp"
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector3.hpp"
+#include "draft/math/vector4.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
@@ -19,7 +20,7 @@ namespace Draft {
     // Private functions
     Matrix4 Batch::generate_transform_matrix(const Quad& quad) const {
         // Generates a transformation matrix for the given quad
-        return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f });
+        return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation });
     }
 
     // Constructor
@@ -67,7 +68,8 @@ namespace Draft {
             // Vertices
             for(const auto& v : baseVertices){
                 // Adds the transformed vertex to the array
-                vertices.push_back(trans * v);
+                auto transformedV = trans * Vector4f(v.x, v.y, 0, 1);
+                vertices.push_back({ transformedV.x, transformedV.y, 0.f });
             }
 
             // Add texture coordinates based on the floatrect region
@@ -112,7 +114,7 @@ namespace Draft {
 
         oldTexture->bind();
         vbo.bind();
-        glDrawElements(GL_TRIANGLES, vertices.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         vbo.unbind();
 
         // Do it again for the rest of the quads
