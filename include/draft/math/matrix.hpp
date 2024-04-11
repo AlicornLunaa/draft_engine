@@ -11,6 +11,12 @@
 
 namespace Draft {
     // Primary template
+    /**
+     * @brief Generalized mathmatical matrix class with no heap allocations
+     * @tparam T
+     * @tparam rows 
+     * @tparam cols 
+     */
     template<typename T, size_t rows, size_t cols>
     class Matrix {
     private:
@@ -26,10 +32,30 @@ namespace Draft {
         Matrix(const Matrix<U, rows, cols>& other){ this = other; }
 
         // Functions
+        /**
+         * @brief Get the size of the matrix
+         * @return const Vector2u& 
+         */
         inline const Vector2u& get_size() const { return size; }
+
+        /**
+         * @brief Gets a constant reference to the element in the matrix
+         * @param row 
+         * @param col 
+         * @return const T& 
+         */
         inline const T& get(size_t row, size_t col) const { return array[row][col]; }
+
+        /**
+         * @brief Gets a pointer to the first element in row-major order
+         * @return const T* 
+         */
         inline const T* arr_ptr() const { return &array[0][0]; }
 
+        /**
+         * @brief Flips rows and columns. Makes a copy.
+         * @return Matrix<T, cols, rows> 
+         */
         Matrix<T, cols, rows> transpose() const {
             Matrix<T, cols, rows> out{};
 
@@ -45,6 +71,10 @@ namespace Draft {
         // TODO: inverse
 
         // Static functions
+        /**
+         * @brief Creates an identity matrix
+         * @return Matrix<T, rows, cols> 
+         */
         static Matrix<T, rows, cols> identity(){
             Matrix<T, rows, cols> mat{};
 
@@ -56,6 +86,11 @@ namespace Draft {
             return mat;
         }
         
+        /**
+         * @brief Creates a 2D scaling matrix
+         * @param vec 
+         * @return Matrix<T, 2, 2> 
+         */
         static Matrix<T, 2, 2> scale(const Vector2<T>& vec){
             Matrix<T, 2, 2> mat = Matrix<T, 2, 2>::identity();
             mat[0][0] = vec.x;
@@ -63,6 +98,12 @@ namespace Draft {
             return mat;
         }
 
+        /**
+         * @brief Creates a 2D translation matrix
+         * 
+         * @param vec 
+         * @return Matrix<T, 2, 2> 
+         */
         static Matrix<T, 2, 2> translation(const Vector2<T>& vec){
             Matrix<T, 2, 2> mat = Matrix<T, 2, 2>::identity();
             mat[0][1] = vec.x;
@@ -70,6 +111,11 @@ namespace Draft {
             return mat;
         }
 
+        /**
+         * @brief Creates a 2D rotation matrix
+         * @param angle 
+         * @return Matrix<T, 2, 2> 
+         */
         static Matrix<T, 2, 2> rotation(T angle){
             Matrix<T, 2, 2> mat = Matrix<T, 2, 2>::identity();
             mat[0][0] = std::cos(angle);
@@ -79,6 +125,11 @@ namespace Draft {
             return mat;
         }
 
+        /**
+         * @brief Creates a 3D scaling matrix
+         * @param vec 
+         * @return Matrix<T, 4, 4> 
+         */
         static Matrix<T, 4, 4> scale(const Vector3<T>& vec){
             Matrix<T, 4, 4> mat = Matrix<T, 4, 4>::identity();
             mat[0][0] = vec.x;
@@ -87,6 +138,11 @@ namespace Draft {
             return mat;
         }
 
+        /**
+         * @brief Creates a 3D translation matrix
+         * @param vec 
+         * @return Matrix<T, 4, 4> 
+         */
         static Matrix<T, 4, 4> translation(const Vector3<T>& vec){
             Matrix<T, 4, 4> mat = Matrix<T, 4, 4>::identity();
             mat[0][3] = vec.x;
@@ -95,6 +151,11 @@ namespace Draft {
             return mat;
         }
 
+        /**
+         * @brief Creates a 3D rotation matrix from euler angles
+         * @param angles 
+         * @return Matrix<T, 4, 4> 
+         */
         static Matrix<T, 4, 4> rotation(const Vector3<T>& angles){
             Matrix<T, 4, 4> xRotMat = Matrix<T, 4, 4>::identity();
             xRotMat[1][1] = std::cos(angles.x);
@@ -117,6 +178,16 @@ namespace Draft {
             return xRotMat * yRotMat * zRotMat;
         }
 
+        /**
+         * @brief Creates an orthographic projection matrix
+         * @param left 
+         * @param right 
+         * @param bottom 
+         * @param top 
+         * @param near 
+         * @param far 
+         * @return Matrix<float, 4, 4> 
+         */
         static Matrix<float, 4, 4> orthographic(float left, float right, float bottom, float top, float near, float far){
             Matrix<float, 4, 4> mat = Matrix<float, 4, 4>::identity();
             mat[0][0] = 2.f / (right - left);
@@ -128,6 +199,14 @@ namespace Draft {
             return mat;
         }
 
+        /**
+         * @brief Creates a perspective projection matrix
+         * @param fov 
+         * @param aspect 
+         * @param near 
+         * @param far 
+         * @return Matrix<float, 4, 4> 
+         */
         static Matrix<float, 4, 4> perspective(float fov, float aspect, float near, float far){
             Matrix<float, 4, 4> mat{};
             mat[0][0] = 1.f / (aspect * std::tan(fov / 2.f));

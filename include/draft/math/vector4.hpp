@@ -22,9 +22,31 @@ namespace Draft {
         Vector4(const Vector4<U>& other) : x((T)other.x), y((T)other.y), z((T)other.z), w((T)other.w) {}
 
         // Functions
+        /**
+         * @brief Returns the length of the vector squared
+         * @return T 
+         */
         inline T lengthSqr() const { return (x * x + y * y + z * z + w * w); }
+        
+        /**
+         * @brief Returns the length of the vector. Slower than a squared length!
+         * @return T 
+         */
         inline T length() const { return std::sqrt(lengthSqr()); }
+
+        /**
+         * @brief Returns a copy of the normalized vector
+         * @return Vector2<T> 
+         */
         inline Vector4<T> normalized() const { return Vector4(this) / length(); }
+
+        /**
+         * @brief Sets every parameter of the vector
+         * @param x 
+         * @param y 
+         * @param z 
+         * @param w 
+         */
         inline void set(T x, T y, T z, T w){ this->x = x; this->y = y; this->z = z; this->w = w; }
 
         // Operators

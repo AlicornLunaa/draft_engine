@@ -6,6 +6,10 @@
 #include "draft/phys/shape.hpp"
 
 namespace Draft {
+    /**
+     * @brief Contains a list of shapes and fixture pointers to be used for box2d.
+     * 
+     */
     class Collider {
     private:
         // Variables
@@ -21,6 +25,7 @@ namespace Draft {
     public:
         // Constructors
         Collider();
+        Collider(const Collider& other);
         ~Collider();
 
         // Functions

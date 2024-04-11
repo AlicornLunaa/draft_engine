@@ -23,10 +23,36 @@ namespace Draft {
         Vector2(const Vector2<U>& other) : x((T)other.x), y((T)other.y) {}
 
         // Functions
+        /**
+         * @brief Returns the length of the vector squared
+         * @return T 
+         */
         inline T lengthSqr() const { return (x * x + y * y); }
+        
+        /**
+         * @brief Returns the length of the vector. Slower than a squared length!
+         * @return T 
+         */
         inline T length() const { return std::sqrt(lengthSqr()); }
+
+        /**
+         * @brief Returns a copy of the normalized vector
+         * @return Vector2<T> 
+         */
         inline Vector2<T> normalized() const { return Vector2(this) / length(); }
+
+        /**
+         * @brief Returns the theoretical 2D cross product
+         * @param other 
+         * @return T 
+         */
         inline T cross(const Vector2<T>& other) const { return x * other.x - y * other.x; }
+
+        /**
+         * @brief Sets X and Y
+         * @param x 
+         * @param y 
+         */
         inline void set(T x, T y){ this->x = x; this->y = y; }
 
         // Operators

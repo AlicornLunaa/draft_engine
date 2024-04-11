@@ -7,26 +7,26 @@ namespace Draft {
     PolygonShape::PolygonShape(const PolygonShape& other) : PolygonShape() {
         // Copy data
         for(const auto& v : other.vertices){
-            addVertex(Vector2f(v));
+            add_vertex(Vector2f(v));
         }
     }
 
-    void PolygonShape::setAsBox(float hw, float hy){
-        addVertex({ -hw, -hy });
-        addVertex({ hw, -hy });
-        addVertex({ hw, hy });
-        addVertex({ -hw, hy });
+    void PolygonShape::set_as_box(float hw, float hy){
+        add_vertex({ -hw, -hy });
+        add_vertex({ hw, -hy });
+        add_vertex({ hw, hy });
+        add_vertex({ -hw, hy });
     }
 
-    size_t PolygonShape::addVertex(Vector2f vertex){
+    size_t PolygonShape::add_vertex(Vector2f vertex){
         vertices.push_back(vertex);
         physVertices.push_back(vector_to_b2(vertex));
         physShape.Set(&physVertices[0], vertices.size());
         return vertices.size() - 1;
     }
 
-    bool PolygonShape::delVertex(size_t index){
-        if(index >= getVertexCount())
+    bool PolygonShape::del_vertex(size_t index){
+        if(index >= get_vertex_count())
             return false;
         
         vertices.erase(vertices.begin() + index);

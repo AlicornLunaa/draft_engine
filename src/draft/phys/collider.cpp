@@ -5,6 +5,9 @@ namespace Draft {
     Collider::Collider(){
     }
 
+    Collider::Collider(const Collider& other){
+    }
+
     Collider::~Collider(){
         for(const auto* ptr : shapes){
             delete ptr;

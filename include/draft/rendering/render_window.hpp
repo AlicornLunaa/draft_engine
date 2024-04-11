@@ -22,14 +22,46 @@ namespace Draft {
         RenderWindow& operator= (const RenderWindow& other) = delete;
 
         // Functions
+        /**
+         * @brief Get the window's size
+         * @return const Vector2u 
+         */
         const Vector2u get_size();
+
+        /**
+         * @brief Checks if the window is open
+         * @return true 
+         * @return false 
+         */
         bool is_open();
+
+        /**
+         * @brief Checks if the window has any events lined up to be executed. Sets the reference equal to the next event
+         * @param event 
+         * @return true 
+         * @return false 
+         */
         bool poll_events(Event& event);
+
+        /**
+         * @brief Clears the screen
+         */
         void clear();
+
+        /**
+         * @brief Swaps buffers
+         */
         void display();
+
+        /**
+         * @brief Tells the window to close
+         */
         void close();
 
-        // Internal use functions
+        /**
+         * @brief Internal use only. Returns a pointer to a GLFWwindow as a void pointer.
+         * @return void* 
+         */
         void* get_raw_window();
 
     private:

@@ -25,9 +25,22 @@ namespace Draft {
         Camera(const Vector3f& position, const Vector3f& direction);
 
         // Functions
+        /**
+         * @brief Points the camera to the position supplied
+         * @param target 
+         */
         void target(const Vector3f& target);
+        
+        /**
+         * @brief Points the camera to the direction supplied
+         * @param dir 
+         */
         void point(const Vector3f& dir);
 
+        /**
+         * @brief Set the camera's own position
+         * @param vec 
+         */
         inline void set_position(const Vector3f& vec){ position = vec; point(forward); }
 
         inline const Vector3f& get_position() const { return position; }

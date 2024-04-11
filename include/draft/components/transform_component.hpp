@@ -4,6 +4,9 @@
 #include "draft/math/matrix.hpp"
 
 namespace Draft {
+    /**
+     * @brief Position and rotation, thats it
+     */
     struct TransformComponent {
         // Variables
         Vector2f position;

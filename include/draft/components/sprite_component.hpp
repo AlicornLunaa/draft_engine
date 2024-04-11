@@ -4,6 +4,10 @@
 #include "draft/rendering/texture.hpp"
 
 namespace Draft {
+    /**
+     * @brief Contains a texture and a size. Will be rendered with the transform component
+     * 
+     */
     struct SpriteComponent {
         // Variables
         const Texture& texture;

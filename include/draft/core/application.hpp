@@ -8,6 +8,11 @@
 #include "draft/widgets/console.hpp"
 
 namespace Draft {
+    /**
+     * @brief The main application. Renders the scene pointer supplied, if any.
+     * Contains a console and delta time. Redirects iostream to the window's
+     * console. Fixed timestep supplied.
+     */
     class Application {
     private:
         std::streambuf* oldOutBuf = nullptr;
@@ -26,9 +31,12 @@ namespace Draft {
         bool debug = true;
         
         Application(const char* title, const unsigned int width, const unsigned int height);
-        Application(const Application& rhs) = delete;
+        Application(const Application& rhs) = delete; // Dont allow copying.
         ~Application();
 
+        /**
+         * @brief Runs the application. This starts and spawns the main application loop.
+         */
         void run();
 
         inline void set_time_step(double v){ timeStep = v; }
