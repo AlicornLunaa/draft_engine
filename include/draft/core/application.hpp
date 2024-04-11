@@ -15,6 +15,9 @@ namespace Draft {
         Clock deltaClock;
         Event event;
 
+        double accumulator = 0.0;
+        double timeStep = 1.0/66.0;
+
     public:
         AssetManager assetManager;
         RenderWindow window;

@@ -1,5 +1,3 @@
-#include "draft/rendering/batch.hpp"
-#include <cstdlib>
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -8,13 +6,9 @@
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/camera.hpp"
-#include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
-#include "draft/math/matrix.hpp"
 #include "draft/util/logger.hpp"
 #include "draft/widgets/stats.hpp"
-#include "GLFW/glfw3.h"
 #include "glad/gl.h"
 
 namespace Draft {
@@ -55,24 +49,6 @@ namespace Draft {
     }
 
     void Application::run(){
-        PerspectiveCamera camera({ 0, 0, 10 }, { 0, 0, -1 }, { 640, 480 }, 45.f);
-        OrthographicCamera ortho({ 0, 0, -10 }, { 0, 0, 1 }, 0, 128, 0, 128, 0.1f, 100.f);
-        Matrix4 transform = Matrix4::translation({ 0.f, 0, 0.f }) * Matrix4::scale({ 3, 3, 3 });
-
-        Shader& defaultShader = assetManager.get_shader("./assets/shaders/default");
-        defaultShader.bind();
-        defaultShader.set_uniform("baseTexture", 0);
-        defaultShader.unbind();
-
-        Shader& testShader = assetManager.get_shader("./assets/shaders/test");
-        testShader.bind();
-        testShader.set_uniform("myTexture1", 0);
-        testShader.set_uniform("myTexture2", 1);
-        testShader.unbind();
-
-        Texture& testTexture1 = assetManager.get_texture("./assets/textures/test_image_1.png");
-        Texture& testTexture2 = assetManager.get_texture("./assets/textures/test_image_3.png");
-
         VertexBuffer testBuffer{};
         testBuffer.buffer(0, {
             { 0.5f,  0.5f, 0.0f},  // top right
@@ -136,11 +112,6 @@ namespace Draft {
         cubeBuffer.set_attribute(1, 2, sizeof(float) * 5, sizeof(float) * 3);
         cubeBuffer.end_buffer();
 
-        Scene testScene{this};
-        set_scene(&testScene);
-
-        Batch batch{};
-
         // Start application loop
         while(window.is_open()){
             // Clock reset
@@ -159,46 +130,40 @@ namespace Draft {
                 }
             }
 
-            // Handle updates and stuff
-            if(activeScene)
-                activeScene->update(deltaTime);
+            // Fixed time-step
+            accumulator += deltaTime.as_seconds();
 
+            while(accumulator >= timeStep){
+                if(activeScene){
+                    activeScene->update(deltaTime);
+                }
+
+                accumulator -= timeStep;
+            }
+            
+            // Rendering stuff!
             window.clear();
 
             if(activeScene)
                 activeScene->render(deltaTime);
 
-            auto time = (float)glfwGetTime();
-            camera.set_position({ 10 * std::sin(time), -5, 10 * std::cos(time) });
-            camera.target({ 0, 0, 0 });
+            // testShader.bind();
+            // testShader.set_uniform("testUniform", (float)glfwGetTime());
+            // testShader.set_uniform("model", transform);
+            // testShader.set_uniform("view", camera.get_view());
+            // testShader.set_uniform("projection", camera.get_projection());
+            // testTexture1.bind(0);
+            // testTexture2.bind(1);
 
-            testShader.bind();
-            testShader.set_uniform("testUniform", (float)glfwGetTime());
-            testShader.set_uniform("model", transform);
-            testShader.set_uniform("view", camera.get_view());
-            testShader.set_uniform("projection", camera.get_projection());
-            testTexture1.bind(0);
-            testTexture2.bind(1);
-
+            // testShader.set_uniform("model", transform * Matrix4::translation({ 1.1f, 0, 0 }));
             // testBuffer.bind();
             // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             // testBuffer.unbind();
             
-            cubeBuffer.bind();
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            cubeBuffer.unbind();
-
-            std::srand(1);
-            batch.draw(testTexture1, { 128 - 33, 1 }, { 32, 32 });
-            batch.draw(testTexture1, { (float)rand() / RAND_MAX * 128, (float)rand() / RAND_MAX * 128 }, { 32, 32 }, 0.f, { 0, 0, 64, 78 });
-            batch.draw(testTexture1, { (float)rand() / RAND_MAX * 128, (float)rand() / RAND_MAX * 128 }, { 32, 32 });
-            batch.draw(testTexture2, { (float)rand() / RAND_MAX * 128, (float)rand() / RAND_MAX * 128 }, { 32, 32 }, 45);
-
-            // Render the batch
-            defaultShader.bind();
-            defaultShader.set_uniform("view", ortho.get_view());
-            defaultShader.set_uniform("projection", ortho.get_projection());
-            batch.flush();
+            // testShader.set_uniform("model", transform);
+            // cubeBuffer.bind();
+            // glDrawArrays(GL_TRIANGLES, 0, 36);
+            // cubeBuffer.unbind();
 
             // Draw debug stuff
             if(debug){

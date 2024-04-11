@@ -15,6 +15,7 @@ namespace Draft {
 
     public:
         Scene(Application* app);
+        Scene(const Scene& other) = delete;
 
         Registry& get_registry();
         Entity create_entity();
