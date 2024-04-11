@@ -10,6 +10,7 @@ set(SOURCES
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
     src/draft/rendering/render_window.cpp
+    src/draft/rendering/batch.cpp
     src/draft/rendering/shader.cpp
     src/draft/rendering/camera.cpp
     src/draft/rendering/vertex_buffer.cpp
@@ -47,10 +48,12 @@ set(INTERFACES
     include/draft/math/vector3.hpp
     include/draft/math/vector4.hpp
     include/draft/math/matrix.hpp
+    include/draft/math/rect.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/render_window.hpp
+    include/draft/rendering/batch.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/texture.hpp

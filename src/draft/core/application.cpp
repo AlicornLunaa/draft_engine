@@ -1,3 +1,4 @@
+#include "draft/rendering/batch.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -21,6 +22,7 @@ namespace Draft {
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
 
         // Register things to load
+        assetManager.queue_shader("./assets/shaders/default");
         assetManager.queue_shader("./assets/shaders/test");
         assetManager.queue_texture("./assets/textures/test_image_1.png");
         assetManager.queue_texture("./assets/textures/test_image_3.png");
@@ -53,7 +55,13 @@ namespace Draft {
 
     void Application::run(){
         PerspectiveCamera camera({ 0, 0, 10 }, { 0, 0, -1 }, { 640, 480 }, 45.f);
+        OrthographicCamera ortho({ 0, 0, 10 }, { 0, 0, -1 }, 0, 512, 0, 512, 0.1f, 100.f);
         Matrix4 transform = Matrix4::translation({ 0.f, 0, 0.f }) * Matrix4::scale({ 3, 3, 3 });
+
+        Shader& defaultShader = assetManager.get_shader("./assets/shaders/default");
+        defaultShader.bind();
+        defaultShader.set_uniform("baseTexture", 0);
+        defaultShader.unbind();
 
         Shader& testShader = assetManager.get_shader("./assets/shaders/test");
         testShader.bind();
@@ -130,6 +138,8 @@ namespace Draft {
         Scene testScene{this};
         set_scene(&testScene);
 
+        Batch batch{};
+
         // Start application loop
         while(window.is_open()){
             // Clock reset
@@ -172,12 +182,21 @@ namespace Draft {
             // testBuffer.bind();
             // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             // testBuffer.unbind();
+            
             cubeBuffer.bind();
             glDrawArrays(GL_TRIANGLES, 0, 36);
             cubeBuffer.unbind();
 
+            batch.draw(testTexture1, { 0, 0 }, { 128, 128 });
+
+            // Render the batch
+            defaultShader.bind();
+            testShader.set_uniform("view", ortho.get_view());
+            testShader.set_uniform("projection", ortho.get_projection());
+            batch.flush();
+
+            // Draw debug stuff
             if(debug){
-                // Draw debug stuff
                 Stats::draw(*this);
             }
 

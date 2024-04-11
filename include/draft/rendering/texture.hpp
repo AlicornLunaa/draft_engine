@@ -28,9 +28,10 @@ namespace Draft {
         ~Texture();
         
         // Functions
-        inline bool is_loaded(){ return loaded; }
-        void bind(int unit = 0);
-        void unbind();
+        inline bool is_loaded() const { return loaded; }
+        inline const Vector2i& get_size() const { return size; }
+        void bind(int unit = 0) const;
+        void unbind() const;
         void reload();
     };
 };

@@ -41,12 +41,12 @@ namespace Draft {
     }
 
     // Functions
-    void Texture::bind(int unit){
+    void Texture::bind(int unit) const {
         glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(GL_TEXTURE_2D, texId);
     }
 
-    void Texture::unbind(){
+    void Texture::unbind() const {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
