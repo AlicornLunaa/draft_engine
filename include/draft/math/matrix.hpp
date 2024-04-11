@@ -326,4 +326,5 @@ namespace Draft {
     typedef Matrix<float, 2, 2> Matrix2;
     typedef Matrix<float, 3, 3> Matrix3;
     typedef Matrix<float, 4, 4> Matrix4;
+    typedef Matrix<float, 4, 4> Quaternion;
 };

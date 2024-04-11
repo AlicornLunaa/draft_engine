@@ -20,7 +20,7 @@ namespace Draft {
     // Private functions
     Matrix4 SpriteBatch::generate_transform_matrix(const Quad& quad) const {
         // Generates a transformation matrix for the given quad
-        return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation });
+        return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f });
     }
 
     // Constructor
