@@ -2,7 +2,7 @@
 
 ## Engine goals, loose things to do in free time
 - [x] Logging system ingame
-- [ ] Rendering api
+- [x] Rendering api
 - [x] Asset api
 - [x] Input api
 - [ ] UI api

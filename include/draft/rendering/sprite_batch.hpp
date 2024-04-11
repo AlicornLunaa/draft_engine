@@ -9,7 +9,7 @@
 #include <queue>
 
 namespace Draft {
-    class Batch {
+    class SpriteBatch {
     private:
         // Data structures
         struct Quad {
@@ -31,10 +31,10 @@ namespace Draft {
 
     public:
         // Constructors
-        Batch();
+        SpriteBatch();
 
         // Functions
-        void draw(const Texture& texture, Vector2f position, Vector2f size, float rotation = 0.f, FloatRect region = {}); // Add quad to scene
+        void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, FloatRect region = {}); // Add quad to scene
         void flush(); // Send quads to shader
     };
 };

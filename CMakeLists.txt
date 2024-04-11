@@ -10,7 +10,8 @@ set(SOURCES
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
     src/draft/rendering/render_window.cpp
-    src/draft/rendering/batch.cpp
+    src/draft/rendering/sprite_batch.cpp
+    src/draft/rendering/shape_batch.cpp
     src/draft/rendering/shader.cpp
     src/draft/rendering/camera.cpp
     src/draft/rendering/vertex_buffer.cpp
@@ -53,7 +54,8 @@ set(INTERFACES
     include/draft/phys/shape.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/render_window.hpp
-    include/draft/rendering/batch.hpp
+    include/draft/rendering/sprite_batch.hpp
+    include/draft/rendering/shape_batch.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/texture.hpp

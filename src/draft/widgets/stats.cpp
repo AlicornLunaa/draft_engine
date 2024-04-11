@@ -14,6 +14,7 @@ namespace Draft {
         ImGui::Begin("Statistics");
         ImGui::Text("FPS: %f", fps);
         ImGui::Text("Frame Time: %f", frameTime);
+        ImGui::Text("Time Step: %f", app.get_time_step());
 
         if(ImGui::Button("Reload Assets")){
             app.console.run("reload_assets");

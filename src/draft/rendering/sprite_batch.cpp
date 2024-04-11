@@ -1,4 +1,4 @@
-#include "draft/rendering/batch.hpp"
+#include "draft/rendering/sprite_batch.hpp"
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector3.hpp"
 #include "draft/math/vector4.hpp"
@@ -10,7 +10,7 @@ using namespace std;
 
 namespace Draft {
     // Static data
-    array<Vector2f, 4> Batch::baseVertices = array<Vector2f, 4>({
+    array<Vector2f, 4> SpriteBatch::baseVertices = array<Vector2f, 4>({
         {0.f, 0.f}, // Top left
         {1.f, 0.f}, // Top right
         {1.f, 1.f}, // Bottom right
@@ -18,16 +18,16 @@ namespace Draft {
     });
 
     // Private functions
-    Matrix4 Batch::generate_transform_matrix(const Quad& quad) const {
+    Matrix4 SpriteBatch::generate_transform_matrix(const Quad& quad) const {
         // Generates a transformation matrix for the given quad
         return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation });
     }
 
     // Constructor
-    Batch::Batch(){}
+    SpriteBatch::SpriteBatch(){}
 
     // Functions
-    void Batch::draw(const Texture& texture, Vector2f position, Vector2f size, float rotation, FloatRect region){
+    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, FloatRect region){
         // Add quad to the queue
         Quad quad {
             &texture,
@@ -41,7 +41,7 @@ namespace Draft {
         quadQueue.emplace(quad);
     }
 
-    void Batch::flush(){
+    void SpriteBatch::flush(){
         // Draws all the shapes to opengl
         Texture const * oldTexture = nullptr; // If texture changes, we have to render immediately.
         vector<Vector3f> vertices;

@@ -31,7 +31,10 @@ namespace Draft {
 
         void run();
 
-        void set_scene(Scene* scene){ activeScene = scene; }
-        Scene* get_scene(){ return activeScene; }
+        inline void set_time_step(double v){ timeStep = v; }
+        inline double get_time_step(){ return timeStep; }
+
+        inline void set_scene(Scene* scene){ activeScene = scene; }
+        inline Scene* get_scene(){ return activeScene; }
     };
 }
