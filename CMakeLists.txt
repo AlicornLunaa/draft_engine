@@ -53,6 +53,7 @@ set(INTERFACES
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
     include/draft/rendering/camera.hpp
+    include/draft/rendering/mesh.hpp
     include/draft/rendering/render_window.hpp
     include/draft/rendering/sprite_batch.hpp
     include/draft/rendering/shape_batch.hpp
