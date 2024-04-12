@@ -32,6 +32,7 @@ void compile_image(const std::string& input, const std::string& output){
 
     stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(input.c_str(), &size.x, &size.y, &nrChannels, 0);
+    size_t count = (size.x * size.y * nrChannels);
 
     if(!data){
         std::cout << "Error reading the image data\n";
@@ -40,15 +41,12 @@ void compile_image(const std::string& input, const std::string& output){
 
     // Convert data to a C++ class
     std::string out = "#pragma once\n\n";
-    out += "#pragma once\n\n";
     out += "#include \"draft/core/compiled_asset_data.hpp\"\n\n";
     out += "static const StaticImageData IMAGE {\n";
     out += "\t" + std::to_string(size.x) + ", " + std::to_string(size.y) + ", " + std::to_string(nrChannels) + ",\n";
     
-    for(size_t i = 0; i < (size.x * size.y * nrChannels); i++){
-        out += "\t";
-        out += data[i];
-        out += "\n";
+    for(size_t i = 0; i < count; i++){
+        out += "\t" + std::to_string(data[i]) + ((i < count - 1) ? "," : "\n") + ((i % 100 == 0 && i != 0) ? "\n" : "");
     }
 
     out += "};\n";
