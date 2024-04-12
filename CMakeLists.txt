@@ -1,3 +1,4 @@
+# Engine library
 cmake_minimum_required(VERSION 3.8)
 project("draft_engine" VERSION 0.0.1 LANGUAGES CXX)
 
@@ -9,6 +10,7 @@ set(SOURCES
     src/draft/input/mouse.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
+    src/draft/phys/world.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/sprite_batch.cpp
     src/draft/rendering/shape_batch.cpp
@@ -52,6 +54,7 @@ set(INTERFACES
     include/draft/math/rect.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
+    include/draft/phys/world.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
     include/draft/rendering/render_window.hpp
@@ -76,6 +79,7 @@ set(INTERFACES
 set(SFML_STATIC_LIBRARIES TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -125,4 +129,15 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PUBLIC entt)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb box2d nlohmann_json::nlohmann_json ${SFML_FLAGS})
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+
+# Engine tools
+set(TOOL_SOURCES
+    src/tools/main.cpp
+)
+
+project("draft_engine_tools" VERSION 0.0.1 LANGUAGES CXX)
+add_executable(${PROJECT_NAME} ${TOOL_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE src/tools)
+target_link_libraries(${PROJECT_NAME} PRIVATE draft_engine::draft_engine stb)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
