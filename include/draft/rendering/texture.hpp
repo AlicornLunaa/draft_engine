@@ -8,6 +8,7 @@ namespace Draft {
     class Texture {
     private:
         // Variables
+        bool reloadable = true;
         unsigned int texId;
         std::string path;
         Vector2i size;
@@ -25,6 +26,8 @@ namespace Draft {
         // Constructors
         Texture(Wrap wrapping = REPEAT);
         Texture(const std::string& texturePath, Wrap wrapping = REPEAT);
+        Texture(const unsigned char* data, int width, int height, int channels, Wrap wrapping = REPEAT);
+        Texture(const char* start, const char* end, Wrap wrapping = REPEAT);
         ~Texture();
         
         // Functions

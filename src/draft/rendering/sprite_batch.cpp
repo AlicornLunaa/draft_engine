@@ -43,7 +43,7 @@ namespace Draft {
 
     void SpriteBatch::flush(){
         // Draws all the shapes to opengl
-        Texture const * oldTexture = nullptr; // If texture changes, we have to render immediately.
+        Texture const* oldTexture = nullptr; // If texture changes, we have to render immediately.
         vector<Vector3f> vertices;
         vector<Vector2f> texCoords;
         vector<int> indices;

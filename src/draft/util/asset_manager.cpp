@@ -1,7 +1,12 @@
 #include <filesystem>
+#include <memory>
 
 #include "draft/util/asset_manager.hpp"
 #include "draft/util/logger.hpp"
+
+#include "cmrc/cmrc.hpp"
+
+CMRC_DECLARE(draft_engine);
 
 namespace Draft {
     // Constructors
@@ -56,6 +61,10 @@ namespace Draft {
 
     void AssetManager::load(){
         // Loads every asset, starting with textures
+        auto fs = cmrc::draft_engine::get_filesystem();
+        auto missingTextureData = fs.open("assets/missing_texture.png");
+        MISSING_TEXTURE = std::make_unique<Texture>(missingTextureData.begin(), missingTextureData.end());
+
         for(const std::string& path : textureQueue){
             textureArray.push_back(new Texture(path));
             textureMap[path] = (textureArray.size() - 1);
@@ -97,12 +106,12 @@ namespace Draft {
     //     fontQueue.push_back(path);
     // }
 
-    Texture& AssetManager::get_texture(const std::string& name) const {
+    const Texture& AssetManager::get_texture(const std::string& name) const {
         const auto& result = textureMap.find(name);
 
         if(result == textureMap.end()){
             Logger::println(Level::SEVERE, "Asset Manager", "Failed to find texture " + name);
-            return *textureArray[0];
+            return *MISSING_TEXTURE;
         }
         
         return *textureArray[textureMap.at(name)];

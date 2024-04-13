@@ -42,11 +42,10 @@ void compile_image(const std::string& input, const std::string& output){
     // Convert data to a C++ class
     std::string out = "#pragma once\n\n";
     out += "#include \"draft/core/compiled_asset_data.hpp\"\n\n";
-    out += "static const StaticImageData IMAGE {\n";
-    out += "\t" + std::to_string(size.x) + ", " + std::to_string(size.y) + ", " + std::to_string(nrChannels) + ",\n";
+    out += "static const StaticImageData IMAGE {" + std::to_string(size.x) + ", " + std::to_string(size.y) + ", " + std::to_string(nrChannels) + ", ";
     
     for(size_t i = 0; i < count; i++){
-        out += "\t" + std::to_string(data[i]) + ((i < count - 1) ? "," : "\n") + ((i % 100 == 0 && i != 0) ? "\n" : "");
+        out += std::to_string(data[i]) + ((i < count - 1) ? "," : "");
     }
 
     out += "};\n";

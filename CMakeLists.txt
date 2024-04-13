@@ -76,6 +76,10 @@ set(INTERFACES
     include/draft/systems.hpp
 )
 
+set(RESOURCES
+    assets/missing_texture.png
+)
+
 set(SFML_STATIC_LIBRARIES TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -113,6 +117,16 @@ elseif(LINUX)
     set(SFML_FLAGS sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 endif()
 
+# Resource compiler
+file(DOWNLOAD "https://raw.githubusercontent.com/vector-of-bool/cmrc/master/CMakeRC.cmake" "${CMAKE_BINARY_DIR}/CMakeRC.cmake")
+include("${CMAKE_BINARY_DIR}/CMakeRC.cmake")
+cmrc_add_resource_library(
+    ${PROJECT_NAME}-resources
+    ALIAS ${PROJECT_NAME}::rc
+    NAMESPACE ${PROJECT_NAME}
+    ${RESOURCES}
+)
+
 add_library(${PROJECT_NAME} STATIC)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -128,7 +142,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC entt)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb box2d nlohmann_json::nlohmann_json ${SFML_FLAGS})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb box2d nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
 # Engine tools

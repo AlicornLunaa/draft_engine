@@ -3,6 +3,7 @@
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -10,6 +11,8 @@ namespace Draft {
     // Owns and manages all resources inside the game
     class AssetManager {
     private:
+        std::unique_ptr<Texture> MISSING_TEXTURE;
+
         std::vector<std::string> textureQueue;
         std::vector<Texture*> textureArray;
         std::unordered_map<std::string, size_t> textureMap;
@@ -39,7 +42,7 @@ namespace Draft {
         // void queueAudio(const std::string& path);
         // void queueFont(const std::string& path);
 
-        Texture& get_texture(const std::string& name) const;
+        const Texture& get_texture(const std::string& name) const;
         Shader& get_shader(const std::string& name) const;
         // const sf::SoundBuffer& getAudio(const std::string& name) const;
         // const sf::Font& getFont(const std::string& name) const;
