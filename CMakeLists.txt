@@ -18,6 +18,7 @@ set(SOURCES
     src/draft/rendering/camera.cpp
     src/draft/rendering/vertex_buffer.cpp
     src/draft/rendering/texture.cpp
+    src/draft/rendering/mesh.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
     src/draft/util/asset_manager.cpp
@@ -81,6 +82,7 @@ set(RESOURCES
     assets/empty_normal_map.png
     assets/debug_white.png
     assets/debug_black.png
+    assets/missing_model.glb
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)
@@ -138,6 +140,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tinygltf
         
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

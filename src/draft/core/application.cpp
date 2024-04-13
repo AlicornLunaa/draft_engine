@@ -20,6 +20,7 @@ namespace Draft {
         assetManager.queue_shader("./assets/shaders/default");
         assetManager.queue_shader("./assets/shaders/shapes");
         assetManager.queue_shader("./assets/shaders/test");
+        assetManager.queue_shader("./assets/shaders/mesh");
         assetManager.queue_texture("./assets/textures/test_image_1.png");
         assetManager.queue_texture("./assets/textures/test_image_2.png");
         assetManager.queue_texture("./assets/textures/test_image_3.png");

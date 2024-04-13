@@ -2,7 +2,7 @@
 #include "draft/math/vector2.hpp"
 #include "draft/math/vector3.hpp"
 #include "glad/gl.h"
-#include <memory>
+#include <cassert>
 
 namespace Draft {
     // Inner class implementation
@@ -30,6 +30,9 @@ namespace Draft {
 
     VertexBuffer::~VertexBuffer(){
         glDeleteVertexArrays(1, &vao);
+
+        if(tempBuffer)
+            delete tempBuffer;
     }
 
     // Functions
@@ -67,24 +70,28 @@ namespace Draft {
 
     void VertexBuffer::start_buffer(const std::vector<float>& data, int type){
         bind();
-        tempBuffer = std::make_unique<Buffer<float>>(data, type);
+        assert(!tempBuffer && "Buffer must be ended before starting another");
+        tempBuffer = new Buffer<float>(data, type);
     }
 
     void VertexBuffer::set_attribute(unsigned int index, unsigned long count, unsigned long stride, unsigned long offset){
+        assert(tempBuffer && "Buffer must be started before setting data");
         glVertexAttribPointer(index, count, GL_FLOAT, GL_FALSE, stride, (void*)offset);
         glEnableVertexAttribArray(index);
     }
 
     void VertexBuffer::end_buffer(){
+        assert(tempBuffer && "Buffer must be started before ending");
         unbind();
-        tempBuffer.reset();
+        delete tempBuffer;
+        tempBuffer = nullptr;
     }
 
-    void VertexBuffer::bind(){
+    void VertexBuffer::bind() const {
         glBindVertexArray(vao);
     }
 
-    void VertexBuffer::unbind(){
+    void VertexBuffer::unbind() const {
         glBindVertexArray(0);
     }
 };

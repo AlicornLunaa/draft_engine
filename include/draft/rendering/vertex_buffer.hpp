@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #define GL_ARRAY_BUFFER 0x8892
 
 #include "draft/math/vector2.hpp"
@@ -24,12 +23,13 @@ namespace Draft {
         };
 
         // Variables
-        std::unique_ptr<Buffer<float>> tempBuffer;
-        unsigned int vao;
+        Buffer<float>* tempBuffer = nullptr; // Used for user-defined buffering
+        unsigned int vao = 0;
 
     public:
         // Constructors
         VertexBuffer();
+        VertexBuffer(const VertexBuffer& other) = delete;
         ~VertexBuffer();
 
         // Functions
@@ -42,7 +42,7 @@ namespace Draft {
         void set_attribute(unsigned int index, unsigned long count, unsigned long stride, unsigned long offset);
         void end_buffer();
 
-        void bind();
-        void unbind();
+        void bind() const;
+        void unbind() const;
     };
 };
