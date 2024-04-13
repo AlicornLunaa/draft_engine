@@ -61,9 +61,10 @@ namespace Draft {
 
     void AssetManager::load(){
         // Loads every asset, starting with textures
-        auto fs = cmrc::draft_engine::get_filesystem();
-        auto missingTextureData = fs.open("assets/missing_texture.png");
-        MISSING_TEXTURE = std::make_unique<Texture>(missingTextureData.begin(), missingTextureData.end());
+        MISSING_TEXTURE = load_static_texture("assets/missing_texture.png");
+        EMPTY_NORMAL_MAP = load_static_texture("assets/empty_normal_map.png");
+        DEBUG_WHITE = load_static_texture("assets/debug_white.png");
+        DEBUG_BLACK = load_static_texture("assets/debug_black.png");
 
         for(const std::string& path : textureQueue){
             textureArray.push_back(new Texture(path));
@@ -150,7 +151,14 @@ namespace Draft {
     //     return fontArray[fontMap.at(name)];
     // }
 
-    // Private functionsz
+    // Private functions
+    std::unique_ptr<Texture> AssetManager::load_static_texture(const std::string& path){
+        // Loads raw data from binary to a texture
+        auto fs = cmrc::draft_engine::get_filesystem();
+        auto data = fs.open(path);
+        return std::make_unique<Texture>(data.begin(), data.end());
+    }
+
     void AssetManager::load_texture(Texture* texture, const std::string& path){
         if(!texture->is_loaded()){
             Logger::println(Level::SEVERE, "Asset Manager", "Failed to load texture " + path);

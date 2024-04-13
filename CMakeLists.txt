@@ -78,6 +78,9 @@ set(INTERFACES
 
 set(RESOURCES
     assets/missing_texture.png
+    assets/empty_normal_map.png
+    assets/debug_white.png
+    assets/debug_black.png
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)

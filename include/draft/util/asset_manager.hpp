@@ -12,6 +12,9 @@ namespace Draft {
     class AssetManager {
     private:
         std::unique_ptr<Texture> MISSING_TEXTURE;
+        std::unique_ptr<Texture> EMPTY_NORMAL_MAP;
+        std::unique_ptr<Texture> DEBUG_WHITE;
+        std::unique_ptr<Texture> DEBUG_BLACK;
 
         std::vector<std::string> textureQueue;
         std::vector<Texture*> textureArray;
@@ -43,11 +46,17 @@ namespace Draft {
         // void queueFont(const std::string& path);
 
         const Texture& get_texture(const std::string& name) const;
+        inline const Texture& get_missing_texture() const { return *MISSING_TEXTURE; }
+        inline const Texture& get_empty_normal_map() const { return *EMPTY_NORMAL_MAP; }
+        inline const Texture& get_debug_white() const { return *DEBUG_WHITE; }
+        inline const Texture& get_debug_black() const { return *DEBUG_BLACK; }
+
         Shader& get_shader(const std::string& name) const;
         // const sf::SoundBuffer& getAudio(const std::string& name) const;
         // const sf::Font& getFont(const std::string& name) const;
 
     private:
+        std::unique_ptr<Texture> load_static_texture(const std::string& path);
         void load_texture(Texture* texture, const std::string& path);
         void load_shader(Shader* shader, const std::string& path);
         // void loadAudio(sf::SoundBuffer* audio, const std::string& path);
