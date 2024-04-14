@@ -17,7 +17,8 @@ namespace Draft {
 
     public:
         // Constructors
-        FileHandle(const std::string& path, Access access);
+        FileHandle(const std::filesystem::path& path, Access access);
+        FileHandle();
 
         // Functions
         bool remove();
@@ -25,6 +26,7 @@ namespace Draft {
         bool is_directory() const;
         long length() const;
         std::string extension() const;
+        std::string filename() const;
         std::string get_path() const;
         Access get_access() const;
 
@@ -33,6 +35,10 @@ namespace Draft {
 
         std::vector<char> read_bytes(long offset = 0) const;
         void write_bytes(const char* array, long size);
+
+        // Operators
+        FileHandle operator+ (const std::string& right) const;
+        FileHandle& operator+= (const std::string& right);
 
         friend std::ostream& operator<< (std::ostream& stream, const FileHandle& v){
             stream << v.path;

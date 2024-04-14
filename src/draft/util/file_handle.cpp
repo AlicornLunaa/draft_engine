@@ -1,6 +1,7 @@
 #include "draft/util/file_handle.hpp"
 
 #include <fstream>
+#include <ios>
 #include <string>
 
 #include "cmrc/cmrc.hpp"
@@ -11,15 +12,19 @@ namespace fs = std::filesystem;
 
 namespace Draft {
     // Constructors
-    FileHandle::FileHandle(const std::string& path, Access access) : path(path), access(access) {}
+    FileHandle::FileHandle(const fs::path& path, Access access) : path(path), access(access) {}
+    FileHandle::FileHandle() : path("null"), access(INTERNAL) {}
 
     // Functions
     bool FileHandle::remove(){
         if(access == INTERNAL) return false;
+        if(path == "null") return false;
         return fs::remove(path);
     }
 
     bool FileHandle::exists() const {
+        if(path == "null") return false;
+
         switch(access){
         case LOCAL:
             return fs::exists(path);
@@ -34,10 +39,13 @@ namespace Draft {
 
     bool FileHandle::is_directory() const {
         if(access == INTERNAL) return false;
+        if(path == "null") return false;
         return fs::is_directory(path);
     }
 
     long FileHandle::length() const {
+        if(path == "null") return 0;
+
         switch(access){
         case LOCAL: {
             std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
@@ -53,12 +61,19 @@ namespace Draft {
         return 0;
     }
 
+    std::string FileHandle::filename() const {
+        if(path == "null") return "";
+        return path.filename();
+    }
+
     std::string FileHandle::extension() const {
+        if(path == "null") return "";
         fs::path p(path);
         return p.extension();
     }
 
     std::string FileHandle::get_path() const {
+        if(path == "null") return "";
         return path.relative_path();
     }
 
@@ -67,6 +82,8 @@ namespace Draft {
     }
 
     std::string FileHandle::read_string() const {
+        if(path == "null") return "";
+
         std::string out{};
 
         switch(access){
@@ -97,18 +114,22 @@ namespace Draft {
 
     void FileHandle::write_string(const std::string& str){
         if(access == INTERNAL) return;
+        if(path == "null") return;
         
         std::ofstream out(path);
         out << str;
     }
 
     std::vector<char> FileHandle::read_bytes(long offset) const {
+        if(path == "null") return {};
+
         std::vector<char> out{};
         char array[length()];
 
         switch(access){
             case LOCAL: {
                 std::ifstream in(path);
+                in.seekg(offset, std::ios::beg);
                 in.read(array, length());
                 break;
             }
@@ -118,7 +139,7 @@ namespace Draft {
                 const auto& data = interalFiles.open(path);
                 int i = 0;
 
-                for(auto iter = data.begin(); iter != data.end(); iter++){
+                for(auto iter = data.begin() + offset; iter != data.end(); iter++){
                     array[i] = *iter;
                     i++;
                 }
@@ -134,8 +155,20 @@ namespace Draft {
 
     void FileHandle::write_bytes(const char* array, long size){
         if(access == INTERNAL) return;
+        if(path == "null") return;
         
         std::ofstream out(path);
         out.write(array, size);
+    }
+
+    // Operators
+    FileHandle FileHandle::operator+ (const std::string& right) const {
+        std::string p = this->path;
+        return { p + right, access };
+    }
+
+    FileHandle& FileHandle::operator+= (const std::string& right){
+        path += right;
+        return *this;
     }
 };

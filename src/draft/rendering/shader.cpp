@@ -1,8 +1,9 @@
 #include <filesystem>
+#include <string>
 #include <format>
-#include <fstream>
 
 #include "draft/rendering/shader.hpp"
+#include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 
@@ -10,37 +11,11 @@ using namespace std;
 
 namespace Draft {
     // Private functions
-    void Shader::load_shaders(const std::string& shaderPath){
-        // Build paths for files
-        filesystem::path vertexPath(shaderPath);
-        filesystem::path fragmentPath(shaderPath);
-        vertexPath += "/vertex.glsl";
-        fragmentPath += "/fragment.glsl";
+    void Shader::cleanup(){
+        glDeleteProgram(shaderId);
+    }
 
-        // Lambda to make loading shader simpler
-        auto open_file = [](const filesystem::path& path){
-            ifstream file(path);
-            string src{};
-            string tmp{};
-
-            if(!file.is_open()){
-                Logger::println(Level::SEVERE, "Shader", format("Unable to open file {}", path.c_str()));
-                exit(0);
-            }
-
-            while(getline(file, tmp)){
-                src += tmp + '\n';
-            }
-
-            return src;
-        };
-
-        // Load shader sources
-        string vertexCode = open_file(vertexPath);
-        string fragmentCode = open_file(fragmentPath);
-        auto vertexSrc = vertexCode.c_str();
-        auto fragmentSrc = fragmentCode.c_str();
-
+    void Shader::load_shaders(const char* vertexSrc, const char* fragmentSrc){
         // Allocate shaders
         unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
         unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -58,7 +33,7 @@ namespace Draft {
 
         if(!success){
             glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to compile vertex shader {} because\n{}", vertexPath.c_str(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", format("Unable to compile vertex shader {} because\n{}", handle.filename(), infoLog));
             exit(0);
         }
 
@@ -66,7 +41,7 @@ namespace Draft {
 
         if(!success){
             glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to compile fragment shader {} because\n{}", fragmentPath.c_str(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", format("Unable to compile fragment shader {} because\n{}", handle.filename(), infoLog));
             exit(0);
         }
 
@@ -79,7 +54,7 @@ namespace Draft {
         glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
         if(!success){
             glGetProgramInfoLog(shaderId, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to link shader {} because\n{}", shaderPath, infoLog));
+            Logger::println(Level::SEVERE, "Shader", format("Unable to link shader {} because\n{}", handle.filename(), infoLog));
             exit(0);
         }
 
@@ -88,39 +63,75 @@ namespace Draft {
         glDeleteShader(fragmentShader);
     }
 
+    void Shader::load_from_handle(const FileHandle& shaderHandle){
+        // Build paths for files
+        FileHandle vertexHandle = shaderHandle +  "/vertex.glsl";
+        FileHandle fragmentHandle = shaderHandle +  "/fragment.glsl";
+        
+        auto vertexSrc = vertexHandle.read_bytes();
+        auto fragmentSrc = fragmentHandle.read_bytes();
+        vertexSrc.push_back('\0');
+        fragmentSrc.push_back('\0');
+
+        // Send data to OpenGL
+        load_shaders(vertexSrc.data(), fragmentSrc.data());
+    }
+
     unsigned int Shader::get_location(const std::string& name){
         auto loc = glGetUniformLocation(shaderId, name.c_str());
 
         if(loc == -1){
-            Logger::println(Level::SEVERE, "Shader", format("Uniform {} does not exist on shader {}", name, path));
+            Logger::println(Level::SEVERE, "Shader", format("Uniform {} does not exist on shader {}", name, handle.filename()));
         }
 
         return loc;
     }
 
     // Constructors
-    Shader::Shader(const string& shaderPath) : path(shaderPath) {
-        load_shaders(shaderPath);
+    Shader::Shader(const char* vertexSrc, const char* fragmentSrc) : reloadable(false) {
+        // Send data directly to OpenGL
+        load_shaders(vertexSrc, fragmentSrc);
+    }
+
+    Shader::Shader(const FileHandle& handle) : reloadable(true), handle(handle) {
+        // Build paths for files
+        FileHandle vertexHandle = handle + "/vertex.glsl";
+        FileHandle fragmentHandle = handle + "/fragment.glsl";
+        
+        auto vertexSrc = vertexHandle.read_bytes();
+        auto fragmentSrc = fragmentHandle.read_bytes();
+        vertexSrc.push_back('\0');
+        fragmentSrc.push_back('\0');
+
+        // Send data to OpenGL
+        load_shaders(vertexSrc.data(), fragmentSrc.data());
+    }
+
+    Shader::Shader(const filesystem::path& shaderPath) : reloadable(true), handle(shaderPath, FileHandle::LOCAL) {
+        load_from_handle(handle);
     }
 
     Shader::~Shader(){
-        glDeleteProgram(shaderId);
+        cleanup();
     }
 
     // Functions
-    void Shader::bind(){
+    void Shader::bind() const {
         glUseProgram(shaderId);
     }
 
-    void Shader::unbind(){
+    void Shader::unbind() const {
         glUseProgram(0);
     }
 
     void Shader::reload(){
+        if(!reloadable) return;
         unbind();
-        glDeleteProgram(shaderId);
-        load_shaders(path);
+        cleanup();
+        load_from_handle(handle);
     }
+
+    bool Shader::has_uniform(const std::string& name){ return (glGetUniformLocation(shaderId, name.c_str()) == -1); }
 
     void Shader::set_uniform(const std::string& name, bool value){ glUniform1i(get_location(name), value); }
 

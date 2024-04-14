@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "draft/util/asset_manager.hpp"
+#include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
 
 #include "cmrc/cmrc.hpp"
@@ -73,7 +74,7 @@ namespace Draft {
         }
 
         for(const std::string& path : shaderQueue){
-            shaderArray.push_back(new Shader(path));
+            shaderArray.push_back(new Shader(FileHandle::local(path)));
             shaderMap[path] = (shaderArray.size() - 1);
             load_shader(shaderArray.back(), path);
         }
