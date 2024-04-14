@@ -12,6 +12,7 @@
 #include "glad/gl.h"
 
 namespace Draft {
+    // Constructors
     Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title) {
         // Feedback
         Logger::println(Level::INFO, "Draft Engine", "Initializing...");
@@ -51,6 +52,7 @@ namespace Draft {
         std::cout.rdbuf(oldOutBuf);
     }
 
+    // Functions
     void Application::run(){
         VertexBuffer testBuffer{};
         testBuffer.buffer(0, {

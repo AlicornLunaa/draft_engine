@@ -17,6 +17,37 @@
 using namespace std;
 
 namespace Draft {
+    // Static variables
+    std::unordered_map<void*, RenderWindow*> RenderWindow::glfwToRenderMap{};
+
+    // Raw functions
+    void window_size_callback(GLFWwindow* window, int width, int height){
+        auto* renderWindow = RenderWindow::glfwToRenderMap[window];
+        glViewport(0, 0, width, height);
+
+        Event e{};
+        e.type = Event::Resized;
+        e.size.width = width;
+        e.size.height = height;
+        renderWindow->queue_event(e);
+    }
+
+    void window_focus_callback(GLFWwindow* window, int focused){
+        auto* renderWindow = RenderWindow::glfwToRenderMap[window];
+        Event e{};
+
+        if(focused){
+            // The window gained input focus
+            e.type = Event::GainedFocus;
+        } else {
+            // The window lost input focus
+            e.type = Event::LostFocus;
+        }
+
+        renderWindow->queue_event(e);
+    }
+
+    
     // Pimpl declaration
     struct RenderWindow::Impl {
         // Variables
@@ -39,6 +70,8 @@ namespace Draft {
 
             window = glfwCreateWindow(w, h, title.c_str(), nullptr, nullptr);
             glfwMakeContextCurrent(window);
+            glfwSetWindowSizeCallback(window, window_size_callback);
+            glfwSetWindowFocusCallback(window, window_focus_callback);
 
             // Start GLAD
             if(!gladLoadGL(glfwGetProcAddress)){
@@ -88,17 +121,31 @@ namespace Draft {
         Mouse::add_callback([this](Event e){ eventQueue.emplace(e); });
 
         ptr->initialize_callbacks();
+
+        // Save active window
+        RenderWindow::glfwToRenderMap[ptr->window] = this;
     }
     RenderWindow::~RenderWindow(){
         Mouse::clear_callbacks();
         Keyboard::clear_callbacks();
+
+        // Remove active window
+        RenderWindow::glfwToRenderMap[ptr->window] = nullptr;
     }
 
     // Functions
+    void RenderWindow::queue_event(const Event& event){
+        eventQueue.push(event);
+    }
+
     const Vector2u RenderWindow::get_size(){
         Vector2i size{};
         glfwGetWindowSize(ptr->window, &size.x, &size.y);
         return size;
+    }
+
+    void RenderWindow::set_size(const Vector2u& size){
+        glfwSetWindowSize(ptr->window, size.x, size.y);
     }
 
     bool RenderWindow::is_open(){ return !glfwWindowShouldClose(ptr->window); }
@@ -138,6 +185,10 @@ namespace Draft {
     void RenderWindow::close(){
         // Close window
         glfwSetWindowShouldClose(ptr->window, true);
+
+        Event e{};
+        e.type = Event::Closed;
+        queue_event(e);
     }
 
     void* RenderWindow::get_raw_window(){

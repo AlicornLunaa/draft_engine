@@ -44,7 +44,7 @@ namespace Draft {
 			Resized,
 			LostFocus,
 			GainedFocus,
-			TextEntered, 
+			TextEntered,
 			KeyPressed,
 			KeyReleased,
 			KeyHold,

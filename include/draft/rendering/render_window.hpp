@@ -5,6 +5,7 @@
 #include <memory>
 #include <queue>
 #include <string>
+#include <unordered_map>
 
 namespace Draft {
     class RenderWindow {
@@ -13,6 +14,9 @@ namespace Draft {
         std::queue<Event> eventQueue{};
 
     public:
+        // Static variables
+        static std::unordered_map<void*, RenderWindow*> glfwToRenderMap;
+
         // Constructors
         RenderWindow(unsigned int width, unsigned int height, const std::string& title);
         RenderWindow(const RenderWindow& other) = delete;
@@ -23,10 +27,22 @@ namespace Draft {
 
         // Functions
         /**
+         * @brief Adds and event to the queue
+         * @param event 
+         */
+        void queue_event(const Event& event);
+
+        /**
          * @brief Get the window's size
          * @return const Vector2u 
          */
         const Vector2u get_size();
+
+        /**
+         * @brief Set the size of the window
+         * @param size 
+         */
+        void set_size(const Vector2u& size);
 
         /**
          * @brief Checks if the window is open

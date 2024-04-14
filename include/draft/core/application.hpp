@@ -21,13 +21,13 @@ namespace Draft {
         Event event;
 
         double accumulator = 0.0;
-        double timeStep = 1.0/66.0;
 
     public:
         AssetManager assetManager;
         RenderWindow window;
         Console console;
         Time deltaTime;
+        double timeStep = 1.0/66.0;
         bool debug = true;
         
         Application(const char* title, const unsigned int width, const unsigned int height);
@@ -38,9 +38,6 @@ namespace Draft {
          * @brief Runs the application. This starts and spawns the main application loop.
          */
         void run();
-
-        inline void set_time_step(double v){ timeStep = v; }
-        inline double get_time_step(){ return timeStep; }
 
         inline void set_scene(Scene* scene){ activeScene = scene; }
         inline Scene* get_scene(){ return activeScene; }
