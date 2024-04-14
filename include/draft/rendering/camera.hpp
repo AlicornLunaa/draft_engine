@@ -3,6 +3,7 @@
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector2.hpp"
 #include "draft/math/vector3.hpp"
+#include "draft/rendering/shader.hpp"
 
 namespace Draft {
     class Camera {
@@ -49,6 +50,8 @@ namespace Draft {
         inline const Vector3f& get_up() const { return up; }
         inline const Matrix4& get_projection() const { return projMatrix; }
         inline const Matrix4& get_view() const { return viewMatrix; }
+
+        void apply(Shader& shader) const;
     };
 
     class PerspectiveCamera : public Camera {

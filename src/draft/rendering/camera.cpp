@@ -34,6 +34,11 @@ namespace Draft {
         target(position + forward);
     }
 
+    void Camera::apply(Shader& shader) const {
+        shader.set_uniform("view", get_view());
+        shader.set_uniform("projection", get_projection());
+    }
+
     // Perspective camera
     void PerspectiveCamera::update_matrices(){ projMatrix = Matrix4::perspective(fov, aspectRatio, nearClip, farClip); }
 

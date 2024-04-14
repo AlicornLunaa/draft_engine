@@ -1,10 +1,10 @@
-#include "draft/math/vector2.hpp"
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "draft/rendering/model.hpp"
+#include "draft/math/vector2.hpp"
 #include "draft/math/vector3.hpp"
 #include "draft/rendering/mesh.hpp"
+#include "draft/rendering/model.hpp"
 #include "draft/util/logger.hpp"
 #include "tiny_gltf.h"
 
@@ -48,9 +48,12 @@ namespace Draft {
         bool res;
 
         if(file.extension() == ".glb"){
-            res = loader.LoadBinaryFromFile(&mdl, &err, &warn, file.get_path());
+            const auto& bytes = file.read_bytes();
+            res = loader.LoadBinaryFromMemory(&mdl, &err, &warn, reinterpret_cast<const unsigned char*>(bytes.data()), bytes.size());
         } else {
-            res = loader.LoadASCIIFromFile(&mdl, &err, &warn, file.get_path());
+            const auto& str = file.read_string();
+            auto basePath = std::filesystem::path("./assets");
+            res = loader.LoadASCIIFromString(&mdl, &err, &warn, str.c_str(), str.length(), basePath);
         }
 
         if(!warn.empty()) {
