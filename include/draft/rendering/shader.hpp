@@ -61,5 +61,12 @@ namespace Draft {
         void set_uniform(const std::string& name, const Matrix2& value);
         void set_uniform(const std::string& name, const Matrix3& value);
         void set_uniform(const std::string& name, const Matrix4& value);
+
+        template<typename T>
+        void set_uniform_if_exists(const std::string& name, T value){
+            if(has_uniform(name)){
+                set_uniform(name, value);
+            }
+        }
     };
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/rendering/material.hpp"
 #include "draft/rendering/mesh.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/file_handle.hpp"
@@ -15,6 +16,7 @@ namespace Draft {
 
         FileHandle handle;
         std::vector<Mesh> meshes;
+        std::vector<Material> materials;
         std::vector<std::unique_ptr<VertexBuffer>> buffers;
 
         // Private functions

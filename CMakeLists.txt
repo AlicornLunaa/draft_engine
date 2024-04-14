@@ -20,6 +20,7 @@ set(SOURCES
     src/draft/rendering/vertex_buffer.cpp
     src/draft/rendering/texture.cpp
     src/draft/rendering/mesh.cpp
+    src/draft/rendering/material.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -65,6 +66,7 @@ set(INTERFACES
     include/draft/rendering/sprite_batch.hpp
     include/draft/rendering/shape_batch.hpp
     include/draft/rendering/shader.hpp
+    include/draft/rendering/material.hpp
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/texture.hpp
     include/draft/util/file_handle.hpp

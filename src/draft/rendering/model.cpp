@@ -1,5 +1,3 @@
-#include "draft/rendering/vertex_buffer.hpp"
-#include <memory>
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
@@ -7,13 +5,48 @@
 #include "draft/math/vector3.hpp"
 #include "draft/rendering/mesh.hpp"
 #include "draft/rendering/model.hpp"
+#include "draft/rendering/vertex_buffer.hpp"
+#include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
 #include "tiny_gltf.h"
 #include "glad/gl.h"
 
 #include <vector>
+#include <memory>
 
 namespace Draft {
+    // Raw functions
+    tinygltf::Model load_model(const FileHandle& handle){
+        // Loads raw data into a model file from tinygltf
+        tinygltf::TinyGLTF loader;
+        tinygltf::Model mdl;
+        std::string err, warn;
+        bool res;
+
+        if(handle.extension() == ".glb"){
+            const auto& bytes = handle.read_bytes();
+            res = loader.LoadBinaryFromMemory(&mdl, &err, &warn, reinterpret_cast<const unsigned char*>(bytes.data()), bytes.size());
+        } else {
+            const auto& str = handle.read_string();
+            auto basePath = std::filesystem::path("./assets");
+            res = loader.LoadASCIIFromString(&mdl, &err, &warn, str.c_str(), str.length(), basePath);
+        }
+
+        if(!warn.empty()) {
+            Logger::println(Level::WARNING, "Model", warn);
+        }
+
+        if(!err.empty()) {
+            Logger::println(Level::SEVERE, "Model", err);
+        }
+
+        if(!res) {
+            exit(0);
+        }
+
+        return mdl;
+    }
+
     // Private functions
     size_t Model::component_byte_size(int type) {
         switch (type) {
@@ -42,33 +75,17 @@ namespace Draft {
     
     void Model::load_meshes(const FileHandle& handle){
         // Loads meshes using TinyGLTF
-        tinygltf::TinyGLTF loader;
-        tinygltf::Model mdl;
-        std::string err, warn;
-        bool res;
-
-        if(handle.extension() == ".glb"){
-            const auto& bytes = handle.read_bytes();
-            res = loader.LoadBinaryFromMemory(&mdl, &err, &warn, reinterpret_cast<const unsigned char*>(bytes.data()), bytes.size());
-        } else {
-            const auto& str = handle.read_string();
-            auto basePath = std::filesystem::path("./assets");
-            res = loader.LoadASCIIFromString(&mdl, &err, &warn, str.c_str(), str.length(), basePath);
-        }
-
-        if(!warn.empty()) {
-            Logger::println(Level::WARNING, "Model", warn);
-        }
-
-        if(!err.empty()) {
-            Logger::println(Level::SEVERE, "Model", err);
-        }
-
-        if(!res) {
-            exit(0);
-        }
+        auto mdl = load_model(handle);
+        meshes.clear();
+        materials.clear();
 
         // Now file is loaded, parse data
+        // Load materials
+        for(auto& mat : mdl.materials){
+            
+        }
+
+        // Load meshes
         std::vector<Vector3f> vertices{};
         std::vector<Vector2f> texCoord{};
         std::vector<int> indices{};
@@ -113,8 +130,9 @@ namespace Draft {
                 }
 
                 // Initialize mesh with data
-                meshes.push_back(DrawableMesh({ vertices, indices, texCoord }));
+                meshes.push_back({ vertices, indices, texCoord });
                 vertices.clear();
+                texCoord.clear();
                 indices.clear();
             }
         }
