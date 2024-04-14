@@ -21,6 +21,11 @@
 - Queue in different resources to load
 - Loading is not done until load() is called
 
+### File handle
+- File handle controls reading and writing
+- Access type LOCAL means relative to the executable
+- Access type INTERNAL means compiled into the exe
+
 ### Inputs
 - Keyboard and Mouse classes are static singletons
 - Controls the interface with GLFW's input system
