@@ -1,3 +1,5 @@
+#include "draft/rendering/vertex_buffer.hpp"
+#include <memory>
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
@@ -7,12 +9,13 @@
 #include "draft/rendering/model.hpp"
 #include "draft/util/logger.hpp"
 #include "tiny_gltf.h"
+#include "glad/gl.h"
 
 #include <vector>
 
 namespace Draft {
     // Private functions
-    size_t Model::ComponentTypeByteSize(int type) {
+    size_t Model::component_byte_size(int type) {
         switch (type) {
             case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
             case TINYGLTF_COMPONENT_TYPE_BYTE:
@@ -36,22 +39,19 @@ namespace Draft {
                 return 0;
         }
     }
-
-    // Constructors
-    Model::Model(){}
-
-    Model::Model(const FileHandle& file){
-        // Load filedata with tinygltf
+    
+    void Model::load_meshes(const FileHandle& handle){
+        // Loads meshes using TinyGLTF
         tinygltf::TinyGLTF loader;
         tinygltf::Model mdl;
         std::string err, warn;
         bool res;
 
-        if(file.extension() == ".glb"){
-            const auto& bytes = file.read_bytes();
+        if(handle.extension() == ".glb"){
+            const auto& bytes = handle.read_bytes();
             res = loader.LoadBinaryFromMemory(&mdl, &err, &warn, reinterpret_cast<const unsigned char*>(bytes.data()), bytes.size());
         } else {
-            const auto& str = file.read_string();
+            const auto& str = handle.read_string();
             auto basePath = std::filesystem::path("./assets");
             res = loader.LoadASCIIFromString(&mdl, &err, &warn, str.c_str(), str.length(), basePath);
         }
@@ -111,19 +111,106 @@ namespace Draft {
                         indices.push_back(indexArr[i]);
                     }
                 }
-            }
 
-            // Initialize mesh with data
-            meshes.push_back(DrawableMesh({ vertices, indices, texCoord }));
-            vertices.clear();
-            indices.clear();
+                // Initialize mesh with data
+                meshes.push_back(DrawableMesh({ vertices, indices, texCoord }));
+                vertices.clear();
+                indices.clear();
+            }
         }
     }
 
+    void Model::buffer_meshes(){
+        // Send the meshes to the OpenGL vertex buffer
+        buffers.clear(); // Reset buffers
+
+        // Generate VBO for each mesh
+        for(auto& mesh : meshes){
+            // Creates a VBO from the data
+            buffers.push_back(std::make_unique<VertexBuffer>());
+            auto& vbo = buffers.back();
+            auto& vertices = mesh.get_vertices();
+
+            // Send over vertices, the easy part
+            vbo->buffer(0, vertices);
+
+            // Send UV map coordinates if they exist, if not fill everything with 0
+            if(mesh.is_uv_mapped()){
+                vbo->buffer(1, mesh.get_tex_coords());
+            } else {
+                std::vector<Vector2f> tempUV(vertices.size(), { 0, 0 });
+                vbo->buffer(1, tempUV);
+            }
+
+            // Send colors if they exist, if not fill everything with white
+            if(mesh.is_color_mapped()){
+                vbo->buffer(2, mesh.get_colors());
+            } else {
+                std::vector<Vector3f> tempColors(vertices.size(), { 1, 1, 1 });
+                vbo->buffer(2, tempColors);
+            }
+
+            // Send indices if the mesh is indexed, nothing otherwise
+            if(mesh.is_indexed()){
+                vbo->buffer(3, mesh.get_indices(), GL_ELEMENT_ARRAY_BUFFER);
+            }
+        }
+    }
+
+    // Constructors
+    Model::Model() : reloadable(false) {}
+
+    Model::Model(const FileHandle& handle) : reloadable(true), handle(handle) {
+        // Construct from file handle
+        load_meshes(handle);
+        buffer_meshes();
+    }
+
+    Model::Model(const Model& other) : reloadable(other.reloadable), meshes(other.meshes), handle(other.handle) {
+        // Copy constructor
+        buffer_meshes();
+    }
+
+    // Operators
+    Model& Model::operator=(const Model& other){
+        // Assignment operator
+        handle = other.handle;
+        meshes = other.meshes;
+        buffer_meshes();
+        return *this;
+    }
+
+    Model& Model::operator=(Model&& other) noexcept {
+        // Move operator
+        handle = other.handle;
+        meshes = other.meshes;
+        buffer_meshes();
+        return *this;
+    }
+
+    // Functions
     void Model::render() const {
         // Draws the meshes
-        for(auto& mesh : meshes){
-            mesh.render();
+        for(size_t i = 0; i < buffers.size(); i++){
+            auto& vbo = buffers[i];
+            auto& mesh = meshes[i];
+
+            // Render each vbo with mesh data
+            vbo->bind();
+
+            if(mesh.is_indexed()){
+                glDrawElements(GL_TRIANGLES, mesh.get_indices().size(), GL_UNSIGNED_INT, 0);
+            } else {
+                glDrawArrays(GL_TRIANGLES, 0, mesh.get_vertices().size());
+            }
+
+            vbo->unbind();
         }
+    }
+
+    void Model::reload(){
+        if(!reloadable || !handle.exists()) return;
+        load_meshes(handle);
+        buffer_meshes();
     }
 };
