@@ -15,6 +15,7 @@ set(SOURCES
     src/draft/rendering/sprite_batch.cpp
     src/draft/rendering/shape_batch.cpp
     src/draft/rendering/shader.cpp
+    src/draft/rendering/model.cpp
     src/draft/rendering/camera.cpp
     src/draft/rendering/vertex_buffer.cpp
     src/draft/rendering/texture.cpp
@@ -59,6 +60,7 @@ set(INTERFACES
     include/draft/phys/world.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
+    include/draft/rendering/model.hpp
     include/draft/rendering/render_window.hpp
     include/draft/rendering/sprite_batch.hpp
     include/draft/rendering/shape_batch.hpp

@@ -8,12 +8,12 @@ namespace Draft {
     class Texture {
     private:
         // Variables
-        bool reloadable = true;
         unsigned int texId;
         std::string path;
         Vector2i size;
         int nrChannels;
         bool loaded = false;
+        bool reloadable = true;
 
         // Private functions
         void load_texture(const std::string& texturePath);
