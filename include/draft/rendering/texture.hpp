@@ -32,7 +32,8 @@ namespace Draft {
     public:
         // Constructors
         Texture(Wrap wrapping = REPEAT);
-        Texture(const char* start, const char* end, Wrap wrapping = REPEAT);
+        Texture(const unsigned char* start, const unsigned char* end, Wrap wrapping = REPEAT);
+        Texture(const unsigned char* data, int width, int height, int channels, Wrap wrapping = REPEAT, int colorSpace = RGBA);
         Texture(const std::filesystem::path& texturePath, Wrap wrapping = REPEAT);
         Texture(const FileHandle& handle, Wrap wrapping = REPEAT);
         Texture(const Texture& other) = delete;

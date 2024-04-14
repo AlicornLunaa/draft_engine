@@ -12,16 +12,17 @@ namespace Draft {
     class Model {
     private:
         // Variables
-        const bool reloadable;
+        bool reloadable;
 
         FileHandle handle;
         std::vector<Mesh> meshes;
         std::vector<Material> materials;
+        std::vector<int> meshToMaterialMap;
         std::vector<std::unique_ptr<VertexBuffer>> buffers;
 
         // Private functions
         size_t component_byte_size(int type);
-        void load_meshes(const FileHandle& handle);
+        void load(const FileHandle& handle);
         void buffer_meshes();
 
     public:
@@ -35,7 +36,7 @@ namespace Draft {
         Model& operator=(Model&& other) noexcept;
 
         // Functions
-        void render() const;
+        void render(Shader& shader) const;
         void reload();
     };
 };

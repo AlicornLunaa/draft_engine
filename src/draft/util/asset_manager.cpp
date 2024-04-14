@@ -5,10 +5,6 @@
 #include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
 
-#include "cmrc/cmrc.hpp"
-
-CMRC_DECLARE(draft_engine);
-
 namespace Draft {
     // Constructors
     AssetManager::AssetManager(){}
@@ -62,11 +58,6 @@ namespace Draft {
 
     void AssetManager::load(){
         // Loads every asset, starting with textures
-        MISSING_TEXTURE = load_static_texture("assets/missing_texture.png");
-        EMPTY_NORMAL_MAP = load_static_texture("assets/empty_normal_map.png");
-        DEBUG_WHITE = load_static_texture("assets/debug_white.png");
-        DEBUG_BLACK = load_static_texture("assets/debug_black.png");
-
         for(const std::string& path : textureQueue){
             textureArray.push_back(new Texture(path));
             textureMap[path] = (textureArray.size() - 1);
@@ -113,7 +104,7 @@ namespace Draft {
 
         if(result == textureMap.end()){
             Logger::println(Level::SEVERE, "Asset Manager", "Failed to find texture " + name);
-            return *MISSING_TEXTURE;
+            return AssetManager::get_missing_texture();
         }
         
         return *textureArray[textureMap.at(name)];
@@ -155,9 +146,7 @@ namespace Draft {
     // Private functions
     std::unique_ptr<Texture> AssetManager::load_static_texture(const std::string& path){
         // Loads raw data from binary to a texture
-        auto fs = cmrc::draft_engine::get_filesystem();
-        auto data = fs.open(path);
-        return std::make_unique<Texture>(data.begin(), data.end());
+        return std::make_unique<Texture>(FileHandle(path, FileHandle::INTERNAL));
     }
 
     void AssetManager::load_texture(Texture* texture, const std::string& path){
@@ -193,4 +182,31 @@ namespace Draft {
     //         Logger::println(Level::INFO, "Asset Manager", "Loaded font " + path);
     //     }
     // }
+
+    // Static variables
+    std::unique_ptr<Texture> AssetManager::MISSING_TEXTURE{};
+    std::unique_ptr<Texture> AssetManager::EMPTY_NORMAL_MAP{};
+    std::unique_ptr<Texture> AssetManager::DEBUG_WHITE{};
+    std::unique_ptr<Texture> AssetManager::DEBUG_BLACK{};
+
+    // Static functions
+    const Texture& AssetManager::get_missing_texture(){
+        if(!MISSING_TEXTURE) MISSING_TEXTURE = load_static_texture("assets/missing_texture.png");
+        return *MISSING_TEXTURE;
+    }
+
+    const Texture& AssetManager::get_empty_normal_map(){
+        if(!EMPTY_NORMAL_MAP) EMPTY_NORMAL_MAP = load_static_texture("assets/empty_normal_map.png");
+        return *EMPTY_NORMAL_MAP;
+    }
+
+    const Texture& AssetManager::get_debug_white(){
+        if(!DEBUG_WHITE) DEBUG_WHITE = load_static_texture("assets/debug_white.png");
+        return *DEBUG_WHITE;
+    }
+
+    const Texture& AssetManager::get_debug_black(){
+        if(!DEBUG_BLACK) DEBUG_BLACK = load_static_texture("assets/debug_black.png");
+        return *DEBUG_BLACK;
+    }
 }

@@ -5,6 +5,7 @@
 #include "draft/math/vector3.hpp"
 #include "draft/rendering/mesh.hpp"
 #include "draft/rendering/model.hpp"
+#include "draft/rendering/material.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
@@ -47,44 +48,54 @@ namespace Draft {
         return mdl;
     }
 
-    // Private functions
-    size_t Model::component_byte_size(int type) {
-        switch (type) {
-            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
-            case TINYGLTF_COMPONENT_TYPE_BYTE:
-                return sizeof(char);
+    void load_materials(const FileHandle& handle, std::vector<Material>* materials, tinygltf::Model& mdl){
+        // Helper functions
+        auto load_texture = [=](int index) -> std::shared_ptr<Texture> {
+            if(index == -1){
+                // None, nullptr
+                return nullptr;
+            }
 
-            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-            case TINYGLTF_COMPONENT_TYPE_SHORT:
-                return sizeof(short);
+            auto& texData = mdl.textures[index];
+            auto& img = mdl.images[texData.source];
 
-            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-            case TINYGLTF_COMPONENT_TYPE_INT:
-                return sizeof(int);
+            if(img.uri == ""){
+                // No URI, its an embedded texture.
+                const unsigned char* data = &img.image[0];
+                return std::make_shared<Texture>(data, img.width, img.height, img.component);
+            } else {
+                // URI provided, load it from the games asset folder
+                return std::make_shared<Texture>(img.uri);
+            }
+        };
 
-            case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                return sizeof(float);
-
-            case TINYGLTF_COMPONENT_TYPE_DOUBLE:
-                return sizeof(double);
-
-            default:
-                return 0;
-        }
-    }
-    
-    void Model::load_meshes(const FileHandle& handle){
-        // Loads meshes using TinyGLTF
-        auto mdl = load_model(handle);
-        meshes.clear();
-        materials.clear();
-
-        // Now file is loaded, parse data
         // Load materials
         for(auto& mat : mdl.materials){
-            
+            // Name
+            materials->push_back({ mat.name });
+            Material& material = materials->back();
+
+            // Properties
+            material.baseColor.set(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2], mat.pbrMetallicRoughness.baseColorFactor[3]);
+            material.emissiveFactor.set(mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]);
+            material.metallicFactor = mat.pbrMetallicRoughness.metallicFactor;
+            material.roughnessFactor = mat.pbrMetallicRoughness.roughnessFactor;
+            material.normalScale = mat.normalTexture.scale;
+            material.occlusionStrength = mat.occlusionTexture.strength;
+
+            // Textures
+            material.baseTexture = load_texture(mat.pbrMetallicRoughness.baseColorTexture.index);
+            material.normalTexture = load_texture(mat.normalTexture.index);
+            material.emissiveTexture = load_texture(mat.emissiveTexture.index);
+            material.occlusionTexture = load_texture(mat.occlusionTexture.index);
+            material.roughnessTexture = load_texture(mat.pbrMetallicRoughness.metallicRoughnessTexture.index);
         }
 
+        // Load a dummy 'missing' material
+        materials->push_back({ "missing_material_draft" });
+    }
+    
+    void load_meshes(std::vector<Mesh>& meshes, std::vector<int>& meshToMaterialMap, tinygltf::Model& mdl){
         // Load meshes
         std::vector<Vector3f> vertices{};
         std::vector<Vector2f> texCoord{};
@@ -131,11 +142,51 @@ namespace Draft {
 
                 // Initialize mesh with data
                 meshes.push_back({ vertices, indices, texCoord });
+                meshToMaterialMap.push_back(primitive.material);
                 vertices.clear();
                 texCoord.clear();
                 indices.clear();
             }
         }
+    }
+
+    // Private functions
+    size_t Model::component_byte_size(int type) {
+        switch (type) {
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+            case TINYGLTF_COMPONENT_TYPE_BYTE:
+                return sizeof(char);
+
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+            case TINYGLTF_COMPONENT_TYPE_SHORT:
+                return sizeof(short);
+
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+            case TINYGLTF_COMPONENT_TYPE_INT:
+                return sizeof(int);
+
+            case TINYGLTF_COMPONENT_TYPE_FLOAT:
+                return sizeof(float);
+
+            case TINYGLTF_COMPONENT_TYPE_DOUBLE:
+                return sizeof(double);
+
+            default:
+                return 0;
+        }
+    }
+
+    void Model::load(const FileHandle& handle){
+        // Prep vectors
+        materials.clear();
+        meshes.clear();
+
+        // Load source data
+        auto mdl = load_model(handle);
+
+        // Pass to functions
+        load_materials(handle, &materials, mdl);
+        load_meshes(meshes, meshToMaterialMap, mdl);
     }
 
     void Model::buffer_meshes(){
@@ -179,8 +230,8 @@ namespace Draft {
     Model::Model() : reloadable(false) {}
 
     Model::Model(const FileHandle& handle) : reloadable(true), handle(handle) {
-        // Construct from file handle
-        load_meshes(handle);
+        // Construct from file handle, for gltf
+        load(handle);
         buffer_meshes();
     }
 
@@ -192,29 +243,37 @@ namespace Draft {
     // Operators
     Model& Model::operator=(const Model& other){
         // Assignment operator
+        reloadable = other.reloadable;
         handle = other.handle;
         meshes = other.meshes;
+        materials = other.materials;
+        meshToMaterialMap = other.meshToMaterialMap;
         buffer_meshes();
         return *this;
     }
 
     Model& Model::operator=(Model&& other) noexcept {
         // Move operator
+        reloadable = other.reloadable;
         handle = other.handle;
         meshes = other.meshes;
+        materials = other.materials;
+        meshToMaterialMap = other.meshToMaterialMap;
         buffer_meshes();
         return *this;
     }
 
     // Functions
-    void Model::render() const {
+    void Model::render(Shader& shader) const {
         // Draws the meshes
         for(size_t i = 0; i < buffers.size(); i++){
             auto& vbo = buffers[i];
             auto& mesh = meshes[i];
+            auto& material = materials[(meshToMaterialMap[i] == -1) ? (materials.size() - 1) : meshToMaterialMap[i]];
 
             // Render each vbo with mesh data
             vbo->bind();
+            material.apply(shader);
 
             if(mesh.is_indexed()){
                 glDrawElements(GL_TRIANGLES, mesh.get_indices().size(), GL_UNSIGNED_INT, 0);
@@ -228,7 +287,7 @@ namespace Draft {
 
     void Model::reload(){
         if(!reloadable || !handle.exists()) return;
-        load_meshes(handle);
+        load(handle);
         buffer_meshes();
     }
 };

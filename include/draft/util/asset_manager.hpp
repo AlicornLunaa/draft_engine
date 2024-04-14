@@ -11,11 +11,13 @@ namespace Draft {
     // Owns and manages all resources inside the game
     class AssetManager {
     private:
-        std::unique_ptr<Texture> MISSING_TEXTURE;
-        std::unique_ptr<Texture> EMPTY_NORMAL_MAP;
-        std::unique_ptr<Texture> DEBUG_WHITE;
-        std::unique_ptr<Texture> DEBUG_BLACK;
+        // Static variables
+        static std::unique_ptr<Texture> MISSING_TEXTURE;
+        static std::unique_ptr<Texture> EMPTY_NORMAL_MAP;
+        static std::unique_ptr<Texture> DEBUG_WHITE;
+        static std::unique_ptr<Texture> DEBUG_BLACK;
 
+        // Variables
         std::vector<std::string> textureQueue;
         std::vector<Texture*> textureArray;
         std::unordered_map<std::string, size_t> textureMap;
@@ -46,17 +48,19 @@ namespace Draft {
         // void queueFont(const std::string& path);
 
         const Texture& get_texture(const std::string& name) const;
-        inline const Texture& get_missing_texture() const { return *MISSING_TEXTURE; }
-        inline const Texture& get_empty_normal_map() const { return *EMPTY_NORMAL_MAP; }
-        inline const Texture& get_debug_white() const { return *DEBUG_WHITE; }
-        inline const Texture& get_debug_black() const { return *DEBUG_BLACK; }
 
         Shader& get_shader(const std::string& name) const;
         // const sf::SoundBuffer& getAudio(const std::string& name) const;
         // const sf::Font& getFont(const std::string& name) const;
 
+        // Static variables
+        static const Texture& get_missing_texture();
+        static const Texture& get_empty_normal_map();
+        static const Texture& get_debug_white();
+        static const Texture& get_debug_black();
+
     private:
-        std::unique_ptr<Texture> load_static_texture(const std::string& path);
+        static std::unique_ptr<Texture> load_static_texture(const std::string& path);
         void load_texture(Texture* texture, const std::string& path);
         void load_shader(Shader* shader, const std::string& path);
         // void loadAudio(sf::SoundBuffer* audio, const std::string& path);
