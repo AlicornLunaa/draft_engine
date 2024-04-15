@@ -1,6 +1,8 @@
 #pragma once
-#include <entt/entt.hpp>
-#include <SFML/Graphics.hpp>
+
+#include "draft/core/registry.hpp"
+#include "draft/input/event.hpp"
+#include "draft/util/time.hpp"
 
 namespace Draft {
     class Application;
@@ -9,17 +11,31 @@ namespace Draft {
     class Scene {
     protected:
         Application* app;
-        entt::registry registry;
-        sf::View uiCamera;
+        Registry registry;
 
     public:
         Scene(Application* app);
+        Scene(const Scene& other) = delete;
 
-        entt::registry& getRegistry();
-        Entity createEntity();
+        Registry& get_registry();
+        Entity create_entity();
         
-        virtual void handleEvent(sf::Event event);
-        virtual void update(sf::Time deltaTime);
-        virtual void render(sf::Time deltaTime);
+        /**
+         * @brief Called when an event is polled from the window
+         * @param event 
+         */
+        virtual void handleEvent(Event event);
+
+        /**
+         * @brief Called in a fixed time step which is set in the application
+         * @param deltaTime 
+         */
+        virtual void update(Time deltaTime);
+
+        /**
+         * @brief Called every frame
+         * @param deltaTime 
+         */
+        virtual void render(Time deltaTime);
     };
 }

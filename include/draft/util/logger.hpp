@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 
 namespace Draft {
@@ -7,6 +8,6 @@ namespace Draft {
     namespace Logger {
         void print(const Level level, const std::string& name, const std::string& str);
         void println(const Level level, const std::string& name, const std::string& str);
-        void printRaw(const std::string& str);
+        void print_raw(const std::string& str);
     }
 }

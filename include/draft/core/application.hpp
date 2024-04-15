@@ -1,39 +1,45 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <imgui.h>
-#include <imgui-SFML.h>
-
 #include "draft/core/scene.hpp"
+#include "draft/input/event.hpp"
+#include "draft/rendering/render_window.hpp"
 #include "draft/util/asset_manager.hpp"
+#include "draft/util/clock.hpp"
 #include "draft/widgets/console.hpp"
 
 namespace Draft {
+    /**
+     * @brief The main application. Renders the scene pointer supplied, if any.
+     * Contains a console and delta time. Redirects iostream to the window's
+     * console. Fixed timestep supplied.
+     */
     class Application {
     private:
-        unsigned int width, height;
-        Scene* activeScene = nullptr;
-        sf::Clock deltaClock;
-        sf::Event event;
         std::streambuf* oldOutBuf = nullptr;
+        Scene* activeScene = nullptr;
+        Clock deltaClock;
+        Event event;
+
+        double accumulator = 0.0;
 
     public:
         AssetManager assetManager;
+        RenderWindow window;
         Console console;
-        sf::RenderWindow window;
-        sf::Time deltaTime;
+        Time deltaTime;
+        double timeStep = 1.0/66.0;
+        bool debug = true;
         
         Application(const char* title, const unsigned int width, const unsigned int height);
-        Application(const Application& rhs) = delete;
+        Application(const Application& rhs) = delete; // Dont allow copying.
         ~Application();
 
+        /**
+         * @brief Runs the application. This starts and spawns the main application loop.
+         */
         void run();
 
-        void setScene(Scene* scene){ activeScene = scene; }
-        Scene* getScene(){ return activeScene; }
-
-        unsigned int getWidth(){ return width; }
-        unsigned int getHeight(){ return height; }
+        inline void set_scene(Scene* scene){ activeScene = scene; }
+        inline Scene* get_scene(){ return activeScene; }
     };
 }

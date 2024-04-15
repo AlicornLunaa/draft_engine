@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/util/circular_buffer.hpp"
+
 #include <functional>
 #include <sstream>
 #include <vector>
@@ -27,13 +28,11 @@ namespace Draft {
 
         char inputBuffer[INPUT_BUFFER_SIZE];
         char outputBuffer[OUTPUT_BUFFER_SIZE];
-
         bool mOpened = false;
-        bool mKeyPressed = false; // TODO: Remove with custom input system
 
         // Private functions
-        void parseArguments(const std::string& text, std::vector<std::string>& args);
-        void constructRawBuffer();
+        void parse_arguments(const std::string& text, std::vector<std::string>& args);
+        void construct_raw_buffer();
 
     public:
         // Constructors
@@ -42,8 +41,9 @@ namespace Draft {
 
         // Functions
         void draw();
-        void registerCmd(const std::string& key, ConsoleFunc func);
-        void deleteCmd(const std::string& key);
+        void set_open(bool open = true);
+        void register_cmd(const std::string& key, ConsoleFunc func);
+        void delete_cmd(const std::string& key);
         void print(const std::string& text);
 
         template<typename... Args>
@@ -78,7 +78,7 @@ namespace Draft {
             return false;
         }
 
-        inline bool isOpened(){ return mOpened; }
-        inline std::ostringstream& getStream(){ return stream; }
+        inline bool is_opened(){ return mOpened; }
+        inline std::ostringstream& get_stream(){ return stream; }
     };
 }

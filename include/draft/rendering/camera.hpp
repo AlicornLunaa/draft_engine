@@ -1,0 +1,90 @@
+#pragma once
+
+#include "draft/math/matrix.hpp"
+#include "draft/math/vector2.hpp"
+#include "draft/math/vector3.hpp"
+#include "draft/rendering/shader.hpp"
+
+namespace Draft {
+    class Camera {
+    protected:
+        // Variables
+        Vector3f position{};
+        Vector3f up{ 0, 1, 0 };
+        Vector3f right{ 1, 0, 0 };
+        Vector3f forward{ 0, 0, 1 };
+
+        Matrix4 projMatrix = Matrix4::identity();
+        Matrix4 viewMatrix = Matrix4::identity();
+
+        // Private functions
+        void update_vectors();
+        virtual void update_matrices() = 0;
+
+    public:
+        // Constructor
+        Camera(const Vector3f& position, const Vector3f& direction);
+
+        // Functions
+        /**
+         * @brief Points the camera to the position supplied
+         * @param target 
+         */
+        void target(const Vector3f& target);
+        
+        /**
+         * @brief Points the camera to the direction supplied
+         * @param dir 
+         */
+        void point(const Vector3f& dir);
+
+        /**
+         * @brief Set the camera's own position
+         * @param vec 
+         */
+        inline void set_position(const Vector3f& vec){ position = vec; point(forward); }
+
+        inline const Vector3f& get_position() const { return position; }
+        inline const Vector3f& get_forward() const { return forward; }
+        inline const Vector3f& get_right() const { return right; }
+        inline const Vector3f& get_up() const { return up; }
+        inline const Matrix4& get_projection() const { return projMatrix; }
+        inline const Matrix4& get_view() const { return viewMatrix; }
+
+        void apply(Shader& shader) const;
+    };
+
+    class PerspectiveCamera : public Camera {
+    protected:
+        // Variables
+        float fov;
+        float aspectRatio;
+        float nearClip;
+        float farClip;
+
+        // Private functions
+        virtual void update_matrices();
+
+    public:
+        // Constructor
+        PerspectiveCamera(const Vector3f& position, const Vector3f& direction, const Vector2i& size, float fov = 45.f, float near = 0.1f, float far = 100.f);
+    };
+
+    class OrthographicCamera : public Camera {
+    protected:
+        // Variables
+        float leftClip;
+        float rightClip;
+        float bottomClip;
+        float topClip;
+        float nearClip;
+        float farClip;
+
+        // Private functions
+        virtual void update_matrices();
+
+    public:
+        // Constructor
+        OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float near = 0.1f, float far = 100.f);
+    };
+};

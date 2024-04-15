@@ -1,5 +1,4 @@
-#ifndef CIRCULAR_BUFFER_H
-#define CIRCULAR_BUFFER_H
+#pragma once
 
 #include <algorithm>
 
@@ -50,5 +49,3 @@ namespace Draft {
         inline T& operator[](int index){ return ptr[(start + index) % len]; }
     };
 };
-
-#endif

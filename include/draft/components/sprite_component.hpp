@@ -1,23 +1,20 @@
 #pragma once
 
 #include "draft/math/vector2.hpp"
-#include <SFML/Graphics.hpp>
+#include "draft/rendering/texture.hpp"
 
 namespace Draft {
+    /**
+     * @brief Contains a texture and a size. Will be rendered with the transform component
+     * 
+     */
     struct SpriteComponent {
         // Variables
-        sf::Shader* shader = nullptr;
-
-        Vector2f position = { -0.5f, -0.5f };
-        Vector2f size = { 1, 1 };
-        float rotation = 0.f;
-        
-        unsigned short textureUnit = 0; // Offset for which texture to use
+        const Texture& texture;
+        Vector2f size = { 64, 64 };
 
         // Constructors
-        SpriteComponent(const SpriteComponent&) = default;
-        SpriteComponent(sf::Shader* shader) : shader(shader) {}
-        SpriteComponent(Vector2f position = { 0, 0 }, Vector2f size = { 1, 1 }, float rotation = 0.f, sf::Shader* shader = nullptr)
-            : shader(shader), position(position), size(size), rotation(rotation) {}
+        SpriteComponent(const SpriteComponent& transform) = default;
+        SpriteComponent(const Texture& texture, const Vector2f& size) : texture(texture), size(size) {}
     };
 }

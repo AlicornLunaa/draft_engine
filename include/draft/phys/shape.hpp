@@ -1,9 +1,11 @@
 #pragma once
 
+#include <vector>
+
+#include "box2d/b2_math.h"
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_edge_shape.h"
 #include "box2d/b2_circle_shape.h"
-#include "draft/math/transform.hpp"
 #include "draft/math/vector2.hpp"
 
 namespace Draft {
@@ -18,7 +20,9 @@ namespace Draft {
         float friction = 0.2f;
         float restitution = 0.2f;
         float density = 1.0f;
-        Transform transform;
+
+        Vector2f position;
+        float rotation;
 
         // Constructors
         Shape(const Shape& other) = default;
@@ -27,7 +31,7 @@ namespace Draft {
 
         // Functions
         virtual bool contains(const Vector2f& point) = 0;
-        virtual const b2Shape* getPhysShape() = 0;
+        virtual const b2Shape* get_phys_shape() = 0;
 
         // Operators
         virtual operator const b2Shape* () = 0;
@@ -47,18 +51,18 @@ namespace Draft {
         ~PolygonShape() = default;
 
         // Functions
-        inline bool contains(const Vector2f& point){ return physShape.TestPoint(transform, { point.x, point.y }); };
-        inline const b2Shape* getPhysShape(){ return &physShape; }
+        inline bool contains(const Vector2f& point){ return physShape.TestPoint(b2Transform({ position.x, position.y }, b2Rot(rotation)), { point.x, point.y }); };
+        inline const b2Shape* get_phys_shape(){ return &physShape; }
 
-        void setAsBox(float hw, float hy);
-        size_t addVertex(Vector2f vertex);
-        bool delVertex(size_t index);
+        void set_as_box(float hw, float hy);
+        size_t add_vertex(Vector2f vertex);
+        bool del_vertex(size_t index);
 
-        inline Vector2f getVertex(size_t index){ return vertices[index]; }
-        inline size_t getVertexCount(){ return vertices.size(); }
+        inline Vector2f get_vertex(size_t index){ return vertices[index]; }
+        inline size_t get_vertex_count(){ return vertices.size(); }
 
         // Operators
-        inline operator const b2Shape* () { return getPhysShape(); };
+        inline operator const b2Shape* () { return get_phys_shape(); };
     };
 
     class CircleShape : public Shape {
@@ -74,14 +78,14 @@ namespace Draft {
         ~CircleShape() = default;
 
         // Functions
-        inline bool contains(const Vector2f& point){ return physShape.TestPoint(transform, { point.x, point.y }); };
-        inline const b2Shape* getPhysShape(){ return &physShape; }
+        inline bool contains(const Vector2f& point){ return physShape.TestPoint(b2Transform({ position.x, position.y }, b2Rot(rotation)), { point.x, point.y }); };
+        inline const b2Shape* get_phys_shape(){ return &physShape; }
 
-        inline float getRadius(){ return radius; }
-        inline void setRadius(float r){ radius = r; }
+        inline float get_radius(){ return radius; }
+        inline void set_radius(float r){ radius = r; }
 
         // Operators
-        inline operator const b2Shape* () { return getPhysShape(); };
+        inline operator const b2Shape* () { return get_phys_shape(); };
     };
 
     class EdgeShape : public Shape {
@@ -99,15 +103,15 @@ namespace Draft {
 
         // Functions
         inline bool contains(const Vector2f& point){ return false; };
-        inline const b2Shape* getPhysShape(){ return &physShape; }
+        inline const b2Shape* get_phys_shape(){ return &physShape; }
 
-        inline void setStart(Vector2f v){ start = v; }
-        inline void setEnd(Vector2f v){ end = v; }
+        inline void set_start(Vector2f v){ start = v; }
+        inline void set_end(Vector2f v){ end = v; }
 
-        inline Vector2f getStart(){ return start; }
-        inline Vector2f getEnd(){ return end; }
+        inline Vector2f get_start(){ return start; }
+        inline Vector2f get_end(){ return end; }
 
         // Operators
-        inline operator const b2Shape* () { return getPhysShape(); };
+        inline operator const b2Shape* () { return get_phys_shape(); };
     };
 }
