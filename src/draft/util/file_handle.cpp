@@ -123,20 +123,31 @@ namespace Draft {
     std::vector<char> FileHandle::read_bytes(long offset) const {
         if(path == "null") return {};
 
-        std::vector<char> out{};
-        char array[length()];
+        std::vector<char> out;
+        size_t len;
+        char* array;
 
         switch(access){
             case LOCAL: {
-                std::ifstream in(path);
+                std::ifstream in(path, std::ios::binary);
+
+                in.seekg(0, std::ios::end);
+                len = in.tellg();
+                array = new char[len];
+                out.resize(len);
+
+                in.seekg(0, std::ios::beg);
                 in.seekg(offset, std::ios::beg);
-                in.read(array, length());
+                in.read(array, len);
                 break;
             }
 
             case INTERNAL:
                 const auto& interalFiles = cmrc::draft_engine::get_filesystem();
                 const auto& data = interalFiles.open(path);
+                len = data.end() - data.begin();
+                array = new char[len];
+
                 int i = 0;
 
                 for(auto iter = data.begin() + offset; iter != data.end(); iter++){
@@ -146,10 +157,12 @@ namespace Draft {
                 break;
         }
 
-        for(size_t i = 0; i < length(); i++){
-            out.push_back(array[i]);
+        out.resize(len);
+        for(size_t i = 0; i < len; i++){
+            out[i] = array[i];
         }
 
+        delete [] array;
         return out;
     }
 
