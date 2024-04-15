@@ -8,17 +8,18 @@ namespace Draft {
     // Functions
     void Material::apply(Shader& shader) const {
         shader.bind();
-        shader.set_uniform_if_exists("baseTexture", 0);
-        shader.set_uniform_if_exists("normalTexture", 1);
-        shader.set_uniform_if_exists("emissiveTexture", 2);
-        shader.set_uniform_if_exists("occlusionTexture", 3);
-        shader.set_uniform_if_exists("roughnessTexture", 4);
+        shader.set_uniform_if_exists("material.baseTexture", 0);
+        shader.set_uniform_if_exists("material.normalTexture", 1);
+        shader.set_uniform_if_exists("material.emissiveTexture", 2);
+        shader.set_uniform_if_exists("material.occlusionTexture", 3);
+        shader.set_uniform_if_exists("material.roughnessTexture", 4);
 
-        shader.set_uniform_if_exists("emissiveFactor", emissiveFactor);
-        shader.set_uniform_if_exists("metallicFactor", metallicFactor);
-        shader.set_uniform_if_exists("roughnessFactor", roughnessFactor);
-        shader.set_uniform_if_exists("normalScale", normalScale);
-        shader.set_uniform_if_exists("occlusionStrength", occlusionStrength);
+        shader.set_uniform_if_exists("material.baseColor", baseColor);
+        shader.set_uniform_if_exists("material.emissiveFactor", emissiveFactor);
+        shader.set_uniform_if_exists("material.metallicFactor", metallicFactor);
+        shader.set_uniform_if_exists("material.roughnessFactor", roughnessFactor);
+        shader.set_uniform_if_exists("material.normalScale", normalScale);
+        shader.set_uniform_if_exists("material.occlusionStrength", occlusionStrength);
 
         if(baseTexture){ baseTexture->bind(0); } else { debugWhite->bind(0); }
         if(normalTexture){ normalTexture->bind(1); } else { emptyNormalMap->bind(1); }

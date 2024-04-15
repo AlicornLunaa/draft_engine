@@ -45,18 +45,22 @@ namespace Draft {
         void set_uniform(const std::string& name, int value);
         void set_uniform(const std::string& name, const Vector2i& value);
         void set_uniform(const std::string& name, const Vector3i& value);
+        void set_uniform(const std::string& name, const Vector4i& value);
 
         void set_uniform(const std::string& name, unsigned int value);
         void set_uniform(const std::string& name, const Vector2u& value);
         void set_uniform(const std::string& name, const Vector3u& value);
+        void set_uniform(const std::string& name, const Vector4u& value);
 
         void set_uniform(const std::string& name, float value);
         void set_uniform(const std::string& name, const Vector2f& value);
         void set_uniform(const std::string& name, const Vector3f& value);
+        void set_uniform(const std::string& name, const Vector4f& value);
 
         void set_uniform(const std::string& name, double value);
         void set_uniform(const std::string& name, const Vector2d& value);
         void set_uniform(const std::string& name, const Vector3d& value);
+        void set_uniform(const std::string& name, const Vector4d& value);
 
         void set_uniform(const std::string& name, const Matrix2& value);
         void set_uniform(const std::string& name, const Matrix3& value);

@@ -131,25 +131,29 @@ namespace Draft {
         load_from_handle(handle);
     }
 
-    bool Shader::has_uniform(const std::string& name){ return (glGetUniformLocation(shaderId, name.c_str()) == -1); }
+    bool Shader::has_uniform(const std::string& name){ return (glGetUniformLocation(shaderId, name.c_str()) != -1); }
 
     void Shader::set_uniform(const std::string& name, bool value){ glUniform1i(get_location(name), value); }
 
     void Shader::set_uniform(const std::string& name, int value){ glUniform1i(get_location(name), value); }
     void Shader::set_uniform(const std::string& name, const Vector2i& value){ glUniform2i(get_location(name), value.x, value.y); }
     void Shader::set_uniform(const std::string& name, const Vector3i& value){ glUniform3i(get_location(name), value.x, value.y, value.z); }
+    void Shader::set_uniform(const std::string& name, const Vector4i& value){ glUniform4i(get_location(name), value.x, value.y, value.z, value.w); }
 
     void Shader::set_uniform(const std::string& name, unsigned int value){ glUniform1ui(get_location(name), value); }
     void Shader::set_uniform(const std::string& name, const Vector2u& value){ glUniform2ui(get_location(name), value.x, value.y); }
     void Shader::set_uniform(const std::string& name, const Vector3u& value){ glUniform3ui(get_location(name), value.x, value.y, value.z); }
+    void Shader::set_uniform(const std::string& name, const Vector4u& value){ glUniform4ui(get_location(name), value.x, value.y, value.w, value.w); }
 
     void Shader::set_uniform(const std::string& name, float value){ glUniform1f(get_location(name), value); }
     void Shader::set_uniform(const std::string& name, const Vector2f& value){ glUniform2f(get_location(name), value.x, value.y); }
     void Shader::set_uniform(const std::string& name, const Vector3f& value){ glUniform3f(get_location(name), value.x, value.y, value.z); }
+    void Shader::set_uniform(const std::string& name, const Vector4f& value){ glUniform4f(get_location(name), value.x, value.y, value.z, value.w); }
 
     void Shader::set_uniform(const std::string& name, double value){ glUniform1d(get_location(name), value); }
     void Shader::set_uniform(const std::string& name, const Vector2d& value){ glUniform2d(get_location(name), value.x, value.y); }
     void Shader::set_uniform(const std::string& name, const Vector3d& value){ glUniform3d(get_location(name), value.x, value.y, value.z); }
+    void Shader::set_uniform(const std::string& name, const Vector4d& value){ glUniform4d(get_location(name), value.x, value.y, value.z, value.w); }
 
     void Shader::set_uniform(const std::string& name, const Matrix2& value){ glUniformMatrix2fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
     void Shader::set_uniform(const std::string& name, const Matrix3& value){ glUniformMatrix3fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
