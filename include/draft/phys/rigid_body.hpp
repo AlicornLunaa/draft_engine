@@ -4,8 +4,6 @@
 #include "box2d/b2_fixture.h"
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector2.hpp"
-#include "draft/phys/fixture.hpp"
-#include "draft/phys/shape.hpp"
 
 #include <memory>
 
@@ -18,10 +16,10 @@ namespace Draft {
         World* currentWorld = nullptr;
 
         // Constructor
-        RigidBody();
+        RigidBody(World* worldPtr, void* bodyPtr);
 
         // Private functions
-        void set_ptr_to_body(void* bodyPtr);
+        void* get_body_ptr();
 
     public:
         // Enums
@@ -38,9 +36,9 @@ namespace Draft {
         RigidBody& operator=(const RigidBody& other) = delete;
 
         // Functions
-        Fixture create_fixture(const b2FixtureDef& def);
-        Fixture create_fixture(const Shape& shape, float density);
-        bool destroy_fixture(const Fixture& fixture);
+        b2Fixture* create_fixture(const b2FixtureDef& def);
+        b2Fixture* create_fixture(const b2Shape& shape, float density);
+        void destroy_fixture(b2Fixture* fixture);
 
         void set_transform(const Vector2f& position, float angle);
         void set_linear_velocity(const Vector2f& vel);

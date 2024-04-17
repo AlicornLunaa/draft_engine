@@ -11,6 +11,7 @@ set(SOURCES
     src/draft/phys/collider.cpp
     src/draft/phys/shape.cpp
     src/draft/phys/world.cpp
+    src/draft/phys/rigid_body.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/sprite_batch.cpp
     src/draft/rendering/shape_batch.cpp
@@ -58,6 +59,7 @@ set(INTERFACES
     include/draft/math/rect.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/shape.hpp
+    include/draft/phys/rigid_body.hpp
     include/draft/phys/world.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
@@ -153,8 +155,10 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC entt)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d imgui stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PUBLIC entt box2d)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+# target_link_libraries(${PROJECT_NAME} PUBLIC entt)
+# target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d imgui stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
 # Engine tools

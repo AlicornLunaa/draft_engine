@@ -43,19 +43,29 @@ namespace Draft {
         b2Body* body;
     };
 
-    // Constructors
-    RigidBody::RigidBody() : ptr(make_unique<Impl>()) {}
-    RigidBody::~RigidBody(){}
-
     // Private functions
-    void RigidBody::set_ptr_to_body(void* bodyPtr){
+    void* RigidBody::get_body_ptr(){ return ptr->body; }
+
+    // Constructors
+    RigidBody::RigidBody(World* worldPtr, void* bodyPtr) : ptr(make_unique<Impl>()) {
+        currentWorld = worldPtr;
         ptr->body = (b2Body*)bodyPtr;
     }
 
+    RigidBody::~RigidBody(){}
+
     // Functions
-    Fixture create_fixture(const b2FixtureDef& def){}
-    Fixture create_fixture(const Shape& shape, float density){}
-    bool destroy_fixture(const Fixture& fixture){ return false; } // TODO: These
+    b2Fixture* RigidBody::create_fixture(const b2FixtureDef& def){
+        return ptr->body->CreateFixture(&def);
+    }
+
+    b2Fixture* RigidBody::create_fixture(const b2Shape& shape, float density){
+        return ptr->body->CreateFixture(&shape, density);
+    }
+
+    void RigidBody::destroy_fixture(b2Fixture* fixture){
+        return ptr->body->DestroyFixture(fixture);
+    }
 
     void RigidBody::set_transform(const Vector2f& position, float angle){ ptr->body->SetTransform({ position.x, position.y }, angle); }
     void RigidBody::set_linear_velocity(const Vector2f& vel){ ptr->body->SetLinearVelocity({ vel.x, vel.y }); }
