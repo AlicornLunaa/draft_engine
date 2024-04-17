@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/math/matrix.hpp"
 #include "draft/rendering/material.hpp"
 #include "draft/rendering/mesh.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
@@ -18,6 +19,7 @@ namespace Draft {
         std::vector<Mesh> meshes;
         std::vector<Material> materials;
         std::vector<int> meshToMaterialMap;
+        std::vector<Matrix4> meshToMatrixMap;
         std::vector<std::unique_ptr<VertexBuffer>> buffers;
 
         // Private functions
@@ -36,7 +38,7 @@ namespace Draft {
         Model& operator=(Model&& other) noexcept;
 
         // Functions
-        void render(Shader& shader) const;
+        void render(Shader& shader, const Matrix4& matrix) const;
         void reload();
     };
 };

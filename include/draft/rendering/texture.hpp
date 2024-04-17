@@ -26,7 +26,7 @@ namespace Draft {
 
         // Private functions
         void generate_opengl(Wrap wrapping);
-        void load_texture(const unsigned char* bytes, size_t length, int colorSpace = RGB);
+        void load_texture(const unsigned char* bytes, size_t length, int colorSpace = RGB, bool flip = true);
         void cleanup();
 
     public:

@@ -7,6 +7,7 @@
 namespace Draft {
     // pImpl
     struct World::Impl {
+        // http://louis-langholtz.github.io/Box2D/API/classbox2d_1_1_world.html
         b2World world = b2World({ 0, 0 });
     };
 

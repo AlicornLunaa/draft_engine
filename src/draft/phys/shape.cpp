@@ -31,7 +31,8 @@ namespace Draft {
         
         vertices.erase(vertices.begin() + index);
         physVertices.erase(physVertices.begin() + index);
-        return physShape.Set(&physVertices[0], vertices.size());;
+        physShape.Set(&physVertices[0], vertices.size());
+        return true;
     }
     
     // Circle

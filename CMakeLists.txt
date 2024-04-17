@@ -110,7 +110,7 @@ option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 include(FetchContent)
 FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
 FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TAG 2.6.x)
-FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG main)
+FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG v2.4.1)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_MakeAvailable(glfw)
 FetchContent_MakeAvailable(SFML)
@@ -154,7 +154,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC entt)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb box2d nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d imgui stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
 # Engine tools

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "box2d/b2_world_callbacks.h"
 #include "draft/math/vector2.hpp"
 #include <memory>
 
@@ -12,6 +13,7 @@ namespace Draft {
         ~World();
 
         // Functions
+        void set_destruction_listener(void* listener) noexcept;
         void step(float timeStep, int32_t velocityIterations, int32_t positionIterations);
         
     private:

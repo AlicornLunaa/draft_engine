@@ -19,9 +19,9 @@ namespace Draft {
         unbind();
     }
     
-    void Texture::load_texture(const unsigned char* bytes, size_t length, int colorSpace){
+    void Texture::load_texture(const unsigned char* bytes, size_t length, int colorSpace, bool flip){
         // Load texture from file
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(flip);
         unsigned char *data = stbi_load_from_memory(bytes, length, &size.x, &size.y, &nrChannels, 0);
         loaded = !(bool)(!data);
 
