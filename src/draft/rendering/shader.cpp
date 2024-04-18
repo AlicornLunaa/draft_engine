@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <string>
-#include <format>
 
 #include "draft/rendering/shader.hpp"
 #include "draft/util/file_handle.hpp"
@@ -33,7 +32,7 @@ namespace Draft {
 
         if(!success){
             glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to compile vertex shader {} because\n{}", handle.filename(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", "Unable to compile vertex shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
 
@@ -41,7 +40,7 @@ namespace Draft {
 
         if(!success){
             glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to compile fragment shader {} because\n{}", handle.filename(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", "Unable to compile fragment shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
 
@@ -54,7 +53,7 @@ namespace Draft {
         glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
         if(!success){
             glGetProgramInfoLog(shaderId, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to link shader {} because\n{}", handle.filename(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", "Unable to link shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
 
@@ -81,7 +80,7 @@ namespace Draft {
         auto loc = glGetUniformLocation(shaderId, name.c_str());
 
         if(loc == -1){
-            Logger::println(Level::SEVERE, "Shader", format("Uniform {} does not exist on shader {}", name, handle.filename()));
+            Logger::println(Level::SEVERE, "Shader", "Uniform " + name + " does not exist on shader " + handle.filename());
         }
 
         return loc;

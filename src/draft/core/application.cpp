@@ -5,7 +5,6 @@
 
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
-#include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/logger.hpp"
 #include "draft/widgets/stats.hpp"
@@ -33,13 +32,6 @@ namespace Draft {
         // Register basic commands
         console.register_cmd("reload_assets", [this](ConsoleArgs args){
             assetManager.reload();
-
-            Shader& testShader = assetManager.get_shader("./assets/shaders/test");
-            testShader.bind();
-            testShader.set_uniform("myTexture1", 0);
-            testShader.set_uniform("myTexture2", 1);
-            testShader.unbind();
-
             return true;
         });
     }

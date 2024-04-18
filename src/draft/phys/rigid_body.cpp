@@ -1,4 +1,5 @@
 #include "box2d/b2_body.h"
+#include "draft/phys/world.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector2.hpp"
@@ -64,7 +65,11 @@ namespace Draft {
     }
 
     void RigidBody::destroy_fixture(b2Fixture* fixture){
-        return ptr->body->DestroyFixture(fixture);
+        ptr->body->DestroyFixture(fixture);
+    }
+
+    void RigidBody::destroy(){
+        currentWorld->destroy_body(this);
     }
 
     void RigidBody::set_transform(const Vector2f& position, float angle){ ptr->body->SetTransform({ position.x, position.y }, angle); }

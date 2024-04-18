@@ -35,9 +35,13 @@ namespace Draft {
     }
 
     void World::destroy_body(RigidBody*& rigidBody){
+        destroy_body(reinterpret_cast<RigidBody*>(rigidBody));
+        rigidBody = nullptr;
+    }
+
+    void World::destroy_body(RigidBody* rigidBody){
         ptr->world.DestroyBody((b2Body*)rigidBody->get_body_ptr());
         rigidBodies.erase(std::find(rigidBodies.begin(), rigidBodies.end(), rigidBody));
-        rigidBody = nullptr;
     }
 
     void World::step(float timeStep, int32_t velocityIterations, int32_t positionIterations){ ptr->world.Step(timeStep, velocityIterations, positionIterations); }

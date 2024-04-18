@@ -1,5 +1,4 @@
 #include <cstddef>
-#include <format>
 #include <string>
 #include <vector>
 
@@ -123,7 +122,7 @@ namespace Draft {
     void Console::register_cmd(const string& key, ConsoleFunc func){
         commandAliases.push_back(key);
         commandArray.push_back(func);
-        Logger::println(Level::INFO, "Console", std::format("Command {} registered", key));
+        Logger::println(Level::INFO, "Console", "Command " + key + " registered");
     }
 
     void Console::delete_cmd(const string& key){
@@ -141,7 +140,7 @@ namespace Draft {
         if(index != -1){
             commandAliases.erase(commandAliases.begin() + index);
             commandArray.erase(commandArray.begin() + index);
-            Logger::println(Level::INFO, "Console", std::format("Command {} unregistered", key));
+            Logger::println(Level::INFO, "Console", "Command " + key + " unregistered");
         }
     }
 

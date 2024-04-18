@@ -1,11 +1,11 @@
-#include "draft/input/event.hpp"
 #define GLFW_INCLUDE_NONE
 
-#include <format>
+#include <string>
 
 #include "draft/rendering/render_window.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/input/mouse.hpp"
+#include "draft/input/event.hpp"
 #include "draft/util/logger.hpp"
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -57,7 +57,7 @@ namespace Draft {
         Impl(unsigned int w, unsigned int h, const string& title){
             // Callbacks
             glfwSetErrorCallback([](int errorCode, const char* errorDesc){
-                Logger::println(Level::CRITICAL, "GLFW", format("{}, code: {}", errorDesc, errorCode));
+                Logger::println(Level::CRITICAL, "GLFW", string(errorDesc) + ", code: " + to_string(errorCode));
             });
 
             // Start GLFW

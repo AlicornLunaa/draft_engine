@@ -20,14 +20,19 @@ namespace Draft {
     // Private functions
     Matrix4 SpriteBatch::generate_transform_matrix(const Quad& quad) const {
         // Generates a transformation matrix for the given quad
-        return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f });
+        auto trans = Matrix4::identity();
+        trans *= Matrix4::translation({ quad.position.x, quad.position.y, 0.f });
+        trans *= Matrix4::rotation({ 0.f, 0.f, quad.rotation });
+        trans *= Matrix4::translation({ -quad.origin.x, -quad.origin.y, 0 });
+        trans *= Matrix4::scale({ quad.size.x, quad.size.y, 1.f });
+        return trans;
     }
 
     // Constructor
     SpriteBatch::SpriteBatch(){}
 
     // Functions
-    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, FloatRect region){
+    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
         // Add quad to the queue
         Quad quad {
             &texture,
@@ -35,7 +40,8 @@ namespace Draft {
 
             position,
             size,
-            rotation
+            rotation,
+            origin
         };
 
         quadQueue.emplace(quad);

@@ -19,6 +19,7 @@ namespace Draft {
             Vector2f position = {0, 0};
             Vector2f size = {0, 0};
             float rotation = 0.f;
+            Vector2f origin = {0, 0};
         };
 
         static std::array<Vector2f, 4> baseVertices;
@@ -34,7 +35,7 @@ namespace Draft {
         SpriteBatch();
 
         // Functions
-        void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, FloatRect region = {}); // Add quad to scene
+        void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
         void flush(); // Send quads to shader
     };
 };

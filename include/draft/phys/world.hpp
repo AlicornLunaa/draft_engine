@@ -27,6 +27,7 @@ namespace Draft {
         // Functions
         RigidBody* create_rigid_body(const b2BodyDef* def);
         void destroy_body(RigidBody*& rigidBody);
+        void destroy_body(RigidBody* rigidBody);
 
         void set_destruction_listener(void* listener) noexcept;
         void step(float timeStep, int32_t velocityIterations, int32_t positionIterations);

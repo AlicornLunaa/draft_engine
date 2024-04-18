@@ -39,6 +39,7 @@ namespace Draft {
         b2Fixture* create_fixture(const b2FixtureDef& def);
         b2Fixture* create_fixture(const b2Shape& shape, float density);
         void destroy_fixture(b2Fixture* fixture);
+        void destroy();
 
         void set_transform(const Vector2f& position, float angle);
         void set_linear_velocity(const Vector2f& vel);
