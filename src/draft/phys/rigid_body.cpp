@@ -1,4 +1,12 @@
 #include "box2d/b2_body.h"
+
+#include "box2d/b2_collision.h"
+#include "box2d/b2_fixture.h"
+#include "box2d/b2_polygon_shape.h"
+#include "box2d/b2_circle_shape.h"
+#include "box2d/b2_edge_shape.h"
+#include "draft/phys/shape.hpp"
+#include "draft/phys/shape_p.hpp"
 #include "draft/phys/world.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/math/matrix.hpp"
@@ -60,8 +68,21 @@ namespace Draft {
         return ptr->body->CreateFixture(&def);
     }
 
-    b2Fixture* RigidBody::create_fixture(const b2Shape& shape, float density){
-        return ptr->body->CreateFixture(&shape, density);
+    b2Fixture* RigidBody::create_fixture(const Shape* shape, float density){
+        b2Fixture* fixture = nullptr;
+
+        if(shape->type == ShapeType::POLYGON){
+            b2PolygonShape polyShape = shape_to_b2(*static_cast<const PolygonShape*>(shape));
+            fixture = ptr->body->CreateFixture(&polyShape, density);
+        } else if(shape->type == ShapeType::CIRCLE){
+            b2CircleShape circShape = shape_to_b2(*static_cast<const CircleShape*>(shape));
+            fixture = ptr->body->CreateFixture(&circShape, density);
+        } else if(shape->type == ShapeType::EDGE){
+            b2EdgeShape edgeShape = shape_to_b2(*static_cast<const EdgeShape*>(shape));
+            fixture = ptr->body->CreateFixture(&edgeShape, density);
+        }
+
+        return fixture;
     }
 
     void RigidBody::destroy_fixture(b2Fixture* fixture){

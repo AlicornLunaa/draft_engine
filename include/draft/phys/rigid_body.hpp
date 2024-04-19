@@ -1,8 +1,10 @@
 #pragma once
 
 #include "box2d/b2_fixture.h"
+
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector2.hpp"
+#include "draft/phys/shape.hpp"
 
 #include <memory>
 
@@ -36,7 +38,7 @@ namespace Draft {
 
         // Functions
         b2Fixture* create_fixture(const b2FixtureDef& def);
-        b2Fixture* create_fixture(const b2Shape& shape, float density);
+        b2Fixture* create_fixture(const Shape* shape, float density);
         void destroy_fixture(b2Fixture* fixture);
         void destroy();
 

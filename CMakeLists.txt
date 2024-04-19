@@ -39,6 +39,7 @@ set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
     src/draft/phys/body_def_p.hpp
+    src/draft/phys/shape_p.hpp
 )
 
 set(INTERFACES
