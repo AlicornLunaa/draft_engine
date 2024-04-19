@@ -1,6 +1,5 @@
 #pragma once
 
-#include "box2d/b2_body.h"
 #include "box2d/b2_fixture.h"
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector2.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "box2d/b2_body.h"
 #include "draft/math/vector2.hpp"
+#include "draft/phys/body_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 
 #include <memory>
@@ -25,7 +25,7 @@ namespace Draft {
         World& operator=(World&& other) noexcept = delete;
 
         // Functions
-        RigidBody* create_rigid_body(const b2BodyDef* def);
+        RigidBody* create_rigid_body(const BodyDef& def);
         void destroy_body(RigidBody*& rigidBody);
         void destroy_body(RigidBody* rigidBody);
 

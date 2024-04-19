@@ -12,6 +12,7 @@ set(SOURCES
     src/draft/phys/shape.cpp
     src/draft/phys/world.cpp
     src/draft/phys/rigid_body.cpp
+    src/draft/phys/body_def.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/sprite_batch.cpp
     src/draft/rendering/shape_batch.cpp
@@ -37,6 +38,7 @@ set(SOURCES
 set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
+    src/draft/phys/body_def_p.hpp
 )
 
 set(INTERFACES
@@ -61,6 +63,7 @@ set(INTERFACES
     include/draft/phys/shape.hpp
     include/draft/phys/rigid_body.hpp
     include/draft/phys/world.hpp
+    include/draft/phys/body_def.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
     include/draft/rendering/model.hpp

@@ -3,6 +3,7 @@
 #include "box2d/b2_body.h"
 #include "box2d/b2_world.h"
 #include "draft/math/vector2_p.hpp"
+#include "draft/phys/body_def_p.hpp"
 #include "draft/phys/rigid_body.hpp"
 
 #include <algorithm>
@@ -27,8 +28,9 @@ namespace Draft {
     }
 
     // Functions
-    RigidBody* World::create_rigid_body(const b2BodyDef* def){
-        b2Body* body = ptr->world.CreateBody(def);
+    RigidBody* World::create_rigid_body(const BodyDef& def){
+        b2BodyDef tmp = bodydef_to_b2(def);
+        b2Body* body = ptr->world.CreateBody(&tmp);
         RigidBody* rb = new RigidBody(this, body);
         rigidBodies.push_back(rb);
         return rb;
