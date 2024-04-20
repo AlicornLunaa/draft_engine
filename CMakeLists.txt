@@ -9,10 +9,11 @@ set(SOURCES
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
     src/draft/phys/collider.cpp
+    src/draft/phys/conversions.cpp
     src/draft/phys/shape.cpp
     src/draft/phys/world.cpp
     src/draft/phys/rigid_body.cpp
-    src/draft/phys/body_def.cpp
+    src/draft/phys/fixture.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/sprite_batch.cpp
     src/draft/rendering/shape_batch.cpp
@@ -38,8 +39,7 @@ set(SOURCES
 set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
-    src/draft/phys/body_def_p.hpp
-    src/draft/phys/shape_p.hpp
+    src/draft/phys/conversions_p.hpp
 )
 
 set(INTERFACES

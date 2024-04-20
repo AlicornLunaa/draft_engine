@@ -1,45 +1,58 @@
 #pragma once
 
-#include "box2d/b2_body.h"
 #include "box2d/b2_fixture.h"
-#include "box2d/b2_shape.h"
+#include "draft/phys/shape.hpp"
+
 #include <memory>
 
 namespace Draft {
+    class RigidBody;
+    
     class Fixture {
     private:
         // Variables
+        RigidBody* bodyPtr = nullptr;
+        const Shape* shapePtr = nullptr;
 
+        // Constructors
+        Fixture(RigidBody* body, const Shape* shape, void* fixturePtr);
+
+        // Private functions
+        void* get_fixture_ptr();
 
     public:
         // Constructors
-        Fixture();
         Fixture(const Fixture& other) = delete;
         ~Fixture();
 
+        // Friends :)
+        friend class RigidBody;
+
+        // Operators
+        Fixture& operator=(const Fixture& other) = delete;
+
         // Functions
-        b2Body* get_body();
-        const b2Body* get_body() const;
-        const b2Shape* get_shape() const;
-
-        void set_sensor(bool sensor);
-        bool is_sensor() const;
-
+        bool is_valid() const;
+        void destroy();
         void refilter();
-        void set_filter_data(const b2Filter filter);
-        b2Filter get_filter_data() const;
 
-        void set_user_data(void* data);
-        void* get_user_data() const;
+        RigidBody* get_body();
+        const RigidBody* get_body() const;
+        const Shape* get_shape() const;
 
+        void set_filter_data(const b2Filter& filter);
         void set_density(float density);
-        float get_density() const;
-
         void set_friction(float friction);
-        float get_friction() const;
-
         void set_restitution(float restitution);
+	    void set_restitution_threshold(float threshold);
+        void set_sensor(bool sensor);
+
+        b2Filter get_filter_data() const;
+        float get_density() const;
+        float get_friction() const;
         float get_restitution() const;
+	    float get_restitution_threshold() const;
+        bool is_sensor() const;
 
     private:
         // pImpl

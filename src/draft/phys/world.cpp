@@ -3,7 +3,7 @@
 #include "box2d/b2_body.h"
 #include "box2d/b2_world.h"
 #include "draft/math/vector2_p.hpp"
-#include "draft/phys/body_def_p.hpp"
+#include "draft/phys/conversions_p.hpp"
 #include "draft/phys/rigid_body.hpp"
 
 #include <algorithm>

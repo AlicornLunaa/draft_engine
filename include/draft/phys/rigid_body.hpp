@@ -1,12 +1,13 @@
 #pragma once
 
-#include "box2d/b2_fixture.h"
-
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector2.hpp"
+#include "draft/phys/fixture.hpp"
+#include "draft/phys/fixture_def.hpp"
 #include "draft/phys/shape.hpp"
 
 #include <memory>
+#include <vector>
 
 namespace Draft {
     class World;
@@ -15,6 +16,7 @@ namespace Draft {
     private:
         // Variables
         World* currentWorld = nullptr;
+        std::vector<Fixture*> fixtures;
 
         // Constructor
         RigidBody(World* worldPtr, void* bodyPtr);
@@ -37,9 +39,12 @@ namespace Draft {
         RigidBody& operator=(const RigidBody& other) = delete;
 
         // Functions
-        b2Fixture* create_fixture(const b2FixtureDef& def);
-        b2Fixture* create_fixture(const Shape* shape, float density);
-        void destroy_fixture(b2Fixture* fixture);
+        bool is_valid() const;
+        
+        Fixture* create_fixture(const FixtureDef& def);
+        Fixture* create_fixture(const Shape* shape, float density);
+        void destroy_fixture(Fixture*& fixture);
+        void destroy_fixture(Fixture* fixture);
         void destroy();
 
         void set_transform(const Vector2f& position, float angle);

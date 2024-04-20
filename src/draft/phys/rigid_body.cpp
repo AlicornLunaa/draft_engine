@@ -6,7 +6,7 @@
 #include "box2d/b2_circle_shape.h"
 #include "box2d/b2_edge_shape.h"
 #include "draft/phys/shape.hpp"
-#include "draft/phys/shape_p.hpp"
+#include "draft/phys/conversions_p.hpp"
 #include "draft/phys/world.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/math/matrix.hpp"
@@ -61,32 +61,75 @@ namespace Draft {
         ptr->body = (b2Body*)bodyPtr;
     }
 
-    RigidBody::~RigidBody(){}
-
-    // Functions
-    b2Fixture* RigidBody::create_fixture(const b2FixtureDef& def){
-        return ptr->body->CreateFixture(&def);
+    RigidBody::~RigidBody(){
+        for(Fixture* fixture : fixtures){
+            if(!fixture) continue;
+            delete fixture;
+        }
     }
 
-    b2Fixture* RigidBody::create_fixture(const Shape* shape, float density){
-        b2Fixture* fixture = nullptr;
+    // Functions
+    bool RigidBody::is_valid() const { return (ptr->body != nullptr && currentWorld != nullptr); }
 
-        if(shape->type == ShapeType::POLYGON){
-            b2PolygonShape polyShape = shape_to_b2(*static_cast<const PolygonShape*>(shape));
-            fixture = ptr->body->CreateFixture(&polyShape, density);
-        } else if(shape->type == ShapeType::CIRCLE){
-            b2CircleShape circShape = shape_to_b2(*static_cast<const CircleShape*>(shape));
-            fixture = ptr->body->CreateFixture(&circShape, density);
-        } else if(shape->type == ShapeType::EDGE){
-            b2EdgeShape edgeShape = shape_to_b2(*static_cast<const EdgeShape*>(shape));
-            fixture = ptr->body->CreateFixture(&edgeShape, density);
+    Fixture* RigidBody::create_fixture(const FixtureDef& def){
+        Fixture* fixture = nullptr;
+
+        b2FixtureDef b2Def;
+        b2Def.friction = def.friction;
+        b2Def.restitution = def.restitution;
+        b2Def.restitutionThreshold = def.restitutionThreshold;
+        b2Def.density = def.density;
+        b2Def.isSensor = def.isSensor;
+        b2Def.filter = filter_to_b2(def.filter);
+
+        if(def.shape->type == ShapeType::POLYGON){
+            b2PolygonShape polyShape = shape_to_b2(*static_cast<const PolygonShape*>(def.shape));
+            b2Def.shape = &polyShape;
+            fixture = new Fixture(this, def.shape, ptr->body->CreateFixture(&b2Def));
+        } else if(def.shape->type == ShapeType::CIRCLE){
+            b2CircleShape circShape = shape_to_b2(*static_cast<const CircleShape*>(def.shape));
+            b2Def.shape = &circShape;
+            fixture = new Fixture(this, def.shape, ptr->body->CreateFixture(&b2Def));
+        } else if(def.shape->type == ShapeType::EDGE){
+            b2EdgeShape edgeShape = shape_to_b2(*static_cast<const EdgeShape*>(def.shape));
+            b2Def.shape = &edgeShape;
+            fixture = new Fixture(this, def.shape, ptr->body->CreateFixture(&b2Def));
         }
+
+        if(fixture)
+            fixtures.push_back(fixture);
 
         return fixture;
     }
 
-    void RigidBody::destroy_fixture(b2Fixture* fixture){
-        ptr->body->DestroyFixture(fixture);
+    Fixture* RigidBody::create_fixture(const Shape* shape, float density){
+        Fixture* fixture = nullptr;
+
+        if(shape->type == ShapeType::POLYGON){
+            b2PolygonShape polyShape = shape_to_b2(*static_cast<const PolygonShape*>(shape));
+            fixture = new Fixture(this, shape, ptr->body->CreateFixture(&polyShape, density));
+        } else if(shape->type == ShapeType::CIRCLE){
+            b2CircleShape circShape = shape_to_b2(*static_cast<const CircleShape*>(shape));
+            fixture = new Fixture(this, shape, ptr->body->CreateFixture(&circShape, density));
+        } else if(shape->type == ShapeType::EDGE){
+            b2EdgeShape edgeShape = shape_to_b2(*static_cast<const EdgeShape*>(shape));
+            fixture = new Fixture(this, shape, ptr->body->CreateFixture(&edgeShape, density));
+        }
+
+        if(fixture)
+            fixtures.push_back(fixture);
+
+        return fixture;
+    }
+
+    void RigidBody::destroy_fixture(Fixture* fixture){
+        ptr->body->DestroyFixture((b2Fixture*)fixture->get_fixture_ptr());
+        fixtures.erase(std::find(fixtures.begin(), fixtures.end(), fixture));
+    }
+
+    void RigidBody::destroy_fixture(Fixture*& fixture){
+        destroy_fixture(reinterpret_cast<Fixture*>(fixture ));
+        fixture = nullptr;
     }
 
     void RigidBody::destroy(){
