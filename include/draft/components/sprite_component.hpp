@@ -12,9 +12,10 @@ namespace Draft {
         // Variables
         const Texture& texture;
         Vector2f size = { 64, 64 };
+        Vector2f origin = { 0, 0 };
 
         // Constructors
         SpriteComponent(const SpriteComponent& transform) = default;
-        SpriteComponent(const Texture& texture, const Vector2f& size) : texture(texture), size(size) {}
+        SpriteComponent(const Texture& texture, const Vector2f& size, const Vector2f& origin = {}) : texture(texture), size(size), origin(origin) {}
     };
 }

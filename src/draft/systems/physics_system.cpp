@@ -1,17 +1,20 @@
-// #include "draft/systems.hpp"
-// #include "draft/util/constants.hpp"
-// #include "draft/components/transform_component.hpp"
-// #include "draft/components/rigid_body_component.hpp"
+#include "draft/core/application.hpp"
+#include "draft/components/transform_component.hpp"
+#include "draft/components/rigid_body_component.hpp"
+#include "draft/phys/fixture.hpp"
+#include "draft/util/constants.hpp"
+#include "draft/systems.hpp"
 
-// void Draft::physicsSystem(entt::registry& registry, World& world){
-//     world.step(TIME_STEP, VELOCITY_ITER, POSITION_ITER);
+void Draft::physics_system(Registry& registry, const Application* app, World& world){
+    world.step(app->timeStep, VELOCITY_ITER, POSITION_ITER);
 
-//     auto view = registry.view<TransformComponent, RigidBodyComponent>();
-//     for(auto entity : view){
-//         auto& transformComponent = view.get<TransformComponent>(entity);
-//         auto& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
+    auto view = registry.view<TransformComponent, RigidBodyComponent>();
 
-//         transformComponent.position = rigidBodyComponent.getPosition();
-//         transformComponent.rotation = TO_DEG(rigidBodyComponent.getAngle());
-//     }
-// }
+    for(auto entity : view){
+        TransformComponent& transformComponent = view.get<TransformComponent>(entity);
+        RigidBody& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
+
+        transformComponent.position = rigidBodyComponent.get_position();
+        transformComponent.rotation = rigidBodyComponent.get_angle();
+    }
+}

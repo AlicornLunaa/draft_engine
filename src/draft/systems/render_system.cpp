@@ -16,7 +16,14 @@ void Draft::render_system(Registry& registry, RenderWindow& window, Shader& shad
     for(auto entity : view){
         auto& spriteComponent = view.get<SpriteComponent>(entity);
         auto& transformComponent = view.get<TransformComponent>(entity);
-        batch.draw(spriteComponent.texture, transformComponent.position, spriteComponent.size, transformComponent.rotation);
+
+        batch.draw(
+            spriteComponent.texture,
+            transformComponent.position,
+            spriteComponent.size,
+            transformComponent.rotation,
+            spriteComponent.origin
+        );
     }
 
     batch.flush();
