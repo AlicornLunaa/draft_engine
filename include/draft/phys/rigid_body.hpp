@@ -4,10 +4,13 @@
 #include "draft/math/vector2.hpp"
 #include "draft/phys/fixture.hpp"
 #include "draft/phys/fixture_def.hpp"
+#include "draft/phys/joint_def.hpp"
 #include "draft/phys/shape.hpp"
 
 #include <memory>
 #include <vector>
+
+class b2JointDef;
 
 namespace Draft {
     class World;
@@ -34,6 +37,7 @@ namespace Draft {
 
         // Friends :)
         friend class World;
+        friend void jointdef_base_to_b2(const JointDef& def, b2JointDef& tmp);
 
         // Operators
         RigidBody& operator=(const RigidBody& other) = delete;

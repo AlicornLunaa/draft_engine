@@ -66,6 +66,7 @@ set(INTERFACES
     include/draft/phys/filter.hpp
     include/draft/phys/fixture_def.hpp
     include/draft/phys/fixture.hpp
+    include/draft/phys/joint_def.hpp
     include/draft/phys/joint.hpp
     include/draft/phys/rigid_body.hpp
     include/draft/phys/shape.hpp

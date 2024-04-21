@@ -3,10 +3,15 @@
 #include "draft/math/vector2.hpp"
 #include <memory>
 
+class b2GearJointDef;
+
 namespace Draft {
+    // Forward declarations
     class World;
     class RigidBody;
+    class GearJointDef;
 
+    // Base class
     class Joint {
     private:
         // Private functions
@@ -22,6 +27,7 @@ namespace Draft {
 
         // Friends
         friend class RigidBody;
+        friend b2GearJointDef jointdef_to_b2(const GearJointDef& def);
 
         // Functions
         Type get_type() const;
@@ -52,4 +58,7 @@ namespace Draft {
         struct Impl;
         std::unique_ptr<Impl> ptr;
     };
+
+    // Distance joint
+    
 };
