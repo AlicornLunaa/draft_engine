@@ -75,7 +75,5 @@ namespace Draft {
         }
 
         ImGui::End();
-
-        ImGui::ShowDemoWindow();
     }
 }

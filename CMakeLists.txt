@@ -10,10 +10,11 @@ set(SOURCES
     src/draft/input/mouse.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
+    src/draft/phys/fixture.cpp
+    src/draft/phys/joint.cpp
+    src/draft/phys/rigid_body.cpp
     src/draft/phys/shape.cpp
     src/draft/phys/world.cpp
-    src/draft/phys/rigid_body.cpp
-    src/draft/phys/fixture.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/sprite_batch.cpp
     src/draft/rendering/shape_batch.cpp
@@ -60,11 +61,15 @@ set(INTERFACES
     include/draft/math/vector4.hpp
     include/draft/math/matrix.hpp
     include/draft/math/rect.hpp
-    include/draft/phys/collider.hpp
-    include/draft/phys/shape.hpp
-    include/draft/phys/rigid_body.hpp
-    include/draft/phys/world.hpp
     include/draft/phys/body_def.hpp
+    include/draft/phys/collider.hpp
+    include/draft/phys/filter.hpp
+    include/draft/phys/fixture_def.hpp
+    include/draft/phys/fixture.hpp
+    include/draft/phys/joint.hpp
+    include/draft/phys/rigid_body.hpp
+    include/draft/phys/shape.hpp
+    include/draft/phys/world.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
     include/draft/rendering/model.hpp

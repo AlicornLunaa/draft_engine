@@ -72,7 +72,7 @@ namespace Draft {
             glfwMakeContextCurrent(window);
             glfwSetWindowSizeCallback(window, window_size_callback);
             glfwSetWindowFocusCallback(window, window_focus_callback);
-            glfwSwapInterval(0);
+            glfwSwapInterval(1);
 
             // Start GLAD
             if(!gladLoadGL(glfwGetProcAddress)){
