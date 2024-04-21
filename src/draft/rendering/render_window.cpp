@@ -72,6 +72,7 @@ namespace Draft {
             glfwMakeContextCurrent(window);
             glfwSetWindowSizeCallback(window, window_size_callback);
             glfwSetWindowFocusCallback(window, window_focus_callback);
+            glfwSwapInterval(0);
 
             // Start GLAD
             if(!gladLoadGL(glfwGetProcAddress)){
@@ -147,6 +148,8 @@ namespace Draft {
     void RenderWindow::set_size(const Vector2u& size){
         glfwSetWindowSize(ptr->window, size.x, size.y);
     }
+
+    void RenderWindow::set_vsync(bool flag){ glfwSwapInterval(flag ? 1 : 0); }
 
     bool RenderWindow::is_open(){ return !glfwWindowShouldClose(ptr->window); }
 

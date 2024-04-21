@@ -45,6 +45,12 @@ namespace Draft {
         void set_size(const Vector2u& size);
 
         /**
+         * @brief Sets vsync enabled or not
+         * @param flag
+         */
+        void set_vsync(bool flag);
+
+        /**
          * @brief Checks if the window is open
          * @return true 
          * @return false 

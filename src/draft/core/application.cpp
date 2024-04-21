@@ -5,10 +5,8 @@
 
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
-#include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/logger.hpp"
 #include "draft/widgets/stats.hpp"
-#include "glad/gl.h"
 
 namespace Draft {
     // Constructors
@@ -34,6 +32,11 @@ namespace Draft {
             assetManager.reload();
             return true;
         });
+
+        console.register_cmd("cl_vsync", [this](ConsoleArgs args){
+            window.set_vsync(std::stoi(args[1]) > 0);
+            return true;
+        });
     }
 
     Application::~Application(){
@@ -46,69 +49,6 @@ namespace Draft {
 
     // Functions
     void Application::run(){
-        VertexBuffer testBuffer{};
-        testBuffer.buffer(0, {
-            { 0.5f,  0.5f, 0.0f},  // top right
-            { 0.5f, -0.5f, 0.0f},  // bottom right
-            {-0.5f, -0.5f, 0.0f},  // bottom left
-            {-0.5f,  0.5f, 0.0f}   // top left 
-        });
-        testBuffer.buffer(1, {
-            {1.f, 1.f},
-            {1.f, 0.f},
-            {0.f, 0.f},
-            {0.f, 1.f}
-        });
-        testBuffer.buffer(2, std::vector<int>{0, 1, 2, 0, 2, 3}, GL_ELEMENT_ARRAY_BUFFER);
-
-        VertexBuffer cubeBuffer{};
-        cubeBuffer.start_buffer({
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-        });
-        cubeBuffer.set_attribute(0, 3, sizeof(float) * 5, 0);
-        cubeBuffer.set_attribute(1, 2, sizeof(float) * 5, sizeof(float) * 3);
-        cubeBuffer.end_buffer();
-
         // Start application loop
         while(window.is_open()){
             // Clock reset
@@ -144,27 +84,9 @@ namespace Draft {
             if(activeScene)
                 activeScene->render(deltaTime);
 
-            // testShader.bind();
-            // testShader.set_uniform("testUniform", (float)glfwGetTime());
-            // testShader.set_uniform("model", transform);
-            // testShader.set_uniform("view", camera.get_view());
-            // testShader.set_uniform("projection", camera.get_projection());
-            // testTexture1.bind(0);
-            // testTexture2.bind(1);
-
-            // testShader.set_uniform("model", transform * Matrix4::translation({ 1.1f, 0, 0 }));
-            // testBuffer.bind();
-            // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            // testBuffer.unbind();
-            
-            // testShader.set_uniform("model", transform);
-            // cubeBuffer.bind();
-            // glDrawArrays(GL_TRIANGLES, 0, 36);
-            // cubeBuffer.unbind();
-
             // Draw debug stuff
             if(debug){
-                Stats::draw(*this);
+                stats.draw(*this);
             }
 
             console.draw();
