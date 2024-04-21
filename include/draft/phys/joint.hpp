@@ -40,6 +40,7 @@ namespace Draft {
     protected:
         // Private functions
         void* get_joint_ptr();
+        const void* get_joint_ptr() const;
 
         // Constructors
         Joint(World* world, RigidBody* body1, RigidBody* body2, void* jointPtr, Type type);
@@ -108,8 +109,8 @@ namespace Draft {
 
     public:
         // Functions
-        Joint* get_joint_1();
-        Joint* get_joint_2();
+        const Joint* get_joint_1() const;
+        const Joint* get_joint_2() const;
         float get_ratio() const;
         void set_ratio(float ratio);
 
@@ -148,7 +149,7 @@ namespace Draft {
         float get_stiffness() const;
         float get_damping() const;
 
-        void set_target(const Vector2f& target) const;
+        void set_target(const Vector2f& target);
         void set_max_force(float force);
         void set_stiffness(float stiffness);
         void set_damping(float damping);
@@ -168,8 +169,6 @@ namespace Draft {
         float get_reference_angle() const;
         float get_joint_translation() const;
         float get_joint_speed() const;
-        float get_stiffness() const;
-        float get_damping() const;
         float get_lower_limit() const;
         float get_upper_limit() const;
         float get_motor_speed() const;
@@ -178,10 +177,6 @@ namespace Draft {
         bool is_limit_enabled() const;
         bool is_motor_enabled() const;
 
-        void set_target(const Vector2f& target) const;
-        void set_max_force(float force);
-        void set_stiffness(float stiffness);
-        void set_damping(float damping);
         void set_limits(float lower, float upper);
         void set_motor_speed(float speed);
         void set_max_motor_force(float force);
