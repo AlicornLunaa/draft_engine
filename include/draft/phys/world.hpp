@@ -2,6 +2,8 @@
 
 #include "draft/math/vector2.hpp"
 #include "draft/phys/body_def.hpp"
+#include "draft/phys/joint.hpp"
+#include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 
 #include <memory>
@@ -12,6 +14,7 @@ namespace Draft {
     private:
         // Variables
         std::vector<RigidBody*> rigidBodies;
+        std::vector<Joint*> joints;
 
     public:
         // Constructors
@@ -28,6 +31,11 @@ namespace Draft {
         RigidBody* create_rigid_body(const BodyDef& def);
         void destroy_body(RigidBody*& rigidBody);
         void destroy_body(RigidBody* rigidBody);
+
+        template<typename T>
+        void create_joint(const T& def);
+        void destroy_joint(Joint*& joint);
+        void destroy_joint(Joint* joint);
 
         void set_destruction_listener(void* listener) noexcept;
         void step(float timeStep, int32_t velocityIterations, int32_t positionIterations);

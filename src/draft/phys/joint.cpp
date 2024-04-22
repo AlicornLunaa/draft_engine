@@ -1,4 +1,10 @@
+#include "draft/phys/world.hpp"
 #include "draft/phys/joint.hpp"
+#include "draft/math/vector2.hpp"
+#include "draft/math/vector2_p.hpp"
+
+#include "box2d/b2_joint.h"
+#include "box2d/b2_body.h"
 #include "box2d/b2_distance_joint.h"
 #include "box2d/b2_friction_joint.h"
 #include "box2d/b2_gear_joint.h"
@@ -9,11 +15,6 @@
 #include "box2d/b2_revolute_joint.h"
 #include "box2d/b2_weld_joint.h"
 #include "box2d/b2_wheel_joint.h"
-#include "draft/math/vector2.hpp"
-#include "draft/math/vector2_p.hpp"
-
-#include "box2d/b2_joint.h"
-#include "box2d/b2_body.h"
 
 #include <memory>
 
@@ -51,6 +52,8 @@ namespace Draft {
     
     bool Joint::is_enabled() const { return ptr->joint->IsEnabled(); }
     bool Joint::get_collide_connected() const { return ptr->joint->GetCollideConnected(); }
+
+    void Joint::destroy(){ world->destroy_joint(this); }
     // End Base Joint
     
     // Start Distance Joint

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/math/vector2.hpp"
+
 #include <memory>
 
 class b2GearJointDef;
@@ -22,6 +23,7 @@ namespace Draft {
         virtual ~Joint();
 
         // Friends
+        friend class World;
         friend class RigidBody;
         friend b2GearJointDef jointdef_to_b2(const GearJointDef& def);
 
@@ -36,6 +38,7 @@ namespace Draft {
         virtual float get_reaction_torque(float inv_dt) const;
         bool is_enabled() const;
         bool get_collide_connected() const;
+        void destroy();
 
     protected:
         // Private functions
@@ -77,6 +80,10 @@ namespace Draft {
         void set_stiffness(float stiffness);
         void set_damping(float damping);
 
+        // Friends
+        friend class World;
+        friend class RigidBody;
+
     protected:
         // Constructors
         DistanceJoint(World* world, RigidBody* body1, RigidBody* body2, void* jointPtr);
@@ -94,6 +101,10 @@ namespace Draft {
 
         void set_max_force(float force);
         void set_max_torque(float torque);
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
 
     protected:
         // Constructors
@@ -113,6 +124,10 @@ namespace Draft {
         const Joint* get_joint_2() const;
         float get_ratio() const;
         void set_ratio(float ratio);
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
 
     protected:
         // Constructors
@@ -135,6 +150,10 @@ namespace Draft {
         void set_max_torque(float torque);
         void set_correction_factor(float force);
 
+        // Friends
+        friend class World;
+        friend class RigidBody;
+
     protected:
         // Constructors
         MotorJoint(World* world, RigidBody* body1, RigidBody* body2, void* jointPtr);
@@ -153,6 +172,10 @@ namespace Draft {
         void set_max_force(float force);
         void set_stiffness(float stiffness);
         void set_damping(float damping);
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
 
     protected:
         // Constructors
@@ -182,6 +205,10 @@ namespace Draft {
         void set_max_motor_force(float force);
         void enable_limit(bool flag);
         void enable_motor(bool flag);
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
         
     protected:
         // Constructors
@@ -199,6 +226,10 @@ namespace Draft {
         float get_ratio() const;
         float get_current_length_a() const;
         float get_current_length_b() const;
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
         
     protected:
         // Constructors
@@ -227,6 +258,10 @@ namespace Draft {
         void set_limits(float lower, float upper);
         void set_motor_speed(float speed);
         void set_max_motor_torque(float torque);
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
         
     protected:
         // Constructors
@@ -245,12 +280,15 @@ namespace Draft {
 
         void set_stiffness(float hz);
         void set_damping(float damping);
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
         
     protected:
         // Constructors
         WeldJoint(World* world, RigidBody* body1, RigidBody* body2, void* jointPtr);
     };
-
 
     // Wheel joint
     class WheelJoint : public Joint {
@@ -280,6 +318,10 @@ namespace Draft {
         void set_max_motor_torque(float torque);
         void set_stiffness(float stiffness);
         void set_damping(float damping);
+
+        // Friends
+        friend class World;
+        friend class RigidBody;
         
     protected:
         // Constructors

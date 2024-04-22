@@ -15,6 +15,7 @@
 #include "box2d/b2_revolute_joint.h"
 #include "box2d/b2_weld_joint.h"
 #include "box2d/b2_wheel_joint.h"
+#include "box2d/b2_gear_joint.h"
 
 namespace Draft {
     class BodyDef;
