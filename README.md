@@ -8,7 +8,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] Input api
 - [ ] UI api
 - [x] Component api
-- [ ] Physics api
+- [x] Physics api
 - [ ] Scenegraph
 - [ ] Audio api
 - [ ] Animation api

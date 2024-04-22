@@ -165,19 +165,8 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC entt box2d)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PUBLIC entt)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui box2d stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 # target_link_libraries(${PROJECT_NAME} PUBLIC entt)
 # target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d imgui stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
-
-# Engine tools
-set(TOOL_SOURCES
-    src/tools/main.cpp
-)
-
-project("draft_engine_tools" VERSION 0.0.1 LANGUAGES CXX)
-add_executable(${PROJECT_NAME} ${TOOL_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE src/tools)
-target_link_libraries(${PROJECT_NAME} PRIVATE draft_engine::draft_engine stb)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

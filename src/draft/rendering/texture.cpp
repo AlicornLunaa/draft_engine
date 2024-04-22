@@ -23,6 +23,7 @@ namespace Draft {
     void Texture::load_texture(const unsigned char* bytes, size_t length, bool flip){
         // Load texture from file
         stbi_set_flip_vertically_on_load(flip);
+
         unsigned char *data = stbi_load_from_memory(bytes, length, &size.x, &size.y, &nrChannels, 0);
         int colorSpace = (nrChannels == 3) ? RGB : RGBA;
         loaded = !(bool)(!data);
@@ -53,10 +54,11 @@ namespace Draft {
     Texture::Texture(const unsigned char* data, int width, int height, int channels, Wrap wrapping) : reloadable(false) {
         // Load raw pixel data
         generate_opengl(wrapping);
+
         size.set(width, height);
         nrChannels = channels;
-        loaded = true;
         int colorSpace = (nrChannels == 3) ? RGB : RGBA;
+        loaded = true;
 
         bind();
         glTexImage2D(GL_TEXTURE_2D, 0, colorSpace, size.x, size.y, 0, colorSpace, GL_UNSIGNED_BYTE, data);
@@ -67,8 +69,8 @@ namespace Draft {
     Texture::Texture(const filesystem::path& texturePath, Wrap wrapping) : Texture({ texturePath, FileHandle::LOCAL }, wrapping) {}
 
     Texture::Texture(const FileHandle& handle, Wrap wrapping) : reloadable(true), handle(handle) {
-        auto bytes = handle.read_bytes();
         generate_opengl(wrapping);
+        auto bytes = handle.read_bytes();
         load_texture(reinterpret_cast<const unsigned char*>(bytes.data()), bytes.size());
     }
 
