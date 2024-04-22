@@ -33,7 +33,7 @@ namespace Draft {
         void destroy_body(RigidBody* rigidBody);
 
         template<typename T>
-        void create_joint(const T& def);
+        Joint* create_joint(const T& def);
         void destroy_joint(Joint*& joint);
         void destroy_joint(Joint* joint);
 

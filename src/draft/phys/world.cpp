@@ -59,7 +59,7 @@ namespace Draft {
 
 
     template<typename T>
-    void World::create_joint(const T& def){
+    Joint* World::create_joint(const T& def){
         auto tmp = jointdef_to_b2(def);
         b2Joint* jointPtr = ptr->world.CreateJoint(&tmp);
 
@@ -124,17 +124,20 @@ namespace Draft {
                 exit(0);
                 break;
         }
+
+        joints.push_back(joint);
+        return joint;
     }
-    template void World::create_joint(const DistanceJointDef& def);
-    template void World::create_joint(const FrictionJointDef& def);
-    template void World::create_joint(const GearJointDef& def);
-    template void World::create_joint(const MotorJointDef& def);
-    template void World::create_joint(const MouseJointDef& def);
-    template void World::create_joint(const PrismaticJointDef& def);
-    template void World::create_joint(const PulleyJointDef& def);
-    template void World::create_joint(const RevoluteJointDef& def);
-    template void World::create_joint(const WeldJointDef& def);
-    template void World::create_joint(const WheelJointDef& def);
+    template Joint* World::create_joint(const DistanceJointDef& def);
+    template Joint* World::create_joint(const FrictionJointDef& def);
+    template Joint* World::create_joint(const GearJointDef& def);
+    template Joint* World::create_joint(const MotorJointDef& def);
+    template Joint* World::create_joint(const MouseJointDef& def);
+    template Joint* World::create_joint(const PrismaticJointDef& def);
+    template Joint* World::create_joint(const PulleyJointDef& def);
+    template Joint* World::create_joint(const RevoluteJointDef& def);
+    template Joint* World::create_joint(const WeldJointDef& def);
+    template Joint* World::create_joint(const WheelJointDef& def);
 
     void World::destroy_joint(Joint*& joint){
         destroy_body(reinterpret_cast<RigidBody*>(joint));
