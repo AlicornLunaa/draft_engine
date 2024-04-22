@@ -1,7 +1,8 @@
-#include "draft/util/file_handle.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "draft/rendering/texture.hpp"
+#include "draft/util/file_handle.hpp"
+
 #include "glad/gl.h"
 #include "stb_image.h"
 
@@ -19,10 +20,11 @@ namespace Draft {
         unbind();
     }
     
-    void Texture::load_texture(const unsigned char* bytes, size_t length, int colorSpace, bool flip){
+    void Texture::load_texture(const unsigned char* bytes, size_t length, bool flip){
         // Load texture from file
         stbi_set_flip_vertically_on_load(flip);
         unsigned char *data = stbi_load_from_memory(bytes, length, &size.x, &size.y, &nrChannels, 0);
+        int colorSpace = (nrChannels == 3) ? RGB : RGBA;
         loaded = !(bool)(!data);
 
         bind();
@@ -48,12 +50,13 @@ namespace Draft {
         load_texture(start, end - start);
     }
 
-    Texture::Texture(const unsigned char* data, int width, int height, int channels, Wrap wrapping, int colorSpace) : reloadable(false) {
+    Texture::Texture(const unsigned char* data, int width, int height, int channels, Wrap wrapping) : reloadable(false) {
         // Load raw pixel data
         generate_opengl(wrapping);
         size.set(width, height);
         nrChannels = channels;
         loaded = true;
+        int colorSpace = (nrChannels == 3) ? RGB : RGBA;
 
         bind();
         glTexImage2D(GL_TEXTURE_2D, 0, colorSpace, size.x, size.y, 0, colorSpace, GL_UNSIGNED_BYTE, data);

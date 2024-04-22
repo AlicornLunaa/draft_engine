@@ -5,12 +5,12 @@
 
 namespace Draft {
     struct FixtureDef {
-        Shape* shape;
-        float friction;
-        float restitution;
-        float restitutionThreshold;
-        float density;
-        bool isSensor;
+        Shape* shape = nullptr;
+        float friction = 0.2f;
+        float restitution = 0.f;
+        float restitutionThreshold = 1.f;
+        float density = 0.f;
+        bool isSensor = false;
         Filter filter;
     };
 };
