@@ -137,11 +137,13 @@ namespace Draft {
     template void World::create_joint(const WheelJointDef& def);
 
     void World::destroy_joint(Joint*& joint){
-
+        destroy_body(reinterpret_cast<RigidBody*>(joint));
+        joint = nullptr;
     }
 
     void World::destroy_joint(Joint* joint){
-
+        ptr->world.DestroyJoint((b2Joint*)joint->get_joint_ptr());
+        joints.erase(std::find(joints.begin(), joints.end(), joint));
     }
 
     void World::step(float timeStep, int32_t velocityIterations, int32_t positionIterations){ ptr->world.Step(timeStep, velocityIterations, positionIterations); }
