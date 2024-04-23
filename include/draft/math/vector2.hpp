@@ -55,6 +55,20 @@ namespace Draft {
          */
         inline void set(T x, T y){ this->x = x; this->y = y; }
 
+        /**
+         * @brief Gets the angle in radians between two vectors
+         * @param other 
+         * @return T 
+         */
+        inline T angle(const Vector2<T>& other) const { return std::atan2(other.x - x, y - other.y); }
+
+        /**
+         * @brief Rotates the vector by the amount given
+         * 
+         * @param radians 
+         */
+        inline Vector2<T> rotate(T radians){ return { std::cos(radians) * x - std::sin(radians) * y, std::sin(radians) * x + std::cos(radians) * y }; }
+
         // Operators
         Vector2<T> operator- () const { return { -x, -y }; }
         Vector2<T>& operator+= (const Vector2<T> &r){ x += r.x; y += r.y; return this; }
