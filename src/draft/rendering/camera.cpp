@@ -2,6 +2,8 @@
 #include "draft/math/matrix.hpp"
 #include "draft/math/vector3.hpp"
 
+#include <GL/gl.h>
+
 namespace Draft {
     // Abstract camera
     // Private functions
@@ -34,7 +36,14 @@ namespace Draft {
         target(position + forward);
     }
 
-    void Camera::apply(Shader& shader) const {
+    void Camera::apply(const RenderWindow& window, Shader& shader) const {
+        if(viewport.width <= 0 || viewport.height <= 0){
+            auto size = window.get_size();
+            glViewport(0, 0, size.x, size.y);
+        } else {
+            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+        }
+
         shader.set_uniform("view", get_view());
         shader.set_uniform("projection", get_projection());
     }

@@ -141,7 +141,7 @@ namespace Draft {
         eventQueue.push(event);
     }
 
-    const Vector2u RenderWindow::get_size(){
+    const Vector2u RenderWindow::get_size() const {
         Vector2i size{};
         glfwGetWindowSize(ptr->window, &size.x, &size.y);
         return size;

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "draft/math/matrix.hpp"
+#include "draft/math/rect.hpp"
 #include "draft/math/vector2.hpp"
 #include "draft/math/vector3.hpp"
+#include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 
 namespace Draft {
@@ -10,6 +12,8 @@ namespace Draft {
     protected:
         // Variables
         Vector3f position{};
+        Rect<float> viewport = { 0, 0, -1, -1 };
+
         Vector3f up{ 0, 1, 0 };
         Vector3f right{ 1, 0, 0 };
         Vector3f forward{ 0, 0, 1 };
@@ -44,14 +48,21 @@ namespace Draft {
          */
         inline void set_position(const Vector3f& vec){ position = vec; point(forward); }
 
-        inline const Vector3f& get_position() const { return position; }
+        /**
+         * @brief Set the viewport object
+         * @param rect 
+         */
+        inline void set_viewport(const Rect<float>& rect){ viewport = rect; }
+
+        inline const Rect<float>& get_position() const { return viewport; }
+        inline const Matrix4& get_viewport() const { return viewMatrix; }
         inline const Vector3f& get_forward() const { return forward; }
         inline const Vector3f& get_right() const { return right; }
         inline const Vector3f& get_up() const { return up; }
         inline const Matrix4& get_projection() const { return projMatrix; }
         inline const Matrix4& get_view() const { return viewMatrix; }
 
-        void apply(Shader& shader) const;
+        void apply(const RenderWindow& window, Shader& shader) const;
     };
 
     class PerspectiveCamera : public Camera {

@@ -36,7 +36,7 @@ namespace Draft {
          * @brief Get the window's size
          * @return const Vector2u 
          */
-        const Vector2u get_size();
+        const Vector2u get_size() const;
 
         /**
          * @brief Set the size of the window
