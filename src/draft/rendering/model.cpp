@@ -292,7 +292,7 @@ namespace Draft {
             // Render each vbo with mesh data
             vbo->bind();
             material.apply(shader);
-            shader.set_uniform("model", matrix * modelMatrix);
+            shader.set_uniform("model", modelMatrix * matrix);
 
             if(mesh.is_indexed()){
                 glDrawElements(GL_TRIANGLES, mesh.get_indices().size(), GL_UNSIGNED_INT, 0);

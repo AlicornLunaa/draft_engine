@@ -22,6 +22,7 @@ namespace Draft {
 
         // Constructors
         Shape(ShapeType type) : type(type) {};
+        virtual ~Shape(){};
 
         // Functions
         virtual bool contains(const Vector2f& point) const = 0;

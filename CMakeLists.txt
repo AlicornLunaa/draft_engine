@@ -165,8 +165,6 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC entt)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui box2d stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
-# target_link_libraries(${PROJECT_NAME} PUBLIC entt)
-# target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d imgui stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PUBLIC entt imgui)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
