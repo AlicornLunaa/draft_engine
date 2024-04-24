@@ -57,10 +57,17 @@ namespace Draft {
     }
 
     // Orthographic camera
-    void OrthographicCamera::update_matrices(){ projMatrix = Matrix4::orthographic(leftClip, rightClip, bottomClip, topClip, nearClip, farClip); }
+    void OrthographicCamera::update_matrices(){ projMatrix = Matrix4::orthographic(leftClip * zoom, rightClip * zoom, bottomClip * zoom, topClip * zoom, nearClip, farClip); }
     
     OrthographicCamera::OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float near, float far)
         : Camera(position, direction), leftClip(left), rightClip(right), bottomClip(bottom), topClip(top), nearClip(near), farClip(far) {
         update_matrices();
     }
+
+    void OrthographicCamera::set_zoom(float z){
+        zoom = z;
+        update_matrices();
+    }
+
+    float OrthographicCamera::get_zoom(){ return zoom; }
 };

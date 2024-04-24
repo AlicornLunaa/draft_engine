@@ -90,6 +90,7 @@ namespace Draft {
         float topClip;
         float nearClip;
         float farClip;
+        float zoom = 1.f;
 
         // Private functions
         virtual void update_matrices();
@@ -97,5 +98,9 @@ namespace Draft {
     public:
         // Constructor
         OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float near = 0.1f, float far = 100.f);
+
+        // Functions
+        void set_zoom(float z);
+        float get_zoom();
     };
 };

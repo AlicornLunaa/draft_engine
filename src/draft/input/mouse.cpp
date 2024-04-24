@@ -69,6 +69,10 @@ namespace Draft {
         event.type = Event::MouseWheelScrolled;
         event.mouseWheelScroll.x = xoffset;
         event.mouseWheelScroll.y = yoffset;
+
+        for(auto func : Mouse::callbacks){
+            func(event);
+        }
     }
 
     // Functions
