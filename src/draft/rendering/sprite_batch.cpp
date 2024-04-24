@@ -5,6 +5,7 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
+#include <cstddef>
 
 using namespace std;
 
@@ -29,7 +30,16 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(){}
+    SpriteBatch::SpriteBatch(const size_t maxSprites) : maxSprites(maxSprites) {
+        vertexID = vertexBuffer.start_buffer<Vertex>(maxSprites * 4); // Each sprite needs 4 vertices
+        vertexBuffer.set_attribute(0, GL_FLOAT, 3, sizeof(Vertex), offsetof(Vertex, position));
+        vertexBuffer.set_attribute(1, GL_FLOAT, 2, sizeof(Vertex), offsetof(Vertex, texCoords));
+        vertexBuffer.end_buffer();
+
+        indicesID = vertexBuffer.start_buffer<int>(maxSprites * 6, GL_ELEMENT_ARRAY_BUFFER); // Each sprite needs 6 indices
+        vertexBuffer.set_attribute(2, GL_INT, 1, sizeof(int), 0);
+        vertexBuffer.end_buffer();
+    }
 
     // Functions
     void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
@@ -50,10 +60,10 @@ namespace Draft {
     void SpriteBatch::flush(){
         // Draws all the shapes to opengl
         Texture const* oldTexture = nullptr; // If texture changes, we have to render immediately.
-        vector<Vector3f> vertices;
-        vector<Vector2f> texCoords;
-        vector<int> indices;
+        vector<Vertex> vertices{};
+        vector<int> indices{};
         bool flushAgain = false; // Turns true if texture was changed and flush must happen again
+        int spriteCount = 0; // Current sprites rendered, stop at max
 
         // Create vertex geometry
         while(!quadQueue.empty()){
@@ -75,25 +85,24 @@ namespace Draft {
             for(const auto& v : baseVertices){
                 // Adds the transformed vertex to the array
                 auto transformedV = trans * Vector4f(v.x, v.y, 0, 1);
-                vertices.push_back({ transformedV.x, transformedV.y, 0.f });
+                vertices.push_back({{transformedV.x, transformedV.y, 0.f}, {0, 0}});
             }
 
             // Add texture coordinates based on the floatrect region
             if(quad.region.width <= 0 || quad.region.height <= 0){
                 // Less than or equal to zero means the whole texture
-                Vector2f size = quad.texture->get_size();
-                texCoords.push_back({ 0.f, 0.f });
-                texCoords.push_back({ 1.f, 0.f });
-                texCoords.push_back({ 1.f, 1.f });
-                texCoords.push_back({ 0.f, 1.f });
+                vertices[vertices.size() - 4].texCoords.set(0.f, 0.f);
+                vertices[vertices.size() - 3].texCoords.set(1.f, 0.f);
+                vertices[vertices.size() - 2].texCoords.set(1.f, 1.f);
+                vertices[vertices.size() - 1].texCoords.set(0.f, 1.f);
             } else {
                 // Use the float rect region
                 Vector2f size = quad.texture->get_size();
                 auto& region = quad.region;
-                texCoords.push_back({ region.x / size.x, region.y / size.y });
-                texCoords.push_back({ (region.x + region.width) / size.x, region.y / size.y });
-                texCoords.push_back({ (region.x + region.width) / size.x, (region.y + region.height) / size.y });
-                texCoords.push_back({ region.x / size.x, (region.y + region.height) / size.y });
+                vertices[vertices.size() - 4].texCoords.set(region.x / size.x, region.y / size.y);
+                vertices[vertices.size() - 3].texCoords.set((region.x + region.width) / size.x, region.y / size.y);
+                vertices[vertices.size() - 2].texCoords.set((region.x + region.width) / size.x, (region.y + region.height) / size.y);
+                vertices[vertices.size() - 1].texCoords.set(region.x / size.x, (region.y + region.height) / size.y);
             }
 
             // Add indices
@@ -106,6 +115,12 @@ namespace Draft {
 
             // Remove the quad because its data is stored in the vertices now
             quadQueue.pop();
+
+            // Check sprite count
+            if(++spriteCount >= maxSprites){
+                flushAgain = true;
+                break;
+            }
         }
 
         // Early exit if theres nothing to do
@@ -113,15 +128,13 @@ namespace Draft {
             return;
 
         // Create vertex buffer and render it
-        VertexBuffer vbo;
-        vbo.buffer(0, vertices);
-        vbo.buffer(1, texCoords);
-        vbo.buffer(2, indices, GL_ELEMENT_ARRAY_BUFFER);
+        vertexBuffer.set_dynamic_data(vertexID, vertices);
+        vertexBuffer.set_dynamic_data(indicesID, indices);
 
+        vertexBuffer.bind();
         oldTexture->bind();
-        vbo.bind();
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        vbo.unbind();
+        vertexBuffer.unbind();
 
         // Do it again for the rest of the quads
         if(flushAgain)

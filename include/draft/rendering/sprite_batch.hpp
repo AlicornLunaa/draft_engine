@@ -3,7 +3,9 @@
 #include "draft/math/matrix.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/math/vector2.hpp"
+#include "draft/math/vector3.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/rendering/vertex_buffer.hpp"
 
 #include <array>
 #include <queue>
@@ -12,6 +14,11 @@ namespace Draft {
     class SpriteBatch {
     private:
         // Data structures
+        struct Vertex {
+            Vector3f position;
+            Vector2f texCoords;
+        };
+
         struct Quad {
             const Texture* texture = nullptr;
             FloatRect region;
@@ -25,14 +32,19 @@ namespace Draft {
         static std::array<Vector2f, 4> baseVertices;
 
         // Variables
+        const size_t maxSprites;
         std::queue<Quad> quadQueue;
+
+        VertexBuffer vertexBuffer;
+        size_t vertexID;
+        size_t indicesID;
         
         // Private functions
         Matrix4 generate_transform_matrix(const Quad& quad) const;
 
     public:
         // Constructors
-        SpriteBatch();
+        SpriteBatch(const size_t maxSprites = 1000);
 
         // Functions
         void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
