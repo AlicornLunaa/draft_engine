@@ -26,7 +26,7 @@ namespace Draft {
         size_t totalVertices = 0;
         
         for(auto& panel : panels){
-            totalVertices += panel.size();
+            totalVertices += panel->size();
         }
 
         if(totalVertices > currentBufferSize){
@@ -43,24 +43,29 @@ namespace Draft {
         for(size_t i = 0; i < panels.size(); i++){
             auto& panel = panels[i];
 
-            if(!panel.validLayout){
+            if(!panel->validLayout){
                 // This panel is not a validated layout rebuffer dynamic data
-                buffer->set_dynamic_data(dynamicBufferLocation, panel.vertices, currentPanelOffset);
+                buffer->set_dynamic_data(dynamicBufferLocation, panel->vertices, currentPanelOffset);
+                panel->validLayout = true;
             }
 
-            currentPanelOffset += (panel.size() * sizeof(Vertex));
+            currentPanelOffset += (panel->size() * sizeof(Vertex));
         }
     }
 
     // Constructors
     UIContainer::UIContainer() : buffer(new VertexBuffer()) {}
-    UIContainer::~UIContainer(){ if(buffer) delete buffer; }
+    UIContainer::~UIContainer(){
+        if(buffer)
+            delete buffer;
 
-    // Functions
-    void UIContainer::add_panel(const Panel& panel){
-        panels.push_back(panel);
+        for(auto* p : panels)
+            delete p;
+
+        panels.clear();
     }
 
+    // Functions
     void UIContainer::render(){
         // Make sure every panel is up to date
         validate_panels();

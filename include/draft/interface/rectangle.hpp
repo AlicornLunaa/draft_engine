@@ -8,6 +8,7 @@ namespace Draft {
     public:
         Rectangle();
 
+        void move(const Vector2f& position);
         void set_color(const Vector4f& color);
     };
 };

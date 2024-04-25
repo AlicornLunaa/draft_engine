@@ -10,9 +10,17 @@ namespace Draft {
         vertices[5].position = { -0.5f,  0.5f };
     }
 
+    void Rectangle::move(const Vector2f& position){
+        for(auto& v : vertices){
+            v.position += position;
+        }
+        invalidate();
+    }
+
     void Rectangle::set_color(const Vector4f& color){
         for(auto& v : vertices){
             v.color = color;
         }
+        invalidate();
     }
 };

@@ -1,25 +1,15 @@
 #pragma once
 
 #include "draft/rendering/vertex_buffer.hpp"
-#include "draft/math/glm.hpp"
+#include "draft/interface/panel.hpp"
 
 #include <vector>
 
 namespace Draft {
-    class Panel;
-
     class UIContainer {
-    public:
-        // Structs
-        struct Vertex {
-            Vector2f position{0, 0};
-            Vector2f texCoord{0, 0};
-            Vector4f color{1, 1, 1, 1};
-        };
-
     private:
         // Variables
-        std::vector<Panel> panels;
+        std::vector<Panel*> panels;
         size_t dynamicBufferLocation = 0;
         size_t currentBufferSize = 0; // In vertices
         size_t currentIndicesCount = 0;
@@ -37,7 +27,12 @@ namespace Draft {
         ~UIContainer();
 
         // Functions
-        void add_panel(const Panel& panel);
+        template<typename T>
+        T* add_panel(T* panel){
+            panels.push_back(panel);
+            return panel;
+        }
+
         void render();
     };
 };

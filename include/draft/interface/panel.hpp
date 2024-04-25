@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/interface/ui_container.hpp"
+#include "draft/interface/ui_vertex.hpp"
 
 #include <vector>
 
@@ -12,7 +12,7 @@ namespace Draft {
 
     protected:
         // Variables to be modified by children
-        std::vector<UIContainer::Vertex> vertices;
+        std::vector<Vertex> vertices;
 
     public:
         // Constructors
