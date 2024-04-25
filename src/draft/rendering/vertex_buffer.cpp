@@ -14,7 +14,7 @@ namespace Draft {
     template<typename T>
     VertexBuffer::Buffer::Buffer(const std::vector<T>& data, int type) : drawType(STATIC), arrayType(type) {
         gen_buffer(type);
-        glBufferData(type, data.size() * sizeof(T), &data[0], GL_STATIC_DRAW);
+        glBufferData(type, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
     }
     template VertexBuffer::Buffer::Buffer(const std::vector<int>& data, int type);
     template VertexBuffer::Buffer::Buffer(const std::vector<float>& data, int type);
@@ -60,7 +60,6 @@ namespace Draft {
         buffers.push_back(new Buffer(data, type));
         glVertexAttribPointer(index, 1, GL_INT, GL_FALSE, sizeof(int), (void*)0);
         glEnableVertexAttribArray(index);
-        buffers.back()->unbind();
         unbind();
     }
     
@@ -69,7 +68,6 @@ namespace Draft {
         buffers.push_back(new Buffer(data, type));
         glVertexAttribPointer(index, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
         glEnableVertexAttribArray(index);
-        buffers.back()->unbind();
         unbind();
     }
 
@@ -78,7 +76,6 @@ namespace Draft {
         buffers.push_back(new Buffer(data, type));
         glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2f), (void*)0);
         glEnableVertexAttribArray(index);
-        buffers.back()->unbind();
         unbind();
     }
 
@@ -87,7 +84,6 @@ namespace Draft {
         buffers.push_back(new Buffer(data, type));
         glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3f), (void*)0);
         glEnableVertexAttribArray(index);
-        buffers.back()->unbind();
         unbind();
     }
 
@@ -96,7 +92,6 @@ namespace Draft {
         buffers.push_back(new Buffer(data, type));
         glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, sizeof(Vector4f), (void*)0);
         glEnableVertexAttribArray(index);
-        buffers.back()->unbind();
         unbind();
     }
 

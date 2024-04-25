@@ -75,7 +75,6 @@ namespace Draft {
             assert(buf->get_draw_type() == DYNAMIC && "Buffer you're sending data to must be dynamic");
             buf->bind();
             buffer_sub_data(buf->get_array_type(), offset, array.size() * sizeof(T), array.data());
-            buf->unbind();
         }
 
         void start_buffer(const std::vector<float>& data, int type = GL_ARRAY_BUFFER);
