@@ -8,6 +8,9 @@ set(SOURCES
     src/draft/core/entity.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
+    src/draft/interface/panel.cpp
+    src/draft/interface/ui_container.cpp
+    src/draft/interface/rectangle.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
     src/draft/phys/fixture.cpp
@@ -56,6 +59,9 @@ set(INTERFACES
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
+    include/draft/interface/panel.hpp
+    include/draft/interface/ui_container.hpp
+    include/draft/interface/rectangle.hpp
     include/draft/math/rect.hpp
     include/draft/math/glm.hpp
     include/draft/phys/body_def.hpp

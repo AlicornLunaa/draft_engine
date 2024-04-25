@@ -51,3 +51,9 @@ call to a singular call. This should be generalized enough to work for both
 - Each scene has a render function and update function
 - Entities are rendered/updated automatically
 - Render/update function in scene is meant for custom rendering
+
+### User interface
+- Each panel has the offset for the buffer data and the length to subbuffer
+- UI Container class holds the vertex buffers
+- Each panel, when invalidated, rebuilds its buffer data and sends it to the GPU.
+    Panels can define multiple vertices to draw
