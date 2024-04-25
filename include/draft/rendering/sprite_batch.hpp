@@ -6,18 +6,12 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 
-#include <array>
 #include <queue>
 
 namespace Draft {
     class SpriteBatch {
     private:
         // Data structures
-        struct Vertex {
-            Vector3f position;
-            Vector2f texCoords;
-        };
-
         struct Quad {
             const Texture* texture = nullptr;
             FloatRect region;
@@ -28,17 +22,11 @@ namespace Draft {
             Vector2f origin = {0, 0};
         };
 
-        static std::array<Vector2f, 4> baseVertices;
-
         // Variables
         const size_t maxSprites;
         std::queue<Quad> quadQueue;
+        std::vector<std::string> uniformNames;
         VertexBuffer vertexBuffer;
-        size_t vertexID;
-        size_t indicesID;
-        
-        // Private functions
-        Matrix3 generate_transform_matrix(const Quad& quad) const;
 
     public:
         // Constructors

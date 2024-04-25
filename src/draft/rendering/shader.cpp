@@ -76,8 +76,13 @@ namespace Draft {
         load_shaders(vertexSrc.data(), fragmentSrc.data());
     }
 
-    unsigned int Shader::get_location(const std::string& name){
-        auto loc = glGetUniformLocation(shaderId, name.c_str());
+    int Shader::get_location(const std::string& name) const {
+        // Check for memoized value first
+        if(memo.find(name) != memo.end())
+            return memo[name];
+
+        int loc = glGetUniformLocation(shaderId, name.c_str());
+        memo[name] = loc;
 
         if(loc == -1){
             Logger::println(Level::SEVERE, "Shader", "Uniform " + name + " does not exist on shader " + handle.filename());

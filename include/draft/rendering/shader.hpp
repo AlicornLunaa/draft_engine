@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #include <filesystem>
 #include <string>
 
@@ -13,12 +14,13 @@ namespace Draft {
         unsigned int shaderId;
         const bool reloadable;
         FileHandle handle;
+        mutable std::unordered_map<std::string, int> memo;
 
         // Private variables
         void cleanup();
         void load_shaders(const char* vertexSrc, const char* fragmentSrc);
         void load_from_handle(const FileHandle& shaderHandle);
-        unsigned int get_location(const std::string& name);
+        int get_location(const std::string& name) const;
 
     public:
         // Constructors
