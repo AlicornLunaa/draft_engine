@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 
 namespace Draft {
     enum class ShapeType { POLYGON, CIRCLE, EDGE };

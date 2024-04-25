@@ -1,7 +1,7 @@
 #include "draft/phys/shape.hpp"
 #include "draft/math/vector2_p.hpp"
 #include "draft/phys/conversions_p.hpp"
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 
 #include "box2d/b2_math.h"
 #include "box2d/b2_polygon_shape.h"

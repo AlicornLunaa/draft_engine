@@ -1,8 +1,7 @@
 #pragma once
 #define GL_ARRAY_BUFFER 0x8892
 
-#include "draft/math/vector2.hpp"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
 
 #include <cassert>
 #include <vector>

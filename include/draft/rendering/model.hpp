@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/math/matrix.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/rendering/material.hpp"
 #include "draft/rendering/mesh.hpp"
 #include "draft/rendering/vertex_buffer.hpp"

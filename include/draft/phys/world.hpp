@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/phys/body_def.hpp"
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"

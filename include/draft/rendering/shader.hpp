@@ -3,9 +3,7 @@
 #include <filesystem>
 #include <string>
 
-#include "draft/math/matrix.hpp"
-#include "draft/math/vector2.hpp"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/util/file_handle.hpp"
 
 namespace Draft {

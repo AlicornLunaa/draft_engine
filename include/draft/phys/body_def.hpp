@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/phys/rigid_body.hpp"
 
 namespace Draft {

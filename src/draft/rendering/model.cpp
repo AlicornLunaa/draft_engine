@@ -1,10 +1,8 @@
-#include "draft/math/matrix.hpp"
-#include "draft/rendering/texture.hpp"
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "draft/math/vector2.hpp"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
+#include "draft/rendering/texture.hpp"
 #include "draft/rendering/mesh.hpp"
 #include "draft/rendering/model.hpp"
 #include "draft/rendering/material.hpp"
@@ -78,8 +76,8 @@ namespace Draft {
             Material& material = materials->back();
 
             // Properties
-            material.baseColor.set(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2], mat.pbrMetallicRoughness.baseColorFactor[3]);
-            material.emissiveFactor.set(mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]);
+            material.baseColor = { mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2], mat.pbrMetallicRoughness.baseColorFactor[3] };
+            material.emissiveFactor = { mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2] };
             material.metallicFactor = mat.pbrMetallicRoughness.metallicFactor;
             material.roughnessFactor = mat.pbrMetallicRoughness.roughnessFactor;
             material.normalScale = mat.normalTexture.scale;
@@ -145,7 +143,7 @@ namespace Draft {
                 // Initialize mesh with data
                 meshes.push_back({ vertices, indices, texCoord });
                 meshToMaterialMap.push_back(primitive.material);
-                meshToMatrixMap.push_back(Matrix4::identity());
+                meshToMatrixMap.push_back(Matrix4(1.f));
                 vertices.clear();
                 texCoord.clear();
                 indices.clear();
@@ -157,10 +155,9 @@ namespace Draft {
         // Loads the nodes into the matrices
         for(auto& node : mdl.nodes){
             auto& matrix = matrices[node.mesh];
-            
-            if(node.translation.size() > 0) matrix *= Matrix4::translation({ (float)node.translation[0], (float)node.translation[1], (float)node.translation[2] });
-            if(node.rotation.size() > 0) matrix *= Matrix4::rotation({ (float)node.rotation[0], (float)node.rotation[1], (float)node.rotation[2] });
-            if(node.scale.size() > 0) matrix *= Matrix4::scale({ (float)node.scale[0], (float)node.scale[1], (float)node.scale[2] });
+            if(node.translation.size() > 0) matrix = Math::translate(matrix, { (float)node.translation[0], (float)node.translation[1], (float)node.translation[2] });
+            if(node.rotation.size() > 0) matrix = Math::rotate(Math::rotate(Math::rotate(matrix, (float)node.rotation[0], { 1, 0, 0 }), (float)node.rotation[1], { 0, 1, 0 }), (float)node.rotation[2], { 0, 0, 1 });
+            if(node.scale.size() > 0) matrix = Math::scale(matrix, { (float)node.scale[0], (float)node.scale[1], (float)node.scale[2] });
         }
     }
 

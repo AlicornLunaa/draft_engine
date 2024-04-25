@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/math/vector4.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "box2d/b2_math.h"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
 
 namespace Draft {
     template<typename T>

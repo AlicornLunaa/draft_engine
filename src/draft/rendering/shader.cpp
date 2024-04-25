@@ -154,7 +154,7 @@ namespace Draft {
     void Shader::set_uniform(const std::string& name, const Vector3d& value){ glUniform3d(get_location(name), value.x, value.y, value.z); }
     void Shader::set_uniform(const std::string& name, const Vector4d& value){ glUniform4d(get_location(name), value.x, value.y, value.z, value.w); }
 
-    void Shader::set_uniform(const std::string& name, const Matrix2& value){ glUniformMatrix2fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
-    void Shader::set_uniform(const std::string& name, const Matrix3& value){ glUniformMatrix3fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
-    void Shader::set_uniform(const std::string& name, const Matrix4& value){ glUniformMatrix4fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
+    void Shader::set_uniform(const std::string& name, const Matrix2& value){ glUniformMatrix2fv(get_location(name), 1, GL_FALSE, &value[0][0]); }
+    void Shader::set_uniform(const std::string& name, const Matrix3& value){ glUniformMatrix3fv(get_location(name), 1, GL_FALSE, &value[0][0]); }
+    void Shader::set_uniform(const std::string& name, const Matrix4& value){ glUniformMatrix4fv(get_location(name), 1, GL_FALSE, &value[0][0]); }
 };

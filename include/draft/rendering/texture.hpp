@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/util/file_handle.hpp"
 
 namespace Draft {

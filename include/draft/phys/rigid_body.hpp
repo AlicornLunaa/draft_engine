@@ -1,7 +1,6 @@
 #pragma once
 
-#include "draft/math/matrix.hpp"
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/phys/fixture.hpp"
 #include "draft/phys/fixture_def.hpp"
 #include "draft/phys/joint_def.hpp"
@@ -65,7 +64,7 @@ namespace Draft {
         void set_enabled(bool flag);
         void set_fixed_rotation(bool flag);
 
-        Matrix2 get_transform() const;
+        Matrix3 get_transform() const;
         Vector2f get_position() const;
         Vector2f get_world_center() const;
         Vector2f get_local_center() const;

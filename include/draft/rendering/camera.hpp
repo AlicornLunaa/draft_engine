@@ -1,9 +1,7 @@
 #pragma once
 
-#include "draft/math/matrix.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
-#include "draft/math/vector2.hpp"
-#include "draft/math/vector3.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 
@@ -18,8 +16,8 @@ namespace Draft {
         Vector3f right{ 1, 0, 0 };
         Vector3f forward{ 0, 0, 1 };
 
-        Matrix4 projMatrix = Matrix4::identity();
-        Matrix4 viewMatrix = Matrix4::identity();
+        Matrix4 projMatrix = Matrix4(1.f);
+        Matrix4 viewMatrix = Matrix4(1.f);
 
         // Private functions
         void update_vectors();

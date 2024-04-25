@@ -1,10 +1,9 @@
+#include "draft/math/glm.hpp"
 #include "draft/rendering/sprite_batch.hpp"
-#include "draft/math/matrix.hpp"
-#include "draft/math/vector3.hpp"
-#include "draft/math/vector4.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
+
 #include <cstddef>
 
 using namespace std;
@@ -21,11 +20,11 @@ namespace Draft {
     // Private functions
     Matrix4 SpriteBatch::generate_transform_matrix(const Quad& quad) const {
         // Generates a transformation matrix for the given quad
-        auto trans = Matrix4::identity();
-        trans *= Matrix4::translation({ quad.position.x, quad.position.y, 0.f });
-        trans *= Matrix4::rotation({ 0.f, 0.f, quad.rotation });
-        trans *= Matrix4::translation({ -quad.origin.x, -quad.origin.y, 0 });
-        trans *= Matrix4::scale({ quad.size.x, quad.size.y, 1.f });
+        auto trans = Matrix4(1.f);
+        trans = Math::translate(trans, { quad.position.x, quad.position.y, 0.f });
+        trans = Math::rotate(trans, quad.rotation, { 0.f, 0.f, 1.f });
+        trans = Math::translate(trans, { -quad.origin.x, -quad.origin.y, 0 });
+        trans = Math::scale(trans, { quad.size.x, quad.size.y, 1.f });
         return trans;
     }
 
@@ -91,18 +90,18 @@ namespace Draft {
             // Add texture coordinates based on the floatrect region
             if(quad.region.width <= 0 || quad.region.height <= 0){
                 // Less than or equal to zero means the whole texture
-                vertices[vertices.size() - 4].texCoords.set(0.f, 0.f);
-                vertices[vertices.size() - 3].texCoords.set(1.f, 0.f);
-                vertices[vertices.size() - 2].texCoords.set(1.f, 1.f);
-                vertices[vertices.size() - 1].texCoords.set(0.f, 1.f);
+                vertices[vertices.size() - 4].texCoords = { 0.f, 0.f };
+                vertices[vertices.size() - 3].texCoords = { 1.f, 0.f };
+                vertices[vertices.size() - 2].texCoords = { 1.f, 1.f };
+                vertices[vertices.size() - 1].texCoords = { 0.f, 1.f };
             } else {
                 // Use the float rect region
                 Vector2f size = quad.texture->get_size();
                 auto& region = quad.region;
-                vertices[vertices.size() - 4].texCoords.set(region.x / size.x, region.y / size.y);
-                vertices[vertices.size() - 3].texCoords.set((region.x + region.width) / size.x, region.y / size.y);
-                vertices[vertices.size() - 2].texCoords.set((region.x + region.width) / size.x, (region.y + region.height) / size.y);
-                vertices[vertices.size() - 1].texCoords.set(region.x / size.x, (region.y + region.height) / size.y);
+                vertices[vertices.size() - 4].texCoords = { region.x / size.x, region.y / size.y };
+                vertices[vertices.size() - 3].texCoords = { (region.x + region.width) / size.x, region.y / size.y };
+                vertices[vertices.size() - 2].texCoords = { (region.x + region.width) / size.x, (region.y + region.height) / size.y };
+                vertices[vertices.size() - 1].texCoords = { region.x / size.x, (region.y + region.height) / size.y };
             }
 
             // Add indices

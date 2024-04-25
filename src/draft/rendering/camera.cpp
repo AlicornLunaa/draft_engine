@@ -1,6 +1,5 @@
 #include "draft/rendering/camera.hpp"
-#include "draft/math/matrix.hpp"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
 
 #include <GL/gl.h>
 
@@ -8,8 +7,8 @@ namespace Draft {
     // Abstract camera
     // Private functions
     void Camera::update_vectors(){
-        right = Vector3f(0, 1, 0).cross(forward).normalized();
-        up = forward.cross(right);
+        right = Math::normalize(Math::cross({0, 1, 0}, forward));
+        up = Math::cross(forward, right);
     }
 
     // Constructor
@@ -21,14 +20,14 @@ namespace Draft {
     // Functions
     void Camera::target(const Vector3f& target){
         // Sets the view matrix to a target
-        forward = (target - position).normalized();
+        forward = Math::normalize(target - position);
         update_vectors();
 
-        viewMatrix = Matrix4::identity();
+        viewMatrix = Matrix4(1.f);
         viewMatrix[0][0] = right.x; viewMatrix[0][1] = right.y; viewMatrix[0][2] = right.z;
         viewMatrix[1][0] = up.x; viewMatrix[1][1] = up.y; viewMatrix[1][2] = up.z;
         viewMatrix[2][0] = forward.x; viewMatrix[2][1] = forward.y; viewMatrix[2][2] = forward.z;
-        viewMatrix *= Matrix4::translation(position);
+        viewMatrix = Math::translate(viewMatrix, position);
     }
 
     void Camera::point(const Vector3f& dir){
@@ -49,7 +48,7 @@ namespace Draft {
     }
 
     // Perspective camera
-    void PerspectiveCamera::update_matrices(){ projMatrix = Matrix4::perspective(fov, aspectRatio, nearClip, farClip); }
+    void PerspectiveCamera::update_matrices(){ projMatrix = Math::perspective(fov, aspectRatio, nearClip, farClip); }
 
     PerspectiveCamera::PerspectiveCamera(const Vector3f& position, const Vector3f& direction, const Vector2i& size, float fov, float near, float far)
         : Camera(position, direction), fov(fov), aspectRatio((float)size.x / size.y), nearClip(near), farClip(far) {
@@ -57,7 +56,7 @@ namespace Draft {
     }
 
     // Orthographic camera
-    void OrthographicCamera::update_matrices(){ projMatrix = Matrix4::orthographic(leftClip * zoom, rightClip * zoom, bottomClip * zoom, topClip * zoom, nearClip, farClip); }
+    void OrthographicCamera::update_matrices(){ projMatrix = Math::ortho(leftClip * zoom, rightClip * zoom, bottomClip * zoom, topClip * zoom, nearClip, farClip); }
     
     OrthographicCamera::OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float near, float far)
         : Camera(position, direction), leftClip(left), rightClip(right), bottomClip(bottom), topClip(top), nearClip(near), farClip(far) {

@@ -132,6 +132,6 @@ namespace Draft {
 
     void Mouse::set_position(const Vector2f& pos){
         glfwSetCursorPos((GLFWwindow*)window->get_raw_window(), pos.x, pos.y);
-        position.set(pos.x, pos.y);
+        position = { pos.x, pos.y };
     }
 };

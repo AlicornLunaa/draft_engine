@@ -1,7 +1,7 @@
 #pragma once
 
 #include "draft/input/event.hpp"
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/rendering/render_window.hpp"
 
 #include <unordered_map>

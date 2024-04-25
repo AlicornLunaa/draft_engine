@@ -56,11 +56,8 @@ set(INTERFACES
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
-    include/draft/math/vector2.hpp
-    include/draft/math/vector3.hpp
-    include/draft/math/vector4.hpp
-    include/draft/math/matrix.hpp
     include/draft/math/rect.hpp
+    include/draft/math/glm.hpp
     include/draft/phys/body_def.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/filter.hpp
@@ -121,10 +118,12 @@ option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 
 include(FetchContent)
 FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
+FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 1.0.1)
 FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TAG 2.6.x)
 FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG v2.4.1)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_MakeAvailable(glfw)
+FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(nlohmann_json)
@@ -165,6 +164,6 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC entt imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC entt imgui glm::glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

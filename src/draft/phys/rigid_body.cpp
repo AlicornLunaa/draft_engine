@@ -9,11 +9,11 @@
 #include "draft/phys/conversions_p.hpp"
 #include "draft/phys/world.hpp"
 #include "draft/phys/rigid_body.hpp"
-#include "draft/math/matrix.hpp"
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/math/vector2_p.hpp"
 
 #include <memory>
+#include <algorithm>
 
 using namespace std;
 
@@ -150,11 +150,11 @@ namespace Draft {
     void RigidBody::set_enabled(bool flag){ ptr->body->SetEnabled(flag); }
     void RigidBody::set_fixed_rotation(bool flag){ ptr->body->SetFixedRotation(flag); }
 
-    Matrix2 RigidBody::get_transform() const {
+    Matrix3 RigidBody::get_transform() const {
         auto b2Trans = ptr->body->GetTransform();
-        Matrix2 mat = Matrix2::identity();
-        mat *= Matrix2::translation({ b2Trans.p.x, b2Trans.p.y });
-        mat *= Matrix2::rotation(b2Trans.q.GetAngle());
+        Matrix3 mat = Matrix3(1.f);
+        mat = Math::translate(mat, { b2Trans.p.x, b2Trans.p.y });
+        mat = Math::rotate(mat, b2Trans.q.GetAngle());
         return mat;
     }
 

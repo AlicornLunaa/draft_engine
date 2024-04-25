@@ -1,6 +1,6 @@
 #include "draft/phys/world.hpp"
 #include "draft/phys/joint.hpp"
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/math/vector2_p.hpp"
 
 #include "box2d/b2_joint.h"

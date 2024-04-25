@@ -1,5 +1,5 @@
 #include "draft/rendering/mesh.hpp"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
 
