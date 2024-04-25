@@ -7,7 +7,7 @@
 
 void Draft::render_system(Registry& registry, RenderWindow& window, Shader& shader, const Camera& camera){
     auto view = registry.view<SpriteComponent, TransformComponent>();
-    SpriteBatch batch{};
+    SpriteBatch batch{shader};
 
     shader.bind();
     shader.set_uniform("view", camera.get_view());

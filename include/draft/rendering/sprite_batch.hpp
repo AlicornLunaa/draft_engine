@@ -25,12 +25,12 @@ namespace Draft {
         // Variables
         const size_t maxSprites;
         std::queue<Quad> quadQueue;
-        std::vector<std::string> uniformNames;
+        std::vector<int> uniformLocations;
         VertexBuffer vertexBuffer;
 
     public:
         // Constructors
-        SpriteBatch(const size_t maxSprites = 1000);
+        SpriteBatch(Shader& shader, const size_t maxSprites = 1000);
 
         // Functions
         void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene

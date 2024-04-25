@@ -12,7 +12,7 @@ using namespace std;
 
 namespace Draft {
     // Constructor
-    SpriteBatch::SpriteBatch(const size_t maxSprites) : maxSprites(maxSprites) {
+    SpriteBatch::SpriteBatch(Shader& shader, const size_t maxSprites) : maxSprites(maxSprites) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, vector<Vector3f>{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}});
         vertexBuffer.buffer(1, vector<Vector2f>{{0, 0}, {1, 0}, {1, 1}, {0, 1}});
@@ -21,14 +21,14 @@ namespace Draft {
         // Setup the uniform names
         for(size_t i = 0; i < maxSprites; i++){
             std::string quadStrID = "quads[" + to_string(i) + "]";
-            uniformNames.push_back(quadStrID + ".position");
-            uniformNames.push_back(quadStrID + ".rotation");
-            uniformNames.push_back(quadStrID + ".origin");
-            uniformNames.push_back(quadStrID + ".size");
-            uniformNames.push_back(quadStrID + ".texCoord[0]");
-            uniformNames.push_back(quadStrID + ".texCoord[1]");
-            uniformNames.push_back(quadStrID + ".texCoord[2]");
-            uniformNames.push_back(quadStrID + ".texCoord[3]");
+            uniformLocations.push_back(shader.get_location(quadStrID + ".position"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".rotation"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".origin"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".size"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[0]"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[1]"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[2]"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[3]"));
         }
     }
 
@@ -91,14 +91,14 @@ namespace Draft {
 
             // Send this quad's data to the shader
             int uniformGroupID = spriteCount * 8;
-            shader.set_uniform(uniformNames[uniformGroupID], quad.position);
-            shader.set_uniform(uniformNames[uniformGroupID + 1], quad.rotation);
-            shader.set_uniform(uniformNames[uniformGroupID + 2], quad.origin);
-            shader.set_uniform(uniformNames[uniformGroupID + 3], quad.size);
-            shader.set_uniform(uniformNames[uniformGroupID + 4], texCoords[0]);
-            shader.set_uniform(uniformNames[uniformGroupID + 5], texCoords[1]);
-            shader.set_uniform(uniformNames[uniformGroupID + 6], texCoords[2]);
-            shader.set_uniform(uniformNames[uniformGroupID + 7], texCoords[3]);
+            shader.set_uniform(uniformLocations[uniformGroupID], quad.position);
+            shader.set_uniform(uniformLocations[uniformGroupID + 1], quad.rotation);
+            shader.set_uniform(uniformLocations[uniformGroupID + 2], quad.origin);
+            shader.set_uniform(uniformLocations[uniformGroupID + 3], quad.size);
+            shader.set_uniform(uniformLocations[uniformGroupID + 4], texCoords[0]);
+            shader.set_uniform(uniformLocations[uniformGroupID + 5], texCoords[1]);
+            shader.set_uniform(uniformLocations[uniformGroupID + 6], texCoords[2]);
+            shader.set_uniform(uniformLocations[uniformGroupID + 7], texCoords[3]);
 
             // Remove the quad because its data is stored in the vertices now
             quadQueue.pop();

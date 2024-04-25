@@ -23,6 +23,7 @@ namespace Draft {
         assetManager.queue_texture("./assets/textures/test_image_2.png");
         assetManager.queue_texture("./assets/textures/test_image_3.png");
         assetManager.queue_texture("./assets/textures/wheel.png");
+        assetManager.queue_texture("./assets/textures/planet.png");
         assetManager.load();
 
         // Redirect cout to console
