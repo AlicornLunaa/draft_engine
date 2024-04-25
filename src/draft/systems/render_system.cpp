@@ -26,6 +26,6 @@ void Draft::render_system(Registry& registry, RenderWindow& window, Shader& shad
         );
     }
 
-    batch.flush();
+    batch.flush(shader);
     shader.unbind();
 }

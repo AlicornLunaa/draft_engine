@@ -2,6 +2,7 @@
 
 #include "draft/math/rect.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 
@@ -32,7 +33,6 @@ namespace Draft {
         // Variables
         const size_t maxSprites;
         std::queue<Quad> quadQueue;
-
         VertexBuffer vertexBuffer;
         size_t vertexID;
         size_t indicesID;
@@ -46,6 +46,6 @@ namespace Draft {
 
         // Functions
         void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
-        void flush(); // Send quads to shader
+        void flush(Shader& shader); // Send quads to shader
     };
 };
