@@ -38,7 +38,7 @@ namespace Draft {
         size_t indicesID;
         
         // Private functions
-        Matrix4 generate_transform_matrix(const Quad& quad) const;
+        Matrix3 generate_transform_matrix(const Quad& quad) const;
 
     public:
         // Constructors

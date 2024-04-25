@@ -18,13 +18,13 @@ namespace Draft {
     });
 
     // Private functions
-    Matrix4 SpriteBatch::generate_transform_matrix(const Quad& quad) const {
+    Matrix3 SpriteBatch::generate_transform_matrix(const Quad& quad) const {
         // Generates a transformation matrix for the given quad
-        auto trans = Matrix4(1.f);
-        trans = Math::translate(trans, { quad.position.x, quad.position.y, 0.f });
-        trans = Math::rotate(trans, quad.rotation, { 0.f, 0.f, 1.f });
-        trans = Math::translate(trans, { -quad.origin.x, -quad.origin.y, 0 });
-        trans = Math::scale(trans, { quad.size.x, quad.size.y, 1.f });
+        auto trans = Matrix3(1.f);
+        trans = Math::translate(trans, quad.position);
+        trans = Math::rotate(trans, quad.rotation);
+        trans = Math::translate(trans, -quad.origin);
+        trans = Math::scale(trans, quad.size);
         return trans;
     }
 
@@ -83,8 +83,9 @@ namespace Draft {
             // Vertices
             for(const auto& v : baseVertices){
                 // Adds the transformed vertex to the array
-                auto transformedV = trans * Vector4f(v.x, v.y, 0, 1);
-                vertices.push_back({{transformedV.x, transformedV.y, 0.f}, {0, 0}});
+                auto pos = trans * Vector3f(v.x, v.y, 1.f);
+                pos.z = 0;
+                vertices.push_back({pos, {0, 0}});
             }
 
             // Add texture coordinates based on the floatrect region
