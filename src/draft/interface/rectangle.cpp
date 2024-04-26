@@ -1,5 +1,6 @@
 #include "draft/interface/rectangle.hpp"
 #include "draft/math/bounds.hpp"
+#include "draft/math/rect.hpp"
 
 namespace Draft {
     Rectangle::Rectangle(const OrthographicCamera& camera) : Panel(6), camera(camera) {
@@ -17,7 +18,7 @@ namespace Draft {
     }
 
     bool Rectangle::handle_event(const Event& event){
-        if(event.type == Event::MouseButtonPressed && Math::contains(bounds, camera.unproject({(event.mouseButton.x / 1280.f - 0.5f) * 2, (event.mouseButton.y / 720.f - 0.5f) * 2}))){
+        if(event.type == Event::MouseButtonPressed && Math::contains(bounds, camera.unproject(Math::normalize_coordinates(Rect<float>{0, 0, 1280, 720}, {event.mouseButton.x, event.mouseButton.y})))){
             set_color({ 0, 1, 0, 1 });
             return true;
         } else if(event.type == Event::MouseButtonReleased){
