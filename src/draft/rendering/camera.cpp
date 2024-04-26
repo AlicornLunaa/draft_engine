@@ -1,5 +1,6 @@
 #include "draft/rendering/camera.hpp"
 #include "draft/math/glm.hpp"
+#include "glm/matrix.hpp"
 
 #include <GL/gl.h>
 
@@ -45,6 +46,14 @@ namespace Draft {
 
         shader.set_uniform("view", get_view());
         shader.set_uniform("projection", get_projection());
+    }
+
+    Vector2f Camera::project(const Vector2f& point) const {
+        return projMatrix * viewMatrix * Vector4f(point.x, point.y, 0, 1);
+    }
+
+    Vector2f Camera::unproject(const Vector2f& point) const {
+        return Math::inverse(projMatrix * viewMatrix) * Vector4f(point.x, point.y, 0, 1);
     }
 
     // Perspective camera

@@ -66,6 +66,16 @@ namespace Draft {
     }
 
     // Functions
+    bool UIContainer::handle_event(const Event& event){
+        // Handles events for each panel
+        for(auto* p : panels){
+            if(p->handle_event(event))
+                return true;
+        }
+
+        return false;
+    }
+
     void UIContainer::render(){
         // Make sure every panel is up to date
         validate_panels();

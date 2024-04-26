@@ -11,6 +11,7 @@ set(SOURCES
     src/draft/interface/panel.cpp
     src/draft/interface/ui_container.cpp
     src/draft/interface/rectangle.cpp
+    src/draft/math/bounds.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
     src/draft/phys/fixture.cpp
@@ -62,6 +63,7 @@ set(INTERFACES
     include/draft/interface/panel.hpp
     include/draft/interface/ui_container.hpp
     include/draft/interface/rectangle.hpp
+    include/draft/math/bounds.hpp
     include/draft/math/rect.hpp
     include/draft/math/glm.hpp
     include/draft/phys/body_def.hpp

@@ -33,6 +33,7 @@ namespace Draft {
             return panel;
         }
 
+        bool handle_event(const Event& event);
         void render();
     };
 };
