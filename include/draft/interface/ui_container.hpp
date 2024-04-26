@@ -1,5 +1,9 @@
 #pragma once
 
+#include "draft/core/application.hpp"
+#include "draft/math/glm.hpp"
+#include "draft/math/rect.hpp"
+#include "draft/rendering/camera.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/interface/panel.hpp"
 
@@ -15,6 +19,11 @@ namespace Draft {
         size_t currentIndicesCount = 0;
         VertexBuffer* buffer = nullptr;
 
+        const Application* app = nullptr;
+        OrthographicCamera uiCamera;
+        FloatRect windowBounds;
+        Shader& uiShader;
+
         // Private functions
         void resize_buffer(size_t vertexCount);
         void check_buffer_can_store();
@@ -22,7 +31,7 @@ namespace Draft {
 
     public:
         // Constructors
-        UIContainer();
+        UIContainer(const Application* app, const Vector2f& size, Shader& uiShader);
         UIContainer(const UIContainer& other) = delete;
         ~UIContainer();
 

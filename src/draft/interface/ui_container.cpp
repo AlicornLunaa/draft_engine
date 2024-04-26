@@ -1,3 +1,6 @@
+#include "draft/input/event.hpp"
+#include "draft/math/rect.hpp"
+#include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/interface/ui_container.hpp"
 #include "draft/interface/panel.hpp"
@@ -54,7 +57,9 @@ namespace Draft {
     }
 
     // Constructors
-    UIContainer::UIContainer() : buffer(new VertexBuffer()) {}
+    UIContainer::UIContainer(const Application* app, const Vector2f& size, Shader& uiShader) : buffer(new VertexBuffer()), windowBounds({0, 0, size.x, size.y}),
+        uiCamera({{ 0, 0, -10 }, { 0, 0, 1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), uiShader(uiShader), app(app) {}
+
     UIContainer::~UIContainer(){
         if(buffer)
             delete buffer;
@@ -67,9 +72,16 @@ namespace Draft {
 
     // Functions
     bool UIContainer::handle_event(const Event& event){
+        // Update event positions for modern stuff
+        Vector2f mousePos = uiCamera.unproject(Math::normalize_coordinates(windowBounds, {event.mouseButton.x, event.mouseButton.y}));
+
+        Event eventCpy(event);
+        eventCpy.mouseButton.x = mousePos.x;
+        eventCpy.mouseButton.y = mousePos.y;
+
         // Handles events for each panel
         for(auto* p : panels){
-            if(p->handle_event(event))
+            if(p->handle_event(eventCpy))
                 return true;
         }
 
@@ -81,6 +93,8 @@ namespace Draft {
         validate_panels();
 
         // Render everything
+        uiShader.bind();
+        uiCamera.apply(app->window, uiShader);
         buffer->bind();
         glDrawArrays(GL_TRIANGLES, 0, currentBufferSize);
         buffer->unbind();

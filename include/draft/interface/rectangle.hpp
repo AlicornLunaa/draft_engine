@@ -3,16 +3,14 @@
 #include "draft/interface/panel.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
-#include "draft/rendering/camera.hpp"
 
 namespace Draft {
     class Rectangle : public Panel {
     private:
-        const OrthographicCamera& camera;
         Rect<float> bounds;
 
     public:
-        Rectangle(const OrthographicCamera& camera);
+        Rectangle(float x, float y, float w, float h);
 
         virtual bool handle_event(const Event& event);
         void move(const Vector2f& position);
