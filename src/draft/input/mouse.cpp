@@ -24,7 +24,7 @@ namespace Draft {
         Event event{};
         event.type = Event::MouseMoved;
         event.mouseMove.x = x;
-        event.mouseButton.y = y;
+        event.mouseMove.y = y;
 
         for(auto func : Mouse::callbacks){
             func(event);

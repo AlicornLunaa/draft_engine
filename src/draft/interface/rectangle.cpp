@@ -25,7 +25,6 @@ namespace Draft {
             return true;
         } else if(event.type == Event::MouseButtonReleased){
             set_color({ 1, 0, 0, 1 });
-            return true;
         }
 
         return false;
