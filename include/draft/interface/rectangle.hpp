@@ -5,6 +5,11 @@
 
 namespace Draft {
     class Rectangle : public Panel {
+    private:
+        Vector4f color;
+
+        void update();
+
     public:
         Rectangle(float x, float y, float w, float h);
 

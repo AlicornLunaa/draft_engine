@@ -43,6 +43,6 @@ namespace Draft {
         }
 
         bool handle_event(const Event& event);
-        void render();
+        void render(const Time& deltaTime);
     };
 };

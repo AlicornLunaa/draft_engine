@@ -17,7 +17,7 @@ namespace Draft {
             void update_btn();
 
         public:
-            Button(float x, float y, float w, float h, bool* value, Type type = Button::Type::PRESS);
+            Button(float x, float y, float w, float h, bool* value, Type type = Button::Type::PRESS, Panel* parent = nullptr);
 
             virtual bool handle_event(const Event& event);
         };

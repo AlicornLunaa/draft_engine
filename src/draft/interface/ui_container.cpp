@@ -24,17 +24,22 @@ namespace Draft {
         buffer->end_buffer();
     }
 
-    void UIContainer::check_buffer_can_store(){
+    void UIContainer::check_buffer_can_store(){ 
         // Check sizes
         size_t totalVertices = 0;
         
-        for(auto& panel : panels){
-            totalVertices += panel->size();
+        for(auto* panel : panels){
+            totalVertices += panel->vertices.size();
         }
 
         if(totalVertices > currentBufferSize){
             // Too many vertices to store, resize it
             resize_buffer(totalVertices);
+
+            // Ensures all the data is stored at correct locations, even if vertices increase in an existing container
+            for(auto* panel : panels){
+                panel->invalidate();
+            }
         }
     }
 
@@ -52,7 +57,7 @@ namespace Draft {
                 panel->validLayout = true;
             }
 
-            currentPanelOffset += (panel->size() * sizeof(Vertex));
+            currentPanelOffset += (panel->vertices.size() * sizeof(Vertex));
         }
     }
 
@@ -73,11 +78,31 @@ namespace Draft {
     // Functions
     bool UIContainer::handle_event(const Event& event){
         // Update event positions for modern stuff
-        Vector2f mousePos = uiCamera.unproject(Math::normalize_coordinates(windowBounds, {event.mouseButton.x, event.mouseButton.y}));
+        Vector2f vec;
 
         Event eventCpy(event);
-        eventCpy.mouseButton.x = mousePos.x;
-        eventCpy.mouseButton.y = mousePos.y;
+        switch(event.type){
+        case Event::MouseButtonPressed:
+            vec = uiCamera.unproject(Math::normalize_coordinates(windowBounds, {event.mouseButton.x, event.mouseButton.y}));
+            eventCpy.mouseButton.x = vec.x;
+            eventCpy.mouseButton.y = vec.y;
+            break;
+
+        case Event::MouseButtonReleased:
+            vec = uiCamera.unproject(Math::normalize_coordinates(windowBounds, {event.mouseButton.x, event.mouseButton.y}));
+            eventCpy.mouseButton.x = vec.x;
+            eventCpy.mouseButton.y = vec.y;
+            break;
+
+        case Event::MouseMoved:
+            vec = uiCamera.unproject(Math::normalize_coordinates(windowBounds, {event.mouseMove.x, event.mouseMove.y}));
+            eventCpy.mouseMove.x = vec.x;
+            eventCpy.mouseMove.y = vec.y;
+            break;
+
+        default:
+            break;
+        }
 
         // Handles events for each panel
         for(auto* p : panels){
@@ -88,7 +113,11 @@ namespace Draft {
         return false;
     }
 
-    void UIContainer::render(){
+    void UIContainer::render(const Time& deltaTime){
+        // Handle updates
+        for(auto* p : panels)
+            p->update(deltaTime);
+
         // Make sure every panel is up to date
         validate_panels();
 
