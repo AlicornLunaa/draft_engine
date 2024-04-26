@@ -69,9 +69,8 @@ namespace Draft {
                 *value = Math::clamp((event.mouseButton.x - barBounds.x) / barBounds.width, 0.f, 1.f);
                 grabbing = true;
                 update_handle();
+                return true;
             }
-            
-            return true;
         } else if(event.type == Event::MouseMoved && grabbing){
             // Slide it with the cursor
             *value = Math::clamp((event.mouseMove.x - barBounds.x) / barBounds.width, 0.f, 1.f);
