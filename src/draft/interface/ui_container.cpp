@@ -83,11 +83,6 @@ namespace Draft {
         Event eventCpy(event);
         switch(event.type){
         case Event::MouseButtonPressed:
-            vec = uiCamera.unproject(Math::normalize_coordinates(windowBounds, {event.mouseButton.x, event.mouseButton.y}));
-            eventCpy.mouseButton.x = vec.x;
-            eventCpy.mouseButton.y = vec.y;
-            break;
-
         case Event::MouseButtonReleased:
             vec = uiCamera.unproject(Math::normalize_coordinates(windowBounds, {event.mouseButton.x, event.mouseButton.y}));
             eventCpy.mouseButton.x = vec.x;

@@ -148,6 +148,7 @@ add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
 add_subdirectory(vendor/entt)
+find_package(Freetype REQUIRED)
 
 if(WIN32)
 	set(SFML_FLAGS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
@@ -174,6 +175,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tinygltf
+        ${FREETYPE_INCLUDE_DIRS}
         
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -181,5 +183,5 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC entt imgui glm::glm)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d stb nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d stb nlohmann_json::nlohmann_json ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

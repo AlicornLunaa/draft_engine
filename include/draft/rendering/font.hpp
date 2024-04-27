@@ -1,11 +1,12 @@
 #pragma once
+
 #include "draft/math/glm.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/util/file_handle.hpp"
+
+#include <memory>
+#include <string>
 #include <vector>
-#define STB_TRUETYPE_IMPLEMENTATION
-
-#include "stb_truetype.h"
-
 #include <unordered_map>
 
 namespace Draft {
@@ -25,8 +26,16 @@ namespace Draft {
 
     public:
         // Constructors
-        Font();
+        Font(const FileHandle& handle);
+        Font(const std::string& path);
+        Font(const Font& other) = delete;
+        ~Font();
 
         // Functions
+
+    private:
+        // pImpl implementation
+        struct Impl;
+        std::unique_ptr<Impl> ptr;
     };
 };
