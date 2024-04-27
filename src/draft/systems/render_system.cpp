@@ -7,7 +7,7 @@
 
 void Draft::render_system(Registry& registry, RenderWindow& window, Shader& shader, const Camera& camera){
     auto view = registry.view<SpriteComponent, TransformComponent>();
-    SpriteBatch batch{};
+    SpriteBatch batch{shader};
 
     shader.bind();
     shader.set_uniform("view", camera.get_view());
@@ -16,9 +16,16 @@ void Draft::render_system(Registry& registry, RenderWindow& window, Shader& shad
     for(auto entity : view){
         auto& spriteComponent = view.get<SpriteComponent>(entity);
         auto& transformComponent = view.get<TransformComponent>(entity);
-        batch.draw(spriteComponent.texture, transformComponent.position, spriteComponent.size, transformComponent.rotation);
+
+        batch.draw(
+            spriteComponent.texture,
+            transformComponent.position,
+            spriteComponent.size,
+            transformComponent.rotation,
+            spriteComponent.origin
+        );
     }
 
-    batch.flush();
+    batch.flush(shader);
     shader.unbind();
 }

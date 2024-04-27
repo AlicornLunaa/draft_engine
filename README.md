@@ -7,11 +7,12 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] Asset api
 - [x] Input api
 - [ ] UI api
-- [ ] Component api
-- [ ] Physics api
+- [x] Component api
+- [x] Physics api
 - [ ] Scenegraph
 - [ ] Audio api
 - [ ] Animation api
+- [ ] Profiler API
 
 ## How the engine works
 ### OpenGL Resources
@@ -50,3 +51,12 @@ call to a singular call. This should be generalized enough to work for both
 - Each scene has a render function and update function
 - Entities are rendered/updated automatically
 - Render/update function in scene is meant for custom rendering
+
+### User interface
+- Each panel has the offset for the buffer data and the length to subbuffer
+- UI Container class holds the vertex buffers
+- Each panel, when invalidated, rebuilds its buffer data and sends it to the GPU.
+    Panels can define multiple vertices to draw
+- Panels can hold a pointer to their parent, if the parent is invalidated, so is the child.
+    Parent->child invalidations are checked in the ui container
+    

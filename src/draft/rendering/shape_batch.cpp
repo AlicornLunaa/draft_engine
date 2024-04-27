@@ -1,7 +1,5 @@
+#include "draft/math/glm.hpp"
 #include "draft/rendering/shape_batch.hpp"
-#include "draft/math/matrix.hpp"
-#include "draft/math/vector3.hpp"
-#include "draft/math/vector4.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
 
@@ -31,7 +29,11 @@ namespace Draft {
 
     Matrix4 ShapeBatch::generate_transform_matrix(const Shape& quad) const {
         // Generates a transformation matrix for the given quad
-        return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation });
+        Matrix4 trans(1.f);
+        trans = Math::translate(trans, { quad.position.x, quad.position.y, 0.f });
+        trans = Math::scale(trans, { quad.size.x, quad.size.y, 1.f });
+        trans = Math::rotate(trans, quad.rotation, { 0.f, 0.f, 1.f });
+        return trans;
     }
 
     // Constructor

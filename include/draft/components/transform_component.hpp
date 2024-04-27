@@ -1,7 +1,6 @@
 #pragma once
 
-#include "draft/math/vector2.hpp"
-#include "draft/math/matrix.hpp"
+#include "draft/math/glm.hpp"
 
 namespace Draft {
     /**
@@ -20,9 +19,9 @@ namespace Draft {
 
         // Operators
         operator Matrix4 () {
-            auto t = Matrix4::identity();
-            t *= Matrix4::translation({ position.x, position.y, 0 });
-            t *= Matrix4::rotation({ 0, 0, rotation });
+            auto t = Matrix4(1.f);
+            t = Math::translate(t, { position.x, position.y, 0 });
+            t = Math::rotate(t, rotation, { 0, 0, 1 });
             return t;
         }
     };

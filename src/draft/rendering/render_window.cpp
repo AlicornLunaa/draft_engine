@@ -1,11 +1,11 @@
-#include "draft/input/event.hpp"
 #define GLFW_INCLUDE_NONE
 
-#include <format>
+#include <string>
 
 #include "draft/rendering/render_window.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/input/mouse.hpp"
+#include "draft/input/event.hpp"
 #include "draft/util/logger.hpp"
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -57,7 +57,7 @@ namespace Draft {
         Impl(unsigned int w, unsigned int h, const string& title){
             // Callbacks
             glfwSetErrorCallback([](int errorCode, const char* errorDesc){
-                Logger::println(Level::CRITICAL, "GLFW", format("{}, code: {}", errorDesc, errorCode));
+                Logger::println(Level::CRITICAL, "GLFW", string(errorDesc) + ", code: " + to_string(errorCode));
             });
 
             // Start GLFW
@@ -72,6 +72,7 @@ namespace Draft {
             glfwMakeContextCurrent(window);
             glfwSetWindowSizeCallback(window, window_size_callback);
             glfwSetWindowFocusCallback(window, window_focus_callback);
+            glfwSwapInterval(1);
 
             // Start GLAD
             if(!gladLoadGL(glfwGetProcAddress)){
@@ -82,6 +83,8 @@ namespace Draft {
             // Setup opengl context
             glViewport(0, 0, w, h);
             glEnable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             // Setup imgui
             IMGUI_CHECKVERSION();
@@ -138,7 +141,7 @@ namespace Draft {
         eventQueue.push(event);
     }
 
-    const Vector2u RenderWindow::get_size(){
+    const Vector2u RenderWindow::get_size() const {
         Vector2i size{};
         glfwGetWindowSize(ptr->window, &size.x, &size.y);
         return size;
@@ -147,6 +150,8 @@ namespace Draft {
     void RenderWindow::set_size(const Vector2u& size){
         glfwSetWindowSize(ptr->window, size.x, size.y);
     }
+
+    void RenderWindow::set_vsync(bool flag){ glfwSwapInterval(flag ? 1 : 0); }
 
     bool RenderWindow::is_open(){ return !glfwWindowShouldClose(ptr->window); }
 
@@ -164,7 +169,7 @@ namespace Draft {
 
     void RenderWindow::clear(){
         // Clear window
-        glClearColor(0.2, 0.3, 0.4, 1.f);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // ImGUI frame

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "draft/input/event.hpp"
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include <memory>
 #include <queue>
 #include <string>
@@ -36,13 +36,19 @@ namespace Draft {
          * @brief Get the window's size
          * @return const Vector2u 
          */
-        const Vector2u get_size();
+        const Vector2u get_size() const;
 
         /**
          * @brief Set the size of the window
          * @param size 
          */
         void set_size(const Vector2u& size);
+
+        /**
+         * @brief Sets vsync enabled or not
+         * @param flag
+         */
+        void set_vsync(bool flag);
 
         /**
          * @brief Checks if the window is open

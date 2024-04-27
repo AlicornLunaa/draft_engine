@@ -8,7 +8,18 @@ set(SOURCES
     src/draft/core/entity.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
+    src/draft/interface/panel.cpp
+    src/draft/interface/ui_container.cpp
+    src/draft/interface/rectangle.cpp
+    src/draft/interface/slider.cpp
+    src/draft/interface/button.cpp
+    src/draft/interface/joystick.cpp
+    src/draft/math/bounds.cpp
     src/draft/phys/collider.cpp
+    src/draft/phys/conversions.cpp
+    src/draft/phys/fixture.cpp
+    src/draft/phys/joint.cpp
+    src/draft/phys/rigid_body.cpp
     src/draft/phys/shape.cpp
     src/draft/phys/world.cpp
     src/draft/rendering/render_window.cpp
@@ -21,6 +32,7 @@ set(SOURCES
     src/draft/rendering/texture.cpp
     src/draft/rendering/mesh.cpp
     src/draft/rendering/material.cpp
+    src/draft/rendering/font.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -36,6 +48,7 @@ set(SOURCES
 set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
+    src/draft/phys/conversions_p.hpp
 )
 
 set(INTERFACES
@@ -51,12 +64,23 @@ set(INTERFACES
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
-    include/draft/math/vector2.hpp
-    include/draft/math/vector3.hpp
-    include/draft/math/vector4.hpp
-    include/draft/math/matrix.hpp
+    include/draft/interface/panel.hpp
+    include/draft/interface/ui_container.hpp
+    include/draft/interface/rectangle.hpp
+    include/draft/interface/slider.hpp
+    include/draft/interface/button.hpp
+    include/draft/interface/joystick.hpp
+    include/draft/math/bounds.hpp
     include/draft/math/rect.hpp
+    include/draft/math/glm.hpp
+    include/draft/phys/body_def.hpp
     include/draft/phys/collider.hpp
+    include/draft/phys/filter.hpp
+    include/draft/phys/fixture_def.hpp
+    include/draft/phys/fixture.hpp
+    include/draft/phys/joint_def.hpp
+    include/draft/phys/joint.hpp
+    include/draft/phys/rigid_body.hpp
     include/draft/phys/shape.hpp
     include/draft/phys/world.hpp
     include/draft/rendering/camera.hpp
@@ -69,6 +93,7 @@ set(INTERFACES
     include/draft/rendering/material.hpp
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/texture.hpp
+    include/draft/rendering/font.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
@@ -109,10 +134,12 @@ option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 
 include(FetchContent)
 FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
+FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 1.0.1)
 FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TAG 2.6.x)
-FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG main)
+FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG v2.4.1)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_MakeAvailable(glfw)
+FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(nlohmann_json)
@@ -121,6 +148,7 @@ add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
 add_subdirectory(vendor/entt)
+find_package(Freetype REQUIRED)
 
 if(WIN32)
 	set(SFML_FLAGS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
@@ -147,23 +175,13 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tinygltf
+        ${FREETYPE_INCLUDE_DIRS}
         
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC entt)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad imgui stb box2d nlohmann_json::nlohmann_json ${SFML_FLAGS} ${PROJECT_NAME}::rc)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
-
-# Engine tools
-set(TOOL_SOURCES
-    src/tools/main.cpp
-)
-
-project("draft_engine_tools" VERSION 0.0.1 LANGUAGES CXX)
-add_executable(${PROJECT_NAME} ${TOOL_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE src/tools)
-target_link_libraries(${PROJECT_NAME} PRIVATE draft_engine::draft_engine stb)
+target_link_libraries(${PROJECT_NAME} PUBLIC entt imgui glm::glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d stb nlohmann_json::nlohmann_json ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

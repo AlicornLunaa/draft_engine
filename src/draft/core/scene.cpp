@@ -1,9 +1,11 @@
-#include <format>
+#include <string>
 
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 #include "draft/core/entity.hpp"
 #include "draft/util/logger.hpp"
+
+using namespace std;
 
 namespace Draft {
     Scene::Scene(Application* app) : app(app){
@@ -21,7 +23,7 @@ namespace Draft {
     void Scene::handleEvent(Event event){
         switch(event.type){
             case Event::MouseButtonPressed:
-                Logger::println(Level::INFO, "Scene", std::format("Mouse clicked at x: {:1}, y: {:1}", event.mouseButton.x, event.mouseButton.y));
+                Logger::println(Level::INFO, "Scene", "Mouse clicked at x: " + to_string(event.mouseButton.x) + ", y: " + to_string(event.mouseButton.y));
                 break;
 
             default:

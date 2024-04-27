@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <string>
-#include <format>
 
 #include "draft/rendering/shader.hpp"
 #include "draft/util/file_handle.hpp"
@@ -33,7 +32,7 @@ namespace Draft {
 
         if(!success){
             glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to compile vertex shader {} because\n{}", handle.filename(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", "Unable to compile vertex shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
 
@@ -41,7 +40,7 @@ namespace Draft {
 
         if(!success){
             glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to compile fragment shader {} because\n{}", handle.filename(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", "Unable to compile fragment shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
 
@@ -54,7 +53,7 @@ namespace Draft {
         glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
         if(!success){
             glGetProgramInfoLog(shaderId, 512, NULL, infoLog);
-            Logger::println(Level::SEVERE, "Shader", format("Unable to link shader {} because\n{}", handle.filename(), infoLog));
+            Logger::println(Level::SEVERE, "Shader", "Unable to link shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
 
@@ -75,16 +74,6 @@ namespace Draft {
 
         // Send data to OpenGL
         load_shaders(vertexSrc.data(), fragmentSrc.data());
-    }
-
-    unsigned int Shader::get_location(const std::string& name){
-        auto loc = glGetUniformLocation(shaderId, name.c_str());
-
-        if(loc == -1){
-            Logger::println(Level::SEVERE, "Shader", format("Uniform {} does not exist on shader {}", name, handle.filename()));
-        }
-
-        return loc;
     }
 
     // Constructors
@@ -131,8 +120,24 @@ namespace Draft {
         load_from_handle(handle);
     }
 
-    bool Shader::has_uniform(const std::string& name){ return (glGetUniformLocation(shaderId, name.c_str()) != -1); }
+    int Shader::get_location(const std::string& name) const {
+        // Check for memoized value first
+        if(memo.find(name) != memo.end())
+            return memo[name];
 
+        int loc = glGetUniformLocation(shaderId, name.c_str());
+        memo[name] = loc;
+
+        if(loc == -1){
+            Logger::println(Level::SEVERE, "Shader", "Uniform " + name + " does not exist on shader " + handle.filename());
+        }
+
+        return loc;
+    }
+
+    bool Shader::has_uniform(const std::string& name) const { return (glGetUniformLocation(shaderId, name.c_str()) != -1); }
+
+    // Named uniforms
     void Shader::set_uniform(const std::string& name, bool value){ glUniform1i(get_location(name), value); }
 
     void Shader::set_uniform(const std::string& name, int value){ glUniform1i(get_location(name), value); }
@@ -155,7 +160,34 @@ namespace Draft {
     void Shader::set_uniform(const std::string& name, const Vector3d& value){ glUniform3d(get_location(name), value.x, value.y, value.z); }
     void Shader::set_uniform(const std::string& name, const Vector4d& value){ glUniform4d(get_location(name), value.x, value.y, value.z, value.w); }
 
-    void Shader::set_uniform(const std::string& name, const Matrix2& value){ glUniformMatrix2fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
-    void Shader::set_uniform(const std::string& name, const Matrix3& value){ glUniformMatrix3fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
-    void Shader::set_uniform(const std::string& name, const Matrix4& value){ glUniformMatrix4fv(get_location(name), 1, GL_TRUE, value.arr_ptr()); }
+    void Shader::set_uniform(const std::string& name, const Matrix2& value){ glUniformMatrix2fv(get_location(name), 1, GL_FALSE, &value[0][0]); }
+    void Shader::set_uniform(const std::string& name, const Matrix3& value){ glUniformMatrix3fv(get_location(name), 1, GL_FALSE, &value[0][0]); }
+    void Shader::set_uniform(const std::string& name, const Matrix4& value){ glUniformMatrix4fv(get_location(name), 1, GL_FALSE, &value[0][0]); }
+
+    // Location uniforms
+    void Shader::set_uniform(int loc, bool value){ glUniform1i(loc, value); }
+
+    void Shader::set_uniform(int loc, int value){ glUniform1i(loc, value); }
+    void Shader::set_uniform(int loc, const Vector2i& value){ glUniform2i(loc, value.x, value.y); }
+    void Shader::set_uniform(int loc, const Vector3i& value){ glUniform3i(loc, value.x, value.y, value.z); }
+    void Shader::set_uniform(int loc, const Vector4i& value){ glUniform4i(loc, value.x, value.y, value.z, value.w); }
+
+    void Shader::set_uniform(int loc, unsigned int value){ glUniform1ui(loc, value); }
+    void Shader::set_uniform(int loc, const Vector2u& value){ glUniform2ui(loc, value.x, value.y); }
+    void Shader::set_uniform(int loc, const Vector3u& value){ glUniform3ui(loc, value.x, value.y, value.z); }
+    void Shader::set_uniform(int loc, const Vector4u& value){ glUniform4ui(loc, value.x, value.y, value.w, value.w); }
+
+    void Shader::set_uniform(int loc, float value){ glUniform1f(loc, value); }
+    void Shader::set_uniform(int loc, const Vector2f& value){ glUniform2f(loc, value.x, value.y); }
+    void Shader::set_uniform(int loc, const Vector3f& value){ glUniform3f(loc, value.x, value.y, value.z); }
+    void Shader::set_uniform(int loc, const Vector4f& value){ glUniform4f(loc, value.x, value.y, value.z, value.w); }
+
+    void Shader::set_uniform(int loc, double value){ glUniform1d(loc, value); }
+    void Shader::set_uniform(int loc, const Vector2d& value){ glUniform2d(loc, value.x, value.y); }
+    void Shader::set_uniform(int loc, const Vector3d& value){ glUniform3d(loc, value.x, value.y, value.z); }
+    void Shader::set_uniform(int loc, const Vector4d& value){ glUniform4d(loc, value.x, value.y, value.z, value.w); }
+
+    void Shader::set_uniform(int loc, const Matrix2& value){ glUniformMatrix2fv(loc, 1, GL_FALSE, &value[0][0]); }
+    void Shader::set_uniform(int loc, const Matrix3& value){ glUniformMatrix3fv(loc, 1, GL_FALSE, &value[0][0]); }
+    void Shader::set_uniform(int loc, const Matrix4& value){ glUniformMatrix4fv(loc, 1, GL_FALSE, &value[0][0]); }
 };

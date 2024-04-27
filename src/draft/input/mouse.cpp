@@ -24,7 +24,7 @@ namespace Draft {
         Event event{};
         event.type = Event::MouseMoved;
         event.mouseMove.x = x;
-        event.mouseButton.y = y;
+        event.mouseMove.y = y;
 
         for(auto func : Mouse::callbacks){
             func(event);
@@ -69,6 +69,10 @@ namespace Draft {
         event.type = Event::MouseWheelScrolled;
         event.mouseWheelScroll.x = xoffset;
         event.mouseWheelScroll.y = yoffset;
+
+        for(auto func : Mouse::callbacks){
+            func(event);
+        }
     }
 
     // Functions
@@ -128,6 +132,6 @@ namespace Draft {
 
     void Mouse::set_position(const Vector2f& pos){
         glfwSetCursorPos((GLFWwindow*)window->get_raw_window(), pos.x, pos.y);
-        position.set(pos.x, pos.y);
+        position = { pos.x, pos.y };
     }
 };

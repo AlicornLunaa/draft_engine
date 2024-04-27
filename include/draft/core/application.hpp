@@ -6,6 +6,7 @@
 #include "draft/util/asset_manager.hpp"
 #include "draft/util/clock.hpp"
 #include "draft/widgets/console.hpp"
+#include "draft/widgets/stats.hpp"
 
 namespace Draft {
     /**
@@ -19,6 +20,7 @@ namespace Draft {
         Scene* activeScene = nullptr;
         Clock deltaClock;
         Event event;
+        Stats stats;
 
         double accumulator = 0.0;
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "draft/math/vector2.hpp"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 
 #include <vector>

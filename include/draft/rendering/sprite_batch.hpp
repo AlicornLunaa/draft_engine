@@ -1,11 +1,11 @@
 #pragma once
 
-#include "draft/math/matrix.hpp"
 #include "draft/math/rect.hpp"
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
+#include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/rendering/vertex_buffer.hpp"
 
-#include <array>
 #include <queue>
 
 namespace Draft {
@@ -19,22 +19,21 @@ namespace Draft {
             Vector2f position = {0, 0};
             Vector2f size = {0, 0};
             float rotation = 0.f;
+            Vector2f origin = {0, 0};
         };
 
-        static std::array<Vector2f, 4> baseVertices;
-
         // Variables
+        const size_t maxSprites;
         std::queue<Quad> quadQueue;
-        
-        // Private functions
-        Matrix4 generate_transform_matrix(const Quad& quad) const;
+        std::vector<int> uniformLocations;
+        VertexBuffer vertexBuffer;
 
     public:
         // Constructors
-        SpriteBatch();
+        SpriteBatch(Shader& shader, const size_t maxSprites = 1000);
 
         // Functions
-        void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, FloatRect region = {}); // Add quad to scene
-        void flush(); // Send quads to shader
+        void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
+        void flush(Shader& shader); // Send quads to shader
     };
 };

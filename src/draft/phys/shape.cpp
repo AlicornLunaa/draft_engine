@@ -1,17 +1,23 @@
 #include "draft/phys/shape.hpp"
-#include "draft/math/vector2.hpp"
 #include "draft/math/vector2_p.hpp"
+#include "draft/phys/conversions_p.hpp"
+#include "draft/math/glm.hpp"
+
+#include "box2d/b2_math.h"
+#include "box2d/b2_polygon_shape.h"
+#include "box2d/b2_circle_shape.h"
+#include "box2d/b2_edge_shape.h"
 
 namespace Draft {
     // Polygon
-    PolygonShape::PolygonShape(const PolygonShape& other) : PolygonShape() {
-        // Copy data
-        for(const auto& v : other.vertices){
-            add_vertex(Vector2f(v));
-        }
+    bool PolygonShape::contains(const Vector2f& point) const {
+        auto s = shape_to_b2(*this);
+        auto t = b2Transform(vector_to_b2(position), b2Rot(rotation));
+        return s.TestPoint(t, vector_to_b2(point));
     }
 
     void PolygonShape::set_as_box(float hw, float hy){
+        vertices.clear();
         add_vertex({ -hw, -hy });
         add_vertex({ hw, -hy });
         add_vertex({ hw, hy });
@@ -20,8 +26,6 @@ namespace Draft {
 
     size_t PolygonShape::add_vertex(Vector2f vertex){
         vertices.push_back(vertex);
-        physVertices.push_back(vector_to_b2(vertex));
-        physShape.Set(&physVertices[0], vertices.size());
         return vertices.size() - 1;
     }
 
@@ -30,18 +34,20 @@ namespace Draft {
             return false;
         
         vertices.erase(vertices.begin() + index);
-        physVertices.erase(physVertices.begin() + index);
-        return physShape.Set(&physVertices[0], vertices.size());;
+        return true;
     }
     
     // Circle
-    CircleShape::CircleShape(const CircleShape& other): CircleShape(){
-        radius = other.radius;
+    bool CircleShape::contains(const Vector2f& point) const {
+        auto s = shape_to_b2(*this);
+        auto t = b2Transform(vector_to_b2(position), b2Rot(rotation));
+        return s.TestPoint(t, vector_to_b2(point));
     }
     
     // Edge
-    EdgeShape::EdgeShape(const EdgeShape& other): EdgeShape(){
-        start = other.start;
-        end = other.end;
+    bool EdgeShape::contains(const Vector2f& point) const {
+        auto s = shape_to_b2(*this);
+        auto t = b2Transform(vector_to_b2(position), b2Rot(rotation));
+        return s.TestPoint(t, vector_to_b2(point));
     }
 }

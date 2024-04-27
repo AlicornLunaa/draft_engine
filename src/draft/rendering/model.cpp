@@ -1,8 +1,8 @@
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "draft/math/vector2.hpp"
-#include "draft/math/vector3.hpp"
+#include "draft/math/glm.hpp"
+#include "draft/rendering/texture.hpp"
 #include "draft/rendering/mesh.hpp"
 #include "draft/rendering/model.hpp"
 #include "draft/rendering/material.hpp"
@@ -76,8 +76,8 @@ namespace Draft {
             Material& material = materials->back();
 
             // Properties
-            material.baseColor.set(mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2], mat.pbrMetallicRoughness.baseColorFactor[3]);
-            material.emissiveFactor.set(mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]);
+            material.baseColor = { mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2], mat.pbrMetallicRoughness.baseColorFactor[3] };
+            material.emissiveFactor = { mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2] };
             material.metallicFactor = mat.pbrMetallicRoughness.metallicFactor;
             material.roughnessFactor = mat.pbrMetallicRoughness.roughnessFactor;
             material.normalScale = mat.normalTexture.scale;
@@ -95,7 +95,7 @@ namespace Draft {
         materials->push_back({ "missing_material_draft" });
     }
     
-    void load_meshes(std::vector<Mesh>& meshes, std::vector<int>& meshToMaterialMap, tinygltf::Model& mdl){
+    void load_meshes(std::vector<Mesh>& meshes, std::vector<int>& meshToMaterialMap, std::vector<Matrix4>& meshToMatrixMap, tinygltf::Model& mdl){
         // Load meshes
         std::vector<Vector3f> vertices{};
         std::vector<Vector2f> texCoord{};
@@ -124,7 +124,7 @@ namespace Draft {
                     const float* coords = reinterpret_cast<const float*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
                     
                     for (size_t i = 0; i < accessor.count; i++) {
-                        texCoord.push_back({ coords[i * 2 + 0], coords[i * 2 + 1] });
+                        texCoord.push_back({ coords[i * 2 + 0], 1 - coords[i * 2 + 1] });
                     }
                 }
 
@@ -143,10 +143,21 @@ namespace Draft {
                 // Initialize mesh with data
                 meshes.push_back({ vertices, indices, texCoord });
                 meshToMaterialMap.push_back(primitive.material);
+                meshToMatrixMap.push_back(Matrix4(1.f));
                 vertices.clear();
                 texCoord.clear();
                 indices.clear();
             }
+        }
+    }
+
+    void load_nodes(const std::vector<Mesh>& meshes, std::vector<Matrix4>& matrices, tinygltf::Model& mdl){
+        // Loads the nodes into the matrices
+        for(auto& node : mdl.nodes){
+            auto& matrix = matrices[node.mesh];
+            if(node.translation.size() > 0) matrix = Math::translate(matrix, { (float)node.translation[0], (float)node.translation[1], (float)node.translation[2] });
+            if(node.rotation.size() > 0) matrix = Math::rotate(Math::rotate(Math::rotate(matrix, (float)node.rotation[0], { 1, 0, 0 }), (float)node.rotation[1], { 0, 1, 0 }), (float)node.rotation[2], { 0, 0, 1 });
+            if(node.scale.size() > 0) matrix = Math::scale(matrix, { (float)node.scale[0], (float)node.scale[1], (float)node.scale[2] });
         }
     }
 
@@ -186,7 +197,8 @@ namespace Draft {
 
         // Pass to functions
         load_materials(handle, &materials, mdl);
-        load_meshes(meshes, meshToMaterialMap, mdl);
+        load_meshes(meshes, meshToMaterialMap, meshToMatrixMap, mdl);
+        load_nodes(meshes, meshToMatrixMap, mdl);
     }
 
     void Model::buffer_meshes(){
@@ -235,7 +247,7 @@ namespace Draft {
         buffer_meshes();
     }
 
-    Model::Model(const Model& other) : reloadable(other.reloadable), meshes(other.meshes), handle(other.handle) {
+    Model::Model(const Model& other) : reloadable(other.reloadable), meshes(other.meshes), meshToMaterialMap(other.meshToMaterialMap), meshToMatrixMap(other.meshToMatrixMap), handle(other.handle) {
         // Copy constructor
         buffer_meshes();
     }
@@ -248,6 +260,7 @@ namespace Draft {
         meshes = other.meshes;
         materials = other.materials;
         meshToMaterialMap = other.meshToMaterialMap;
+        meshToMatrixMap = other.meshToMatrixMap;
         buffer_meshes();
         return *this;
     }
@@ -259,21 +272,24 @@ namespace Draft {
         meshes = other.meshes;
         materials = other.materials;
         meshToMaterialMap = other.meshToMaterialMap;
+        meshToMatrixMap = other.meshToMatrixMap;
         buffer_meshes();
         return *this;
     }
 
     // Functions
-    void Model::render(Shader& shader) const {
+    void Model::render(Shader& shader, const Matrix4& modelMatrix) const {
         // Draws the meshes
         for(size_t i = 0; i < buffers.size(); i++){
             auto& vbo = buffers[i];
             auto& mesh = meshes[i];
             auto& material = materials[(meshToMaterialMap[i] == -1) ? (materials.size() - 1) : meshToMaterialMap[i]];
+            auto& matrix = meshToMatrixMap[i];
 
             // Render each vbo with mesh data
             vbo->bind();
             material.apply(shader);
+            shader.set_uniform("model", modelMatrix * matrix);
 
             if(mesh.is_indexed()){
                 glDrawElements(GL_TRIANGLES, mesh.get_indices().size(), GL_UNSIGNED_INT, 0);

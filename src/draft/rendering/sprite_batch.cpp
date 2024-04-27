@@ -1,33 +1,39 @@
+#include "draft/math/glm.hpp"
 #include "draft/rendering/sprite_batch.hpp"
-#include "draft/math/matrix.hpp"
-#include "draft/math/vector3.hpp"
-#include "draft/math/vector4.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
 
+#include <cstddef>
+#include <string>
+#include <vector>
+
 using namespace std;
 
 namespace Draft {
-    // Static data
-    array<Vector2f, 4> SpriteBatch::baseVertices = array<Vector2f, 4>({
-        {0.f, 0.f}, // Top left
-        {1.f, 0.f}, // Top right
-        {1.f, 1.f}, // Bottom right
-        {0.f, 1.f}  // Bottom left
-    });
+    // Constructor
+    SpriteBatch::SpriteBatch(Shader& shader, const size_t maxSprites) : maxSprites(maxSprites) {
+        // Buffer the data on the GPU
+        vertexBuffer.buffer(0, vector<Vector3f>{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}});
+        vertexBuffer.buffer(1, vector<Vector2f>{{0, 0}, {1, 0}, {1, 1}, {0, 1}});
+        vertexBuffer.buffer(2, vector<int>{1, 0, 3, 1, 3, 2}, GL_ELEMENT_ARRAY_BUFFER);
 
-    // Private functions
-    Matrix4 SpriteBatch::generate_transform_matrix(const Quad& quad) const {
-        // Generates a transformation matrix for the given quad
-        return Matrix4::translation({ quad.position.x, quad.position.y, 0.f }) * Matrix4::rotation({ 0.f, 0.f, quad.rotation }) * Matrix4::scale({ quad.size.x, quad.size.y, 1.f });
+        // Setup the uniform names
+        for(size_t i = 0; i < maxSprites; i++){
+            std::string quadStrID = "quads[" + to_string(i) + "]";
+            uniformLocations.push_back(shader.get_location(quadStrID + ".position"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".rotation"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".origin"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".size"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[0]"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[1]"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[2]"));
+            uniformLocations.push_back(shader.get_location(quadStrID + ".texCoord[3]"));
+        }
     }
 
-    // Constructor
-    SpriteBatch::SpriteBatch(){}
-
     // Functions
-    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, FloatRect region){
+    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
         // Add quad to the queue
         Quad quad {
             &texture,
@@ -35,25 +41,26 @@ namespace Draft {
 
             position,
             size,
-            rotation
+            rotation,
+            origin
         };
 
         quadQueue.emplace(quad);
     }
 
-    void SpriteBatch::flush(){
+    void SpriteBatch::flush(Shader& shader){
         // Draws all the shapes to opengl
         Texture const* oldTexture = nullptr; // If texture changes, we have to render immediately.
-        vector<Vector3f> vertices;
-        vector<Vector2f> texCoords;
-        vector<int> indices;
+        Vector2f texCoords[4]{}; // Temporarily hold the texture coordinates for the shader
         bool flushAgain = false; // Turns true if texture was changed and flush must happen again
+        int spriteCount = 0; // Current sprites rendered, stop at max
+
+        shader.bind();
 
         // Create vertex geometry
         while(!quadQueue.empty()){
+            // Get the next quad in the queue
             auto& quad = quadQueue.front();
-            auto trans = generate_transform_matrix(quad);
-            auto startIndex = vertices.size(); // Used for adding triangle indices
 
             // Check texture to see if its different
             if(oldTexture == nullptr){
@@ -65,60 +72,56 @@ namespace Draft {
                 break;
             }
 
-            // Vertices
-            for(const auto& v : baseVertices){
-                // Adds the transformed vertex to the array
-                auto transformedV = trans * Vector4f(v.x, v.y, 0, 1);
-                vertices.push_back({ transformedV.x, transformedV.y, 0.f });
-            }
-
             // Add texture coordinates based on the floatrect region
             if(quad.region.width <= 0 || quad.region.height <= 0){
                 // Less than or equal to zero means the whole texture
-                Vector2f size = quad.texture->get_size();
-                texCoords.push_back({ 0.f, 0.f });
-                texCoords.push_back({ 1.f, 0.f });
-                texCoords.push_back({ 1.f, 1.f });
-                texCoords.push_back({ 0.f, 1.f });
+                texCoords[0].x = 0.f; texCoords[0].y = 0.f;
+                texCoords[1].x = 1.f; texCoords[1].y = 0.f;
+                texCoords[2].x = 1.f; texCoords[2].y = 1.f;
+                texCoords[3].x = 0.f; texCoords[3].y = 1.f;
             } else {
                 // Use the float rect region
                 Vector2f size = quad.texture->get_size();
                 auto& region = quad.region;
-                texCoords.push_back({ region.x / size.x, region.y / size.y });
-                texCoords.push_back({ (region.x + region.width) / size.x, region.y / size.y });
-                texCoords.push_back({ (region.x + region.width) / size.x, (region.y + region.height) / size.y });
-                texCoords.push_back({ region.x / size.x, (region.y + region.height) / size.y });
+                texCoords[0].x = region.x / size.x;                  texCoords[0].y = region.y / size.y;
+                texCoords[1].x = (region.x + region.width) / size.x; texCoords[1].y = region.y / size.y;
+                texCoords[2].x = (region.x + region.width) / size.x; texCoords[2].y = (region.y + region.height) / size.y;
+                texCoords[3].x = region.x / size.x;                  texCoords[3].y = (region.y + region.height) / size.y;
             }
 
-            // Add indices
-            indices.push_back(startIndex + 1);
-            indices.push_back(startIndex + 0);
-            indices.push_back(startIndex + 3);
-            indices.push_back(startIndex + 1);
-            indices.push_back(startIndex + 3);
-            indices.push_back(startIndex + 2);
+            // Send this quad's data to the shader
+            int uniformGroupID = spriteCount * 8;
+            shader.set_uniform(uniformLocations[uniformGroupID], quad.position);
+            shader.set_uniform(uniformLocations[uniformGroupID + 1], quad.rotation);
+            shader.set_uniform(uniformLocations[uniformGroupID + 2], quad.origin);
+            shader.set_uniform(uniformLocations[uniformGroupID + 3], quad.size);
+            shader.set_uniform(uniformLocations[uniformGroupID + 4], texCoords[0]);
+            shader.set_uniform(uniformLocations[uniformGroupID + 5], texCoords[1]);
+            shader.set_uniform(uniformLocations[uniformGroupID + 6], texCoords[2]);
+            shader.set_uniform(uniformLocations[uniformGroupID + 7], texCoords[3]);
 
             // Remove the quad because its data is stored in the vertices now
             quadQueue.pop();
+
+            // Check sprite count
+            if(++spriteCount >= maxSprites){
+                flushAgain = true;
+                break;
+            }
         }
 
         // Early exit if theres nothing to do
-        if(!oldTexture || vertices.size() <= 0)
+        if(!oldTexture)
             return;
 
-        // Create vertex buffer and render it
-        VertexBuffer vbo;
-        vbo.buffer(0, vertices);
-        vbo.buffer(1, texCoords);
-        vbo.buffer(2, indices, GL_ELEMENT_ARRAY_BUFFER);
-
+        // Render it 
+        vertexBuffer.bind();
         oldTexture->bind();
-        vbo.bind();
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        vbo.unbind();
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, spriteCount);
+        vertexBuffer.unbind();
 
         // Do it again for the rest of the quads
         if(flushAgain)
-            flush();
+            flush(shader);
     }
 };

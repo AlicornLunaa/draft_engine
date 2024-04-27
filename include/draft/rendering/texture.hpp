@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "draft/math/vector2.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/util/file_handle.hpp"
 
 namespace Draft {
@@ -26,14 +26,14 @@ namespace Draft {
 
         // Private functions
         void generate_opengl(Wrap wrapping);
-        void load_texture(const unsigned char* bytes, size_t length, int colorSpace = RGB);
+        void load_texture(const unsigned char* bytes, size_t length, bool flip = true);
         void cleanup();
 
     public:
         // Constructors
         Texture(Wrap wrapping = REPEAT);
         Texture(const unsigned char* start, const unsigned char* end, Wrap wrapping = REPEAT);
-        Texture(const unsigned char* data, int width, int height, int channels, Wrap wrapping = REPEAT, int colorSpace = RGBA);
+        Texture(const unsigned char* data, int width, int height, int channels, Wrap wrapping = REPEAT);
         Texture(const std::filesystem::path& texturePath, Wrap wrapping = REPEAT);
         Texture(const FileHandle& handle, Wrap wrapping = REPEAT);
         Texture(const Texture& other) = delete;
