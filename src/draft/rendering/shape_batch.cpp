@@ -17,10 +17,10 @@ namespace Draft {
 
     // Private function
     std::tuple<ShapeBatch::RenderType, size_t, size_t>& ShapeBatch::get_current_drawtype_instance(){
-        if(drawTypes.size() > 0)
+        if(!drawTypes.empty())
             return drawTypes.back();
 
-        drawTypes.push_back({ currentRenderType, 0, 0 });
+        drawTypes.push({ currentRenderType, 0, 0 });
         return drawTypes.back();
     }
 
@@ -41,36 +41,51 @@ namespace Draft {
         if(get<0>(get_current_drawtype_instance()) == type)
             return; // Skip if its the same type
 
-        drawTypes.push_back({ type, 0, 0 });
+        currentRenderType = type;
+        drawTypes.push({ type, 0, 0 });
     }
 
     void ShapeBatch::draw_circle(const Vector2f& position, float radius, float rotation, size_t segments){
         // Generate and add vertices
+        auto& tup = get_current_drawtype_instance();
         size_t indexStart = vertices.size();
         float pointsEveryRadian = 2*3.14f / segments;
 
         vertices.push_back({ position, currentColor });
 
         // Circular vertices
-        for(float i = 0; i < 2*3.14f; i += pointsEveryRadian){
-            Vector2f coords(std::cos(i + rotation), std::sin(i + rotation));
+        for(size_t i = 0; i < segments; i++){
+            float radians = i * pointsEveryRadian;
+            Vector2f coords(std::cos(radians + rotation), std::sin(radians + rotation));
             coords *= radius;
             coords += position;
             vertices.push_back({coords, currentColor});
         }
-
-        // Connect all indices
-        for(size_t i = 0; i < segments; i++){
-            indices.push_back(indexStart + i);
-            indices.push_back((i + 1) % (segments + 1) + indexStart);
-        }
-        indices.push_back(indexStart + segments);
-        indices.push_back(indexStart + 1);
-        
-        // Increase length for render type
-        auto& tup = get_current_drawtype_instance();
         get<1>(tup) += (segments + 1);
-        get<2>(tup) += (segments * 2 + 2);
+
+        // Connect all indices, depending on filled or lines
+        if(currentRenderType == RenderType::FILL){
+            // Triangles, so 0, i, i + 1
+            for(size_t i = 0; i < segments; i++){
+                indices.push_back(indexStart);
+                indices.push_back(i % segments + indexStart + 1);
+                indices.push_back((i + 1) % segments + indexStart + 1);
+            }
+            
+            // Increase length for render type
+            get<2>(tup) += (segments * 3);
+        } else {
+            // Lines
+            for(size_t i = 0; i < segments; i++){
+                indices.push_back(indexStart + i);
+                indices.push_back((i + 1) % (segments + 1) + indexStart);
+            }
+            indices.push_back(indexStart + segments);
+            indices.push_back(indexStart + 1);
+            
+            // Increase length for render type
+            get<2>(tup) += (segments * 2 + 2);
+        }
     }
 
     void ShapeBatch::draw_line(const Vector2f& start, const Vector2f& end){
@@ -92,17 +107,23 @@ namespace Draft {
         bool flushAgain = false; // Turns true if the shape type changed
 
         // Early exit if theres nothing to do
-        if(vertices.size() <= 0)
+        if(vertices.empty() || indices.empty() || drawTypes.empty())
             return;
 
         // Run through for each draw type
-        auto& [type, vertexCount, indexCount] = get_current_drawtype_instance();
-        drawTypes.erase(drawTypes.begin(), drawTypes.begin() + 1);
+        auto [type, vertexCount, indexCount] = drawTypes.front();
+        drawTypes.pop();
+
+        // Check if this has zero data
+        if(vertexCount == 0 || indexCount == 0){
+            flush();
+            return;
+        }
 
         // Check if this run needs to be chopped up
-        if(vertexCount > maxShapes){
+        if(vertexCount > maxShapes || indexCount > maxShapes * 2){
             // Buffer has to be run in two parts
-            drawTypes.push_back({ type, vertexCount - maxShapes, indexCount - maxShapes * 2 });
+            drawTypes.emplace(type, vertexCount - maxShapes, indexCount - maxShapes * 2);
             vertexCount = maxShapes;
             indexCount = maxShapes * 2;
             flushAgain = true;
@@ -124,6 +145,12 @@ namespace Draft {
         } else {
             vertices.erase(vertices.begin(), vertices.begin() + vertexCount);
             indices.erase(indices.begin(), indices.begin() + indexCount);
+
+            // Shift indices for the deleted vertices
+            for(auto& index : indices){
+                index -= vertexCount;
+            }
+
             flushAgain = true;
         }
 

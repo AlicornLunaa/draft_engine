@@ -6,14 +6,16 @@
 
 #include <array>
 #include <cstddef>
+#include <queue>
 #include <vector>
 
 namespace Draft {
     class ShapeBatch {
-    private:
-        // Data structures
+    public:
         enum class RenderType { FILL, LINE };
 
+    private:
+        // Data structures
         struct ShapeVertex {
             Vector2f position;
             Vector4f color{1, 1, 1, 1};
@@ -23,7 +25,7 @@ namespace Draft {
 
         // Variables
         const size_t maxShapes;
-        std::vector<std::tuple<RenderType, size_t, size_t>> drawTypes; // Contains render type and the length of its vertices and indices
+        std::queue<std::tuple<RenderType, size_t, size_t>> drawTypes; // Contains render type and the length of its vertices and indices
         std::vector<ShapeVertex> vertices;
         std::vector<int> indices;
 
