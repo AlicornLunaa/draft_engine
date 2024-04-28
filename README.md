@@ -13,6 +13,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Audio api
 - [ ] Animation api
 - [ ] Profiler API
+- [ ] Localization API
 
 ## How the engine works
 ### OpenGL Resources

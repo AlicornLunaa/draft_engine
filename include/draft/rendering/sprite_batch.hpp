@@ -27,6 +27,7 @@ namespace Draft {
         std::queue<Quad> quadQueue;
         std::vector<int> uniformLocations;
         VertexBuffer vertexBuffer;
+        Shader& shader;
 
     public:
         // Constructors
@@ -34,6 +35,6 @@ namespace Draft {
 
         // Functions
         void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
-        void flush(Shader& shader); // Send quads to shader
+        void flush(); // Send quads to shader
     };
 };

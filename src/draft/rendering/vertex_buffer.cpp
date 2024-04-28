@@ -14,6 +14,7 @@ namespace Draft {
     template<typename T>
     VertexBuffer::Buffer::Buffer(const std::vector<T>& data, int type) : drawType(STATIC), arrayType(type) {
         gen_buffer(type);
+        maxBytes = data.size() * sizeof(T); // Not used for a static buffer, but I'll set it anyways
         glBufferData(type, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
     }
     template VertexBuffer::Buffer::Buffer(const std::vector<int>& data, int type);
@@ -24,6 +25,7 @@ namespace Draft {
 
     VertexBuffer::Buffer::Buffer(size_t bytes, int type) : drawType(DYNAMIC), arrayType(type) {
         gen_buffer(type);
+        maxBytes = bytes;
         glBufferData(type, bytes, nullptr, GL_DYNAMIC_DRAW);
     }
 

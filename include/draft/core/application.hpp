@@ -20,16 +20,16 @@ namespace Draft {
         Scene* activeScene = nullptr;
         Clock deltaClock;
         Event event;
-        Stats stats;
-
-        double accumulator = 0.0;
+        double accumulator = 0.0; // Used for fixed timestep
 
     public:
-        AssetManager assetManager;
+        AssetManager assets;
         RenderWindow window;
-        Console console;
         Time deltaTime;
         double timeStep = 1.0/66.0;
+
+        Console console;
+        Stats stats;
         bool debug = true;
         
         Application(const char* title, const unsigned int width, const unsigned int height);

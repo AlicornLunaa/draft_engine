@@ -1,5 +1,6 @@
 #include "draft/math/glm.hpp"
 #include "draft/rendering/shape_batch.hpp"
+#include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
 
@@ -14,88 +15,117 @@ namespace Draft {
         {0.f, 1.f}  // Bottom left
     });
 
-    // Private functions
-    void ShapeBatch::generate_circle_vertices(vector<Vector2f>& vertices, vector<int>& indices, size_t segments){
-        float pointsEveryDegree = 2*3.14f / segments;
+    // Private function
+    std::tuple<ShapeBatch::RenderType, size_t, size_t>& ShapeBatch::get_current_drawtype_instance(){
+        if(drawTypes.size() > 0)
+            return drawTypes.back();
 
-        vertices.push_back({ 0, 0 });
-        indices.push_back(0);
-
-        for(float i = 0; i < 2*3.14f; i += pointsEveryDegree){
-            vertices.push_back({ std::cos(i), std::sin(i) });
-            indices.push_back(vertices.size() - 1);
-        }
-    }
-
-    Matrix4 ShapeBatch::generate_transform_matrix(const Shape& quad) const {
-        // Generates a transformation matrix for the given quad
-        Matrix4 trans(1.f);
-        trans = Math::translate(trans, { quad.position.x, quad.position.y, 0.f });
-        trans = Math::scale(trans, { quad.size.x, quad.size.y, 1.f });
-        trans = Math::rotate(trans, quad.rotation, { 0.f, 0.f, 1.f });
-        return trans;
+        drawTypes.push_back({ currentRenderType, 0, 0 });
+        return drawTypes.back();
     }
 
     // Constructor
-    ShapeBatch::ShapeBatch(){}
+    ShapeBatch::ShapeBatch(Shader& shader, const size_t maxShapes) : maxShapes(maxShapes), shader(shader) {
+        // Setup data buffers
+        dynamicVertexBufLoc = vertexBuffer.start_buffer<ShapeVertex>(maxShapes);
+        vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(ShapeVertex), 0);
+        vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(ShapeVertex), offsetof(ShapeVertex, color));
+        vertexBuffer.end_buffer();
+
+        dynamicIndexBufLoc = vertexBuffer.start_buffer<int>(maxShapes * 2, GL_ELEMENT_ARRAY_BUFFER);
+        vertexBuffer.end_buffer();
+    }
 
     // Functions
-    void ShapeBatch::draw_circle(const Vector2f& position, float radius, size_t segments){
-        // Add quad to the queue
-        Shape shape {
-            {},
-            {},
-            position,
-            { radius, radius },
-            currentColor,
-            0.f,
-            Primitive::CIRCLE
-        };
+    void ShapeBatch::set_render_type(RenderType type){
+        if(get<0>(get_current_drawtype_instance()) == type)
+            return; // Skip if its the same type
 
-        generate_circle_vertices(shape.vertices, shape.indices, segments);
-        shapeQueue.emplace(shape);
+        drawTypes.push_back({ type, 0, 0 });
+    }
+
+    void ShapeBatch::draw_circle(const Vector2f& position, float radius, float rotation, size_t segments){
+        // Generate and add vertices
+        size_t indexStart = vertices.size();
+        float pointsEveryRadian = 2*3.14f / segments;
+
+        vertices.push_back({ position, currentColor });
+
+        // Circular vertices
+        for(float i = 0; i < 2*3.14f; i += pointsEveryRadian){
+            Vector2f coords(std::cos(i + rotation), std::sin(i + rotation));
+            coords *= radius;
+            coords += position;
+            vertices.push_back({coords, currentColor});
+        }
+
+        // Connect all indices
+        for(size_t i = 0; i < segments; i++){
+            indices.push_back(indexStart + i);
+            indices.push_back((i + 1) % (segments + 1) + indexStart);
+        }
+        indices.push_back(indexStart + segments);
+        indices.push_back(indexStart + 1);
+        
+        // Increase length for render type
+        auto& tup = get_current_drawtype_instance();
+        get<1>(tup) += (segments + 1);
+        get<2>(tup) += (segments * 2 + 2);
+    }
+
+    void ShapeBatch::draw_line(const Vector2f& start, const Vector2f& end){
+        // Generate and add vertices
+        size_t indexStart = vertices.size();
+        vertices.push_back({ start, currentColor });
+        vertices.push_back({ end, currentColor });
+        indices.push_back(indexStart);
+        indices.push_back(indexStart + 1);
+        
+        // Increase length for render type
+        auto& tup = get_current_drawtype_instance();
+        get<1>(tup) += 2;
+        get<2>(tup) += 2;
     }
 
     void ShapeBatch::flush(){
         // Draws all the shapes to opengl
-        vector<Vector3f> vertices;
-        vector<int> indices;
-        bool flushAgain = false; // Turns true if texture was changed and flush must happen again
-
-        // Create vertex geometry
-        while(!shapeQueue.empty()){
-            auto& shape = shapeQueue.front();
-            auto trans = generate_transform_matrix(shape);
-            auto startIndex = vertices.size(); // Used for adding triangle indices
-
-            // Vertices
-            for(const auto& v : shape.vertices){
-                // Adds the transformed vertex to the array
-                auto transformedV = trans * Vector4f(v.x, v.y, 0, 1);
-                vertices.push_back({ transformedV.x, transformedV.y, 0.f });
-            }
-
-            // Add indices
-            for(const auto& i : shape.indices){
-                indices.push_back(startIndex + i);
-            }
-
-            // Remove the quad because its data is stored in the vertices now
-            shapeQueue.pop();
-        }
+        bool flushAgain = false; // Turns true if the shape type changed
 
         // Early exit if theres nothing to do
         if(vertices.size() <= 0)
             return;
 
-        // Create vertex buffer and render it
-        VertexBuffer vbo;
-        vbo.buffer(0, vertices);
-        vbo.buffer(1, indices, GL_ELEMENT_ARRAY_BUFFER);
+        // Run through for each draw type
+        auto& [type, vertexCount, indexCount] = get_current_drawtype_instance();
+        drawTypes.erase(drawTypes.begin(), drawTypes.begin() + 1);
 
-        vbo.bind();
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        vbo.unbind();
+        // Check if this run needs to be chopped up
+        if(vertexCount > maxShapes){
+            // Buffer has to be run in two parts
+            drawTypes.push_back({ type, vertexCount - maxShapes, indexCount - maxShapes * 2 });
+            vertexCount = maxShapes;
+            indexCount = maxShapes * 2;
+            flushAgain = true;
+        }
+
+        // Buffer data so far
+        vertexBuffer.set_dynamic_data(dynamicVertexBufLoc, vertices);
+        vertexBuffer.set_dynamic_data(dynamicIndexBufLoc, indices);
+
+        // Render VBO
+        vertexBuffer.bind();
+        glDrawElements((type == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+        vertexBuffer.unbind();
+
+        // Clean used vertices
+        if(drawTypes.empty()){
+            vertices.clear();
+            indices.clear();
+        } else {
+            vertices.erase(vertices.begin(), vertices.begin() + vertexCount);
+            indices.erase(indices.begin(), indices.begin() + indexCount);
+            flushAgain = true;
+        }
 
         // Do it again for the rest of the quads
         if(flushAgain)

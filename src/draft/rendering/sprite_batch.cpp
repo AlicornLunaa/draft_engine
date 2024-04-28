@@ -12,7 +12,7 @@ using namespace std;
 
 namespace Draft {
     // Constructor
-    SpriteBatch::SpriteBatch(Shader& shader, const size_t maxSprites) : maxSprites(maxSprites) {
+    SpriteBatch::SpriteBatch(Shader& shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, vector<Vector3f>{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}});
         vertexBuffer.buffer(1, vector<Vector2f>{{0, 0}, {1, 0}, {1, 1}, {0, 1}});
@@ -48,7 +48,7 @@ namespace Draft {
         quadQueue.emplace(quad);
     }
 
-    void SpriteBatch::flush(Shader& shader){
+    void SpriteBatch::flush(){
         // Draws all the shapes to opengl
         Texture const* oldTexture = nullptr; // If texture changes, we have to render immediately.
         Vector2f texCoords[4]{}; // Temporarily hold the texture coordinates for the shader
@@ -122,6 +122,6 @@ namespace Draft {
 
         // Do it again for the rest of the quads
         if(flushAgain)
-            flush(shader);
+            flush();
     }
 };

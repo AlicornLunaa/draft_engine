@@ -5,34 +5,17 @@
 
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
-#include "draft/util/logger.hpp"
 #include "draft/widgets/stats.hpp"
 
 namespace Draft {
     // Constructors
     Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title) {
-        // Feedback
-        Logger::println(Level::INFO, "Draft Engine", "Initializing...");
-
-        // Register things to load
-        assetManager.queue_shader("./assets/shaders/default");
-        assetManager.queue_shader("./assets/shaders/shapes");
-        assetManager.queue_shader("./assets/shaders/spherical");
-        assetManager.queue_shader("./assets/shaders/mesh");
-        assetManager.queue_shader("./assets/shaders/interface");
-        assetManager.queue_texture("./assets/textures/test_image_1.png");
-        assetManager.queue_texture("./assets/textures/test_image_2.png");
-        assetManager.queue_texture("./assets/textures/test_image_3.png");
-        assetManager.queue_texture("./assets/textures/wheel.png");
-        assetManager.queue_texture("./assets/textures/planet.png");
-        assetManager.load();
-
         // Redirect cout to console
         oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
 
         // Register basic commands
         console.register_cmd("reload_assets", [this](ConsoleArgs args){
-            assetManager.reload();
+            assets.reload();
             return true;
         });
 
@@ -43,9 +26,6 @@ namespace Draft {
     }
 
     Application::~Application(){
-        // Cleanup
-        Logger::println(Level::INFO, "Draft Engine", "Exitting...");
-
         // Restore cout to stdout
         std::cout.rdbuf(oldOutBuf);
     }
@@ -63,6 +43,7 @@ namespace Draft {
                 case Event::Closed:
                     window.close();
                     break;
+
                 default:
                     if(activeScene)
                         activeScene->handleEvent(event);
@@ -70,13 +51,12 @@ namespace Draft {
                 }
             }
 
-            // Fixed time-step
+            // Fixed physics time-step
             accumulator += deltaTime.as_seconds();
 
             while(accumulator >= timeStep){
-                if(activeScene){
+                if(activeScene)
                     activeScene->update(deltaTime);
-                }
 
                 accumulator -= timeStep;
             }
@@ -88,11 +68,11 @@ namespace Draft {
                 activeScene->render(deltaTime);
 
             // Draw debug stuff
-            if(debug){
+            if(debug)
                 stats.draw(*this);
-            }
 
             console.draw();
+            
             window.display();
         }
     }
