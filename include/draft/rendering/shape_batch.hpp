@@ -25,7 +25,7 @@ namespace Draft {
 
         // Variables
         const size_t maxShapes;
-        std::queue<std::tuple<RenderType, size_t, size_t>> drawTypes; // Contains render type and the length of its vertices and indices
+        std::queue<std::tuple<RenderType, size_t, size_t>> renderTypes; // Contains render type and the length of its vertices and indices
         std::vector<ShapeVertex> vertices;
         std::vector<int> indices;
 
@@ -38,7 +38,7 @@ namespace Draft {
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
         
         // Private functions
-        std::tuple<RenderType, size_t, size_t>& get_current_drawtype_instance();
+        std::tuple<RenderType, size_t, size_t>& get_current_render_type_instance();
 
     public:
         // Constructors
@@ -47,8 +47,11 @@ namespace Draft {
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }
         void set_render_type(RenderType type);
+        void draw_rect(const Vector2f& position, const Vector2f& size, float rotation);
         void draw_circle(const Vector2f& position, float radius, float rotation, size_t segments = 10);
         void draw_line(const Vector2f& start, const Vector2f& end);
+        void draw_rect_line(const Vector2f& start, const Vector2f& end, float width = 1.f);
+        void draw_arrow(const Vector2f& head, const Vector2f& tail);
         void flush(); // Send shapes to shader
     };
 };

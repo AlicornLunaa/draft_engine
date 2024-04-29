@@ -2,6 +2,7 @@
 #include "draft/rendering/shape_batch.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
+#include "draft/util/logger.hpp"
 #include "glad/gl.h"
 
 using namespace std;
@@ -16,12 +17,12 @@ namespace Draft {
     });
 
     // Private function
-    std::tuple<ShapeBatch::RenderType, size_t, size_t>& ShapeBatch::get_current_drawtype_instance(){
-        if(!drawTypes.empty())
-            return drawTypes.back();
+    std::tuple<ShapeBatch::RenderType, size_t, size_t>& ShapeBatch::get_current_render_type_instance(){
+        if(!renderTypes.empty())
+            return renderTypes.back();
 
-        drawTypes.push({ currentRenderType, 0, 0 });
-        return drawTypes.back();
+        renderTypes.push({ currentRenderType, 0, 0 });
+        return renderTypes.back();
     }
 
     // Constructor
@@ -38,16 +39,49 @@ namespace Draft {
 
     // Functions
     void ShapeBatch::set_render_type(RenderType type){
-        if(get<0>(get_current_drawtype_instance()) == type)
+        if(get<0>(get_current_render_type_instance()) == type)
             return; // Skip if its the same type
 
         currentRenderType = type;
-        drawTypes.push({ type, 0, 0 });
+        renderTypes.push({ type, 0, 0 });
+    }
+
+    void ShapeBatch::draw_rect(const Vector2f& position, const Vector2f& size, float rotation){
+        // Generate and add vertices
+        auto& tup = get_current_render_type_instance();
+        size_t indexStart = vertices.size();
+
+        vertices.push_back({ position, currentColor });
+        vertices.push_back({ position + Vector2f{ size.x, 0.f }, currentColor });
+        vertices.push_back({ position + Vector2f{ size.x, size.y }, currentColor });
+        vertices.push_back({ position + Vector2f{ 0.f, size.y }, currentColor });
+        get<1>(tup) += 4;
+
+        // Connect all indices, depending on filled or lines
+        if(currentRenderType == RenderType::FILL){
+            // Two triangles to fill
+            indices.push_back(1 + indexStart);
+            indices.push_back(0 + indexStart);
+            indices.push_back(3 + indexStart);
+            indices.push_back(1 + indexStart);
+            indices.push_back(3 + indexStart);
+            indices.push_back(2 + indexStart);
+            get<2>(tup) += 6;
+        } else {
+            // Lines
+            for(size_t i = 0; i < 4; i++){
+                indices.push_back(i + indexStart);
+                indices.push_back((i + 1) % 4 + indexStart);
+            }
+            
+            // Increase length for render type
+            get<2>(tup) += 8;
+        }
     }
 
     void ShapeBatch::draw_circle(const Vector2f& position, float radius, float rotation, size_t segments){
         // Generate and add vertices
-        auto& tup = get_current_drawtype_instance();
+        auto& tup = get_current_render_type_instance();
         size_t indexStart = vertices.size();
         float pointsEveryRadian = 2*3.14f / segments;
 
@@ -89,6 +123,12 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_line(const Vector2f& start, const Vector2f& end){
+        // Lines can only be GL_LINES
+        if(currentRenderType != RenderType::LINE){
+            Logger::println(Level::WARNING, "Shape Batch", "draw_line(const Vector2f&, const Vector2f&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
+            set_render_type(RenderType::LINE);
+        }
+
         // Generate and add vertices
         size_t indexStart = vertices.size();
         vertices.push_back({ start, currentColor });
@@ -97,9 +137,77 @@ namespace Draft {
         indices.push_back(indexStart + 1);
         
         // Increase length for render type
-        auto& tup = get_current_drawtype_instance();
+        auto& tup = get_current_render_type_instance();
         get<1>(tup) += 2;
         get<2>(tup) += 2;
+    }
+
+    void ShapeBatch::draw_rect_line(const Vector2f& start, const Vector2f& end, float width){
+        // Generate and add vertices
+        auto& tup = get_current_render_type_instance();
+        size_t indexStart = vertices.size();
+
+        float radians = std::atan2(start.y - end.y, start.x - end.x);
+        Vector2f right = Math::rotate(Vector2f(0, 1), radians);
+        right *= 0.02f * width;
+
+        vertices.push_back({ start + right, currentColor });
+        vertices.push_back({ start - right, currentColor });
+        vertices.push_back({ end - right, currentColor });
+        vertices.push_back({ end + right, currentColor });
+        get<1>(tup) += 4;
+
+        // Connect all indices, depending on filled or lines
+        if(currentRenderType == RenderType::FILL){
+            // Two triangles to fill
+            indices.push_back(1 + indexStart);
+            indices.push_back(0 + indexStart);
+            indices.push_back(3 + indexStart);
+            indices.push_back(1 + indexStart);
+            indices.push_back(3 + indexStart);
+            indices.push_back(2 + indexStart);
+            get<2>(tup) += 6;
+        } else {
+            // Lines
+            for(size_t i = 0; i < 4; i++){
+                indices.push_back(i + indexStart);
+                indices.push_back((i + 1) % 4 + indexStart);
+            }
+            
+            // Increase length for render type
+            get<2>(tup) += 8;
+        }
+    }
+
+    void ShapeBatch::draw_arrow(const Vector2f& head, const Vector2f& tail){
+        // Lines can only be GL_LINES
+        if(currentRenderType != RenderType::LINE){
+            Logger::println(Level::WARNING, "Shape Batch", "draw_arrow(const Vector2f&, const Vector2f&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
+            set_render_type(RenderType::LINE);
+        }
+
+        // Get the size vertices for the arrow head
+        float radians = std::atan2(head.y - tail.y, head.x - tail.x);
+        Vector2f left = Math::rotate(Vector2f(0, 1), radians + 3.141592654f/3.f) * 0.08f;
+        Vector2f right = Math::rotate(Vector2f(0, 1), radians + 2*3.141592654f/3.f) * 0.08f;
+
+        // Generate and add vertices
+        size_t indexStart = vertices.size();
+        vertices.push_back({ head, currentColor });
+        vertices.push_back({ head + Vector2f(left.x, left.y), currentColor });
+        vertices.push_back({ head + Vector2f(right.x, right.y), currentColor });
+        vertices.push_back({ tail, currentColor });
+        indices.push_back(indexStart);
+        indices.push_back(indexStart + 1);
+        indices.push_back(indexStart);
+        indices.push_back(indexStart + 2);
+        indices.push_back(indexStart);
+        indices.push_back(indexStart + 3);
+        
+        // Increase length for render type
+        auto& tup = get_current_render_type_instance();
+        get<1>(tup) += 4;
+        get<2>(tup) += 6;
     }
 
     void ShapeBatch::flush(){
@@ -107,12 +215,12 @@ namespace Draft {
         bool flushAgain = false; // Turns true if the shape type changed
 
         // Early exit if theres nothing to do
-        if(vertices.empty() || indices.empty() || drawTypes.empty())
+        if(vertices.empty() || indices.empty() || renderTypes.empty())
             return;
 
         // Run through for each draw type
-        auto [type, vertexCount, indexCount] = drawTypes.front();
-        drawTypes.pop();
+        auto [type, vertexCount, indexCount] = renderTypes.front();
+        renderTypes.pop();
 
         // Check if this has zero data
         if(vertexCount == 0 || indexCount == 0){
@@ -123,7 +231,7 @@ namespace Draft {
         // Check if this run needs to be chopped up
         if(vertexCount > maxShapes || indexCount > maxShapes * 2){
             // Buffer has to be run in two parts
-            drawTypes.emplace(type, vertexCount - maxShapes, indexCount - maxShapes * 2);
+            renderTypes.emplace(type, vertexCount - maxShapes, indexCount - maxShapes * 2);
             vertexCount = maxShapes;
             indexCount = maxShapes * 2;
             flushAgain = true;
@@ -139,7 +247,7 @@ namespace Draft {
         vertexBuffer.unbind();
 
         // Clean used vertices
-        if(drawTypes.empty()){
+        if(renderTypes.empty()){
             vertices.clear();
             indices.clear();
         } else {
