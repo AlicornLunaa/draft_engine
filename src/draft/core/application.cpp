@@ -1,7 +1,6 @@
 #define GLFW_INCLUDE_NONE
 
 #include <string>
-#include <iostream>
 
 #include "draft/core/application.hpp"
 #include "draft/input/keyboard.hpp"
@@ -11,9 +10,6 @@
 namespace Draft {
     // Constructors
     Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title), keyboard(window), mouse(window) {
-        // Redirect cout to console
-        oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
-
         // Register callback
         keyboard.add_callback([this](Event e){ window.queue_event(e); });
         mouse.add_callback([this](Event e){ window.queue_event(e); });
@@ -30,10 +26,7 @@ namespace Draft {
         });
     }
 
-    Application::~Application(){
-        // Restore cout to stdout
-        std::cout.rdbuf(oldOutBuf);
-    }
+    Application::~Application(){}
 
     // Functions
     void Application::run(){

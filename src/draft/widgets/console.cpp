@@ -1,6 +1,8 @@
 #include <cstddef>
 #include <string>
+#include <utility>
 #include <vector>
+#include <iostream>
 
 #include "draft/widgets/console.hpp"
 #include "draft/core/application.hpp"
@@ -35,28 +37,6 @@ namespace Draft {
         }
     }
 
-    void Console::construct_raw_buffer(){
-        // Creates a raw buffer from the input buffer
-        for(size_t i = 0; i < OUTPUT_BUFFER_SIZE; i++){
-            // Zero out the buffer
-            outputBuffer[i] = '\0';
-        }
-
-        size_t cursor = 0;
-
-        for(size_t i = 0; i < output.length(); i++){
-            // Add the line to the buffer
-            string line = output[i];
-            
-            for(const char& c : line){
-                if(cursor >= OUTPUT_BUFFER_SIZE) break;
-                if(c == '\0') continue;
-                outputBuffer[cursor] = c;
-                cursor++;
-            }
-        }
-    }
-
     // Constructors
     Console::Console(const Application* app, bool openByDefault) : app(app) {
         // Open by default flag
@@ -65,20 +45,48 @@ namespace Draft {
         // Zero out buffers
         for(int i = 0; i < INPUT_BUFFER_SIZE; i++)
             inputBuffer[i] = '\0';
-            
-        for(int i = 0; i < OUTPUT_BUFFER_SIZE; i++)
-            outputBuffer[i] = '\0';
+
+        // Redirect cout to console
+        oldOutBuf = std::cout.rdbuf(get_stream().rdbuf());
     }
 
-    Console::~Console(){}
+    Console::~Console(){
+        // Restore cout to stdout
+        std::cout.rdbuf(oldOutBuf);
+    }
 
     // Functions
     void Console::draw(){
+        // Lambda
+        auto run_command = [this](){
+            string rawCommand(inputBuffer, 512);
+            vector<string> argList;
+            parse_arguments(rawCommand, argList);
+            print(rawCommand + '\n');
+            run(argList[0], argList);
+
+            for(int i = 0; i < 512; i++)
+                inputBuffer[i] = '\0';
+        };
+
+        auto get_ansi_color = [](const std::string& str){
+            // Gets ImGui color from ANSI color code
+            if(str == "\033[0m") return ImVec4(1, 1, 1, 1);
+            else if(str == "\033[30m") return ImVec4(0, 0, 0, 1);
+            else if(str == "\033[31m") return ImVec4(1, 0, 0, 1);
+            else if(str == "\033[32m") return ImVec4(0, 1, 0, 1);
+            else if(str == "\033[33m") return ImVec4(1, 1, 0, 1);
+            else if(str == "\033[34m") return ImVec4(0, 0, 1, 1);
+            else if(str == "\033[35m") return ImVec4(1, 0, 1, 1);
+            else if(str == "\033[36m") return ImVec4(0, 1, 1, 1);
+            else if(str == "\033[37m") return ImVec4(1, 1, 1, 1);
+            return ImVec4(1, 1, 1, 1);
+        };
+
         // Interface
         if(mOpened){
-            ImGui::SetNextWindowSizeConstraints({ 300, 200 }, { FLT_MAX, FLT_MAX });
+            ImGui::SetNextWindowSizeConstraints({ 480, 270 }, { FLT_MAX, FLT_MAX });
             ImGui::Begin("Console", &mOpened);
-            lineWidth = (ImGui::GetWindowWidth() - 20) / 8;
 
             // Copy stream data to the buffer
             if(stream.str().length() > 0){
@@ -87,36 +95,109 @@ namespace Draft {
             }
 
             // List data
-            ImGui::InputTextMultiline("##console_logs", outputBuffer, OUTPUT_BUFFER_SIZE, ImVec2(-FLT_MIN, ImGui::GetWindowHeight() - ImGui::GetFrameHeightWithSpacing() * 2 - 16), ImGuiInputTextFlags_ReadOnly);
+            const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+            if(ImGui::BeginChild("##console_logs", { 0, -footerHeightToReserve }, 0, 0)){
+                // Render each text
+                std::vector<std::pair<ImVec4, std::string>> colorStrings;
+                std::vector<bool> newLines;
+
+                ImGui::PushTextWrapPos();
+                for(const auto& str : lines){
+                    // Initialize with default color
+                    colorStrings.push_back({{1, 1, 1, 1}, ""});
+                    newLines.push_back(false);
+
+                    // Check for ANSI colors
+                    for(size_t i = 0; i < str.length(); i++){
+                        const char& c = str[i];
+
+                        if(c == '\033'){
+                            // ANSI command follows this char
+                            // Next char is [ and the ending char is m. iterate over each char to build the code
+                            std::string codeStr = "\033[";
+                            int k = i + 2;
+
+                            while(str[k] != 'm' && k < str.length() - 1){
+                                codeStr += str[k++];
+                            }
+
+                            if(codeStr == "\033[1m"){
+                                // Bold isnt supported
+                                continue;
+                            }
+
+                            codeStr += 'm';
+                            colorStrings.push_back({get_ansi_color(codeStr), ""});
+                            newLines.push_back(false);
+                            i += codeStr.length() - 1;
+                            continue;
+                        } else if(c == '\n'){
+                            // New line char, set new line
+                            colorStrings.push_back({colorStrings.back().first, ""});
+                            newLines.push_back(true);
+                            continue;
+                        }
+
+                        colorStrings.back().second += c;
+                    }
+
+                    // Render texts
+                    for(size_t i = 0; i < colorStrings.size(); i++){
+                        auto& [color, text] = colorStrings[i];
+                        ImGui::TextColored(color, "%s", text.c_str());
+                        
+                        // Render on same line if it isnt the end of the split string
+                        if(i < colorStrings.size() - 1 && !newLines[i]){
+                            ImGui::SameLine(0, 0);
+                        }
+                    }
+
+                    // Clear vector for next line
+                    colorStrings.clear();
+                    newLines.clear();
+                }
+                ImGui::PopTextWrapPos();
+
+                // Auto-scroll logs.
+                if(scrollToBottom && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                    ImGui::SetScrollHereY(1.0f);
+
+                ImGui::EndChild();
+            }
 
             // Input handling
+            ImGui::Separator();
             ImGui::SetNextItemWidth(-72);
             ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetFrameHeightWithSpacing() - 4);
-            ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
+
+            if(reclaimFocus){
+                ImGui::SetKeyboardFocusHere();
+                reclaimFocus = false;
+            }
+
+            if(ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512, ImGuiInputTextFlags_EnterReturnsTrue) && inputBuffer[0] != '\0'){
+                run_command();
+                reclaimFocus = true;
+            }
+
             ImGui::SameLine();
 
-            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (app->keyboard.is_just_pressed(Keyboard::ENTER) && inputBuffer[0] != '\0')){
-                string rawCommand(inputBuffer, 512);
-                vector<string> argList;
-                parse_arguments(rawCommand, argList);
-                print(rawCommand + '\n');
-                run(argList[0], argList);
-
-                for(int i = 0; i < 512; i++)
-                    inputBuffer[i] = '\0';
+            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() })){
+                run_command();
+                reclaimFocus = false;
             }
 
             ImGui::End();
         }
 
         // Handle pressing keys
-        if(app->keyboard.is_just_pressed(Keyboard::GRAVE)){
+        if(app->keyboard.is_just_pressed(Keyboard::GRAVE))
             mOpened = !mOpened;
-        }
     }
 
     void Console::set_open(bool open){
         mOpened = open;
+        reclaimFocus = true;
     }
 
     void Console::register_cmd(const string& key, ConsoleFunc func){
@@ -146,7 +227,9 @@ namespace Draft {
 
     void Console::print(const string& text){
         // Add the text provided to the circular buffer
-        output.push(text);
-        construct_raw_buffer();
+        lines.push_back(text);
+
+        if(lines.size() > MAX_LINES)
+            lines.erase(lines.begin(), lines.begin() + 1);
     }
 }

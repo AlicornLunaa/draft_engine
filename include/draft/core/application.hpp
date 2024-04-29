@@ -17,7 +17,6 @@ namespace Draft {
      */
     class Application {
     private:
-        std::streambuf* oldOutBuf = nullptr;
         Scene* activeScene = nullptr;
         Clock deltaClock;
         Event event;
