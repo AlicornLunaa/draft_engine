@@ -33,6 +33,7 @@ set(SOURCES
     src/draft/rendering/mesh.cpp
     src/draft/rendering/material.cpp
     src/draft/rendering/font.cpp
+    src/draft/rendering/phys_renderer_p.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -49,6 +50,7 @@ set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
     src/draft/phys/conversions_p.hpp
+    src/draft/rendering/phys_renderer_p.hpp
 )
 
 set(INTERFACES

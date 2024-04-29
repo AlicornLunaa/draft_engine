@@ -46,6 +46,30 @@ namespace Draft {
         renderTypes.push({ type, 0, 0 });
     }
 
+    void ShapeBatch::draw_polygon(const std::vector<Vector2f>& polygonVertices){
+        // Lines can only be GL_LINES
+        if(currentRenderType != RenderType::LINE){
+            Logger::println(Level::WARNING, "Shape Batch", "draw_polygon(const std::vector<Vector2f>&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
+            set_render_type(RenderType::LINE);
+        }
+
+        // Generate and add vertices
+        auto& tup = get_current_render_type_instance();
+        size_t indexStart = vertices.size();
+
+        for(auto& v : polygonVertices){
+            vertices.push_back({ v, currentColor });
+        }
+        get<1>(tup) += polygonVertices.size();
+
+        // Connect all indices
+        for(size_t i = 0; i < polygonVertices.size(); i++){
+            indices.push_back(i + indexStart);
+            indices.push_back((i + 1) % polygonVertices.size() + indexStart);
+        }
+        get<2>(tup) += (polygonVertices.size() * 2);
+    }
+
     void ShapeBatch::draw_rect(const Vector2f& position, const Vector2f& size, float rotation){
         // Generate and add vertices
         auto& tup = get_current_render_type_instance();

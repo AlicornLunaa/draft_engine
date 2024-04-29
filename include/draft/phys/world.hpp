@@ -5,6 +5,7 @@
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
+#include "draft/rendering/shader.hpp"
 
 #include <memory>
 #include <vector>
@@ -37,8 +38,10 @@ namespace Draft {
         void destroy_joint(Joint*& joint);
         void destroy_joint(Joint* joint);
 
+        void set_debug_renderer(Shader& shader, void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(float timeStep, int32_t velocityIterations, int32_t positionIterations);
+        void debug_draw();
         
     private:
         // pImpl

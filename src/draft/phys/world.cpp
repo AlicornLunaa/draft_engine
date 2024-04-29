@@ -1,4 +1,5 @@
 #include "box2d/b2_body.h"
+#include "box2d/b2_draw.h"
 #include "box2d/b2_joint.h"
 #include "box2d/b2_world.h"
 
@@ -8,6 +9,7 @@
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
+#include "draft/rendering/phys_renderer_p.hpp"
 
 #include <algorithm>
 #include <memory>
@@ -16,6 +18,7 @@ namespace Draft {
     // pImpl
     struct World::Impl {
         b2World world = b2World({0, 0});
+        PhysicsDebugRender* physRenderer = nullptr;
     };
 
     // Constructors
@@ -36,6 +39,9 @@ namespace Draft {
 
         rigidBodies.clear();
         joints.clear();
+
+        if(ptr->physRenderer)
+            delete ptr->physRenderer;
     }
 
     // Functions
@@ -149,5 +155,25 @@ namespace Draft {
         joints.erase(std::find(joints.begin(), joints.end(), joint));
     }
 
-    void World::step(float timeStep, int32_t velocityIterations, int32_t positionIterations){ ptr->world.Step(timeStep, velocityIterations, positionIterations); }
+    void World::set_debug_renderer(Shader& shader, void* renderer){
+        if(!renderer){
+            if(ptr->physRenderer)
+                delete ptr->physRenderer;
+            
+            ptr->physRenderer = new PhysicsDebugRender(shader);
+            ptr->world.SetDebugDraw(ptr->physRenderer);
+            return;
+        }
+
+        ptr->world.SetDebugDraw((b2Draw*)renderer);
+    }
+
+    void World::step(float timeStep, int32_t velocityIterations, int32_t positionIterations){
+        ptr->world.Step(timeStep, velocityIterations, positionIterations);
+    }
+
+    void World::debug_draw(){
+        ptr->world.DebugDraw();
+        ptr->physRenderer->render();
+    }
 };
