@@ -1,7 +1,6 @@
 #include <iostream>
 #include "draft/util/logger.hpp"
 #include "draft/util/ansi_colors.hpp"
-#include "draft/util/constants.hpp"
 
 namespace Draft {
     void Logger::print(const Level level, const std::string& name, const std::string& str){

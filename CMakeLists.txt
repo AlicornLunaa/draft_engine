@@ -100,7 +100,6 @@ set(INTERFACES
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
-    include/draft/util/constants.hpp
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp

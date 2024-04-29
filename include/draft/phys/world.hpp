@@ -18,6 +18,10 @@ namespace Draft {
         std::vector<Joint*> joints;
 
     public:
+        // Static public vars
+        constexpr static int VELOCITY_ITER = 6;
+        constexpr static int POSITION_ITER = 2;
+
         // Constructors
         World(const Vector2f& gravity);
         World(const World& other) = delete;
