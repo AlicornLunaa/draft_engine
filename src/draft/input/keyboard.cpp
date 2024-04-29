@@ -84,11 +84,11 @@ namespace Draft {
     }
 
     // Constructors
-    Keyboard::Keyboard(RenderWindow* window) : window(window) {
-        glfwSetKeyCallback((GLFWwindow*)window->get_raw_window(), GLFWImpl::key_callback);
-        glfwSetCharCallback((GLFWwindow*)window->get_raw_window(), GLFWImpl::text_callback);
-        window->init_callbacks();
-        Keyboard::windowKeyboardMap[window->get_raw_window()] = this;
+    Keyboard::Keyboard(RenderWindow& window) : window(&window) {
+        glfwSetKeyCallback((GLFWwindow*)window.get_raw_window(), GLFWImpl::key_callback);
+        glfwSetCharCallback((GLFWwindow*)window.get_raw_window(), GLFWImpl::text_callback);
+        window.init_callbacks();
+        Keyboard::windowKeyboardMap[window.get_raw_window()] = this;
     }
 
     Keyboard::~Keyboard(){

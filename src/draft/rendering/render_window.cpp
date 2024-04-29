@@ -3,8 +3,6 @@
 #include <string>
 
 #include "draft/rendering/render_window.hpp"
-#include "draft/input/keyboard.hpp"
-#include "draft/input/mouse.hpp"
 #include "draft/input/event.hpp"
 #include "draft/util/logger.hpp"
 #include "GLFW/glfw3.h"
@@ -121,16 +119,10 @@ namespace Draft {
 
     // Definitions
     RenderWindow::RenderWindow(unsigned int width, unsigned int height, const string& title) : ptr(std::make_unique<Impl>(width, height, title)){
-        // Setup inputs
-        Mouse::init(this);
-        Mouse::add_callback([this](Event e){ eventQueue.emplace(e); });
-
         // Save active window
         RenderWindow::glfwToRenderMap[ptr->window] = this;
     }
     RenderWindow::~RenderWindow(){
-        Mouse::clear_callbacks();
-
         // Remove active window
         RenderWindow::glfwToRenderMap[ptr->window] = nullptr;
     }

@@ -1,21 +1,22 @@
-#include "draft/input/keyboard.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
 #include <iostream>
 
 #include "draft/core/application.hpp"
+#include "draft/input/keyboard.hpp"
 #include "draft/core/scene.hpp"
 #include "draft/widgets/stats.hpp"
 
 namespace Draft {
     // Constructors
-    Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title), keyboard(&window) {
+    Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title), keyboard(window), mouse(window) {
         // Redirect cout to console
         oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
 
         // Register callback
         keyboard.add_callback([this](Event e){ window.queue_event(e); });
+        mouse.add_callback([this](Event e){ window.queue_event(e); });
 
         // Register basic commands
         console.register_cmd("reload_assets", [this](ConsoleArgs args){

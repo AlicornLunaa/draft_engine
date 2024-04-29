@@ -2,6 +2,7 @@
 
 #include "draft/core/scene.hpp"
 #include "draft/input/event.hpp"
+#include "draft/input/mouse.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/asset_manager.hpp"
 #include "draft/util/clock.hpp"
@@ -25,6 +26,7 @@ namespace Draft {
     public:
         AssetManager assets;
         RenderWindow window;
+        Mouse mouse;
         Keyboard keyboard;
         Time deltaTime;
         double timeStep = 1.0/66.0;

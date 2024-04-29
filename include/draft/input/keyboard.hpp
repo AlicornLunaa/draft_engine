@@ -24,7 +24,7 @@ namespace Draft {
 
     public:
         // Constructors
-        Keyboard(RenderWindow* window);
+        Keyboard(RenderWindow& window);
         Keyboard(const Keyboard& other) = delete;
         ~Keyboard();
 
