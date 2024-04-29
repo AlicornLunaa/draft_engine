@@ -68,9 +68,7 @@ namespace Draft {
                 activeScene->render(deltaTime);
 
             // Draw debug stuff
-            if(debug)
-                stats.draw(*this);
-
+            stats.draw(*this);
             console.draw();
             
             window.display();
