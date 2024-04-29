@@ -1,7 +1,6 @@
 #include "draft/core/application.hpp"
 #include "draft/widgets/stats.hpp"
 #include "draft/input/keyboard.hpp"
-#include "draft/input/keys.hpp"
 #include "imgui.h"
 
 #include <algorithm>
@@ -82,7 +81,7 @@ namespace Draft {
         }
 
         // Handle pressing keys
-        if(app.keyboard.is_just_pressed(Key::F3)){
+        if(app.keyboard.is_just_pressed(Keyboard::F3)){
             app.debug = !app.debug;
         }
     }

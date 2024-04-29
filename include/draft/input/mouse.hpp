@@ -9,6 +9,22 @@ namespace Draft {
     class RenderWindow;
 
     class Mouse {
+    public:
+        // Enums
+        enum Button {
+            BUTTON1 = 0,
+            BUTTON2 = 1,
+            BUTTON3 = 2,
+            BUTTON4 = 3,
+            BUTTON5 = 4,
+            BUTTON6 = 5,
+            BUTTON7 = 6,
+            BUTTON8 = 7,
+            LEFT_BUTTON = BUTTON1,
+            RIGHT_BUTTON = BUTTON2,
+            MIDDLE_BUTTON = BUTTON3
+        };
+
     private:
         // Impl for defining friends
         struct GLFWImpl;

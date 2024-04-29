@@ -1,6 +1,5 @@
 #include "draft/input/keyboard.hpp"
 #include "draft/input/event.hpp"
-#include "draft/input/keys.hpp"
 #include "GLFW/glfw3.h"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/logger.hpp"
@@ -26,10 +25,10 @@ namespace Draft {
             // Convert to draft actions
             Event event{};
             event.key.code = key;
-            event.key.alt = (mods & KeyModifier::ALT);
-            event.key.control = (mods & KeyModifier::CTRL);
-            event.key.shift = (mods & KeyModifier::SHIFT);
-            event.key.system = (mods & KeyModifier::SUPER);
+            event.key.alt = (mods & static_cast<int>(Modifier::ALT));
+            event.key.control = (mods & static_cast<int>(Modifier::CTRL));
+            event.key.shift = (mods & static_cast<int>(Modifier::SHIFT));
+            event.key.system = (mods & static_cast<int>(Modifier::SUPER));
 
             switch(action){
             case GLFW_PRESS:
