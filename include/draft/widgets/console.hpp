@@ -11,6 +11,8 @@ namespace Draft {
     using ConsoleArgs = const std::vector<std::string>&;
     using ConsoleFunc = std::function<bool(ConsoleArgs)>;
 
+    class Application;
+
     class Console {
     private:
         // Constants
@@ -19,6 +21,7 @@ namespace Draft {
         constexpr static size_t MAX_LINES = 32;
 
         // Variables
+        const Application* app;
         std::vector<ConsoleFunc> commandArray;
         std::vector<std::string> commandAliases;
 
@@ -36,7 +39,7 @@ namespace Draft {
 
     public:
         // Constructors
-        Console(bool openByDefault = false);
+        Console(const Application* app, bool openByDefault = false);
         ~Console();
 
         // Functions

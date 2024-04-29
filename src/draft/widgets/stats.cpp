@@ -82,7 +82,7 @@ namespace Draft {
         }
 
         // Handle pressing keys
-        if(Keyboard::is_just_pressed(Key::F3)){
+        if(app.keyboard.is_just_pressed(Key::F3)){
             app.debug = !app.debug;
         }
     }

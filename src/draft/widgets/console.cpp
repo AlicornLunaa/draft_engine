@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "draft/widgets/console.hpp"
+#include "draft/core/application.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/input/keys.hpp"
 #include "draft/util/logger.hpp"
@@ -58,7 +59,7 @@ namespace Draft {
     }
 
     // Constructors
-    Console::Console(bool openByDefault){
+    Console::Console(const Application* app, bool openByDefault) : app(app) {
         // Open by default flag
         mOpened = openByDefault;
 
@@ -95,7 +96,7 @@ namespace Draft {
             ImGui::InputTextWithHint("##", "COMMAND", &inputBuffer[0], 512);
             ImGui::SameLine();
 
-            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (Keyboard::is_just_pressed(Key::ENTER) && inputBuffer[0] != '\0')){
+            if(ImGui::Button("RUN", { 64, ImGui::GetFrameHeight() }) || (app->keyboard.is_just_pressed(Key::ENTER) && inputBuffer[0] != '\0')){
                 string rawCommand(inputBuffer, 512);
                 vector<string> argList;
                 parse_arguments(rawCommand, argList);
@@ -110,7 +111,7 @@ namespace Draft {
         }
 
         // Handle pressing keys
-        if(Keyboard::is_just_pressed(Key::GRAVE)){
+        if(app->keyboard.is_just_pressed(Key::GRAVE)){
             mOpened = !mOpened;
         }
     }

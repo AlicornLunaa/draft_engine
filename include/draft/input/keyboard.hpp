@@ -1,54 +1,47 @@
 #pragma once
 
 #include "draft/input/event.hpp"
-#include "draft/rendering/render_window.hpp"
 
 #include <unordered_map>
 #include <vector>
 
-namespace Draft {// Enumerators
+namespace Draft {
+    class RenderWindow;
+
     class Keyboard {
     private:
+        // Impl for defining friends
+        struct GLFWImpl;
+
         // Variables
-        static RenderWindow* window;
-        static std::unordered_map<int, bool> lastPressedKeys;
+        static std::unordered_map<void*, Keyboard*> windowKeyboardMap;
+        mutable std::unordered_map<int, bool> lastPressedKeys;
+        std::vector<EventCallback> callbacks;
+        RenderWindow* window = nullptr;
+
+        // Private functions
+        void set_key_released(int key);
 
     public:
-        // Variables
-        static std::vector<EventCallback> callbacks;
+        // Constructors
+        Keyboard(RenderWindow* window);
+        Keyboard(const Keyboard& other) = delete;
+        ~Keyboard();
 
-        // Constructor
-        Keyboard() = delete; // Shouldnt have instances
+        // Friends
+        friend class GLFWImpl;
 
         // Functions
-        /**
-         * @brief Must be ran to setup keyboard callbacks. Automatically called by Application
-         * @param window 
-         */
-        static void init(RenderWindow* window);
-
-        /**
-         * @brief Removes callbacks. Automatically called when Application is destroyed
-         * 
-         */
-        static void cleanup();
-
-        /**
-         * @brief Resets the key for is_just_pressed(int). Called automatically, should be internal use only
-         * @param key 
-         */
-        static void set_key_released(int key);
-
         /**
          * @brief Adds a callback to be executed when GLFW has a callback
          * @param func 
          */
-        static void add_callback(EventCallback func);
+        void add_callback(EventCallback func);
 
         /**
          * @brief Removes all the callbacks from the keyboard
          */
-        static void clear_callbacks();
+        void clear_callbacks();
 
         /**
          * @brief Checks if a key is currently pressed
@@ -56,7 +49,7 @@ namespace Draft {// Enumerators
          * @return true 
          * @return false 
          */
-        static bool is_pressed(int key);
+        bool is_pressed(int key) const;
 
         /**
          * @brief Checks if a key has just been pressed last frame
@@ -64,6 +57,6 @@ namespace Draft {// Enumerators
          * @return true 
          * @return false 
          */
-        static bool is_just_pressed(int key);
+        bool is_just_pressed(int key) const;
     };
 };

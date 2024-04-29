@@ -25,10 +25,11 @@ namespace Draft {
     public:
         AssetManager assets;
         RenderWindow window;
+        Keyboard keyboard;
         Time deltaTime;
         double timeStep = 1.0/66.0;
 
-        Console console;
+        Console console{this};
         Stats stats;
         bool debug = true;
         

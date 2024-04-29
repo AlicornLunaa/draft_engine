@@ -1,3 +1,4 @@
+#include "draft/input/keyboard.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -9,9 +10,12 @@
 
 namespace Draft {
     // Constructors
-    Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title) {
+    Application::Application(const char* title, const unsigned int width, const unsigned int height) : window(width, height, title), keyboard(&window) {
         // Redirect cout to console
         oldOutBuf = std::cout.rdbuf(console.get_stream().rdbuf());
+
+        // Register callback
+        keyboard.add_callback([this](Event e){ window.queue_event(e); });
 
         // Register basic commands
         console.register_cmd("reload_assets", [this](ConsoleArgs args){
