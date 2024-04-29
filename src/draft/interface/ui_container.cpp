@@ -109,6 +109,11 @@ namespace Draft {
     }
 
     void UIContainer::render(const Time& deltaTime){
+        // Check for window resize
+        auto size = app->window.get_size();
+        windowBounds.width = size.x;
+        windowBounds.height = size.y;
+
         // Handle updates
         for(auto* p : panels)
             p->update(deltaTime);
