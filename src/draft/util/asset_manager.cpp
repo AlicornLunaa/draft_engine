@@ -1,5 +1,4 @@
 #include <filesystem>
-#include <memory>
 
 #include "draft/util/asset_manager.hpp"
 #include "draft/rendering/model.hpp"
@@ -8,17 +7,17 @@
 
 namespace Draft {
     // Private functions
-    std::unique_ptr<Texture> AssetManager::load_static_texture(const std::string& path){
+    Texture* AssetManager::load_static_texture(const std::string& path){
         // Loads raw data from binary to a texture
-        return std::make_unique<Texture>(FileHandle(path, FileHandle::INTERNAL));
+        return new Texture(FileHandle(path, FileHandle::INTERNAL));
     }
 
-    std::unique_ptr<Model> AssetManager::load_static_model(const std::string& path){
-        return std::make_unique<Model>(FileHandle(path, FileHandle::INTERNAL));
+    Model* AssetManager::load_static_model(const std::string& path){
+        return new Model(FileHandle(path, FileHandle::INTERNAL));
     }
 
-    std::unique_ptr<Shader> AssetManager::load_static_shader(const std::string& vertex, const std::string& fragment){
-        return std::make_unique<Shader>(FileHandle(vertex, FileHandle::INTERNAL), FileHandle(fragment, FileHandle::INTERNAL));
+    Shader* AssetManager::load_static_shader(const std::string& vertex, const std::string& fragment){
+        return new Shader(FileHandle(vertex, FileHandle::INTERNAL), FileHandle(fragment, FileHandle::INTERNAL));
     }
 
     // Constructors
@@ -130,12 +129,12 @@ namespace Draft {
 
 
     // Static variables
-    std::unique_ptr<Texture> AssetManager::MISSING_TEXTURE{};
-    std::unique_ptr<Texture> AssetManager::EMPTY_NORMAL_MAP{};
-    std::unique_ptr<Texture> AssetManager::DEBUG_WHITE{};
-    std::unique_ptr<Texture> AssetManager::DEBUG_BLACK{};
-    std::unique_ptr<Model> AssetManager::MISSING_MODEL{};
-    std::unique_ptr<Shader> AssetManager::MISSING_SHADER{};
+    Texture* AssetManager::MISSING_TEXTURE = nullptr;
+    Texture* AssetManager::EMPTY_NORMAL_MAP = nullptr;
+    Texture* AssetManager::DEBUG_WHITE = nullptr;
+    Texture* AssetManager::DEBUG_BLACK = nullptr;
+    Model* AssetManager::MISSING_MODEL = nullptr;
+    Shader* AssetManager::MISSING_SHADER = nullptr;
 
     // Static functions
     const Texture& AssetManager::get_missing_texture(){

@@ -98,8 +98,8 @@ namespace Draft {
             const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
             if(ImGui::BeginChild("##console_logs", { 0, -footerHeightToReserve }, 0, 0)){
                 // Render each text
-                std::vector<std::pair<ImVec4, std::string>> colorStrings;
-                std::vector<bool> newLines;
+                static std::vector<std::pair<ImVec4, std::string>> colorStrings;
+                static std::vector<bool> newLines;
 
                 ImGui::PushTextWrapPos();
                 for(const auto& str : lines){

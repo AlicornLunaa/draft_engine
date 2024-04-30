@@ -5,7 +5,6 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/util/file_handle.hpp"
 
-#include <memory>
 #include <queue>
 #include <unordered_map>
 #include <vector>
@@ -15,12 +14,12 @@ namespace Draft {
     class AssetManager {
     private:
         // Static variables
-        static std::unique_ptr<Texture> MISSING_TEXTURE;
-        static std::unique_ptr<Texture> EMPTY_NORMAL_MAP;
-        static std::unique_ptr<Texture> DEBUG_WHITE;
-        static std::unique_ptr<Texture> DEBUG_BLACK;
-        static std::unique_ptr<Model> MISSING_MODEL;
-        static std::unique_ptr<Shader> MISSING_SHADER;
+        static Texture* MISSING_TEXTURE;
+        static Texture* EMPTY_NORMAL_MAP;
+        static Texture* DEBUG_WHITE;
+        static Texture* DEBUG_BLACK;
+        static Model* MISSING_MODEL;
+        static Shader* MISSING_SHADER;
 
         // Variables
         std::queue<FileHandle> textureQueue;
@@ -36,9 +35,9 @@ namespace Draft {
         std::unordered_map<std::string, size_t> shaderMap;
 
         // Private functions
-        static std::unique_ptr<Texture> load_static_texture(const std::string& path);
-        static std::unique_ptr<Model> load_static_model(const std::string& path);
-        static std::unique_ptr<Shader> load_static_shader(const std::string& vertex, const std::string& fragment);
+        static Texture* load_static_texture(const std::string& path);
+        static Model* load_static_model(const std::string& path);
+        static Shader* load_static_shader(const std::string& vertex, const std::string& fragment);
 
     public:
         AssetManager();
