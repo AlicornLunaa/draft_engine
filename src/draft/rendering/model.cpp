@@ -29,7 +29,7 @@ namespace Draft {
             res = loader.LoadBinaryFromMemory(&mdl, &err, &warn, reinterpret_cast<const unsigned char*>(bytes.data()), bytes.size());
         } else {
             const auto& str = handle.read_string();
-            auto basePath = std::filesystem::path("./assets");
+            std::string basePath = std::filesystem::path("./assets").string();
             res = loader.LoadASCIIFromString(&mdl, &err, &warn, str.c_str(), str.length(), basePath);
         }
 

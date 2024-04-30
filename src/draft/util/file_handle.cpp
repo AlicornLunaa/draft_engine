@@ -31,7 +31,7 @@ namespace Draft {
 
         case INTERNAL:
             const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-            return interalFiles.exists(path);
+            return interalFiles.exists(path.string());
         }
 
         return false;
@@ -54,7 +54,7 @@ namespace Draft {
 
         case INTERNAL:
             const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-            const auto& data = interalFiles.open(path);
+            const auto& data = interalFiles.open(path.string());
             return data.size();
         }
 
@@ -63,18 +63,18 @@ namespace Draft {
 
     std::string FileHandle::filename() const {
         if(path == "null") return "";
-        return path.filename();
+        return path.filename().string();
     }
 
     std::string FileHandle::extension() const {
         if(path == "null") return "";
         fs::path p(path);
-        return p.extension();
+        return p.extension().string();
     }
 
     std::string FileHandle::get_path() const {
         if(path == "null") return "";
-        return path.relative_path();
+        return path.relative_path().string();
     }
 
     FileHandle::Access FileHandle::get_access() const {
@@ -100,7 +100,7 @@ namespace Draft {
 
             case INTERNAL:
                 const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-                const auto& data = interalFiles.open(path);
+                const auto& data = interalFiles.open(path.string());
 
                 for(auto iter = data.begin(); iter != data.end(); iter++){
                     out += *iter;
@@ -144,7 +144,7 @@ namespace Draft {
 
             case INTERNAL:
                 const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-                const auto& data = interalFiles.open(path);
+                const auto& data = interalFiles.open(path.string());
                 len = data.end() - data.begin();
                 array = new char[len];
 
@@ -176,7 +176,7 @@ namespace Draft {
 
     // Operators
     FileHandle FileHandle::operator+ (const std::string& right) const {
-        std::string p = this->path;
+        std::string p = this->path.string();
         return { p + right, access };
     }
 
