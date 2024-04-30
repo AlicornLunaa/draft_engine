@@ -9,13 +9,13 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] UI api
 - [x] Component api
 - [x] Physics api
-- [ ] Scenegraph
-- [ ] Audio api
-- [ ] Animation api
-- [ ] Profiler API
-- [ ] Localization API
 - [ ] Refactor rendering
+- [ ] Audio api
 - [ ] Particles
+- [ ] Profiler api
+- [ ] Scenegraph
+- [ ] Localization API
+- [ ] Animation api
 
 ## How the engine works
 ### OpenGL Resources
