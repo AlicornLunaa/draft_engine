@@ -24,6 +24,7 @@ namespace Draft {
     public:
         // Constructors
         Shader(const char* vertexSrc, const char* fragmentSrc);
+        Shader(const FileHandle& vertexHandle, const FileHandle& fragmentHandle);
         Shader(const FileHandle& handle);
         Shader(const std::filesystem::path& shaderPath);
         Shader(const Shader& other) = delete;

@@ -1,9 +1,12 @@
 #pragma once
 
+#include "draft/rendering/model.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/util/file_handle.hpp"
 
 #include <memory>
+#include <queue>
 #include <unordered_map>
 #include <vector>
 
@@ -16,54 +19,50 @@ namespace Draft {
         static std::unique_ptr<Texture> EMPTY_NORMAL_MAP;
         static std::unique_ptr<Texture> DEBUG_WHITE;
         static std::unique_ptr<Texture> DEBUG_BLACK;
+        static std::unique_ptr<Model> MISSING_MODEL;
+        static std::unique_ptr<Shader> MISSING_SHADER;
 
         // Variables
-        std::vector<std::string> textureQueue;
+        std::queue<FileHandle> textureQueue;
         std::vector<Texture*> textureArray;
         std::unordered_map<std::string, size_t> textureMap;
 
-        std::vector<std::string> shaderQueue;
+        std::queue<FileHandle> modelQueue;
+        std::vector<Model*> modelArray;
+        std::unordered_map<std::string, size_t> modelMap;
+
+        std::queue<FileHandle> shaderQueue;
         std::vector<Shader*> shaderArray;
         std::unordered_map<std::string, size_t> shaderMap;
 
-        // std::vector<std::string> audioQueue;
-        // std::vector<sf::SoundBuffer*> audioArray;
-        // std::unordered_map<std::string, size_t> audioMap;
-
-        // std::vector<std::string> fontQueue;
-        // std::vector<sf::Font> fontArray;
-        // std::unordered_map<std::string, size_t> fontMap;
+        // Private functions
+        static std::unique_ptr<Texture> load_static_texture(const std::string& path);
+        static std::unique_ptr<Model> load_static_model(const std::string& path);
+        static std::unique_ptr<Shader> load_static_shader(const std::string& vertex, const std::string& fragment);
 
     public:
         AssetManager();
+        AssetManager(const AssetManager& other) = delete;
         ~AssetManager();
 
         void clear();
         void reload();
         void load();
 
-        void queue_texture(const std::string& path);
-        void queue_shader(const std::string& path);
-        // void queueAudio(const std::string& path);
-        // void queueFont(const std::string& path);
+        inline void queue_texture(const FileHandle& path){ textureQueue.emplace(path); }
+        inline void queue_model(const FileHandle& path){ modelQueue.emplace(path); }
+        inline void queue_shader(const FileHandle& path){ shaderQueue.emplace(path); }
 
         const Texture& get_texture(const std::string& name) const;
-
+        const Model& get_model(const std::string& name) const;
         Shader& get_shader(const std::string& name) const;
-        // const sf::SoundBuffer& getAudio(const std::string& name) const;
-        // const sf::Font& getFont(const std::string& name) const;
 
         // Static variables
         static const Texture& get_missing_texture();
         static const Texture& get_empty_normal_map();
         static const Texture& get_debug_white();
         static const Texture& get_debug_black();
-
-    private:
-        static std::unique_ptr<Texture> load_static_texture(const std::string& path);
-        void load_texture(Texture* texture, const std::string& path);
-        void load_shader(Shader* shader, const std::string& path);
-        // void loadAudio(sf::SoundBuffer* audio, const std::string& path);
-        // void loadFont(sf::Font& shader, const std::string& path);
+        static const Model& get_missing_model();
+        static Shader& get_missing_shader();
     };
 }

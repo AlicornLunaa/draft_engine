@@ -82,6 +82,17 @@ namespace Draft {
         load_shaders(vertexSrc, fragmentSrc);
     }
 
+    Shader::Shader(const FileHandle& vertexHandle, const FileHandle& fragmentHandle) : reloadable(false), handle(vertexHandle){
+        // Load shader data
+        auto vertexSrc = vertexHandle.read_bytes();
+        auto fragmentSrc = fragmentHandle.read_bytes();
+        vertexSrc.push_back('\0');
+        fragmentSrc.push_back('\0');
+
+        // Send data to OpenGL
+        load_shaders(vertexSrc.data(), fragmentSrc.data());
+    }
+
     Shader::Shader(const FileHandle& handle) : reloadable(true), handle(handle) {
         // Build paths for files
         FileHandle vertexHandle = handle + "/vertex.glsl";

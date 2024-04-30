@@ -115,6 +115,8 @@ set(RESOURCES
     assets/debug_white.png
     assets/debug_black.png
     assets/missing_model.glb
+    assets/missing_shader/vertex.glsl
+    assets/missing_shader/fragment.glsl
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)

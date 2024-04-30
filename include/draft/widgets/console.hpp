@@ -15,7 +15,7 @@ namespace Draft {
     private:
         // Constants
         constexpr static size_t INPUT_BUFFER_SIZE = 512;
-        constexpr static size_t MAX_LINES = 320;
+        constexpr static size_t MAX_LINES = 100;
 
         // Variables
         const Application* app;

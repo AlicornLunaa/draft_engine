@@ -247,7 +247,7 @@ namespace Draft {
         buffer_meshes();
     }
 
-    Model::Model(const Model& other) : reloadable(other.reloadable), meshes(other.meshes), meshToMaterialMap(other.meshToMaterialMap), meshToMatrixMap(other.meshToMatrixMap), handle(other.handle) {
+    Model::Model(const Model& other) : reloadable(other.reloadable), meshes(other.meshes), materials(other.materials), meshToMaterialMap(other.meshToMaterialMap), meshToMatrixMap(other.meshToMatrixMap), handle(other.handle) {
         // Copy constructor
         buffer_meshes();
     }

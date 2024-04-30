@@ -17,7 +17,7 @@ namespace Draft {
 
     public:
         // Constructors
-        FileHandle(const std::filesystem::path& path, Access access);
+        FileHandle(const std::filesystem::path& path, Access access = LOCAL);
         FileHandle();
 
         // Functions
