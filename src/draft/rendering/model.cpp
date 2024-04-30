@@ -191,6 +191,9 @@ namespace Draft {
         // Prep vectors
         materials.clear();
         meshes.clear();
+        meshToMaterialMap.clear();
+        meshToMatrixMap.clear();
+        buffers.clear();
 
         // Load source data
         auto mdl = load_model(handle);

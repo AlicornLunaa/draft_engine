@@ -42,10 +42,10 @@ namespace Draft {
         Logger::print(Level::INFO, "Asset Manager", "Reloading...");
 
         for(auto* res : textureArray) res->reload();
-        // for(auto* res : modelArray) res->reload();
+        for(auto* res : modelArray) res->reload();
         for(auto* res : shaderArray) res->reload();
 
-        Logger::print_raw("Complete");
+        Logger::print_raw("Complete\n");
     }
 
     void AssetManager::load(){
