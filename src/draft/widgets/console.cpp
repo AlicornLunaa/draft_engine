@@ -134,7 +134,8 @@ namespace Draft {
                         } else if(c == '\n'){
                             // New line char, set new line
                             colorStrings.push_back({colorStrings.back().first, ""});
-                            newLines.push_back(true);
+                            newLines.back() = true;
+                            newLines.push_back(false);
                             continue;
                         }
 
@@ -147,7 +148,7 @@ namespace Draft {
                         ImGui::TextColored(color, "%s", text.c_str());
                         
                         // Render on same line if it isnt the end of the split string
-                        if(i < colorStrings.size() - 1 && !newLines[i]){
+                        if(!newLines[i]){
                             ImGui::SameLine(0, 0);
                         }
                     }

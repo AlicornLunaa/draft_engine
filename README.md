@@ -14,6 +14,8 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Animation api
 - [ ] Profiler API
 - [ ] Localization API
+- [ ] Refactor rendering
+- [ ] Particles
 
 ## How the engine works
 ### OpenGL Resources
