@@ -44,7 +44,7 @@ namespace Draft {
                 continue;
             }
 
-            textures.push_back(new Texture(ptr->fontFace->glyph->bitmap.buffer, ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, 1));
+            textures.push_back(new Texture(ptr->fontFace->glyph->bitmap.buffer, ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, 1, Texture::CLAMP_TO_EDGE));
             Glyph glyph{
                 textures.back(),
                 { ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows },
