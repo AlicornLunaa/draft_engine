@@ -76,4 +76,8 @@ namespace Draft {
         // Otherwise return the glyph requested
         return glyphs.at(ch);
     }
+
+    void Font::reload(){
+        
+    }
 };

@@ -119,6 +119,7 @@ set(RESOURCES
     assets/missing_model.glb
     assets/missing_shader/vertex.glsl
     assets/missing_shader/fragment.glsl
+    assets/missing_font.ttf
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)

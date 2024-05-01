@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "draft/util/asset_manager.hpp"
+#include "draft/rendering/font.hpp"
 #include "draft/rendering/model.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
@@ -29,6 +30,7 @@ namespace Draft {
             std::vector<Resource<Texture>*> textures;
             std::vector<Resource<Model>*> models;
             std::vector<Resource<Shader>*> shaders;
+            std::vector<Resource<Font>*> fonts;
 
         public:
             const size_t id;
@@ -40,6 +42,7 @@ namespace Draft {
                 for(auto res : textures) res->package_owner_count--;
                 for(auto res : models) res->package_owner_count--;
                 for(auto res : shaders) res->package_owner_count--;
+                for(auto res : fonts) res->package_owner_count--;
             }
 
             inline size_t get_asset_count() const { return assetCount; }
@@ -64,6 +67,13 @@ namespace Draft {
                 assetCount++;
                 res.package_owner_count++;
             }
+
+            void own(Resource<Font>& res){
+                // Adds this package as an owner for the resource
+                fonts.push_back(&res);
+                assetCount++;
+                res.package_owner_count++;
+            }
         };
 
         // Variables
@@ -71,11 +81,13 @@ namespace Draft {
         std::unordered_map<std::string, Resource<Texture>> textures;
         std::unordered_map<std::string, Resource<Model>> models;
         std::unordered_map<std::string, Resource<Shader>> shaders;
+        std::unordered_map<std::string, Resource<Font>> fonts;
         AssetPackage* currentPackage = nullptr;
 
         std::unique_ptr<Texture> MISSING_TEXTURE = nullptr;
         std::unique_ptr<Model> MISSING_MODEL = nullptr;
         std::unique_ptr<Shader> MISSING_SHADER = nullptr;
+        std::unique_ptr<Font> MISSING_FONT = nullptr;
 
         // Helper functions
         template<typename T>
@@ -123,6 +135,7 @@ namespace Draft {
             remove_orphans(textures);
             remove_orphans(models);
             remove_orphans(shaders);
+            remove_orphans(fonts);
         }
 
         void end_package(){
@@ -146,6 +159,12 @@ namespace Draft {
         const Shader& get_missing_placeholder(){
             if(!MISSING_SHADER) MISSING_SHADER = std::make_unique<Shader>(FileHandle::internal("assets/missing_shader/vertex.glsl"), FileHandle::internal("assets/missing_shader/fragment.glsl"));
             return *MISSING_SHADER;
+        }
+
+        template<>
+        const Font& get_missing_placeholder(){
+            if(!MISSING_FONT) MISSING_FONT = std::make_unique<Font>(FileHandle::internal("assets/missing_font.ttf"));
+            return *MISSING_FONT;
         }
 
         template<>
@@ -218,11 +237,35 @@ namespace Draft {
             return *shaders.at(str).ptr;
         }
 
+        template<>
+        const Font& get_asset(const FileHandle& handle){
+            // If no package currently exists, start one
+            if(!currentPackage)
+                start_package();
+
+            // Load or retrieve an external font
+            std::string str = handle.get_path();
+
+            if(fonts.find(str) == fonts.end()){
+                // No font exists by this name, try loading it
+                try {
+                    fonts.emplace(str, Resource<Font>(handle));
+                } catch(int e){
+                    return get_missing_placeholder<Font>();
+                }
+
+                currentPackage->own(fonts.at(str));
+            }
+
+            return *fonts.at(str).ptr;
+        }
+
         void reload(){
             Logger::print(Level::INFO, "Asset Manager", "Reloading...");
             for(auto& res : textures) res.second.ptr->reload();
             for(auto& res : models) res.second.ptr->reload();
             for(auto& res : shaders) res.second.ptr->reload();
+            for(auto& res : fonts) res.second.ptr->reload();
             Logger::print_raw("Complete\n");
         }
 
@@ -233,6 +276,7 @@ namespace Draft {
             remove_orphans(textures);
             remove_orphans(models);
             remove_orphans(shaders);
+            remove_orphans(fonts);
         }
     }
 }

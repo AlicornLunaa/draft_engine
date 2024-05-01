@@ -31,6 +31,7 @@ namespace Draft {
 
         // Functions
         const Glyph& get_glyph(char ch) const;
+        void reload();
 
     private:
         // pImpl implementation
