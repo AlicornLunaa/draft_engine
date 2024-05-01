@@ -42,7 +42,7 @@ namespace Draft {
         void destroy_joint(Joint*& joint);
         void destroy_joint(Joint* joint);
 
-        void set_debug_renderer(Shader& shader, void* renderer = nullptr);
+        void set_debug_renderer(const Shader& shader, void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(float timeStep, int32_t velocityIterations, int32_t positionIterations);
         void debug_draw();

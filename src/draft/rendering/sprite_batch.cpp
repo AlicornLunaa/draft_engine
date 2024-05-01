@@ -12,7 +12,7 @@ using namespace std;
 
 namespace Draft {
     // Constructor
-    SpriteBatch::SpriteBatch(Shader& shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
+    SpriteBatch::SpriteBatch(const Shader& shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, vector<Vector3f>{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}});
         vertexBuffer.buffer(1, vector<Vector2f>{{0, 0}, {1, 0}, {1, 1}, {0, 1}});

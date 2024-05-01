@@ -13,6 +13,7 @@ namespace fs = std::filesystem;
 namespace Draft {
     // Constructors
     FileHandle::FileHandle(const fs::path& path, Access access) : path(path), access(access) {}
+    FileHandle::FileHandle(const char* path) : FileHandle(path, LOCAL) {}
     FileHandle::FileHandle() : path("null"), access(INTERNAL) {}
 
     // Functions

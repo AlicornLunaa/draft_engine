@@ -281,7 +281,7 @@ namespace Draft {
     }
 
     // Functions
-    void Model::render(Shader& shader, const Matrix4& modelMatrix) const {
+    void Model::render(const Shader& shader, const Matrix4& modelMatrix) const {
         // Draws the meshes
         for(size_t i = 0; i < buffers.size(); i++){
             auto& vbo = buffers[i];

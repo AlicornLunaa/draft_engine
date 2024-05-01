@@ -36,7 +36,7 @@ namespace Draft {
         target(position + forward);
     }
 
-    void Camera::apply(const RenderWindow& window, Shader& shader) const {
+    void Camera::apply(const RenderWindow& window, const Shader& shader) const {
         if(viewport.width <= 0 || viewport.height <= 0){
             auto size = window.get_size();
             glViewport(0, 0, size.x, size.y);

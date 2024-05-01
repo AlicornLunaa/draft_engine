@@ -16,7 +16,7 @@ namespace Draft {
 
         // Register basic commands
         console.register_cmd("reload_assets", [this](ConsoleArgs args){
-            assets.reload();
+            Assets::reload();
             return true;
         });
 

@@ -5,7 +5,6 @@
 #include "draft/util/file_handle.hpp"
 
 #include <memory>
-#include <string>
 #include <unordered_map>
 
 namespace Draft {
@@ -27,7 +26,6 @@ namespace Draft {
     public:
         // Constructors
         Font(const FileHandle& handle);
-        Font(const std::string& path);
         Font(const Font& other) = delete;
         ~Font();
 

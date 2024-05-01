@@ -9,7 +9,7 @@
 #include "draft/rendering/shader.hpp"
 
 namespace Draft {
-    void render_system(Registry& registry, RenderWindow& window, Shader& shader, const Camera& camera);
+    void render_system(Registry& registry, RenderWindow& window, const Shader& shader, const Camera& camera);
     void physics_system(Registry& registry, const Application* app, World& world);
 }
 

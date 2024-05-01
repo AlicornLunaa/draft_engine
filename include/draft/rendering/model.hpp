@@ -38,7 +38,7 @@ namespace Draft {
         Model& operator=(Model&& other) noexcept;
 
         // Functions
-        void render(Shader& shader, const Matrix4& matrix) const;
+        void render(const Shader& shader, const Matrix4& matrix) const;
         void reload();
     };
 };

@@ -55,8 +55,6 @@ namespace Draft {
         }
     }
 
-    Font::Font(const std::string& path) : Font(FileHandle{ path, FileHandle::LOCAL }) {}
-
     Font::~Font(){
         FT_Done_Face(ptr->fontFace);
         FT_Done_FreeType(ptr->fontLibrary);

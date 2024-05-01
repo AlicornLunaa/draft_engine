@@ -5,7 +5,7 @@
 
 namespace Draft {
     // Constructors
-    TextRenderer::TextRenderer(Shader& shader, size_t maxChars) : shader(shader), maxChars(maxChars) {
+    TextRenderer::TextRenderer(const Shader& shader, size_t maxChars) : shader(shader), maxChars(maxChars) {
         dynamicBufLoc = vertexBuffer.start_buffer<Vector4f>(maxChars * 4);
         vertexBuffer.set_attribute(0, GL_FLOAT, 4, sizeof(Vector4f), 0);
         vertexBuffer.end_buffer();

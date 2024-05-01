@@ -20,15 +20,15 @@ namespace Draft {
 
         // Variables
         const size_t maxChars;
+        const Shader& shader;
         std::queue<Text> textQueue;
 
         VertexBuffer vertexBuffer;
         size_t dynamicBufLoc;
-        Shader& shader;
 
     public:
         // Constructors
-        TextRenderer(Shader& shader, size_t maxChars = 1000);
+        TextRenderer(const Shader& shader, size_t maxChars = 1000);
 
         // Functions
         void draw_text(const std::string& str, const Font& font, const Vector2f& position, const Vector4f& color = { 1, 1, 1, 1 });

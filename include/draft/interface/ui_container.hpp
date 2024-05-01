@@ -20,9 +20,9 @@ namespace Draft {
         VertexBuffer* buffer = nullptr;
 
         const Application* app = nullptr;
+        const Shader& uiShader;
         OrthographicCamera uiCamera;
         FloatRect windowBounds;
-        Shader& uiShader;
 
         // Private functions
         void resize_buffer(size_t vertexCount);
@@ -31,7 +31,7 @@ namespace Draft {
 
     public:
         // Constructors
-        UIContainer(const Application* app, const Vector2f& size, Shader& uiShader);
+        UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader);
         UIContainer(const UIContainer& other) = delete;
         ~UIContainer();
 

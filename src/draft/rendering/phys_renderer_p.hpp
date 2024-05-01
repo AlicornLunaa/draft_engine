@@ -9,7 +9,7 @@ namespace Draft {
         ShapeBatch batch;
 
     public:
-        PhysicsDebugRender(Shader& shader);
+        PhysicsDebugRender(const Shader& shader);
 
         void render();
 

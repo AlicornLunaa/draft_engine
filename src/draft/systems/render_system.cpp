@@ -5,7 +5,7 @@
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
 
-void Draft::render_system(Registry& registry, RenderWindow& window, Shader& shader, const Camera& camera){
+void Draft::render_system(Registry& registry, RenderWindow& window, const Shader& shader, const Camera& camera){
     auto view = registry.view<SpriteComponent, TransformComponent>();
     SpriteBatch batch{shader};
 

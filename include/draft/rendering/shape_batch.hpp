@@ -32,7 +32,7 @@ namespace Draft {
         VertexBuffer vertexBuffer;
         size_t dynamicVertexBufLoc;
         size_t dynamicIndexBufLoc;
-        Shader& shader;
+        const Shader& shader;
 
         Vector4f currentColor{ 1, 1, 1, 1 };
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
@@ -42,7 +42,7 @@ namespace Draft {
 
     public:
         // Constructors
-        ShapeBatch(Shader& shader, const size_t maxShapes = 1000);
+        ShapeBatch(const Shader& shader, const size_t maxShapes = 1000);
 
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }
