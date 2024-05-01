@@ -124,15 +124,16 @@ namespace Draft {
         if(path == "null") return {};
 
         std::vector<char> out;
-        size_t len;
+        std::streampos len;
         char* array;
 
         switch(access){
             case LOCAL: {
                 std::ifstream in(path, std::ios::binary);
 
-                in.seekg(0, std::ios::end);
                 len = in.tellg();
+                in.seekg(0, std::ios::end);
+                len = in.tellg() - len;
                 array = new char[len];
                 out.resize(len);
 

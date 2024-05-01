@@ -139,37 +139,37 @@ namespace Draft {
     // Static functions
     const Texture& AssetManager::get_missing_texture(){
         // Load on-demand
-        if(!MISSING_TEXTURE) MISSING_TEXTURE = load_static_texture("assets/missing_texture.png");
-        return *MISSING_TEXTURE;
+        if(!AssetManager::MISSING_TEXTURE) AssetManager::MISSING_TEXTURE = load_static_texture("assets/missing_texture.png");
+        return *AssetManager::MISSING_TEXTURE;
     }
 
     const Texture& AssetManager::get_empty_normal_map(){
         // Load on-demand
-        if(!EMPTY_NORMAL_MAP) EMPTY_NORMAL_MAP = load_static_texture("assets/empty_normal_map.png");
-        return *EMPTY_NORMAL_MAP;
+        if(!AssetManager::EMPTY_NORMAL_MAP) AssetManager::EMPTY_NORMAL_MAP = load_static_texture("assets/empty_normal_map.png");
+        return *AssetManager::EMPTY_NORMAL_MAP;
     }
 
     const Texture& AssetManager::get_debug_white(){
         // Load on-demand
-        if(!DEBUG_WHITE) DEBUG_WHITE = load_static_texture("assets/debug_white.png");
-        return *DEBUG_WHITE;
+        if(!AssetManager::DEBUG_WHITE) AssetManager::DEBUG_WHITE = load_static_texture("assets/debug_white.png");
+        return *AssetManager::DEBUG_WHITE;
     }
 
     const Texture& AssetManager::get_debug_black(){
         // Load on-demand
-        if(!DEBUG_BLACK) DEBUG_BLACK = load_static_texture("assets/debug_black.png");
-        return *DEBUG_BLACK;
+        if(!AssetManager::DEBUG_BLACK) AssetManager::DEBUG_BLACK = load_static_texture("assets/debug_black.png");
+        return *AssetManager::DEBUG_BLACK;
     }
 
     const Model& AssetManager::get_missing_model(){
         // Load on-demand
-        if(!MISSING_MODEL) MISSING_MODEL = load_static_model("assets/missing_model.glb");
-        return *MISSING_MODEL;
+        if(!AssetManager::MISSING_MODEL) AssetManager::MISSING_MODEL = load_static_model("assets/missing_model.glb");
+        return *AssetManager::MISSING_MODEL;
     }
 
     Shader& AssetManager::get_missing_shader(){
         // Load on-demand
-        if(!MISSING_SHADER) MISSING_SHADER = load_static_shader("assets/missing_shader/vertex.glsl", "assets/missing_shader/fragment.glsl");
-        return *MISSING_SHADER;
+        if(!AssetManager::MISSING_SHADER) AssetManager::MISSING_SHADER = load_static_shader("assets/missing_shader/vertex.glsl", "assets/missing_shader/fragment.glsl");
+        return *AssetManager::MISSING_SHADER;
     }
 }
