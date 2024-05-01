@@ -34,6 +34,7 @@ set(SOURCES
     src/draft/rendering/material.cpp
     src/draft/rendering/font.cpp
     src/draft/rendering/phys_renderer_p.cpp
+    src/draft/rendering/text_renderer.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -96,6 +97,7 @@ set(INTERFACES
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/texture.hpp
     include/draft/rendering/font.hpp
+    include/draft/rendering/text_renderer.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
@@ -154,9 +156,9 @@ add_subdirectory(vendor/entt)
 find_package(Freetype REQUIRED)
 
 if(WIN32)
-	set(SFML_FLAGS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
+	set(SFML_FLAGS sfml-audio sfml-network sfml-main sfml-system -static)
 elseif(LINUX)
-    set(SFML_FLAGS sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
+    set(SFML_FLAGS sfml-audio sfml-network sfml-system)
 endif()
 
 # Resource compiler

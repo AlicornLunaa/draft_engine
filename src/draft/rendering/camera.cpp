@@ -2,7 +2,7 @@
 #include "draft/math/glm.hpp"
 #include "glm/matrix.hpp"
 
-#include <GL/gl.h>
+#include "glad/gl.h"
 
 namespace Draft {
     // Abstract camera

@@ -55,9 +55,12 @@ namespace Draft {
         // Load raw pixel data
         generate_opengl(wrapping);
 
+        int colorSpace = RGBA;
+        if(channels == 3) colorSpace = RGB;
+        else if(channels == 1) colorSpace = GREYSCALE;
+
         size = { width, height };
         nrChannels = channels;
-        int colorSpace = (nrChannels == 3) ? RGB : RGBA;
         loaded = true;
 
         bind();
