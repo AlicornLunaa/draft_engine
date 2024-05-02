@@ -35,6 +35,7 @@ set(SOURCES
     src/draft/rendering/font.cpp
     src/draft/rendering/phys_renderer_p.cpp
     src/draft/rendering/text_renderer.cpp
+    src/draft/rendering/image.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -98,6 +99,7 @@ set(INTERFACES
     include/draft/rendering/texture.hpp
     include/draft/rendering/font.hpp
     include/draft/rendering/text_renderer.hpp
+    include/draft/rendering/image.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
