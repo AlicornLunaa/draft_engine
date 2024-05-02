@@ -11,7 +11,6 @@ namespace Draft {
         // Enums
         enum Wrap { REPEAT = 0x2901, MIRRORED_REPEAT = 0x8370, CLAMP_TO_EDGE = 0x812F, CLAMP_TO_BORDER = 0x812D };
         enum Filter { NEAREST = 0x2600, LINEAR = 0x2601 };
-        enum ColorSpace { RGB = 0x1907, RGBA = 0x1908, GREYSCALE = 0x1903 };
         
     private:
         // Variables

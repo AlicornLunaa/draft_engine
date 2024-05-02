@@ -1,3 +1,4 @@
+#include "draft/rendering/conversions_p.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "draft/rendering/texture.hpp"
@@ -25,7 +26,7 @@ namespace Draft {
         stbi_set_flip_vertically_on_load(flip);
 
         unsigned char *data = stbi_load_from_memory(bytes, length, &size.x, &size.y, &nrChannels, 0);
-        int colorSpace = (nrChannels == 3) ? RGB : RGBA;
+        int colorSpace = color_space_to_gl(channels_to_color_space(nrChannels));
         loaded = !(bool)(!data);
 
         bind();
@@ -55,10 +56,7 @@ namespace Draft {
         // Load raw pixel data
         generate_opengl(wrapping);
 
-        int colorSpace = RGBA;
-        if(channels == 3) colorSpace = RGB;
-        else if(channels == 1) colorSpace = GREYSCALE;
-
+        int colorSpace = color_space_to_gl(channels_to_color_space(channels));
         size = { width, height };
         nrChannels = channels;
         loaded = true;
