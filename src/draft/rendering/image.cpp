@@ -2,6 +2,7 @@
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "stb_image_write.h"
+#include "stb_image.h"
 #include "glm/common.hpp"
 #include <vector>
 
@@ -140,8 +141,22 @@ namespace Draft {
 
     // Functions
     void Image::load(const std::vector<char>& arr){
-        for(size_t i = 0; i < arr.size(); i++){
-            unsigned char ch = arr[i];
+        int width, height, channels;
+        stbi_set_flip_vertically_on_load(false);
+        unsigned char* pixelData = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(arr.data()), arr.size(), &width, &height, &channels, 0);
+
+        if(data)
+            delete[] data;
+
+        size = { width, height };
+        if(channels == 1) colorSpace = ColorSpace::GREYSCALE;
+        else if(channels == 3) colorSpace = ColorSpace::RGB;
+        else if(channels == 4) colorSpace = ColorSpace::RGBA;
+        pixelCount = width * height * static_cast<int>(colorSpace);
+        data = new std::byte[pixelCount];
+
+        for(size_t i = 0; i < pixelCount; i++){
+            unsigned char ch = pixelData[i];
             data[i] = reinterpret_cast<std::byte&>(ch);
         }
     }

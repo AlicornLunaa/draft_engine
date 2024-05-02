@@ -23,7 +23,7 @@ namespace Draft {
 
     public:
         // Constructors
-        Image(unsigned int width, unsigned int height, Vector4f color = {1, 1, 1, 1}, ColorSpace colorSpace = ColorSpace::RGBA);
+        Image(unsigned int width = 1, unsigned int height = 1, Vector4f color = {1, 1, 1, 1}, ColorSpace colorSpace = ColorSpace::RGBA);
         Image(unsigned int width, unsigned int height, ColorSpace colorSpace, const std::byte* pixelData);
         Image(const Image& other);
         Image(Image&& other) noexcept;
