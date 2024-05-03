@@ -19,9 +19,21 @@ namespace Draft {
         FT_Face fontFace;
     };
 
-    // Constructors
-    Font::Font(const FileHandle& handle) : ptr(std::make_unique<Impl>()) {
-        // Load font data
+    // Private functions
+    void Font::clear(){
+        for(auto* ptr : textures){
+            delete ptr;
+        }
+
+        textures.clear();
+        glyphs.clear();
+
+        FT_Done_Face(ptr->fontFace);
+        FT_Done_FreeType(ptr->fontLibrary);
+    }
+
+    void Font::load_font(){
+        // Initialize
         if(FT_Init_FreeType(&ptr->fontLibrary)){
             Logger::println(Level::CRITICAL, "Font", "Cannot initialize freetype");
             exit(0);
@@ -32,6 +44,7 @@ namespace Draft {
             exit(0);
         }
 
+        // Load the textures
         FT_Set_Pixel_Sizes(ptr->fontFace, 0, 48);
         FT_Load_Char(ptr->fontFace, 'a', FT_LOAD_RENDER);
         
@@ -55,12 +68,14 @@ namespace Draft {
         }
     }
 
-    Font::~Font(){
-        FT_Done_Face(ptr->fontFace);
-        FT_Done_FreeType(ptr->fontLibrary);
+    // Constructors
+    Font::Font(const FileHandle& handle) : ptr(std::make_unique<Impl>()), handle(handle) {
+        // Load font data
+        load_font();
+    }
 
-        for(auto* ptr : textures)
-            delete ptr;
+    Font::~Font(){
+        clear();
     }
 
     // Functions
@@ -78,6 +93,8 @@ namespace Draft {
     }
 
     void Font::reload(){
-        
+        // Delete old textures
+        clear();
+        load_font();
     }
 };

@@ -91,6 +91,8 @@ namespace Draft {
         }
     }
 
+    Image::Image(const FileHandle& handle) : Image() { load(handle); }
+
     Image::Image(const Image& other) : size(other.size), colorSpace(other.colorSpace), pixelCount(other.pixelCount) {
         // Copy data
         copy_data(other);
@@ -165,7 +167,7 @@ namespace Draft {
         load(handle.read_bytes());
     }
 
-    void Image::save(FileHandle handle){
+    void Image::save(FileHandle handle) const {
         std::vector<char> out(pixelCount);
 
         for(size_t i = 0; i < pixelCount; i++){
@@ -307,7 +309,7 @@ namespace Draft {
         }
     }
 
-    Vector4f Image::get_pixel(Vector2u position){
+    Vector4f Image::get_pixel(Vector2u position) const {
         size_t startIndex = position.x + position.y * size.x;
         assert(startIndex < pixelCount && "Out of bounds");
 

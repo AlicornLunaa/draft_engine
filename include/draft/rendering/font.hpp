@@ -22,6 +22,11 @@ namespace Draft {
         // Variables
         std::unordered_map<char, Glyph> glyphs;
         std::vector<Texture*> textures;
+        FileHandle handle;
+
+        // Private functions
+        void clear();
+        void load_font();
 
     public:
         // Constructors

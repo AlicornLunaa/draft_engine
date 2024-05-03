@@ -1,11 +1,13 @@
 #include <cassert>
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "draft/util/asset_manager.hpp"
 #include "draft/rendering/font.hpp"
+#include "draft/rendering/image.hpp"
 #include "draft/rendering/model.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
@@ -28,6 +30,7 @@ namespace Draft {
         private:
             size_t assetCount = 0;
             std::vector<Resource<Texture>*> textures;
+            std::vector<Resource<Image>*> images;
             std::vector<Resource<Model>*> models;
             std::vector<Resource<Shader>*> shaders;
             std::vector<Resource<Font>*> fonts;
@@ -40,6 +43,7 @@ namespace Draft {
             AssetPackage& operator=(const AssetPackage& other) = delete;
             ~AssetPackage(){
                 for(auto res : textures) res->package_owner_count--;
+                for(auto res : images) res->package_owner_count--;
                 for(auto res : models) res->package_owner_count--;
                 for(auto res : shaders) res->package_owner_count--;
                 for(auto res : fonts) res->package_owner_count--;
@@ -50,6 +54,13 @@ namespace Draft {
             void own(Resource<Texture>& res){
                 // Adds this package as an owner for the resource
                 textures.push_back(&res);
+                assetCount++;
+                res.package_owner_count++;
+            }
+
+            void own(Resource<Image>& res){
+                // Adds this package as an owner for the resource
+                images.push_back(&res);
                 assetCount++;
                 res.package_owner_count++;
             }
@@ -79,12 +90,14 @@ namespace Draft {
         // Variables
         std::unordered_map<size_t, AssetPackage> packages;
         std::unordered_map<std::string, Resource<Texture>> textures;
+        std::unordered_map<std::string, Resource<Image>> images;
         std::unordered_map<std::string, Resource<Model>> models;
         std::unordered_map<std::string, Resource<Shader>> shaders;
         std::unordered_map<std::string, Resource<Font>> fonts;
         AssetPackage* currentPackage = nullptr;
 
         std::unique_ptr<Texture> MISSING_TEXTURE = nullptr;
+        std::unique_ptr<Image> MISSING_IMAGE = nullptr;
         std::unique_ptr<Model> MISSING_MODEL = nullptr;
         std::unique_ptr<Shader> MISSING_SHADER = nullptr;
         std::unique_ptr<Font> MISSING_FONT = nullptr;
@@ -133,6 +146,7 @@ namespace Draft {
 
             // Check each resource to see if orphaned resources are ready to be deleted
             remove_orphans(textures);
+            remove_orphans(images);
             remove_orphans(models);
             remove_orphans(shaders);
             remove_orphans(fonts);
@@ -147,6 +161,11 @@ namespace Draft {
         const Texture& get_missing_placeholder(){
             if(!MISSING_TEXTURE) MISSING_TEXTURE = std::make_unique<Texture>(FileHandle::internal("assets/missing_texture.png"));
             return *MISSING_TEXTURE;
+        }
+
+        const Image& get_missing_placeholder(){
+            if(!MISSING_IMAGE) MISSING_IMAGE = std::make_unique<Image>(FileHandle::internal("assets/missing_texture.png"));
+            return *MISSING_IMAGE;
         }
 
         template<>
@@ -192,6 +211,30 @@ namespace Draft {
         }
 
         template<>
+        const Image& get_asset(const FileHandle& handle){
+            // If no package currently exists, start one
+            if(!currentPackage)
+                start_package();
+
+            // Load or retrieve an external texture
+            std::string str = handle.get_path();
+
+            if(images.find(str) == images.end()){
+                // No image exists by this name, try loading it
+                try {
+                    images.emplace(str, Resource<Image>(handle));
+                } catch(int e){
+                    Logger::print(Level::SEVERE, "Image", std::to_string(e));
+                    return get_missing_placeholder<Image>();
+                }
+
+                currentPackage->own(images.at(str));
+            }
+
+            return *images.at(str).ptr;
+        }
+
+        template<>
         const Model& get_asset(const FileHandle& handle){
             // If no package currently exists, start one
             if(!currentPackage)
@@ -205,6 +248,7 @@ namespace Draft {
                 try {
                     models.emplace(str, Resource<Model>(handle));
                 } catch(int e){
+                    Logger::print(Level::SEVERE, "Model", std::to_string(e));
                     return get_missing_placeholder<Model>();
                 }
 
@@ -228,6 +272,7 @@ namespace Draft {
                 try {
                     shaders.emplace(str, Resource<Shader>(handle));
                 } catch(int e){
+                    Logger::print(Level::SEVERE, "Shader", std::to_string(e));
                     return get_missing_placeholder<Shader>();
                 }
 
@@ -251,6 +296,7 @@ namespace Draft {
                 try {
                     fonts.emplace(str, Resource<Font>(handle));
                 } catch(int e){
+                    Logger::print(Level::SEVERE, "Font", std::to_string(e));
                     return get_missing_placeholder<Font>();
                 }
 
@@ -274,6 +320,7 @@ namespace Draft {
             packages.clear();
             currentPackage = nullptr;
             remove_orphans(textures);
+            remove_orphans(images);
             remove_orphans(models);
             remove_orphans(shaders);
             remove_orphans(fonts);

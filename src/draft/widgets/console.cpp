@@ -2,7 +2,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <iostream>
+#include <iostream> // IWYU pragma: keep
 
 #include "draft/widgets/console.hpp"
 #include "draft/core/application.hpp"
