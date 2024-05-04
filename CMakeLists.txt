@@ -5,6 +5,8 @@ project("draft_engine" VERSION 0.0.1 LANGUAGES CXX)
 set(SOURCES
     src/draft/audio/sound_buffer.cpp
     src/draft/audio/sound.cpp
+    src/draft/audio/music.cpp
+    src/draft/audio/listener.cpp
     src/draft/core/application.cpp
     src/draft/core/scene.cpp
     src/draft/core/entity.cpp
@@ -62,6 +64,8 @@ set(HEADERS
 set(INTERFACES
     include/draft/audio/sound_buffer.hpp
     include/draft/audio/sound.hpp
+    include/draft/audio/music.hpp
+    include/draft/audio/listener.hpp
     include/draft/components/control_component.hpp
     include/draft/components/empty_component.hpp
     include/draft/components/texture_component.hpp

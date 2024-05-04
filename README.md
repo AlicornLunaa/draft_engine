@@ -10,7 +10,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] Component api
 - [x] Physics api
 - [x] Refactor rendering
-- [ ] Audio api
+- [x] Audio api
 - [ ] Particles
 - [ ] Profiler api
 - [ ] Scenegraph

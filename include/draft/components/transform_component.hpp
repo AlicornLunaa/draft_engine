@@ -8,8 +8,8 @@ namespace Draft {
      */
     struct TransformComponent {
         // Variables
-        Vector2f position;
-        float rotation;
+        Vector2f position = {};
+        float rotation = 0.f;
 
         // Constructors
         TransformComponent(const TransformComponent& transform) = default;
