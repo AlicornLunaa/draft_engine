@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "draft/util/asset_manager.hpp"
+#include "draft/audio/sound_buffer.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/model.hpp"
@@ -34,6 +35,7 @@ namespace Draft {
             std::vector<Resource<Model>*> models;
             std::vector<Resource<Shader>*> shaders;
             std::vector<Resource<Font>*> fonts;
+            std::vector<Resource<SoundBuffer>*> audio;
 
         public:
             const size_t id;
@@ -47,6 +49,7 @@ namespace Draft {
                 for(auto res : models) res->package_owner_count--;
                 for(auto res : shaders) res->package_owner_count--;
                 for(auto res : fonts) res->package_owner_count--;
+                for(auto res : audio) res->package_owner_count--;
             }
 
             inline size_t get_asset_count() const { return assetCount; }
@@ -85,6 +88,13 @@ namespace Draft {
                 assetCount++;
                 res.package_owner_count++;
             }
+
+            void own(Resource<SoundBuffer>& res){
+                // Adds this package as an owner for the resource
+                audio.push_back(&res);
+                assetCount++;
+                res.package_owner_count++;
+            }
         };
 
         // Variables
@@ -94,6 +104,7 @@ namespace Draft {
         std::unordered_map<std::string, Resource<Model>> models;
         std::unordered_map<std::string, Resource<Shader>> shaders;
         std::unordered_map<std::string, Resource<Font>> fonts;
+        std::unordered_map<std::string, Resource<SoundBuffer>> audio;
         AssetPackage* currentPackage = nullptr;
 
         std::unique_ptr<Texture> MISSING_TEXTURE = nullptr;
@@ -101,6 +112,7 @@ namespace Draft {
         std::unique_ptr<Model> MISSING_MODEL = nullptr;
         std::unique_ptr<Shader> MISSING_SHADER = nullptr;
         std::unique_ptr<Font> MISSING_FONT = nullptr;
+        std::unique_ptr<SoundBuffer> MISSING_AUDIO = nullptr;
 
         // Helper functions
         template<typename T>
@@ -185,6 +197,12 @@ namespace Draft {
         const Font& get_missing_placeholder(){
             if(!MISSING_FONT) MISSING_FONT = std::make_unique<Font>(FileHandle::internal("assets/missing_font.ttf"));
             return *MISSING_FONT;
+        }
+
+        template<>
+        const SoundBuffer& get_missing_placeholder(){
+            if(!MISSING_AUDIO) MISSING_AUDIO = std::make_unique<SoundBuffer>(FileHandle::internal("assets/missing_audio.wav"));
+            return *MISSING_AUDIO;
         }
 
         template<>
@@ -307,12 +325,37 @@ namespace Draft {
             return *fonts.at(str).ptr;
         }
 
+        template<>
+        const SoundBuffer& get_asset(const FileHandle& handle){
+            // If no package currently exists, start one
+            if(!currentPackage)
+                start_package();
+
+            // Load or retrieve an external font
+            std::string str = handle.get_path();
+
+            if(audio.find(str) == audio.end()){
+                // No sound exists by this name, try loading it
+                try {
+                    audio.emplace(str, Resource<SoundBuffer>(handle));
+                } catch(int e){
+                    Logger::print(Level::SEVERE, "Audio", std::to_string(e));
+                    return get_missing_placeholder<SoundBuffer>();
+                }
+
+                currentPackage->own(audio.at(str));
+            }
+
+            return *audio.at(str).ptr;
+        }
+
         void reload(){
             Logger::print(Level::INFO, "Asset Manager", "Reloading...");
             for(auto& res : textures) res.second.ptr->reload();
             for(auto& res : models) res.second.ptr->reload();
             for(auto& res : shaders) res.second.ptr->reload();
             for(auto& res : fonts) res.second.ptr->reload();
+            for(auto& res : audio) res.second.ptr->reload();
             Logger::print_raw("Complete\n");
         }
 
@@ -325,6 +368,7 @@ namespace Draft {
             remove_orphans(models);
             remove_orphans(shaders);
             remove_orphans(fonts);
+            remove_orphans(audio);
         }
     }
 }
