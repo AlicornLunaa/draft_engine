@@ -1,10 +1,11 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 
-#include "draft/rendering/texture.hpp"
 #include <memory>
 
 #include "draft/util/logger.hpp"
 #include "draft/util/file_handle.hpp"
+#include "draft/rendering/texture.hpp"
+#include "draft/rendering/image.hpp"
 #include "draft/rendering/font.hpp"
 
 #include "glad/gl.h"
@@ -57,13 +58,16 @@ namespace Draft {
                 continue;
             }
 
-            textures.push_back(new Texture(ptr->fontFace->glyph->bitmap.buffer, ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, 1, Texture::CLAMP_TO_EDGE));
+            Image image(ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, ColorSpace::GREYSCALE, reinterpret_cast<std::byte*>(ptr->fontFace->glyph->bitmap.buffer));
+            textures.push_back(new Texture(image, CLAMP_TO_EDGE));
+
             Glyph glyph{
                 textures.back(),
                 { ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows },
                 { ptr->fontFace->glyph->bitmap_left, ptr->fontFace->glyph->bitmap_top },
                 ptr->fontFace->glyph->advance.x
             };
+
             glyphs.emplace(c, glyph);
         }
     }

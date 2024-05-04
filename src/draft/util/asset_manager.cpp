@@ -163,6 +163,7 @@ namespace Draft {
             return *MISSING_TEXTURE;
         }
 
+        template<>
         const Image& get_missing_placeholder(){
             if(!MISSING_IMAGE) MISSING_IMAGE = std::make_unique<Image>(FileHandle::internal("assets/missing_texture.png"));
             return *MISSING_IMAGE;

@@ -4,30 +4,30 @@
 #include "glad/gl.h"
 
 namespace Draft {
-    int wrap_to_gl(Texture::Wrap wrap){
+    int wrap_to_gl(Wrap wrap){
         switch(wrap){
         default:
-        case Texture::REPEAT:
+        case REPEAT:
             return GL_REPEAT;
 
-        case Texture::MIRRORED_REPEAT:
+        case MIRRORED_REPEAT:
             return GL_MIRRORED_REPEAT;
 
-        case Texture::CLAMP_TO_EDGE:
+        case CLAMP_TO_EDGE:
             return GL_CLAMP_TO_EDGE;
 
-        case Texture::CLAMP_TO_BORDER:
+        case CLAMP_TO_BORDER:
             return GL_CLAMP_TO_BORDER;
         }
     }
 
-    int filter_to_gl(Texture::Filter filter){
+    int filter_to_gl(Filter filter){
         switch(filter){
         default:
-        case Texture::NEAREST:
+        case NEAREST:
             return GL_NEAREST;
 
-        case Texture::LINEAR:
+        case LINEAR:
             return GL_LINEAR;
         }
     }

@@ -1,3 +1,5 @@
+#include "draft/rendering/conversions_p.hpp"
+#include "draft/rendering/image.hpp"
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
@@ -62,10 +64,11 @@ namespace Draft {
             if(img.uri == ""){
                 // No URI, its an embedded texture.
                 const unsigned char* data = &img.image[0];
-                return std::make_shared<Texture>(data, img.width, img.height, img.component);
+                Image image(img.width, img.height, channels_to_color_space(img.component), reinterpret_cast<const std::byte*>(data));
+                return std::make_shared<Texture>(image);
             } else {
                 // URI provided, load it from the games asset folder
-                return std::make_shared<Texture>(img.uri);
+                return std::make_shared<Texture>(FileHandle::local(img.uri));
             }
         };
 

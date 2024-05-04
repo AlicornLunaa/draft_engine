@@ -1,4 +1,3 @@
-#include <filesystem>
 #include <string>
 
 #include "draft/rendering/shader.hpp"
@@ -20,8 +19,8 @@ namespace Draft {
         unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
         // Compile shader
-        glShaderSource(vertexShader, 1, &vertexSrc, NULL);
-        glShaderSource(fragmentShader, 1, &fragmentSrc, NULL);
+        glShaderSource(vertexShader, 1, &vertexSrc, nullptr);
+        glShaderSource(fragmentShader, 1, &fragmentSrc, nullptr);
         glCompileShader(vertexShader);
         glCompileShader(fragmentShader);
 
@@ -31,7 +30,7 @@ namespace Draft {
         glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 
         if(!success){
-            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+            glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
             Logger::println(Level::SEVERE, "Shader", "Unable to compile vertex shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
@@ -39,7 +38,7 @@ namespace Draft {
         glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 
         if(!success){
-            glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+            glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
             Logger::println(Level::SEVERE, "Shader", "Unable to compile fragment shader " + handle.filename() + " because\n" + infoLog);
             exit(0);
         }
@@ -69,28 +68,23 @@ namespace Draft {
         
         auto vertexSrc = vertexHandle.read_bytes();
         auto fragmentSrc = fragmentHandle.read_bytes();
-        vertexSrc.push_back('\0');
-        fragmentSrc.push_back('\0');
+        vertexSrc.push_back(std::byte{'\0'});
+        fragmentSrc.push_back(std::byte{'\0'});
 
         // Send data to OpenGL
-        load_shaders(vertexSrc.data(), fragmentSrc.data());
+        load_shaders(reinterpret_cast<const char*>(vertexSrc.data()), reinterpret_cast<const char*>(fragmentSrc.data()));
     }
 
     // Constructors
-    Shader::Shader(const char* vertexSrc, const char* fragmentSrc) : reloadable(false) {
-        // Send data directly to OpenGL
-        load_shaders(vertexSrc, fragmentSrc);
-    }
-
     Shader::Shader(const FileHandle& vertexHandle, const FileHandle& fragmentHandle) : reloadable(false), handle(vertexHandle){
         // Load shader data
         auto vertexSrc = vertexHandle.read_bytes();
         auto fragmentSrc = fragmentHandle.read_bytes();
-        vertexSrc.push_back('\0');
-        fragmentSrc.push_back('\0');
+        vertexSrc.push_back(std::byte{'\0'});
+        fragmentSrc.push_back(std::byte{'\0'});
 
         // Send data to OpenGL
-        load_shaders(vertexSrc.data(), fragmentSrc.data());
+        load_shaders(reinterpret_cast<const char*>(vertexSrc.data()), reinterpret_cast<const char*>(fragmentSrc.data()));
     }
 
     Shader::Shader(const FileHandle& handle) : reloadable(true), handle(handle) {
@@ -100,15 +94,11 @@ namespace Draft {
         
         auto vertexSrc = vertexHandle.read_bytes();
         auto fragmentSrc = fragmentHandle.read_bytes();
-        vertexSrc.push_back('\0');
-        fragmentSrc.push_back('\0');
+        vertexSrc.push_back(std::byte{'\0'});
+        fragmentSrc.push_back(std::byte{'\0'});
 
         // Send data to OpenGL
-        load_shaders(vertexSrc.data(), fragmentSrc.data());
-    }
-
-    Shader::Shader(const filesystem::path& shaderPath) : reloadable(true), handle(shaderPath, FileHandle::LOCAL) {
-        load_from_handle(handle);
+        load_shaders(reinterpret_cast<const char*>(vertexSrc.data()), reinterpret_cast<const char*>(fragmentSrc.data()));
     }
 
     Shader::~Shader(){

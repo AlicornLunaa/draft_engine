@@ -35,7 +35,7 @@ namespace Draft {
         Image& operator=(Image&& other) noexcept;
 
         // Functions
-        void load(const std::vector<char>& arr);
+        void load(const std::vector<std::byte>& arr);
         void load(const FileHandle& handle);
         void save(FileHandle handle) const;
 
@@ -48,5 +48,7 @@ namespace Draft {
 
         inline const std::byte* c_arr() const { return data; }
         inline const Vector2u& get_size() const { return size; }
+        inline ColorSpace get_color_space() const { return colorSpace; }
+        inline size_t get_pixel_count() const { return pixelCount; }
     };
 };

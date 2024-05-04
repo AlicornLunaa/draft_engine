@@ -74,7 +74,7 @@ namespace Draft {
         return s;
     }
 
-    b2Filter filter_to_b2(const Filter& filter){
+    b2Filter filter_to_b2(const PhysMask& filter){
         b2Filter f;
         f.categoryBits = filter.categoryBits;
         f.maskBits = filter.maskBits;

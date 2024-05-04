@@ -11,6 +11,6 @@ namespace Draft {
         float restitutionThreshold = 1.f;
         float density = 0.f;
         bool isSensor = false;
-        Filter filter;
+        PhysMask filter;
     };
 };

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <filesystem>
 #include <string>
 
 #include "draft/math/glm.hpp"
@@ -23,10 +22,8 @@ namespace Draft {
 
     public:
         // Constructors
-        Shader(const char* vertexSrc, const char* fragmentSrc);
         Shader(const FileHandle& vertexHandle, const FileHandle& fragmentHandle);
         Shader(const FileHandle& handle);
-        Shader(const std::filesystem::path& shaderPath);
         Shader(const Shader& other) = delete;
         ~Shader();
         

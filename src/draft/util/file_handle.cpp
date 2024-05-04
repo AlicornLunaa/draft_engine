@@ -121,10 +121,10 @@ namespace Draft {
         out << str;
     }
 
-    std::vector<char> FileHandle::read_bytes(long offset) const {
+    std::vector<std::byte> FileHandle::read_bytes(long offset) const {
         if(path == "null") return {};
 
-        std::vector<char> out;
+        std::vector<std::byte> out;
         std::streampos len;
         char* array;
 
@@ -136,7 +136,6 @@ namespace Draft {
                 in.seekg(0, std::ios::end);
                 len = in.tellg() - len;
                 array = new char[len];
-                out.resize(len);
 
                 in.seekg(0, std::ios::beg);
                 in.seekg(offset, std::ios::beg);
@@ -161,19 +160,19 @@ namespace Draft {
 
         out.resize(len);
         for(size_t i = 0; i < len; i++){
-            out[i] = array[i];
+            out[i] = reinterpret_cast<std::byte&>(array[i]);
         }
 
         delete [] array;
         return out;
     }
 
-    void FileHandle::write_bytes(const char* array, long size){
+    void FileHandle::write_bytes(const std::vector<std::byte>& array){
         if(access == INTERNAL) return;
         if(path == "null") return;
         
-        std::ofstream out(path);
-        out.write(array, size);
+        std::ofstream out(path, std::ios::binary);
+        out.write(reinterpret_cast<const char*>(array.data()), array.size());
     }
 
     // Operators

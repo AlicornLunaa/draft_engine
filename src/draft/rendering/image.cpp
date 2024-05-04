@@ -142,7 +142,7 @@ namespace Draft {
     }
 
     // Functions
-    void Image::load(const std::vector<char>& arr){
+    void Image::load(const std::vector<std::byte>& arr){
         int width, height, channels;
         stbi_set_flip_vertically_on_load(false);
         unsigned char* pixelData = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(arr.data()), arr.size(), &width, &height, &channels, 0);
@@ -161,6 +161,8 @@ namespace Draft {
             unsigned char ch = pixelData[i];
             data[i] = reinterpret_cast<std::byte&>(ch);
         }
+
+        stbi_image_free(pixelData);
     }
 
     void Image::load(const FileHandle& handle){
