@@ -7,33 +7,34 @@
 #include "draft/rendering/vertex_buffer.hpp"
 
 #include <queue>
+#include <utility>
+#include <vector>
 
 namespace Draft {
     class SpriteBatch {
     private:
         // Data structures
-        struct Quad {
-            const Texture* texture = nullptr;
-            FloatRect region;
-
-            Vector2f position = {0, 0};
-            Vector2f size = {0, 0};
-            float rotation = 0.f;
-            Vector2f origin = {0, 0};
-            // Vector4f color = {1, 1, 1, 1};
+        struct QuadVertex {
+            Vector2f position;
+            Vector2f texCoords;
+            Vector4f color;
         };
 
         // Variables
         const size_t maxSprites;
-        const Shader& shader;
-        std::queue<Quad> quadQueue;
-        std::vector<int> uniformLocations;
-        VertexBuffer vertexBuffer;
+        std::vector<QuadVertex> vertices;
+        std::vector<int> indices;
+        std::queue<std::pair<const Texture*, size_t>> textureRegister;
         Vector4f currentColor = {1, 1, 1, 1};
+
+        VertexBuffer vertexBuffer;
+        size_t dynamicVertexBufLoc;
+        size_t dynamicIndexBufLoc;
+        const Shader& shader;
 
     public:
         // Constructors
-        SpriteBatch(const Shader& shader, const size_t maxSprites = 1000);
+        SpriteBatch(const Shader& shader, const size_t maxSprites = 10000);
 
         // Functions
         void set_color(const Vector4f& color);
