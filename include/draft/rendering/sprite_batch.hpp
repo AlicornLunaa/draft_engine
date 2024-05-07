@@ -20,6 +20,7 @@ namespace Draft {
             Vector2f size = {0, 0};
             float rotation = 0.f;
             Vector2f origin = {0, 0};
+            // Vector4f color = {1, 1, 1, 1};
         };
 
         // Variables
@@ -28,12 +29,15 @@ namespace Draft {
         std::queue<Quad> quadQueue;
         std::vector<int> uniformLocations;
         VertexBuffer vertexBuffer;
+        Vector4f currentColor = {1, 1, 1, 1};
 
     public:
         // Constructors
         SpriteBatch(const Shader& shader, const size_t maxSprites = 1000);
 
         // Functions
+        void set_color(const Vector4f& color);
+        const Vector4f& get_color() const;
         void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
         void flush(); // Send quads to shader
     };

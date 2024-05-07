@@ -33,6 +33,9 @@ namespace Draft {
     }
 
     // Functions
+    void SpriteBatch::set_color(const Vector4f& color){ currentColor = color; }
+    const Vector4f& SpriteBatch::get_color() const { return currentColor; }
+
     void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
         // Add quad to the queue
         Quad quad {
