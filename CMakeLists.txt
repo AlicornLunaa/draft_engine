@@ -41,6 +41,7 @@ set(SOURCES
     src/draft/rendering/text_renderer.cpp
     src/draft/rendering/image.cpp
     src/draft/rendering/conversions.cpp
+    src/draft/rendering/particle_system.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp

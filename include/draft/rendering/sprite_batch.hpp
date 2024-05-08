@@ -38,7 +38,10 @@ namespace Draft {
 
         // Functions
         void set_color(const Vector4f& color);
+
         const Vector4f& get_color() const;
+        inline const Shader& get_shader() const { return shader; }
+
         void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
         void flush(); // Send quads to shader
     };

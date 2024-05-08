@@ -91,6 +91,8 @@ namespace Draft {
         if(vertices.empty() || indices.empty())
             return;
 
+        shader.bind();
+
         // Render each texture
         while(!textureRegister.empty()){
             // Get data
