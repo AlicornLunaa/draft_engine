@@ -11,11 +11,11 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] Physics api
 - [x] Refactor rendering
 - [x] Audio api
-- [ ] Particles
+- [x] Particles
+- [ ] Animation api
 - [ ] Profiler api
 - [ ] Scenegraph
 - [ ] Localization API
-- [ ] Animation api
 - [ ] Handle errors gracefully
 
 ## How the engine works

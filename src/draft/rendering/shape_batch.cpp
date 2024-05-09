@@ -234,7 +234,7 @@ namespace Draft {
         get<2>(tup) += 6;
     }
 
-    void ShapeBatch::flush(){
+    void ShapeBatch::flush(const RenderWindow& window, const Camera* camera){
         // Draws all the shapes to opengl
         bool flushAgain = false; // Turns true if the shape type changed
 
@@ -248,7 +248,7 @@ namespace Draft {
 
         // Check if this has zero data
         if(vertexCount == 0 || indexCount == 0){
-            flush();
+            flush(window, camera);
             return;
         }
 
@@ -266,6 +266,11 @@ namespace Draft {
         vertexBuffer.set_dynamic_data(dynamicIndexBufLoc, indices);
 
         // Render VBO
+        shader.bind();
+        
+        if(camera)
+            camera->apply(window, shader);
+
         vertexBuffer.bind();
         glDrawElements((type == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
         vertexBuffer.unbind();
@@ -288,6 +293,6 @@ namespace Draft {
 
         // Do it again for the rest of the quads
         if(flushAgain)
-            flush();
+            flush(window, camera);
     }
 };

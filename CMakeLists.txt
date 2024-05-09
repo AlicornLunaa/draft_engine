@@ -125,14 +125,27 @@ set(INTERFACES
 )
 
 set(RESOURCES
-    assets/missing_texture.png
-    assets/empty_normal_map.png
-    assets/debug_white.png
-    assets/debug_black.png
-    assets/missing_model.glb
-    assets/missing_shader/vertex.glsl
-    assets/missing_shader/fragment.glsl
-    assets/missing_font.ttf
+    assets/textures/missing_texture.png
+    assets/textures/empty_normal_map.png
+    assets/textures/debug_white.png
+    assets/textures/debug_black.png
+
+    assets/models/missing_model.glb
+
+    assets/fonts/missing_font.ttf
+
+    assets/shaders/missing_shader/vertex.glsl
+    assets/shaders/missing_shader/fragment.glsl
+    assets/shaders/default/vertex.glsl
+    assets/shaders/default/fragment.glsl
+    assets/shaders/interface/vertex.glsl
+    assets/shaders/interface/fragment.glsl
+    assets/shaders/mesh/vertex.glsl
+    assets/shaders/mesh/fragment.glsl
+    assets/shaders/shapes/vertex.glsl
+    assets/shaders/shapes/fragment.glsl
+    assets/shaders/text/vertex.glsl
+    assets/shaders/text/fragment.glsl
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)

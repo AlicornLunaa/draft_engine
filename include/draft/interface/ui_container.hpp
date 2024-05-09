@@ -4,8 +4,10 @@
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/camera.hpp"
+#include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/interface/panel.hpp"
+#include "draft/util/asset_manager.hpp"
 
 #include <vector>
 
@@ -31,7 +33,7 @@ namespace Draft {
 
     public:
         // Constructors
-        UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader);
+        UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader = Assets::get_asset<Shader>("assets/shaders/interface"));
         UIContainer(const UIContainer& other) = delete;
         ~UIContainer();
 

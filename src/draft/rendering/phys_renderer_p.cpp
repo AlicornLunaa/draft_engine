@@ -8,8 +8,8 @@ namespace Draft {
         SetFlags(b2Draw::e_shapeBit | b2Draw::e_jointBit | b2Draw::e_centerOfMassBit);
     }
 
-    void PhysicsDebugRender::render(){
-        batch.flush();
+    void PhysicsDebugRender::render(const RenderWindow& window, const Camera* camera){
+        batch.flush(window, camera);
     }
 
     /// Draw a closed polygon provided in CCW order.

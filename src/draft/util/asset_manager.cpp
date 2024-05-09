@@ -171,37 +171,37 @@ namespace Draft {
 
         template<>
         const Texture& get_missing_placeholder(){
-            if(!MISSING_TEXTURE) MISSING_TEXTURE = std::make_unique<Texture>(FileHandle::internal("assets/missing_texture.png"));
+            if(!MISSING_TEXTURE) MISSING_TEXTURE = std::make_unique<Texture>(FileHandle::automatic("assets/textures/missing_texture.png"));
             return *MISSING_TEXTURE;
         }
 
         template<>
         const Image& get_missing_placeholder(){
-            if(!MISSING_IMAGE) MISSING_IMAGE = std::make_unique<Image>(FileHandle::internal("assets/missing_texture.png"));
+            if(!MISSING_IMAGE) MISSING_IMAGE = std::make_unique<Image>(FileHandle::automatic("assets/textures/missing_texture.png"));
             return *MISSING_IMAGE;
         }
 
         template<>
         const Model& get_missing_placeholder(){
-            if(!MISSING_MODEL) MISSING_MODEL = std::make_unique<Model>(FileHandle::internal("assets/missing_model.glb"));
+            if(!MISSING_MODEL) MISSING_MODEL = std::make_unique<Model>(FileHandle::automatic("assets/models/missing_model.glb"));
             return *MISSING_MODEL;
         }
 
         template<>
         const Shader& get_missing_placeholder(){
-            if(!MISSING_SHADER) MISSING_SHADER = std::make_unique<Shader>(FileHandle::internal("assets/missing_shader/vertex.glsl"), FileHandle::internal("assets/missing_shader/fragment.glsl"));
+            if(!MISSING_SHADER) MISSING_SHADER = std::make_unique<Shader>(FileHandle::automatic("assets/shaders/missing_shader/vertex.glsl"), FileHandle::automatic("assets/shaders/missing_shader/fragment.glsl"));
             return *MISSING_SHADER;
         }
 
         template<>
         const Font& get_missing_placeholder(){
-            if(!MISSING_FONT) MISSING_FONT = std::make_unique<Font>(FileHandle::internal("assets/missing_font.ttf"));
+            if(!MISSING_FONT) MISSING_FONT = std::make_unique<Font>(FileHandle::automatic("assets/fonts/missing_font.ttf"));
             return *MISSING_FONT;
         }
 
         template<>
         const SoundBuffer& get_missing_placeholder(){
-            if(!MISSING_AUDIO) MISSING_AUDIO = std::make_unique<SoundBuffer>(FileHandle::internal("assets/missing_audio.wav"));
+            if(!MISSING_AUDIO) MISSING_AUDIO = std::make_unique<SoundBuffer>(FileHandle::automatic("assets/audio/missing_audio.wav"));
             return *MISSING_AUDIO;
         }
 

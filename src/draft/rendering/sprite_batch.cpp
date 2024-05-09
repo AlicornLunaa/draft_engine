@@ -1,5 +1,6 @@
 #include "draft/math/glm.hpp"
 #include "draft/rendering/sprite_batch.hpp"
+#include "draft/rendering/camera.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
@@ -83,7 +84,7 @@ namespace Draft {
         indices.push_back(2 + index);
     }
 
-    void SpriteBatch::flush(){
+    void SpriteBatch::flush(const RenderWindow& window, const Camera* camera){
         // Draws all the shapes to opengl
         bool flushAgain = false; // Turns true if texture was changed and flush must happen again
 
@@ -92,6 +93,9 @@ namespace Draft {
             return;
 
         shader.bind();
+
+        if(camera)
+            camera->apply(window, shader);
 
         // Render each texture
         while(!textureRegister.empty()){
@@ -134,6 +138,6 @@ namespace Draft {
 
         // Do it again for the rest of the quads
         if(flushAgain)
-            flush();
+            flush(window, camera);
     }
 };

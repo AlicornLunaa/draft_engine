@@ -22,7 +22,7 @@ namespace Draft {
         textQueue.emplace(text);
     }
 
-    void TextRenderer::flush(){
+    void TextRenderer::flush(const RenderWindow& window, const Camera* camera){
         // Generate every quad for each character
         bool flushAgain = false;
         float scale = 0.01f;
@@ -33,6 +33,9 @@ namespace Draft {
             return;
 
         shader.bind();
+
+        if(camera)
+            camera->apply(window, shader);
 
         // Loop over each text to render
         while(!textQueue.empty()){

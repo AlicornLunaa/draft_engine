@@ -2,9 +2,12 @@
 
 #include "draft/math/rect.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/rendering/camera.hpp"
+#include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
+#include "draft/util/asset_manager.hpp"
 
 #include <queue>
 #include <utility>
@@ -34,7 +37,7 @@ namespace Draft {
 
     public:
         // Constructors
-        SpriteBatch(const Shader& shader, const size_t maxSprites = 10000);
+        SpriteBatch(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/default"), const size_t maxSprites = 10000);
 
         // Functions
         void set_color(const Vector4f& color);
@@ -43,6 +46,6 @@ namespace Draft {
         inline const Shader& get_shader() const { return shader; }
 
         void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
-        void flush(); // Send quads to shader
+        void flush(const RenderWindow& window, const Camera* camera = nullptr); // Send quads to shader
     };
 };

@@ -22,7 +22,7 @@ namespace Draft {
         float sizeEnd = 0.1f;
         float sizeVariation = 0.f;
         float lifeTime = 1.f;
-        const Texture* texture = &Assets::get_asset<Texture>("./assets/particles/circle.png");
+        const Texture* texture = &Assets::get_asset<Texture>("assets/particles/circle.png");
     };
 
     class ParticleSystem {
@@ -45,7 +45,7 @@ namespace Draft {
 
     public:
         // Constructors
-        ParticleSystem(const Shader& shader = Assets::get_asset<Shader>("./assets/shaders/default"), const size_t maxParticles = 1000);
+        ParticleSystem(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/default"), const size_t maxParticles = 1000);
 
         // Functions
         void emit(const ParticleProps& props);

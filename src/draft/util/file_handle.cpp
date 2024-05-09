@@ -1,5 +1,6 @@
 #include "draft/util/file_handle.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <ios>
 #include <string>
@@ -13,7 +14,7 @@ namespace fs = std::filesystem;
 namespace Draft {
     // Constructors
     FileHandle::FileHandle(const fs::path& path, Access access) : path(path), access(access) {}
-    FileHandle::FileHandle(const char* path) : FileHandle(path, LOCAL) {}
+    FileHandle::FileHandle(const char* path) : FileHandle(path, std::filesystem::exists(path) ? LOCAL : INTERNAL) {}
     FileHandle::FileHandle() : path("null"), access(INTERNAL) {}
 
     // Functions
@@ -184,5 +185,17 @@ namespace Draft {
     FileHandle& FileHandle::operator+= (const std::string& right){
         path += right;
         return *this;
+    }
+
+    // Static functions
+    FileHandle FileHandle::automatic(const std::string& path){
+        // Find out of if there is an external file that exists, load it first
+        // otherwise, load internal
+        if(std::filesystem::exists(path)){
+            // External file
+            return FileHandle::local(path);
+        }
+
+        return FileHandle::internal(path);
     }
 };

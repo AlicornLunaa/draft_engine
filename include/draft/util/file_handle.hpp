@@ -49,5 +49,6 @@ namespace Draft {
         // Static functions
         inline static FileHandle internal(const std::string& path){ return FileHandle(path, INTERNAL); }
         inline static FileHandle local(const std::string& path){ return FileHandle(path, LOCAL); }
+        static FileHandle automatic(const std::string& path);
     };
 };

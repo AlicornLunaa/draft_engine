@@ -11,7 +11,7 @@ namespace Draft {
     public:
         PhysicsDebugRender(const Shader& shader);
 
-        void render();
+        void render(const RenderWindow& window, const Camera* camera = nullptr);
 
         /// Draw a closed polygon provided in CCW order.
         virtual void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;

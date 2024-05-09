@@ -60,7 +60,6 @@ namespace Draft {
             batch.draw(*particle.props.texture, particle.position, {particle.size, particle.size}, particle.rotation, {particle.size / 2.f, particle.size / 2.f});
         }
 
-        camera->apply(window, batch.get_shader());
-        batch.flush();
+        batch.flush(window, camera);
     }
 };
