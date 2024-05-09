@@ -26,9 +26,9 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 ### Asset manager
 - The asset manager works using whats called asset packages. This is an ID
 which corresponds to current loaded assets. An asset package can be deleted which will unload only the assets in the package.
-- The function called start_package()->size-t starts a new package
-- The function called select_package(size-t) selects the package as current context
-- The function called end_package(size_t) deselects current package and unloads the
+- The function called `start_package()->size-t` starts a new package
+- The function called `select_package(size-t)` selects the package as current context
+- The function called `end_package(size_t)` deselects current package and unloads the
 assets it is currently using, if and only if no other resources are using it.
 
 ### File handle
