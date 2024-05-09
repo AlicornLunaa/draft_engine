@@ -1,4 +1,6 @@
 #pragma once
+#include <algorithm>
+#include <cstddef>
 #define GL_ARRAY_BUFFER 0x8892
 
 #include "draft/math/glm.hpp"
@@ -17,6 +19,7 @@ namespace Draft {
         struct Buffer {
         private:
             unsigned int vbo;
+            size_t maxBytes;
             Type drawType;
             int arrayType;
 
@@ -29,6 +32,7 @@ namespace Draft {
             ~Buffer();
 
             inline unsigned int get_vbo(){ return vbo; }
+            inline size_t get_max_bytes(){ return maxBytes; }
             inline Type get_draw_type(){ return drawType; }
             inline int get_array_type(){ return arrayType; }
 
@@ -74,7 +78,7 @@ namespace Draft {
             auto* buf = buffers[index];
             assert(buf->get_draw_type() == DYNAMIC && "Buffer you're sending data to must be dynamic");
             buf->bind();
-            buffer_sub_data(buf->get_array_type(), offset, array.size() * sizeof(T), array.data());
+            buffer_sub_data(buf->get_array_type(), offset, std::min(array.size() * sizeof(T), buf->get_max_bytes()), array.data());
         }
 
         void start_buffer(const std::vector<float>& data, int type = GL_ARRAY_BUFFER);

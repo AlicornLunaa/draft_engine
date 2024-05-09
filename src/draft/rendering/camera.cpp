@@ -2,7 +2,7 @@
 #include "draft/math/glm.hpp"
 #include "glm/matrix.hpp"
 
-#include <GL/gl.h>
+#include "glad/gl.h"
 
 namespace Draft {
     // Abstract camera
@@ -36,7 +36,7 @@ namespace Draft {
         target(position + forward);
     }
 
-    void Camera::apply(const RenderWindow& window, Shader& shader) const {
+    void Camera::apply(const RenderWindow& window, const Shader& shader) const {
         if(viewport.width <= 0 || viewport.height <= 0){
             auto size = window.get_size();
             glViewport(0, 0, size.x, size.y);
@@ -59,16 +59,16 @@ namespace Draft {
     // Perspective camera
     void PerspectiveCamera::update_matrices(){ projMatrix = Math::perspective(fov, aspectRatio, nearClip, farClip); }
 
-    PerspectiveCamera::PerspectiveCamera(const Vector3f& position, const Vector3f& direction, const Vector2i& size, float fov, float near, float far)
-        : Camera(position, direction), fov(fov), aspectRatio((float)size.x / size.y), nearClip(near), farClip(far) {
+    PerspectiveCamera::PerspectiveCamera(const Vector3f& position, const Vector3f& direction, const Vector2i& size, float fov, float nearClip, float farClip)
+        : Camera(position, direction), fov(fov), aspectRatio((float)size.x / size.y), nearClip(nearClip), farClip(farClip) {
         update_matrices();
     }
 
     // Orthographic camera
     void OrthographicCamera::update_matrices(){ projMatrix = Math::ortho(leftClip * zoom, rightClip * zoom, bottomClip * zoom, topClip * zoom, nearClip, farClip); }
     
-    OrthographicCamera::OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float near, float far)
-        : Camera(position, direction), leftClip(left), rightClip(right), bottomClip(bottom), topClip(top), nearClip(near), farClip(far) {
+    OrthographicCamera::OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float nearClip, float farClip)
+        : Camera(position, direction), leftClip(left), rightClip(right), bottomClip(bottom), topClip(top), nearClip(nearClip), farClip(farClip) {
         update_matrices();
     }
 

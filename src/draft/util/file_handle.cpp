@@ -1,5 +1,6 @@
 #include "draft/util/file_handle.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <ios>
 #include <string>
@@ -13,6 +14,7 @@ namespace fs = std::filesystem;
 namespace Draft {
     // Constructors
     FileHandle::FileHandle(const fs::path& path, Access access) : path(path), access(access) {}
+    FileHandle::FileHandle(const char* path) : FileHandle(path, std::filesystem::exists(path) ? LOCAL : INTERNAL) {}
     FileHandle::FileHandle() : path("null"), access(INTERNAL) {}
 
     // Functions
@@ -31,7 +33,7 @@ namespace Draft {
 
         case INTERNAL:
             const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-            return interalFiles.exists(path);
+            return interalFiles.exists(path.string());
         }
 
         return false;
@@ -54,7 +56,7 @@ namespace Draft {
 
         case INTERNAL:
             const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-            const auto& data = interalFiles.open(path);
+            const auto& data = interalFiles.open(path.string());
             return data.size();
         }
 
@@ -63,18 +65,18 @@ namespace Draft {
 
     std::string FileHandle::filename() const {
         if(path == "null") return "";
-        return path.filename();
+        return path.filename().string();
     }
 
     std::string FileHandle::extension() const {
         if(path == "null") return "";
         fs::path p(path);
-        return p.extension();
+        return p.extension().string();
     }
 
     std::string FileHandle::get_path() const {
         if(path == "null") return "";
-        return path.relative_path();
+        return path.relative_path().string();
     }
 
     FileHandle::Access FileHandle::get_access() const {
@@ -100,7 +102,7 @@ namespace Draft {
 
             case INTERNAL:
                 const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-                const auto& data = interalFiles.open(path);
+                const auto& data = interalFiles.open(path.string());
 
                 for(auto iter = data.begin(); iter != data.end(); iter++){
                     out += *iter;
@@ -120,21 +122,21 @@ namespace Draft {
         out << str;
     }
 
-    std::vector<char> FileHandle::read_bytes(long offset) const {
+    std::vector<std::byte> FileHandle::read_bytes(long offset) const {
         if(path == "null") return {};
 
-        std::vector<char> out;
-        size_t len;
+        std::vector<std::byte> out;
+        std::streampos len;
         char* array;
 
         switch(access){
             case LOCAL: {
                 std::ifstream in(path, std::ios::binary);
 
-                in.seekg(0, std::ios::end);
                 len = in.tellg();
+                in.seekg(0, std::ios::end);
+                len = in.tellg() - len;
                 array = new char[len];
-                out.resize(len);
 
                 in.seekg(0, std::ios::beg);
                 in.seekg(offset, std::ios::beg);
@@ -144,7 +146,7 @@ namespace Draft {
 
             case INTERNAL:
                 const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-                const auto& data = interalFiles.open(path);
+                const auto& data = interalFiles.open(path.string());
                 len = data.end() - data.begin();
                 array = new char[len];
 
@@ -159,29 +161,41 @@ namespace Draft {
 
         out.resize(len);
         for(size_t i = 0; i < len; i++){
-            out[i] = array[i];
+            out[i] = reinterpret_cast<std::byte&>(array[i]);
         }
 
         delete [] array;
         return out;
     }
 
-    void FileHandle::write_bytes(const char* array, long size){
+    void FileHandle::write_bytes(const std::vector<std::byte>& array){
         if(access == INTERNAL) return;
         if(path == "null") return;
         
-        std::ofstream out(path);
-        out.write(array, size);
+        std::ofstream out(path, std::ios::binary);
+        out.write(reinterpret_cast<const char*>(array.data()), array.size());
     }
 
     // Operators
     FileHandle FileHandle::operator+ (const std::string& right) const {
-        std::string p = this->path;
+        std::string p = this->path.string();
         return { p + right, access };
     }
 
     FileHandle& FileHandle::operator+= (const std::string& right){
         path += right;
         return *this;
+    }
+
+    // Static functions
+    FileHandle FileHandle::automatic(const std::string& path){
+        // Find out of if there is an external file that exists, load it first
+        // otherwise, load internal
+        if(std::filesystem::exists(path)){
+            // External file
+            return FileHandle::local(path);
+        }
+
+        return FileHandle::internal(path);
     }
 };

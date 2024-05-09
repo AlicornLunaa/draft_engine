@@ -17,7 +17,8 @@ namespace Draft {
 
     public:
         // Constructors
-        FileHandle(const std::filesystem::path& path, Access access);
+        FileHandle(const std::filesystem::path& path, Access access = LOCAL);
+        FileHandle(const char* path);
         FileHandle();
 
         // Functions
@@ -33,8 +34,8 @@ namespace Draft {
         std::string read_string() const;
         void write_string(const std::string& str);
 
-        std::vector<char> read_bytes(long offset = 0) const;
-        void write_bytes(const char* array, long size);
+        std::vector<std::byte> read_bytes(long offset = 0) const;
+        void write_bytes(const std::vector<std::byte>& array);
 
         // Operators
         FileHandle operator+ (const std::string& right) const;
@@ -48,5 +49,6 @@ namespace Draft {
         // Static functions
         inline static FileHandle internal(const std::string& path){ return FileHandle(path, INTERNAL); }
         inline static FileHandle local(const std::string& path){ return FileHandle(path, LOCAL); }
+        static FileHandle automatic(const std::string& path);
     };
 };

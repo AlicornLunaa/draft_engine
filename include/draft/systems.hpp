@@ -6,10 +6,10 @@
 #include "draft/phys/world.hpp"
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/rendering/shader.hpp"
+#include "draft/rendering/sprite_batch.hpp"
 
 namespace Draft {
-    void render_system(Registry& registry, RenderWindow& window, Shader& shader, const Camera& camera);
+    void render_system(Registry& registry, SpriteBatch& batch, RenderWindow& window, const Camera* camera = nullptr);
     void physics_system(Registry& registry, const Application* app, World& world);
 }
 

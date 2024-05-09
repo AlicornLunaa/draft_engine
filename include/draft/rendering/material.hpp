@@ -35,6 +35,6 @@ namespace Draft {
         Material(const std::string& name);
 
         // Functions
-        void apply(Shader& shader) const;
+        void apply(const Shader& shader) const;
     };
 };

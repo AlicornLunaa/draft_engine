@@ -6,13 +6,17 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] Rendering api
 - [x] Asset api
 - [x] Input api
-- [ ] UI api
+- [x] UI api
 - [x] Component api
 - [x] Physics api
-- [ ] Scenegraph
-- [ ] Audio api
+- [x] Refactor rendering
+- [x] Audio api
+- [x] Particles
 - [ ] Animation api
-- [ ] Profiler API
+- [ ] Profiler api
+- [ ] Scenegraph
+- [ ] Localization API
+- [ ] Handle errors gracefully
 
 ## How the engine works
 ### OpenGL Resources
@@ -20,8 +24,12 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - Do not instantiate an OpenGL class without having an OpenGL context ready!
 
 ### Asset manager
-- Queue in different resources to load
-- Loading is not done until load() is called
+- The asset manager works using whats called asset packages. This is an ID
+which corresponds to current loaded assets. An asset package can be deleted which will unload only the assets in the package.
+- The function called `start_package()->size-t` starts a new package
+- The function called `select_package(size-t)` selects the package as current context
+- The function called `end_package(size_t)` deselects current package and unloads the
+assets it is currently using, if and only if no other resources are using it.
 
 ### File handle
 - File handle controls reading and writing

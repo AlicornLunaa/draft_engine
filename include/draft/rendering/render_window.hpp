@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/input/event.hpp"
+#include "draft/input/keyboard.hpp"
 #include "draft/math/glm.hpp"
 #include <memory>
 #include <queue>
@@ -8,19 +9,27 @@
 #include <unordered_map>
 
 namespace Draft {
+    class Keyboard;
+
     class RenderWindow {
     private:
         // Variables
         std::queue<Event> eventQueue{};
 
+        // Functions
+        void init_callbacks();
+
     public:
-        // Static variables
+        // Public variables
         static std::unordered_map<void*, RenderWindow*> glfwToRenderMap;
 
         // Constructors
         RenderWindow(unsigned int width, unsigned int height, const std::string& title);
         RenderWindow(const RenderWindow& other) = delete;
         ~RenderWindow();
+
+        // Friends
+        friend class Keyboard;
         
         // Operators
         RenderWindow& operator= (const RenderWindow& other) = delete;

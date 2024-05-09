@@ -1,12 +1,14 @@
 #include "draft/rendering/material.hpp"
 #include "draft/util/asset_manager.hpp"
+#include "draft/util/file_handle.hpp"
 
 namespace Draft {
     // Constructors
-    Material::Material(const std::string& name) : name(name), debugWhite(&AssetManager::get_debug_white()), debugBlack(&AssetManager::get_debug_black()), emptyNormalMap(&AssetManager::get_empty_normal_map()) {}
+    Material::Material(const std::string& name) : name(name), debugWhite(&Assets::get_asset<Texture>("assets/textures/debug_white.png")),
+        debugBlack(&Assets::get_asset<Texture>("assets/textures/debug_black.png")), emptyNormalMap(&Assets::get_asset<Texture>("assets/textures/empty_normal_map.png")) {}
 
     // Functions
-    void Material::apply(Shader& shader) const {
+    void Material::apply(const Shader& shader) const {
         shader.bind();
         shader.set_uniform_if_exists("material.baseTexture", 0);
         shader.set_uniform_if_exists("material.normalTexture", 1);

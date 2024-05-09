@@ -1,69 +1,40 @@
 #pragma once
 
-#include "draft/rendering/shader.hpp"
-#include "draft/rendering/texture.hpp"
-
-#include <memory>
-#include <unordered_map>
-#include <vector>
+#include "draft/util/file_handle.hpp"
 
 namespace Draft {
     // Owns and manages all resources inside the game
+    namespace Assets {
+        // Functions
+        size_t start_package();
+        void select_package(size_t package);
+        void end_package(size_t package);
+        void end_package();
+
+        template<typename T>
+        const T& get_asset(const FileHandle& handle);
+
+        template<typename T>
+        const T& get_missing_placeholder();
+
+        void reload();
+        void cleanup();
+    };
+
     class AssetManager {
     private:
-        // Static variables
-        static std::unique_ptr<Texture> MISSING_TEXTURE;
-        static std::unique_ptr<Texture> EMPTY_NORMAL_MAP;
-        static std::unique_ptr<Texture> DEBUG_WHITE;
-        static std::unique_ptr<Texture> DEBUG_BLACK;
-
-        // Variables
-        std::vector<std::string> textureQueue;
-        std::vector<Texture*> textureArray;
-        std::unordered_map<std::string, size_t> textureMap;
-
-        std::vector<std::string> shaderQueue;
-        std::vector<Shader*> shaderArray;
-        std::unordered_map<std::string, size_t> shaderMap;
-
-        // std::vector<std::string> audioQueue;
-        // std::vector<sf::SoundBuffer*> audioArray;
-        // std::unordered_map<std::string, size_t> audioMap;
-
-        // std::vector<std::string> fontQueue;
-        // std::vector<sf::Font> fontArray;
-        // std::unordered_map<std::string, size_t> fontMap;
+        size_t packageID;
 
     public:
-        AssetManager();
-        ~AssetManager();
+        AssetManager() : packageID(Assets::start_package()) {}
+        AssetManager(const AssetManager& other) = delete;
+        AssetManager& operator=(const AssetManager& other) = delete;
+        ~AssetManager(){ Assets::end_package(packageID); }
 
-        void clear();
-        void reload();
-        void load();
-
-        void queue_texture(const std::string& path);
-        void queue_shader(const std::string& path);
-        // void queueAudio(const std::string& path);
-        // void queueFont(const std::string& path);
-
-        const Texture& get_texture(const std::string& name) const;
-
-        Shader& get_shader(const std::string& name) const;
-        // const sf::SoundBuffer& getAudio(const std::string& name) const;
-        // const sf::Font& getFont(const std::string& name) const;
-
-        // Static variables
-        static const Texture& get_missing_texture();
-        static const Texture& get_empty_normal_map();
-        static const Texture& get_debug_white();
-        static const Texture& get_debug_black();
-
-    private:
-        static std::unique_ptr<Texture> load_static_texture(const std::string& path);
-        void load_texture(Texture* texture, const std::string& path);
-        void load_shader(Shader* shader, const std::string& path);
-        // void loadAudio(sf::SoundBuffer* audio, const std::string& path);
-        // void loadFont(sf::Font& shader, const std::string& path);
+        template<typename T>
+        void queue(const FileHandle& handle){
+            Assets::select_package(packageID);
+            Assets::get_asset<T>(handle);
+        }
     };
 }

@@ -2,61 +2,67 @@
 
 #include "draft/input/event.hpp"
 #include "draft/math/glm.hpp"
-#include "draft/rendering/render_window.hpp"
 
 #include <unordered_map>
 
 namespace Draft {
+    class RenderWindow;
+
     class Mouse {
+    public:
+        // Enums
+        enum Button {
+            BUTTON1 = 0,
+            BUTTON2 = 1,
+            BUTTON3 = 2,
+            BUTTON4 = 3,
+            BUTTON5 = 4,
+            BUTTON6 = 5,
+            BUTTON7 = 6,
+            BUTTON8 = 7,
+            LEFT_BUTTON = BUTTON1,
+            RIGHT_BUTTON = BUTTON2,
+            MIDDLE_BUTTON = BUTTON3
+        };
+
     private:
+        // Impl for defining friends
+        struct GLFWImpl;
+
         // Variables
-        static RenderWindow* window;
-        static std::unordered_map<int, bool> lastPressedKeys;
-        static Vector2d position;
+        static std::unordered_map<void*, Mouse*> windowMouseMap;
+        mutable std::unordered_map<int, bool> lastPressedKeys;
+        mutable Vector2d position;
+        std::vector<EventCallback> callbacks;
+        RenderWindow* window;
+
+        // Private functions
+        void set_button_released(int key);
 
     public:
-        // Variables
-        static std::vector<EventCallback> callbacks;
-
-        // Constructor
-        Mouse() = delete; // Shouldnt have instances
+        // Constructors
+        Mouse(RenderWindow& window);
+        Mouse(const Mouse& other) = delete; // Shouldnt have instances
+        ~Mouse();
 
         // Functions
-        /**
-         * @brief Must be ran to setup mouse callbacks. Automatically called by Application
-         * @param window 
-         */
-        static void init(RenderWindow* window);
-
-        /**
-         * @brief Removes callbacks. Automatically called when Application is destroyed
-         * 
-         */
-        static void cleanup();
-
-        /**
-         * @brief Resets the button for is_just_pressed(int). Called automatically, should be internal use only
-         * @param key 
-         */
-        static void set_button_released(int key);
-
         /**
          * @brief Adds a callback to be executed when GLFW has a callback
          * @param func 
          */
-        static void add_callback(EventCallback func);
+        void add_callback(EventCallback func);
 
         /**
          * @brief Removes all the callbacks from the keyboard
          */
-        static void clear_callbacks();
+        void clear_callbacks();
 
         /**
          * @brief Checks if the mouse is currently over the window
          * @return true 
          * @return false 
          */
-        static bool is_hovered();
+        bool is_hovered() const;
 
         /**
          * @brief Checks if a button is currently pressed
@@ -64,7 +70,7 @@ namespace Draft {
          * @return true 
          * @return false 
          */
-        static bool is_pressed(int key);
+        bool is_pressed(int key) const;
 
         /**
          * @brief Checks if a button has just been pressed
@@ -72,18 +78,18 @@ namespace Draft {
          * @return true 
          * @return false 
          */
-        static bool is_just_pressed(int key);
+        bool is_just_pressed(int key) const;
 
         /**
          * @brief Get the position of the mouse relative to the window
          * @return const Vector2d& 
          */
-        static const Vector2d& get_position();
+        const Vector2d& get_position() const;
 
         /**
          * @brief Set the mouse position relative to the window. Doesnt work on every machine
          * @param pos 
          */
-        static void set_position(const Vector2f& pos);
+        void set_position(const Vector2f& pos);
     };
 };

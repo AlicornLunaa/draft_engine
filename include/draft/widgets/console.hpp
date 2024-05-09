@@ -1,7 +1,5 @@
 #pragma once
 
-#include "draft/util/circular_buffer.hpp"
-
 #include <functional>
 #include <sstream>
 #include <vector>
@@ -11,32 +9,34 @@ namespace Draft {
     using ConsoleArgs = const std::vector<std::string>&;
     using ConsoleFunc = std::function<bool(ConsoleArgs)>;
 
+    class Application;
+
     class Console {
     private:
         // Constants
         constexpr static size_t INPUT_BUFFER_SIZE = 512;
-        constexpr static size_t OUTPUT_BUFFER_SIZE = 4096;
-        constexpr static size_t MAX_LINES = 32;
+        constexpr static size_t MAX_LINES = 100;
 
         // Variables
+        const Application* app;
+        std::streambuf* oldOutBuf = nullptr;
         std::vector<ConsoleFunc> commandArray;
         std::vector<std::string> commandAliases;
 
-        CircularBuffer<std::string> output = CircularBuffer<std::string>(MAX_LINES);
+        std::vector<std::string> lines;
         std::ostringstream stream;
-        size_t lineWidth = 64;
 
-        char inputBuffer[INPUT_BUFFER_SIZE];
-        char outputBuffer[OUTPUT_BUFFER_SIZE];
+        char inputBuffer[INPUT_BUFFER_SIZE]{'\0'};
         bool mOpened = false;
+        bool scrollToBottom = true;
+        bool reclaimFocus = true;
 
         // Private functions
         void parse_arguments(const std::string& text, std::vector<std::string>& args);
-        void construct_raw_buffer();
 
     public:
         // Constructors
-        Console(bool openByDefault = false);
+        Console(const Application* app, bool openByDefault = false);
         ~Console();
 
         // Functions

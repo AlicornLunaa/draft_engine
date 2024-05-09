@@ -27,7 +27,7 @@ namespace Draft {
     b2CircleShape shape_to_b2(const CircleShape& shape);
     b2EdgeShape shape_to_b2(const EdgeShape& shape);
 
-    b2Filter filter_to_b2(const Filter& def);
+    b2Filter filter_to_b2(const PhysMask& def);
 
     b2JointType jointtype_to_b2(const Joint::Type& type);
     void jointdef_base_to_b2(const JointDef& def, b2JointDef& tmp);

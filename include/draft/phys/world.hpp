@@ -5,6 +5,10 @@
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
+#include "draft/rendering/camera.hpp"
+#include "draft/rendering/render_window.hpp"
+#include "draft/rendering/shader.hpp"
+#include "draft/util/asset_manager.hpp"
 
 #include <memory>
 #include <vector>
@@ -17,6 +21,10 @@ namespace Draft {
         std::vector<Joint*> joints;
 
     public:
+        // Static public vars
+        constexpr static int VELOCITY_ITER = 6;
+        constexpr static int POSITION_ITER = 2;
+
         // Constructors
         World(const Vector2f& gravity);
         World(const World& other) = delete;
@@ -37,8 +45,10 @@ namespace Draft {
         void destroy_joint(Joint*& joint);
         void destroy_joint(Joint* joint);
 
+        void set_debug_renderer(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/shapes"), void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(float timeStep, int32_t velocityIterations, int32_t positionIterations);
+        void debug_draw(const RenderWindow& window, const Camera* camera = nullptr);
         
     private:
         // pImpl

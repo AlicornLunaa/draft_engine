@@ -2,6 +2,7 @@
 
 #include "draft/core/scene.hpp"
 #include "draft/input/event.hpp"
+#include "draft/input/mouse.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/asset_manager.hpp"
 #include "draft/util/clock.hpp"
@@ -16,20 +17,21 @@ namespace Draft {
      */
     class Application {
     private:
-        std::streambuf* oldOutBuf = nullptr;
         Scene* activeScene = nullptr;
         Clock deltaClock;
         Event event;
-        Stats stats;
-
-        double accumulator = 0.0;
+        double accumulator = 0.0; // Used for fixed timestep
 
     public:
-        AssetManager assetManager;
+        AssetManager assets;
         RenderWindow window;
-        Console console;
+        Mouse mouse;
+        Keyboard keyboard;
         Time deltaTime;
         double timeStep = 1.0/66.0;
+
+        Console console{this};
+        Stats stats;
         bool debug = true;
         
         Application(const char* title, const unsigned int width, const unsigned int height);

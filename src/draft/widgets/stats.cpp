@@ -1,5 +1,6 @@
 #include "draft/core/application.hpp"
 #include "draft/widgets/stats.hpp"
+#include "draft/input/keyboard.hpp"
 #include "imgui.h"
 
 #include <algorithm>
@@ -37,43 +38,51 @@ namespace Draft {
     }
 
     void Stats::draw(Application& app){
-        // Get stuff
-        auto frameTime = app.deltaTime.as_seconds();
-        auto fps = 1.f / frameTime;
+        if(app.debug){
+            // Get stuff
+            auto frameTime = app.deltaTime.as_seconds();
+            auto fps = 1.f / frameTime;
 
-        float vmUsage, usage;
-        process_mem_usage(vmUsage, usage);
+            float vmUsage, usage;
+            process_mem_usage(vmUsage, usage);
 
-        updateTimer += app.deltaTime.as_seconds();
-        if(updateTimer > 0.5f){
-            maxUsage = 0.f;
-            maxFps = 0.f;
+            updateTimer += app.deltaTime.as_seconds();
+            if(updateTimer > 0.5f){
+                maxUsage = 0.f;
+                maxFps = 0.f;
 
-            for(int i = 0; i < samples - 1; i++){;
-                memoryUsage[i] = memoryUsage[i + 1];
-                fpsOverTime[i] = fpsOverTime[i + 1];
-                maxUsage = std::max(memoryUsage[i], maxUsage);
-                maxFps = std::max(fpsOverTime[i], maxFps);
+                for(int i = 0; i < samples - 1; i++){;
+                    memoryUsage[i] = memoryUsage[i + 1];
+                    fpsOverTime[i] = fpsOverTime[i + 1];
+                    maxUsage = std::max(memoryUsage[i], maxUsage);
+                    maxFps = std::max(fpsOverTime[i], maxFps);
+                }
+
+                memoryUsage[samples - 1] = usage;
+                fpsOverTime[samples - 1] = fps;
+                updateTimer = 0.f;
             }
 
-            memoryUsage[samples - 1] = usage;
-            fpsOverTime[samples - 1] = fps;
-            updateTimer = 0.f;
+            // Draw frame
+            ImGui::Begin("Statistics");
+            ImGui::Text("FPS: %f", fps);
+            ImGui::Text("Frame Time: %f", frameTime);
+            ImGui::Text("Time Step: %f", app.timeStep);
+            ImGui::PlotLines("FPS", &fpsOverTime[0], samples, 0, nullptr, 0.f, maxFps, {0, 80});
+            ImGui::Text("Memory (mb): %f", usage);
+            ImGui::PlotLines("(mb)", &memoryUsage[0], samples, 0, nullptr, 0.f, maxUsage, {0, 80});
+            ImGui::Checkbox("Debug", &app.debug);
+
+            if(ImGui::Button("Reload Assets")){
+                app.console.run("reload_assets");
+            }
+
+            ImGui::End();
         }
 
-        // Draw frame
-        ImGui::Begin("Statistics");
-        ImGui::Text("FPS: %f", fps);
-        ImGui::Text("Frame Time: %f", frameTime);
-        ImGui::Text("Time Step: %f", app.timeStep);
-        ImGui::PlotLines("FPS", &fpsOverTime[0], samples, 0, nullptr, 0.f, maxFps, {0, 80});
-        ImGui::Text("Memory (mb): %f", usage);
-        ImGui::PlotLines("(mb)", &memoryUsage[0], samples, 0, nullptr, 0.f, maxUsage, {0, 80});
-
-        if(ImGui::Button("Reload Assets")){
-            app.console.run("reload_assets");
+        // Handle pressing keys
+        if(app.keyboard.is_just_pressed(Keyboard::F3)){
+            app.debug = !app.debug;
         }
-
-        ImGui::End();
     }
 }

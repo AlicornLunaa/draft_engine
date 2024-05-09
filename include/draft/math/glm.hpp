@@ -5,6 +5,7 @@
 #include "glm/ext/matrix_transform.hpp" // IWYU pragma: keep, Includes definitions and such
 #include "glm/gtx/matrix_transform_2d.hpp" // IWYU pragma: keep, Includes definitions and such
 #include "glm/ext/matrix_clip_space.hpp" // IWYU pragma: keep, Includes definitions and such
+#include "glm/gtx/rotate_vector.hpp" // IWYU pragma: keep, Includes definitions and such
 #include "glm/geometric.hpp" // IWYU pragma: keep, Includes definitions and such
 
 namespace Draft {

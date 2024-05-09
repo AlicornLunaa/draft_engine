@@ -1,9 +1,10 @@
 #pragma once
 
-#include "box2d/b2_fixture.h"
 #include "draft/phys/shape.hpp"
 
 #include <memory>
+
+class b2Filter;
 
 namespace Draft {
     class RigidBody;

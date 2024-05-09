@@ -1,3 +1,5 @@
+#include "draft/rendering/conversions_p.hpp"
+#include "draft/rendering/image.hpp"
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
@@ -29,7 +31,7 @@ namespace Draft {
             res = loader.LoadBinaryFromMemory(&mdl, &err, &warn, reinterpret_cast<const unsigned char*>(bytes.data()), bytes.size());
         } else {
             const auto& str = handle.read_string();
-            auto basePath = std::filesystem::path("./assets");
+            std::string basePath = std::filesystem::path("assets").string();
             res = loader.LoadASCIIFromString(&mdl, &err, &warn, str.c_str(), str.length(), basePath);
         }
 
@@ -62,10 +64,11 @@ namespace Draft {
             if(img.uri == ""){
                 // No URI, its an embedded texture.
                 const unsigned char* data = &img.image[0];
-                return std::make_shared<Texture>(data, img.width, img.height, img.component);
+                Image image(img.width, img.height, channels_to_color_space(img.component), reinterpret_cast<const std::byte*>(data));
+                return std::make_shared<Texture>(image);
             } else {
                 // URI provided, load it from the games asset folder
-                return std::make_shared<Texture>(img.uri);
+                return std::make_shared<Texture>(FileHandle::local(img.uri));
             }
         };
 
@@ -191,6 +194,9 @@ namespace Draft {
         // Prep vectors
         materials.clear();
         meshes.clear();
+        meshToMaterialMap.clear();
+        meshToMatrixMap.clear();
+        buffers.clear();
 
         // Load source data
         auto mdl = load_model(handle);
@@ -247,7 +253,7 @@ namespace Draft {
         buffer_meshes();
     }
 
-    Model::Model(const Model& other) : reloadable(other.reloadable), meshes(other.meshes), meshToMaterialMap(other.meshToMaterialMap), meshToMatrixMap(other.meshToMatrixMap), handle(other.handle) {
+    Model::Model(const Model& other) : reloadable(other.reloadable), meshes(other.meshes), materials(other.materials), meshToMaterialMap(other.meshToMaterialMap), meshToMatrixMap(other.meshToMatrixMap), handle(other.handle) {
         // Copy constructor
         buffer_meshes();
     }
@@ -278,7 +284,7 @@ namespace Draft {
     }
 
     // Functions
-    void Model::render(Shader& shader, const Matrix4& modelMatrix) const {
+    void Model::render(const Shader& shader, const Matrix4& modelMatrix) const {
         // Draws the meshes
         for(size_t i = 0; i < buffers.size(); i++){
             auto& vbo = buffers[i];

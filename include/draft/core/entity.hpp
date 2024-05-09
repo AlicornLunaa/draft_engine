@@ -61,5 +61,6 @@ namespace Draft {
         }
 
         operator entt::entity() const { return entityID; }
+        bool operator==(const Entity& other) const { return (entityID == other.entityID); }
     };
 }

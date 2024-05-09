@@ -62,7 +62,7 @@ namespace Draft {
     }
 
     // Constructors
-    UIContainer::UIContainer(const Application* app, const Vector2f& size, Shader& uiShader) : buffer(new VertexBuffer()), windowBounds({0, 0, size.x, size.y}),
+    UIContainer::UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader) : buffer(new VertexBuffer()), windowBounds({0, 0, size.x, size.y}),
         uiCamera({{ 0, 0, -10 }, { 0, 0, 1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), uiShader(uiShader), app(app) {}
 
     UIContainer::~UIContainer(){
@@ -109,6 +109,11 @@ namespace Draft {
     }
 
     void UIContainer::render(const Time& deltaTime){
+        // Check for window resize
+        auto size = app->window.get_size();
+        windowBounds.width = size.x;
+        windowBounds.height = size.y;
+
         // Handle updates
         for(auto* p : panels)
             p->update(deltaTime);

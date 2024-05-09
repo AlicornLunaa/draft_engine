@@ -1,7 +1,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <filesystem>
 #include <string>
 
 #include "draft/math/glm.hpp"
@@ -23,9 +22,8 @@ namespace Draft {
 
     public:
         // Constructors
-        Shader(const char* vertexSrc, const char* fragmentSrc);
+        Shader(const FileHandle& vertexHandle, const FileHandle& fragmentHandle);
         Shader(const FileHandle& handle);
-        Shader(const std::filesystem::path& shaderPath);
         Shader(const Shader& other) = delete;
         ~Shader();
         
@@ -41,61 +39,61 @@ namespace Draft {
         bool has_uniform(const std::string& name) const;
 
         // Named uniforms
-        void set_uniform(const std::string& name, bool value);
+        void set_uniform(const std::string& name, bool value) const;
 
-        void set_uniform(const std::string& name, int value);
-        void set_uniform(const std::string& name, const Vector2i& value);
-        void set_uniform(const std::string& name, const Vector3i& value);
-        void set_uniform(const std::string& name, const Vector4i& value);
+        void set_uniform(const std::string& name, int value) const;
+        void set_uniform(const std::string& name, const Vector2i& value) const;
+        void set_uniform(const std::string& name, const Vector3i& value) const;
+        void set_uniform(const std::string& name, const Vector4i& value) const;
 
-        void set_uniform(const std::string& name, unsigned int value);
-        void set_uniform(const std::string& name, const Vector2u& value);
-        void set_uniform(const std::string& name, const Vector3u& value);
-        void set_uniform(const std::string& name, const Vector4u& value);
+        void set_uniform(const std::string& name, unsigned int value) const;
+        void set_uniform(const std::string& name, const Vector2u& value) const;
+        void set_uniform(const std::string& name, const Vector3u& value) const;
+        void set_uniform(const std::string& name, const Vector4u& value) const;
 
-        void set_uniform(const std::string& name, float value);
-        void set_uniform(const std::string& name, const Vector2f& value);
-        void set_uniform(const std::string& name, const Vector3f& value);
-        void set_uniform(const std::string& name, const Vector4f& value);
+        void set_uniform(const std::string& name, float value) const;
+        void set_uniform(const std::string& name, const Vector2f& value) const;
+        void set_uniform(const std::string& name, const Vector3f& value) const;
+        void set_uniform(const std::string& name, const Vector4f& value) const;
 
-        void set_uniform(const std::string& name, double value);
-        void set_uniform(const std::string& name, const Vector2d& value);
-        void set_uniform(const std::string& name, const Vector3d& value);
-        void set_uniform(const std::string& name, const Vector4d& value);
+        void set_uniform(const std::string& name, double value) const;
+        void set_uniform(const std::string& name, const Vector2d& value) const;
+        void set_uniform(const std::string& name, const Vector3d& value) const;
+        void set_uniform(const std::string& name, const Vector4d& value) const;
 
-        void set_uniform(const std::string& name, const Matrix2& value);
-        void set_uniform(const std::string& name, const Matrix3& value);
-        void set_uniform(const std::string& name, const Matrix4& value);
+        void set_uniform(const std::string& name, const Matrix2& value) const;
+        void set_uniform(const std::string& name, const Matrix3& value) const;
+        void set_uniform(const std::string& name, const Matrix4& value) const;
 
         // By uniform location
-        void set_uniform(int loc, bool value);
+        void set_uniform(int loc, bool value) const;
 
-        void set_uniform(int loc, int value);
-        void set_uniform(int loc, const Vector2i& value);
-        void set_uniform(int loc, const Vector3i& value);
-        void set_uniform(int loc, const Vector4i& value);
+        void set_uniform(int loc, int value) const;
+        void set_uniform(int loc, const Vector2i& value) const;
+        void set_uniform(int loc, const Vector3i& value) const;
+        void set_uniform(int loc, const Vector4i& value) const;
 
-        void set_uniform(int loc, unsigned int value);
-        void set_uniform(int loc, const Vector2u& value);
-        void set_uniform(int loc, const Vector3u& value);
-        void set_uniform(int loc, const Vector4u& value);
+        void set_uniform(int loc, unsigned int value) const;
+        void set_uniform(int loc, const Vector2u& value) const;
+        void set_uniform(int loc, const Vector3u& value) const;
+        void set_uniform(int loc, const Vector4u& value) const;
 
-        void set_uniform(int loc, float value);
-        void set_uniform(int loc, const Vector2f& value);
-        void set_uniform(int loc, const Vector3f& value);
-        void set_uniform(int loc, const Vector4f& value);
+        void set_uniform(int loc, float value) const;
+        void set_uniform(int loc, const Vector2f& value) const;
+        void set_uniform(int loc, const Vector3f& value) const;
+        void set_uniform(int loc, const Vector4f& value) const;
 
-        void set_uniform(int loc, double value);
-        void set_uniform(int loc, const Vector2d& value);
-        void set_uniform(int loc, const Vector3d& value);
-        void set_uniform(int loc, const Vector4d& value);
+        void set_uniform(int loc, double value) const;
+        void set_uniform(int loc, const Vector2d& value) const;
+        void set_uniform(int loc, const Vector3d& value) const;
+        void set_uniform(int loc, const Vector4d& value) const;
 
-        void set_uniform(int loc, const Matrix2& value);
-        void set_uniform(int loc, const Matrix3& value);
-        void set_uniform(int loc, const Matrix4& value);
+        void set_uniform(int loc, const Matrix2& value) const;
+        void set_uniform(int loc, const Matrix3& value) const;
+        void set_uniform(int loc, const Matrix4& value) const;
 
         template<typename T>
-        void set_uniform_if_exists(const std::string& name, T value){
+        void set_uniform_if_exists(const std::string& name, T value) const {
             if(has_uniform(name)){
                 set_uniform(name, value);
             }

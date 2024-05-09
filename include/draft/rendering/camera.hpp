@@ -60,7 +60,7 @@ namespace Draft {
         inline const Matrix4& get_projection() const { return projMatrix; }
         inline const Matrix4& get_view() const { return viewMatrix; }
 
-        void apply(const RenderWindow& window, Shader& shader) const;
+        void apply(const RenderWindow& window, const Shader& shader) const;
         Vector2f project(const Vector2f& point) const;
         Vector2f unproject(const Vector2f& point) const;
     };

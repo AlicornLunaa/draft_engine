@@ -1,8 +1,12 @@
 # Engine library
 cmake_minimum_required(VERSION 3.8)
-project("draft_engine" VERSION 0.0.1 LANGUAGES CXX)
+project("draft_engine" VERSION 0.1.0 LANGUAGES CXX)
 
 set(SOURCES
+    src/draft/audio/sound_buffer.cpp
+    src/draft/audio/sound.cpp
+    src/draft/audio/music.cpp
+    src/draft/audio/listener.cpp
     src/draft/core/application.cpp
     src/draft/core/scene.cpp
     src/draft/core/entity.cpp
@@ -33,6 +37,11 @@ set(SOURCES
     src/draft/rendering/mesh.cpp
     src/draft/rendering/material.cpp
     src/draft/rendering/font.cpp
+    src/draft/rendering/phys_renderer_p.cpp
+    src/draft/rendering/text_renderer.cpp
+    src/draft/rendering/image.cpp
+    src/draft/rendering/conversions.cpp
+    src/draft/rendering/particle_system.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -49,9 +58,15 @@ set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
     src/draft/phys/conversions_p.hpp
+    src/draft/rendering/phys_renderer_p.hpp
+    src/draft/rendering/conversions_p.hpp
 )
 
 set(INTERFACES
+    include/draft/audio/sound_buffer.hpp
+    include/draft/audio/sound.hpp
+    include/draft/audio/music.hpp
+    include/draft/audio/listener.hpp
     include/draft/components/control_component.hpp
     include/draft/components/empty_component.hpp
     include/draft/components/texture_component.hpp
@@ -60,7 +75,7 @@ set(INTERFACES
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
     include/draft/core/entity.hpp
-    include/draft/input/keys.hpp
+    include/draft/input/action.hpp
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
@@ -94,11 +109,12 @@ set(INTERFACES
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/texture.hpp
     include/draft/rendering/font.hpp
+    include/draft/rendering/text_renderer.hpp
+    include/draft/rendering/image.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/asset_manager.hpp
-    include/draft/util/constants.hpp
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp
@@ -109,11 +125,27 @@ set(INTERFACES
 )
 
 set(RESOURCES
-    assets/missing_texture.png
-    assets/empty_normal_map.png
-    assets/debug_white.png
-    assets/debug_black.png
-    assets/missing_model.glb
+    assets/textures/missing_texture.png
+    assets/textures/empty_normal_map.png
+    assets/textures/debug_white.png
+    assets/textures/debug_black.png
+
+    assets/models/missing_model.glb
+
+    assets/fonts/missing_font.ttf
+
+    assets/shaders/missing_shader/vertex.glsl
+    assets/shaders/missing_shader/fragment.glsl
+    assets/shaders/default/vertex.glsl
+    assets/shaders/default/fragment.glsl
+    assets/shaders/interface/vertex.glsl
+    assets/shaders/interface/fragment.glsl
+    assets/shaders/mesh/vertex.glsl
+    assets/shaders/mesh/fragment.glsl
+    assets/shaders/shapes/vertex.glsl
+    assets/shaders/shapes/fragment.glsl
+    assets/shaders/text/vertex.glsl
+    assets/shaders/text/fragment.glsl
 )
 
 set(SFML_STATIC_LIBRARIES TRUE)
@@ -126,6 +158,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
 set(GLAD_API "gl=" CACHE STRING "API type/version pairs, like \"gl=3.2,gles=\", no version means latest")
 set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEV_BUILD")
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(SFML_USE_STATIC_STD_LIBS "Use static libraries" ON)
 option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" OFF)
@@ -151,9 +184,9 @@ add_subdirectory(vendor/entt)
 find_package(Freetype REQUIRED)
 
 if(WIN32)
-	set(SFML_FLAGS sfml-graphics sfml-window sfml-audio sfml-network sfml-main sfml-system -static)
+	set(SFML_FLAGS sfml-audio sfml-network sfml-main sfml-system -static)
 elseif(LINUX)
-    set(SFML_FLAGS sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
+    set(SFML_FLAGS sfml-audio sfml-network sfml-system)
 endif()
 
 # Resource compiler
