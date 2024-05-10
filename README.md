@@ -12,11 +12,27 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] Refactor rendering
 - [x] Audio api
 - [x] Particles
-- [ ] Animation api
+- [x] Animation api
 - [ ] Profiler api
 - [ ] Scenegraph
 - [ ] Localization API
 - [ ] Handle errors gracefully
+
+## Oversights to fix
+- [ ] draw_centered_text for TextRenderer
+- [ ] font class needs to handle everything better, should be a single texture updated on demand
+- [ ] figure whatever is wrong with the coordinate system
+- [ ] updates need a timestep, not a deltatime
+- [ ] missing `on_attach` and `on_detach` methods for scenes
+- [ ] more widgets for UIContainer class
+- [ ] implement styling for UIContainer
+- [ ] namespace inconsistencies for the UI
+- [ ] just a better animation class
+- [ ] better handling of references vs pointer
+- [ ] asyncronous loading of assets, in case of OpenGL, loading raw data first
+- [ ] loading colliders from files
+- [ ] loading particles from files
+- [ ] maybe condense widgets and interface into the same directory?
 
 ## How the engine works
 ### OpenGL Resources
