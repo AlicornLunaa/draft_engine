@@ -22,19 +22,21 @@ namespace Draft {
         // Variables
         std::unordered_map<char, Glyph> glyphs;
         std::vector<Texture*> textures;
+        unsigned int fontSize;
         FileHandle handle;
 
         // Private functions
         void clear();
-        void load_font();
+        void load_font(unsigned int fontSize);
 
     public:
         // Constructors
-        Font(const FileHandle& handle);
+        Font(const FileHandle& handle, unsigned int fontSize = 24);
         Font(const Font& other) = delete;
         ~Font();
 
         // Functions
+        inline const unsigned int get_font_size() const { return fontSize; }
         const Glyph& get_glyph(char ch) const;
         void reload();
 

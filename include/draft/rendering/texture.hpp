@@ -44,4 +44,9 @@ namespace Draft {
         void update(const Image& image, IntRect rect = {0, 0, 0, 0});
         void reload();
     };
+
+    struct TextureRegion {
+        const Texture& texture;
+        FloatRect region;
+    };
 };

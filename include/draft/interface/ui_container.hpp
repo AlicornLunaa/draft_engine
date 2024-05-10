@@ -38,6 +38,8 @@ namespace Draft {
         ~UIContainer();
 
         // Functions
+        inline OrthographicCamera& get_camera(){ return uiCamera; }
+
         template<typename T>
         T* add_panel(T* panel){
             panels.push_back(panel);

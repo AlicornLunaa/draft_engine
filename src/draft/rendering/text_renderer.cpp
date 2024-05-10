@@ -12,12 +12,25 @@ namespace Draft {
     }
 
     // Functions
-    void TextRenderer::draw_text(const std::string& str, const Font& font, const Vector2f& position, const Vector4f& color){
+    float TextRenderer::get_text_width(const std::string& str, const Font& font, float scale) const {
+        float currWidth = 0.f;
+
+        for(char ch : str){
+            // Get glyph to render
+            auto& glyph = font.get_glyph(ch);
+            currWidth += (glyph.advance >> 6) * scale;
+        }
+
+        return currWidth;
+    }
+
+    void TextRenderer::draw_text(const std::string& str, const Font& font, const Vector2f& position, float scale, const Vector4f& color){
         Text text{
             font,
             position,
             str,
-            color
+            color,
+            scale
         };
         textQueue.emplace(text);
     }
@@ -42,6 +55,7 @@ namespace Draft {
             // Get the next item
             auto& text = textQueue.front();
             float currX = text.position.x;
+            scale = text.scale;
             shader.set_uniform("textColor", text.color);
 
             // Create quad coordinates for each char in the text

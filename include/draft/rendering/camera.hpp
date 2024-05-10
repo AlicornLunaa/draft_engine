@@ -100,6 +100,12 @@ namespace Draft {
         OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float near = 0.1f, float far = 100.f);
 
         // Functions
+        inline float get_left() const { return leftClip; }
+        inline float get_right() const { return rightClip; }
+        inline float get_bottom() const { return bottomClip; }
+        inline float get_top() const { return topClip; }
+        inline float get_near() const { return nearClip; }
+        inline float get_far() const { return farClip; }
         void set_zoom(float z);
         float get_zoom();
     };

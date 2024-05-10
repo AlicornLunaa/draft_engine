@@ -50,8 +50,8 @@ namespace Draft {
         auto& textureSize = texture.get_size();
         float x = region.x / textureSize.x;
         float y = region.y / textureSize.y;
-        float w = ((region.x <= 0) ? texture.get_size().x : region.x) / textureSize.x;
-        float h = ((region.y <= 0) ? texture.get_size().y : region.y) / textureSize.y;
+        float w = ((region.width <= 0) ? textureSize.x : region.width) / textureSize.x;
+        float h = ((region.height <= 0) ? textureSize.y : region.height) / textureSize.y;
 
         // Create vertices, TODO: Texture coords based on region
         vertices.push_back({ {0, 0}, {x, y}, currentColor });

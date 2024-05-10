@@ -33,7 +33,7 @@ namespace Draft {
         FT_Done_FreeType(ptr->fontLibrary);
     }
 
-    void Font::load_font(){
+    void Font::load_font(unsigned int fontSize){
         // Initialize
         if(FT_Init_FreeType(&ptr->fontLibrary)){
             Logger::println(Level::CRITICAL, "Font", "Cannot initialize freetype");
@@ -46,9 +46,7 @@ namespace Draft {
         }
 
         // Load the textures
-        FT_Set_Pixel_Sizes(ptr->fontFace, 0, 48);
-        FT_Load_Char(ptr->fontFace, 'a', FT_LOAD_RENDER);
-        
+        FT_Set_Pixel_Sizes(ptr->fontFace, 0, fontSize);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         // Generate each glyph
@@ -73,9 +71,9 @@ namespace Draft {
     }
 
     // Constructors
-    Font::Font(const FileHandle& handle) : ptr(std::make_unique<Impl>()), handle(handle) {
+    Font::Font(const FileHandle& handle, unsigned int fontSize) : ptr(std::make_unique<Impl>()), handle(handle), fontSize(fontSize) {
         // Load font data
-        load_font();
+        load_font(fontSize);
     }
 
     Font::~Font(){
@@ -99,6 +97,6 @@ namespace Draft {
     void Font::reload(){
         // Delete old textures
         clear();
-        load_font();
+        load_font(fontSize);
     }
 };

@@ -18,6 +18,7 @@ namespace Draft {
             Vector2f position;
             std::string str;
             Vector4f color;
+            float scale;
         };
 
         // Variables
@@ -33,7 +34,8 @@ namespace Draft {
         TextRenderer(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/text"), size_t maxChars = 1000);
 
         // Functions
-        void draw_text(const std::string& str, const Font& font, const Vector2f& position, const Vector4f& color = { 1, 1, 1, 1 });
+        float get_text_width(const std::string& str, const Font& font, float scale = 0.01f) const;
+        void draw_text(const std::string& str, const Font& font, const Vector2f& position, float scale = 0.01f, const Vector4f& color = { 1, 1, 1, 1 });
         void flush(const RenderWindow& window, const Camera* camera = nullptr);
     };
 };

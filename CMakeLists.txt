@@ -18,6 +18,8 @@ set(SOURCES
     src/draft/interface/slider.cpp
     src/draft/interface/button.cpp
     src/draft/interface/joystick.cpp
+    src/draft/interface/picture.cpp
+    src/draft/interface/progress_bar.cpp
     src/draft/math/bounds.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
@@ -42,6 +44,7 @@ set(SOURCES
     src/draft/rendering/image.cpp
     src/draft/rendering/conversions.cpp
     src/draft/rendering/particle_system.cpp
+    src/draft/rendering/animation.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -85,6 +88,8 @@ set(INTERFACES
     include/draft/interface/slider.hpp
     include/draft/interface/button.hpp
     include/draft/interface/joystick.hpp
+    include/draft/interface/picture.hpp
+    include/draft/interface/progress_bar.hpp
     include/draft/math/bounds.hpp
     include/draft/math/rect.hpp
     include/draft/math/glm.hpp
@@ -111,6 +116,7 @@ set(INTERFACES
     include/draft/rendering/font.hpp
     include/draft/rendering/text_renderer.hpp
     include/draft/rendering/image.hpp
+    include/draft/rendering/animation.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
