@@ -63,7 +63,7 @@ namespace Draft {
 
     // Constructors
     UIContainer::UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader) : buffer(new VertexBuffer()), windowBounds({0, 0, size.x, size.y}),
-        uiCamera({{ 0, 0, -10 }, { 0, 0, 1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), uiShader(uiShader), app(app) {}
+        uiCamera({{ 0, 0, 10 }, { 0, 0, -1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), uiShader(uiShader), app(app) {}
 
     UIContainer::~UIContainer(){
         if(buffer)

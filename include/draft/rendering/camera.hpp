@@ -9,18 +9,18 @@ namespace Draft {
     class Camera {
     protected:
         // Variables
-        Vector3f position{};
         Rect<float> viewport = { 0, 0, -1, -1 };
+        Vector3f position{};
 
         Vector3f up{ 0, 1, 0 };
         Vector3f right{ 1, 0, 0 };
-        Vector3f forward{ 0, 0, 1 };
+        Vector3f forward{ 0, 0, -1 };
 
         Matrix4 projMatrix = Matrix4(1.f);
         Matrix4 viewMatrix = Matrix4(1.f);
 
         // Private functions
-        void update_vectors();
+        void update_vectors(const Vector3f& newForward);
         virtual void update_matrices() = 0;
 
     public:
