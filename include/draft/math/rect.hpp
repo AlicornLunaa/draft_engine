@@ -15,6 +15,16 @@ namespace Draft {
         operator Bounds() const {
             return Bounds{{ x, y }, { x + width, y }, { x + width, y + height }, { x, y + height }};
         }
+
+        template<typename U>
+        operator Rect<U>(){
+            Rect<U> rect;
+            rect.x = (U)x;
+            rect.y = (U)y;
+            rect.width = (U)width;
+            rect.height = (U)height;
+            return rect;
+        }
     };
 
     typedef Rect<int> IntRect;

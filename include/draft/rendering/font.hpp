@@ -12,7 +12,7 @@ namespace Draft {
     public:
         // Structures
         struct Glyph {
-            Texture* texture;
+            TextureRegion region;
             Vector2f size; // Size of glyph
             Vector2f bearing; // Offset from baseline
             long advance; // Offset to next character
@@ -26,14 +26,17 @@ namespace Draft {
         FileHandle handle;
 
         // Private functions
-        void clear();
         void load_font(unsigned int fontSize);
+        void clear();
 
     public:
         // Constructors
         Font(const FileHandle& handle, unsigned int fontSize = 24);
         Font(const Font& other) = delete;
         ~Font();
+
+        // Operators
+        Font& operator=(const Font& other) = delete;
 
         // Functions
         inline const unsigned int get_font_size() const { return fontSize; }

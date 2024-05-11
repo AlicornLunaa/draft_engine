@@ -41,7 +41,7 @@ namespace Draft {
         for(char ch : props.str){
             // Get glyph to render
             auto& glyph = font.get_glyph(ch);
-            Vector2f glyphTextureSize = glyph.texture->get_size();
+            Vector2f glyphTextureSize = glyph.region.texture.get_size();
             
             float xPos = currX + glyph.bearing.x * props.scale;
             float yPos = props.position.y - (glyph.size.y - glyph.bearing.y) * props.scale;
@@ -49,7 +49,7 @@ namespace Draft {
             float h = glyph.size.y * props.scale;
 
             // Render glyph
-            batch.draw(*glyph.texture, Vector2f{xPos, yPos} - center, {w, h}, 0.f, {0, 0});
+            batch.draw(glyph.region.texture, Vector2f{xPos, yPos} - center, {w, h}, 0.f, {0, 0}, glyph.region.region);
             currX += (glyph.advance >> 6) * props.scale;
         }
     }

@@ -95,6 +95,7 @@ namespace Draft {
         }
 
         // Upload this image to the texture
+        bind();
         glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x, rect.y, rect.width, rect.height, color_space_to_gl(image.get_color_space()), GL_UNSIGNED_BYTE, image.c_arr());
     }
 
