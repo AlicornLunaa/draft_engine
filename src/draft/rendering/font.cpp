@@ -57,6 +57,7 @@ namespace Draft {
             }
 
             Image image(ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, ColorSpace::GREYSCALE, reinterpret_cast<std::byte*>(ptr->fontFace->glyph->bitmap.buffer));
+            image.flip_vertically();
             textures.push_back(new Texture(image, CLAMP_TO_EDGE));
 
             Glyph glyph{

@@ -288,7 +288,7 @@ namespace Draft {
 
         for(size_t x = 0; x < size.x; x++){
             for(size_t y = 0; y < size.y / 2; y++){
-                swap(x, y, x, size.y - y);
+                swap(x, y, x, size.y - y - 1);
             }
         }
     }

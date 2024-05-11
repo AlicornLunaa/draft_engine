@@ -19,10 +19,10 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Handle errors gracefully
 
 ## Oversights to fix
-- [ ] draw_centered_text for TextRenderer
+- [x] draw_centered_text for TextRenderer
 - [ ] font class needs to handle everything better, should be a single texture updated on demand
 - [ ] figure whatever is wrong with the coordinate system
-- [ ] updates need a timestep, not a deltatime
+- [x] updates need a timestep, not a deltatime
 - [x] missing `on_attach` and `on_detach` methods for scenes
 - [ ] more widgets for UIContainer class
 - [ ] implement styling for UIContainer
