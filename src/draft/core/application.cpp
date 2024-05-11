@@ -5,7 +5,6 @@
 #include "draft/core/application.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/core/scene.hpp"
-#include "draft/widgets/stats.hpp"
 
 namespace Draft {
     // Constructors

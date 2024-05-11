@@ -32,7 +32,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] asyncronous loading of assets, in case of OpenGL, loading raw data first
 - [ ] loading colliders from files
 - [ ] loading particles from files
-- [ ] maybe condense widgets and interface into the same directory?
+- [x] maybe condense widgets and interface into the same directory?
 
 ## How the engine works
 ### OpenGL Resources

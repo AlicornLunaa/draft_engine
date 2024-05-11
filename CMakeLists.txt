@@ -20,6 +20,8 @@ set(SOURCES
     src/draft/interface/joystick.cpp
     src/draft/interface/picture.cpp
     src/draft/interface/progress_bar.cpp
+    src/draft/interface/widgets/console.cpp
+    src/draft/interface/widgets/stats.cpp
     src/draft/math/bounds.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
@@ -51,8 +53,6 @@ set(SOURCES
     src/draft/util/asset_manager.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
-    src/draft/widgets/console.cpp
-    src/draft/widgets/stats.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
 )
@@ -90,6 +90,8 @@ set(INTERFACES
     include/draft/interface/joystick.hpp
     include/draft/interface/picture.hpp
     include/draft/interface/progress_bar.hpp
+    include/draft/interface/widgets/console.hpp
+    include/draft/interface/widgets/stats.hpp
     include/draft/math/bounds.hpp
     include/draft/math/rect.hpp
     include/draft/math/glm.hpp
@@ -125,8 +127,6 @@ set(INTERFACES
     include/draft/util/json.hpp
     include/draft/util/time.hpp
     include/draft/util/clock.hpp
-    include/draft/widgets/console.hpp
-    include/draft/widgets/stats.hpp
     include/draft/systems.hpp
 )
 

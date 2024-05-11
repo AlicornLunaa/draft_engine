@@ -6,8 +6,8 @@
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/asset_manager.hpp"
 #include "draft/util/clock.hpp"
-#include "draft/widgets/console.hpp"
-#include "draft/widgets/stats.hpp"
+#include "draft/interface/widgets/console.hpp"
+#include "draft/interface/widgets/stats.hpp"
 
 namespace Draft {
     /**

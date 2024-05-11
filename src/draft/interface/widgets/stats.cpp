@@ -1,5 +1,5 @@
+#include "draft/interface/widgets/stats.hpp"
 #include "draft/core/application.hpp"
-#include "draft/widgets/stats.hpp"
 #include "draft/input/keyboard.hpp"
 #include "imgui.h"
 
