@@ -6,6 +6,8 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/util/file_handle.hpp"
 
+#include <cstddef>
+#include <map>
 #include <memory>
 #include <unordered_map>
 
@@ -21,24 +23,31 @@ namespace Draft {
         };
 
     private:
+        // Structures
+        struct FontType {
+            std::unordered_map<char, Glyph> glyphs;
+            std::vector<Texture*> textures;
+            std::vector<Image> images;
+            IntRect previousGlyphBounds = {0, 0, 0, 0};
+            int rowDepth = 0;
+            unsigned int size;
+        };
+
         // Variables
-        std::unordered_map<char, Glyph> glyphs;
-        std::vector<Texture*> textures;
-        unsigned int fontSize;
+        mutable std::map<unsigned int, size_t> fontSizeToTextureMap;
+        mutable std::vector<FontType> fontTypes;
+        mutable unsigned int fontSize = 24;
         FileHandle handle;
 
-        Image baseImage{2048, 2048, {0, 0, 0, 0}, ColorSpace::GREYSCALE};
-        IntRect previousGlyphBounds{0, 0, 0, 0};
-        int rowDepth = 0.f;
 
         // Private functions
-        void load_font(unsigned int fontSize);
-        void bake_glyph(char ch);
+        void load_font();
+        void bake_glyph(char ch) const;
         void clear();
 
     public:
         // Constructors
-        Font(const FileHandle& handle, unsigned int fontSize = 24);
+        Font(const FileHandle& handle);
         Font(const Font& other) = delete;
         ~Font();
 
@@ -46,7 +55,8 @@ namespace Draft {
         Font& operator=(const Font& other) = delete;
 
         // Functions
-        inline const unsigned int get_font_size() const { return fontSize; }
+        inline unsigned int get_font_size() const { return fontSize; }
+        inline void set_font_size(unsigned int size) const { fontSize = size; }
         const Glyph& get_glyph(char ch) const;
         void reload();
 

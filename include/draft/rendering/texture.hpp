@@ -47,6 +47,6 @@ namespace Draft {
 
     struct TextureRegion {
         const Texture& texture;
-        FloatRect region;
+        FloatRect bounds;
     };
 };

@@ -55,7 +55,7 @@ namespace Draft {
                 {w, h},
                 props.rotation,
                 center - Vector2f(xPos, yPos),
-                glyph.region.region
+                glyph.region.bounds
             );
             
             currX += (glyph.advance >> 6) * props.scale;
