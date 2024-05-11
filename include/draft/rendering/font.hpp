@@ -1,6 +1,8 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
+#include "draft/math/rect.hpp"
+#include "draft/rendering/image.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/file_handle.hpp"
 
@@ -25,8 +27,13 @@ namespace Draft {
         unsigned int fontSize;
         FileHandle handle;
 
+        Image baseImage{2048, 2048, {0, 0, 0, 0}, ColorSpace::GREYSCALE};
+        IntRect previousGlyphBounds{0, 0, 0, 0};
+        int rowDepth = 0.f;
+
         // Private functions
         void load_font(unsigned int fontSize);
+        void bake_glyph(char ch);
         void clear();
 
     public:

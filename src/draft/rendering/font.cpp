@@ -40,57 +40,57 @@ namespace Draft {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         // Allocate 2k texture to hold all the glyphs
-        Image masterImage(2048, 2048, {0, 0, 0, 0}, ColorSpace::GREYSCALE);
-        textures.push_back(new Texture(masterImage, CLAMP_TO_EDGE));
-
-        IntRect previousBounds{0, 0, 0, 0};
-        int storedGlyphs = 0;
-        int rowDepth = 0;
+        textures.push_back(new Texture(baseImage, CLAMP_TO_EDGE));
 
         // Pack each glyph into the texture
-        for(unsigned char c = 0; c < 128; c++){
-            if(FT_Load_Char(ptr->fontFace, c, FT_LOAD_RENDER)){
-                Logger::println(Level::CRITICAL, "Font", "Cannot load glyph" + std::to_string(c));
-                continue;
-            }
+        for(unsigned char c = 0; c < 128; c++)
+            bake_glyph(c);
+    }
 
-            IntRect bounds;
-            bounds.x = previousBounds.x + previousBounds.width;
-            bounds.y = previousBounds.y;
-            bounds.width = ptr->fontFace->glyph->bitmap.width;
-            bounds.height = ptr->fontFace->glyph->bitmap.rows;
-            rowDepth = std::max(rowDepth, bounds.height);
-
-            if(bounds.x + bounds.width >= masterImage.get_size().x){
-                // Shift to next line
-                bounds.x = 0;
-                bounds.y += rowDepth;
-                rowDepth = 0;
-            }
-
-            if(bounds.y + bounds.height >= masterImage.get_size().y){
-                // Error out for now
-                Logger::println(Level::CRITICAL, "Font", "Too many glyphs allocated!");
-                exit(0);
-            }
-
-            Image image(ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, ColorSpace::GREYSCALE, reinterpret_cast<std::byte*>(ptr->fontFace->glyph->bitmap.buffer));
-            image.flip_vertically();
-            masterImage.copy(image, {bounds.x, bounds.y});
-
-            previousBounds = bounds;
-
-            Glyph glyph{
-                TextureRegion{*textures.back(), bounds},
-                { ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows },
-                { ptr->fontFace->glyph->bitmap_left, ptr->fontFace->glyph->bitmap_top },
-                ptr->fontFace->glyph->advance.x
-            };
-            glyphs.emplace(c, glyph);
-            storedGlyphs++;
+    void Font::bake_glyph(char ch){
+        // Load this character into the font glyph
+        if(FT_Load_Char(ptr->fontFace, ch, FT_LOAD_RENDER)){
+            Logger::println(Level::CRITICAL, "Font", "Cannot load glyph" + std::to_string(ch));
         }
 
-        textures.back()->update(masterImage);
+        // Calculates bounds to store the glyph in the texture
+        IntRect bounds = {
+            previousGlyphBounds.x + previousGlyphBounds.width,
+            previousGlyphBounds.y,
+            static_cast<int>(ptr->fontFace->glyph->bitmap.width),
+            static_cast<int>(ptr->fontFace->glyph->bitmap.rows)
+        };
+        rowDepth = std::max(rowDepth, bounds.height);
+        previousGlyphBounds = bounds;
+
+        // Shift the bounds to the next line
+        if(bounds.x + bounds.width >= baseImage.get_size().x){
+            // Shift to next line
+            bounds.x = 0;
+            bounds.y += rowDepth;
+            rowDepth = 0;
+        }
+
+        // Shift to a new texture
+        if(bounds.y + bounds.height >= baseImage.get_size().y){
+            // Error out for now
+            Logger::println(Level::CRITICAL, "Font", "Too many glyphs allocated!");
+            exit(0);
+        }
+
+        // Copy the glyph data to the base image
+        Image image(ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, ColorSpace::GREYSCALE, reinterpret_cast<std::byte*>(ptr->fontFace->glyph->bitmap.buffer));
+        image.flip_vertically();
+        baseImage.copy(image, {bounds.x, bounds.y});
+        textures.back()->update(baseImage);
+
+        // Save glyph data
+        glyphs.emplace(ch, Glyph{
+            TextureRegion{*textures.back(), bounds},
+            { ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows },
+            { ptr->fontFace->glyph->bitmap_left, ptr->fontFace->glyph->bitmap_top },
+            ptr->fontFace->glyph->advance.x
+        });
     }
     
     void Font::clear(){

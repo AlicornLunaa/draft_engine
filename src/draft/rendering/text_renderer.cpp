@@ -49,13 +49,21 @@ namespace Draft {
             float h = glyph.size.y * props.scale;
 
             // Render glyph
-            batch.draw(glyph.region.texture, Vector2f{xPos, yPos} - center, {w, h}, 0.f, {0, 0}, glyph.region.region);
+            batch.draw(
+                glyph.region.texture,
+                {0, 0},
+                {w, h},
+                props.rotation,
+                center - Vector2f(xPos, yPos),
+                glyph.region.region
+            );
+            
             currX += (glyph.advance >> 6) * props.scale;
         }
     }
 
     void TextRenderer::draw_text(const std::string& str, const Font* font, const Vector2f& position, float scale, const Vector4f& color){
-        draw_text({ str, font, position, {0, 0}, color, scale });
+        draw_text({ str, font, position, {0, 0}, color, 0.f, scale });
     }
 
     void TextRenderer::flush(const RenderWindow& window, const Camera* camera){

@@ -16,6 +16,7 @@ namespace Draft {
         Vector2f position = {0, 0};
         Vector2f origin = {0, 0};
         Vector4f color = {1, 1, 1, 1};
+        float rotation = 0.f;
         float scale = 1.f;
     };
 
