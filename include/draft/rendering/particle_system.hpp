@@ -7,6 +7,7 @@
 #include "draft/rendering/sprite_batch.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/asset_manager.hpp"
+#include "draft/util/time.hpp"
 
 #include <cstddef>
 #include <vector>
@@ -49,7 +50,7 @@ namespace Draft {
 
         // Functions
         void emit(const ParticleProps& props);
-        void update(float timeStep);
+        void update(Time timeStep);
         void render(const RenderWindow& window, const Camera* camera);
     };
 };

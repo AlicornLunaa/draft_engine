@@ -9,6 +9,7 @@
 #include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/util/asset_manager.hpp"
+#include "draft/util/time.hpp"
 
 #include <memory>
 #include <vector>
@@ -47,7 +48,7 @@ namespace Draft {
 
         void set_debug_renderer(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/shapes"), void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
-        void step(float timeStep, int32_t velocityIterations, int32_t positionIterations);
+        void step(Time timeStep, int32_t velocityIterations, int32_t positionIterations);
         void debug_draw(const RenderWindow& window, const Camera* camera = nullptr);
         
     private:

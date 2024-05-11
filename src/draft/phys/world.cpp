@@ -168,8 +168,8 @@ namespace Draft {
         ptr->world.SetDebugDraw((b2Draw*)renderer);
     }
 
-    void World::step(float timeStep, int32_t velocityIterations, int32_t positionIterations){
-        ptr->world.Step(timeStep, velocityIterations, positionIterations);
+    void World::step(Time timeStep, int32_t velocityIterations, int32_t positionIterations){
+        ptr->world.Step(timeStep.as_seconds(), velocityIterations, positionIterations);
     }
 
     void World::debug_draw(const RenderWindow& window, const Camera* camera){

@@ -67,7 +67,7 @@ namespace Draft {
             ImGui::Begin("Statistics");
             ImGui::Text("FPS: %f", fps);
             ImGui::Text("Frame Time: %f", frameTime);
-            ImGui::Text("Time Step: %f", app.timeStep);
+            ImGui::Text("Time Step: %f", app.timeStep.as_seconds());
             ImGui::PlotLines("FPS", &fpsOverTime[0], samples, 0, nullptr, 0.f, maxFps, {0, 80});
             ImGui::Text("Memory (mb): %f", usage);
             ImGui::PlotLines("(mb)", &memoryUsage[0], samples, 0, nullptr, 0.f, maxUsage, {0, 80});

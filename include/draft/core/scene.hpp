@@ -28,9 +28,9 @@ namespace Draft {
 
         /**
          * @brief Called in a fixed time step which is set in the application
-         * @param deltaTime 
+         * @param timeStep 
          */
-        virtual void update(Time deltaTime);
+        virtual void update(Time timeStep);
 
         /**
          * @brief Called every frame

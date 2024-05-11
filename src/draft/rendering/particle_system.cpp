@@ -26,7 +26,7 @@ namespace Draft {
         poolIndex = --poolIndex % particlePool.size();
     }
 
-    void ParticleSystem::update(float timeStep){
+    void ParticleSystem::update(Time timeStep){
         for(auto& particle : particlePool){
             if(!particle.active)
                 continue;
@@ -36,9 +36,9 @@ namespace Draft {
                 continue;
             }
 
-            particle.lifeRemaining -= timeStep;
-            particle.position += particle.velocity * timeStep;
-            particle.rotation += 0.01f * timeStep;
+            particle.lifeRemaining -= timeStep.as_seconds();
+            particle.position += particle.velocity * timeStep.as_seconds();
+            particle.rotation += 0.01f * timeStep.as_seconds();
         }
     }
 

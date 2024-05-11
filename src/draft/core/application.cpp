@@ -54,7 +54,7 @@ namespace Draft {
 
             while(accumulator >= timeStep.as_seconds()){
                 if(activeScene)
-                    activeScene->update(deltaTime);
+                    activeScene->update(timeStep);
 
                 accumulator -= timeStep.as_seconds();
             }
