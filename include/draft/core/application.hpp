@@ -28,7 +28,7 @@ namespace Draft {
         Mouse mouse;
         Keyboard keyboard;
         Time deltaTime;
-        double timeStep = 1.0/66.0;
+        Time timeStep = Time::seconds(1.0/66.0);
 
         Console console{this};
         Stats stats;
@@ -43,7 +43,7 @@ namespace Draft {
          */
         void run();
 
-        inline void set_scene(Scene* scene){ activeScene = scene; }
-        inline Scene* get_scene(){ return activeScene; }
+        void set_scene(Scene* scene);
+        Scene* get_scene() const;
     };
 }

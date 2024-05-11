@@ -23,7 +23,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] font class needs to handle everything better, should be a single texture updated on demand
 - [ ] figure whatever is wrong with the coordinate system
 - [ ] updates need a timestep, not a deltatime
-- [ ] missing `on_attach` and `on_detach` methods for scenes
+- [x] missing `on_attach` and `on_detach` methods for scenes
 - [ ] more widgets for UIContainer class
 - [ ] implement styling for UIContainer
 - [ ] namespace inconsistencies for the UI

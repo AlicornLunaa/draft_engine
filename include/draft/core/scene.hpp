@@ -37,5 +37,15 @@ namespace Draft {
          * @param deltaTime 
          */
         virtual void render(Time deltaTime);
+
+        /**
+         * @brief Called when the scene is set to the current scene
+         */
+        virtual void on_attach();
+
+        /**
+         * @brief Called when the scene is removed from the current scene
+         */
+        virtual void on_detach();
     };
 }

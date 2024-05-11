@@ -52,11 +52,11 @@ namespace Draft {
             // Fixed physics time-step
             accumulator += deltaTime.as_seconds();
 
-            while(accumulator >= timeStep){
+            while(accumulator >= timeStep.as_seconds()){
                 if(activeScene)
                     activeScene->update(deltaTime);
 
-                accumulator -= timeStep;
+                accumulator -= timeStep.as_seconds();
             }
             
             // Rendering stuff!
@@ -71,5 +71,21 @@ namespace Draft {
             
             window.display();
         }
+    }
+
+    void Application::set_scene(Scene* scene){
+        if(activeScene)
+            // Detach event on previous scene
+            activeScene->on_detach();
+
+        activeScene = scene;
+
+        if(activeScene)
+            // Attach event on new scene
+            activeScene->on_attach();
+    }
+
+    Scene* Application::get_scene() const {
+        return activeScene;
     }
 }
