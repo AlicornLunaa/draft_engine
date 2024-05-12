@@ -13,6 +13,7 @@ namespace Draft {
         const Texture& texture;
         Vector2f size = { 64, 64 };
         Vector2f origin = { 0, 0 };
+        float zIndex = 0.f;
 
         // Constructors
         SpriteComponent(const SpriteComponent& transform) = default;

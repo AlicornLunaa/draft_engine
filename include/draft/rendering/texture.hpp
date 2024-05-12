@@ -19,10 +19,11 @@ namespace Draft {
         unsigned int texId;
         Vector2i size;
         ColorSpace colorSpace;
+        bool transparent;
 
         // Private functions
         void generate_opengl(Wrap wrapping);
-        void load_texture(const std::byte* bytes, size_t length, bool flip = true);
+        void load_texture(const Image& img);
         void cleanup();
 
     public:
@@ -38,6 +39,7 @@ namespace Draft {
         
         // Functions
         inline bool is_loaded() const { return loaded; }
+        inline bool is_transparent() const { return transparent; }
         inline const Vector2i& get_size() const { return size; }
         void bind(int unit = 0) const;
         void unbind() const;

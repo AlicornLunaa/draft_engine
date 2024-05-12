@@ -25,7 +25,7 @@ namespace Draft {
         // Constructors
         Image(unsigned int width = 1, unsigned int height = 1, Vector4f color = {1, 1, 1, 1}, ColorSpace colorSpace = ColorSpace::RGBA);
         Image(unsigned int width, unsigned int height, ColorSpace colorSpace, const std::byte* pixelData);
-        Image(const FileHandle& handle);
+        Image(const FileHandle& handle, bool flip = false);
         Image(const Image& other);
         Image(Image&& other) noexcept;
         ~Image();
@@ -35,8 +35,8 @@ namespace Draft {
         Image& operator=(Image&& other) noexcept;
 
         // Functions
-        void load(const std::vector<std::byte>& arr);
-        void load(const FileHandle& handle);
+        void load(const std::vector<std::byte>& arr, float flip = false);
+        void load(const FileHandle& handle, float flip = false);
         void save(FileHandle handle) const;
 
         void mask(const Vector4f& color, float tolerance = 0.f, std::byte alpha = std::byte{ 0x0 });
@@ -50,5 +50,6 @@ namespace Draft {
         inline const Vector2u& get_size() const { return size; }
         inline ColorSpace get_color_space() const { return colorSpace; }
         inline size_t get_pixel_count() const { return pixelCount; }
+        inline bool is_transparent() const { return colorSpace == ColorSpace::RGBA; }
     };
 };

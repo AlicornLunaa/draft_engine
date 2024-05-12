@@ -6,76 +6,52 @@
 #include "glad/gl.h"
 
 #include <algorithm>
-#include <cmath>
 #include <cstddef>
 #include <vector>
 
 using namespace std;
 
 namespace Draft {
-    // Constructor
-    SpriteBatch::SpriteBatch(const Shader& shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
-        // Buffer the data on the GPU
-        dynamicVertexBufLoc = vertexBuffer.start_buffer<QuadVertex>(maxSprites * 4);
-        vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(QuadVertex), 0);
-        vertexBuffer.set_attribute(1, GL_FLOAT, 2, sizeof(QuadVertex), offsetof(QuadVertex, texCoords));
-        vertexBuffer.set_attribute(2, GL_FLOAT, 4, sizeof(QuadVertex), offsetof(QuadVertex, color));
-        vertexBuffer.end_buffer();
-
-        dynamicIndexBufLoc = vertexBuffer.start_buffer<int>(maxSprites * 6, GL_ELEMENT_ARRAY_BUFFER);
-        vertexBuffer.end_buffer();
-
-        vertices.reserve(maxSprites * 4);
-        indices.reserve(maxSprites * 6);
-    }
-
-    // Functions
-    void SpriteBatch::set_color(const Vector4f& color){ currentColor = color; }
-    const Vector4f& SpriteBatch::get_color() const { return currentColor; }
-
-    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
-        // Add quad to the queue
+    // Private functions
+    void SpriteBatch::assemble_quad(std::vector<QuadVertex>& vertices, std::vector<int>& indices, std::queue<std::pair<const Texture*, size_t>>& textureRegister, const SpriteProps& props){
+        // Create quad data
         size_t index = vertices.size();
 
-        // // Obtain texture ID
-        if(!textureRegister.empty() && textureRegister.back().first == &texture){
+        // Obtain texture ID in order to pool textures without rebinding every quad
+        if(!textureRegister.empty() && textureRegister.back().first == props.texture){
             // Current texture is the same texture in the queue, increase the quad count
             textureRegister.back().second++;
         } else {
             // Current texture is different, add new texture
-            textureRegister.push({&texture, 1});
+            textureRegister.push({props.texture, 1});
         }
 
         // Create texture coord data
-        auto& textureSize = texture.get_size();
-        float x = region.x / textureSize.x;
-        float y = region.y / textureSize.y;
-        float w = ((region.width <= 0) ? textureSize.x : region.width) / textureSize.x;
-        float h = ((region.height <= 0) ? textureSize.y : region.height) / textureSize.y;
+        auto& textureSize = props.texture->get_size();
+        float x = props.region.x / textureSize.x;
+        float y = props.region.y / textureSize.y;
+        float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
+        float h = ((props.region.height <= 0) ? textureSize.y : props.region.height) / textureSize.y;
 
         // Create vertices, TODO: Texture coords based on region
-        vertices.push_back({ {0, 0}, {x, y}, currentColor });
-        vertices.push_back({ {1, 0}, {x + w, y}, currentColor });
-        vertices.push_back({ {1, 1}, {x + w, y + h}, currentColor });
-        vertices.push_back({ {0, 1}, {x, y + h}, currentColor });
+        vertices.push_back({ {0, 0, props.zIndex}, {x, y}, props.color });
+        vertices.push_back({ {1, 0, props.zIndex}, {x + w, y}, props.color });
+        vertices.push_back({ {1, 1, props.zIndex}, {x + w, y + h}, props.color });
+        vertices.push_back({ {0, 1, props.zIndex}, {x, y + h}, props.color });
 
         // Rotate quad positions if needed
-        auto rotate_vertex = [position, rotation, size, origin](Vector2f& v){
-            float s = std::sin(rotation);
-            float c = std::cos(rotation);
-            Matrix2 mat(c, s, -s, c);
-
-            v *= size;
-            v -= origin;
-            v = mat * v;
-            v += position;
+        auto rotate_vertex = [props](Vector3f& v){
+            v *= Vector3f{props.size, 1.f};
+            v -= Vector3f{props.origin, 0.f};
+            v = Vector3f(Math::rotate(Matrix3(1.f), props.rotation) * v);
+            v += Vector3f{props.position, 0.f};
         };
         rotate_vertex(vertices[index].position);
         rotate_vertex(vertices[index + 1].position);
         rotate_vertex(vertices[index + 2].position);
         rotate_vertex(vertices[index + 3].position);
 
-        // // Create indices
+        // Create indices
         indices.push_back(1 + index);
         indices.push_back(0 + index);
         indices.push_back(3 + index);
@@ -84,20 +60,8 @@ namespace Draft {
         indices.push_back(2 + index);
     }
 
-    void SpriteBatch::flush(const RenderWindow& window, const Camera* camera){
-        // Draws all the shapes to opengl
-        bool flushAgain = false; // Turns true if texture was changed and flush must happen again
-
-        // Exit early if theres nothing to do
-        if(vertices.empty() || indices.empty())
-            return;
-
-        shader.bind();
-
-        if(camera)
-            camera->apply(window, shader);
-
-        // Render each texture
+    void SpriteBatch::flush_batch_internal(){
+        // Loops through the texture register and renders the quads
         while(!textureRegister.empty()){
             // Get data
             auto [texture, quadCount] = textureRegister.front();
@@ -131,13 +95,90 @@ namespace Draft {
                 textureRegister.pop();
             }
         }
+    }
+
+    // Constructor
+    SpriteBatch::SpriteBatch(const Shader& shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
+        // Buffer the data on the GPU
+        dynamicVertexBufLoc = vertexBuffer.start_buffer<QuadVertex>(maxSprites * 4);
+        vertexBuffer.set_attribute(0, GL_FLOAT, 3, sizeof(QuadVertex), 0);
+        vertexBuffer.set_attribute(1, GL_FLOAT, 2, sizeof(QuadVertex), offsetof(QuadVertex, texCoords));
+        vertexBuffer.set_attribute(2, GL_FLOAT, 4, sizeof(QuadVertex), offsetof(QuadVertex, color));
+        vertexBuffer.end_buffer();
+
+        dynamicIndexBufLoc = vertexBuffer.start_buffer<int>(maxSprites * 6, GL_ELEMENT_ARRAY_BUFFER);
+        vertexBuffer.end_buffer();
+
+        vertices.reserve(maxSprites * 4);
+        indices.reserve(maxSprites * 6);
+    }
+
+    // Functions
+    void SpriteBatch::draw(SpriteProps props){
+        // Preprocessing for the props
+        if(props.texture == nullptr){
+            // No texture means use debug white
+            props.texture = &whiteTexture;
+        }
+
+        // Check if the sprite is translucent or not
+        if(props.color.a < 1.f || props.texture->is_transparent() || props.renderAsTransparent){
+            // translucent sprite, save sprite information and recreate it at runtime for the buffer
+            transparentQuads.push(props);
+        } else {
+            // Clean sprite, fully opaque. Store its render information immediately
+            assemble_quad(vertices, indices, textureRegister, props);
+        }
+    }
+
+    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
+        // Shortcut function for backwards compat
+        draw({
+            &texture,
+            position,
+            rotation,
+            size,
+            origin,
+            0,
+            region
+        });
+    }
+
+    void SpriteBatch::flush(const RenderWindow& window, const Camera* camera){
+        // Draws all the shapes to opengl
+        if(textureRegister.empty() && transparentQuads.empty())
+            return;
+
+        shader.bind();
+
+        if(camera)
+            camera->apply(window, shader);
+
+        // Render each texture
+        flush_batch_internal();
+
+        // After the opaque textures were rendered, start on the transparent ones
+        glDepthMask(GL_FALSE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        vertices.clear();
+        indices.clear();
+
+        // Generate quad data for transparents
+        while(!transparentQuads.empty()){
+            assemble_quad(vertices, indices, textureRegister, transparentQuads.top());
+            transparentQuads.pop();
+        }
+
+        // Flush again for the new transparent data
+        flush_batch_internal();
+
+        // Back to normal rendering
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
 
         // Clear out data for next flush
         vertices.clear();
         indices.clear();
-
-        // Do it again for the rest of the quads
-        if(flushAgain)
-            flush(window, camera);
     }
 };

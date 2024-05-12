@@ -11,13 +11,14 @@ void Draft::render_system(Registry& registry, SpriteBatch& batch, RenderWindow& 
         auto& spriteComponent = view.get<SpriteComponent>(entity);
         auto& transformComponent = view.get<TransformComponent>(entity);
 
-        batch.draw(
-            spriteComponent.texture,
+        batch.draw({
+            &spriteComponent.texture,
             transformComponent.position,
-            spriteComponent.size,
             transformComponent.rotation,
-            spriteComponent.origin
-        );
+            spriteComponent.size,
+            spriteComponent.origin,
+            spriteComponent.zIndex
+        });
     }
 
     batch.flush(window, camera);

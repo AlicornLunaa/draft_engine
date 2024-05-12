@@ -36,8 +36,6 @@ namespace Draft {
         const Font& font = get_font(props);
         float currX = props.position.x;
 
-        batch.set_color(props.color);
-
         for(char ch : props.str){
             // Get glyph to render
             auto& glyph = font.get_glyph(ch);
@@ -49,14 +47,17 @@ namespace Draft {
             float h = glyph.size.y * props.scale;
 
             // Render glyph
-            batch.draw(
-                glyph.region.texture,
-                {0, 0},
-                {w, h},
+            batch.draw({
+                &glyph.region.texture,
+                Vector2f{0, 0},
                 props.rotation,
-                center - Vector2f(xPos, yPos),
-                glyph.region.bounds
-            );
+                {w, h},
+                props.origin - Vector2f(xPos, yPos),
+                0.f,
+                glyph.region.bounds,
+                props.color,
+                true
+            });
             
             currX += (glyph.advance >> 6) * props.scale;
         }
