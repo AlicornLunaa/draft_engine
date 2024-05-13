@@ -24,19 +24,16 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] figure whatever is wrong with the coordinate system
 - [x] updates need a timestep, not a deltatime
 - [x] missing `on_attach` and `on_detach` methods for scenes
+- [x] fix up rendering pipeline
+- [x] maybe condense widgets and interface into the same directory?
+- [ ] asyncronous loading of assets, in case of OpenGL, loading raw data first
+- [ ] just a better animation class
+- [ ] loading particles from files
+- [ ] namespace inconsistencies for the UI
 - [ ] more widgets for UIContainer class
 - [ ] implement styling for UIContainer
-- [x] fix up rendering pipeline
-    * Store the sprites in a batch sorted from back-to-front z-index
-    * Render opaque objects front-to-back
-    * Render the rest (transparent objects) from back-to-front with depth writing off
-- [ ] namespace inconsistencies for the UI
-- [ ] just a better animation class
-- [ ] better handling of references vs pointer
-- [ ] asyncronous loading of assets, in case of OpenGL, loading raw data first
 - [ ] loading colliders from files
-- [ ] loading particles from files
-- [x] maybe condense widgets and interface into the same directory?
+- [ ] better handling of references vs pointer
 
 ## How the engine works
 ### OpenGL Resources
