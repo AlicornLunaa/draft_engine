@@ -38,6 +38,7 @@ namespace Draft {
         void load(const std::vector<std::byte>& arr, float flip = false);
         void load(const FileHandle& handle, float flip = false);
         void save(FileHandle handle) const;
+        void reload();
 
         void mask(const Vector4f& color, float tolerance = 0.f, std::byte alpha = std::byte{ 0x0 });
         void copy(const Image& src, Vector2u position, const IntRect& rect = {0, 0, 0, 0}, bool applyAlpha = false);

@@ -52,7 +52,7 @@ namespace Draft {
                 Vector2f{0, 0},
                 props.rotation,
                 {w, h},
-                props.origin - Vector2f(xPos, yPos),
+                center - Vector2f(xPos, yPos),
                 0.f,
                 glyph.region.bounds,
                 props.color,

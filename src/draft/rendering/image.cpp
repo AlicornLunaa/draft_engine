@@ -186,6 +186,8 @@ namespace Draft {
         stbi_write_png(handle.get_path().c_str(), size.x, size.y, static_cast<int>(colorSpace), out.data(), 0);
     }
 
+    void Image::reload(){}
+
     void Image::mask(const Vector4f& color, float tolerance, std::byte alpha){
         // Conversion helper
         auto is_masked = [color, tolerance](const Vector4f& value){

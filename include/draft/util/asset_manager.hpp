@@ -1,20 +1,173 @@
 #pragma once
 
-#include "draft/audio/sound_buffer.hpp"
-#include "draft/rendering/font.hpp"
-#include "draft/rendering/image.hpp"
-#include "draft/rendering/model.hpp"
-#include "draft/rendering/shader.hpp"
-#include "draft/rendering/texture.hpp"
 #include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
 
+#include <any>
+#include <cassert>
+#include <cstddef>
 #include <memory>
+#include <mutex>
+#include <string>
 #include <typeindex>
 #include <unordered_map>
+#include <vector>
 
 namespace Draft {
     // Owns and manages all resources inside the game, singleton to encapsulate the data
+    class Assets2 {
+    public:
+        // Structures
+        struct BaseLoader {
+            virtual ~BaseLoader(){}
+            virtual std::any load_sync(const FileHandle& handle) = 0; // Loading on main thread
+            virtual std::any load_async(const FileHandle& handle) = 0; // Loading in a separate thread with no OpenGL context
+        };
+
+        template<typename T>
+        struct GenericLoader : public BaseLoader {
+            // Loading on main thread
+            virtual std::any load_sync(const FileHandle& handle) override {
+                // Default to basic call of default filehandle constructor
+                try {
+                    return T(handle);
+                } catch(int e){
+                    Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
+                }
+
+                return nullptr;
+            }
+
+            // Loading in a separate thread with no OpenGL context
+            virtual std::any load_async(const FileHandle& handle) override {
+                return load_sync(handle);
+            }
+        };
+
+    private:
+        // Structures
+        struct Resource {
+            std::any resource;
+            size_t ownerCount = 0;
+
+            template<typename ...Args>
+            Resource(const std::any& res) : resource(res) {}
+            Resource(const Resource& other) = delete;
+            Resource& operator=(const Resource& other) = delete;
+
+            template<typename U>
+            U* get_ptr(){ return std::any_cast<U>(&resource); }
+        };
+
+        struct Package {
+        private:
+            std::unordered_map<std::type_index, std::vector<Resource*>> claimedResources;
+            size_t assetCount = 0;
+
+        public:
+            const size_t id;
+
+            Package(size_t id) : id(id){}
+            Package(const Package& other) = delete;
+            Package& operator=(const Package& other) = delete;
+
+            ~Package(){
+                for(auto& [type, vec] : claimedResources){
+                    for(auto* res : vec){
+                        if(!res) continue;
+                        res->ownerCount--;
+                    }
+                }
+            }
+
+            void own(std::type_index type, Resource& res){
+                // Adds this package as an owner for the resource
+                claimedResources[type].push_back(&res);
+                res.ownerCount++;
+                assetCount++;
+            }
+
+            inline size_t get_asset_count() const { return assetCount; }
+        };
+
+        // Variables
+        static std::unordered_map<std::type_index, std::unordered_map<std::string, Resource>> resources;
+        static std::unordered_map<std::type_index, std::vector<FileHandle>> loadQueue;
+        static std::unordered_map<std::type_index, BaseLoader*> loaders;
+        static std::unordered_map<size_t, Package> packages;
+        static Package* currentPackage;
+
+        static std::mutex asyncMutex;
+        static float loadingProgress;
+
+        // Constructors
+        Assets2();
+        ~Assets2();
+
+        // Helper funcs
+        static void remove_orphans();
+        static void load_async_queue(size_t totalAssets);
+        static bool has_asset_loaded(const std::type_index& type, const std::string& str);
+
+    public:
+        // Functions
+        static size_t start_package();
+        static void select_package(size_t package);
+        static void end_package(size_t package);
+        static void end_package();
+
+        template<typename T>
+        static void set_loader(BaseLoader* loader){
+            loaders[typeid(T)] = loader;
+        }
+
+        template<typename T>
+        static const T* get(const FileHandle& handle, bool loadOnFail = false){
+            // Retrieve an asset
+            auto& resourceMap = resources[typeid(T)];
+            std::string str = handle.get_path();
+
+            if(resourceMap.find(str) == resourceMap.end()){
+                // No asset exists by this name, try loading it if load on fail is true
+                if(loadOnFail){
+                    queue<T>(handle);
+                    load();
+                } else {
+                    return nullptr;
+                }
+            }
+
+            // Get the resource pointer
+            Resource& rawResource = resourceMap.at(str);
+            T* dataPtr = rawResource.get_ptr<T>();
+
+            // Error check
+            if(!dataPtr){
+                Logger::println(Level::CRITICAL, "Asset Manager", "Something went seriously wrong!");
+                exit(0);
+            }
+
+            return dataPtr;
+        }
+
+        template<typename T>
+        static void queue(const FileHandle& handle){
+            // Check if it needs a loader too
+            if(!loaders[typeid(T)])
+                loaders[typeid(T)] = new GenericLoader<T>();
+
+            loadQueue[typeid(T)].push_back(handle);
+        }
+
+        static void load();
+        static void load_async();
+        static bool is_loading_finished();
+        static float get_loading_progress();
+
+        static void reload();
+        static void cleanup();
+    };
+
     class Assets {
     private:
         // Structures
@@ -70,18 +223,19 @@ namespace Draft {
         // Type aliases
         typedef std::unordered_map<std::string, UnnamedResource*> ResourcePool;
         typedef std::unordered_map<std::type_index, ResourcePool> ResourceList;
+        typedef std::unordered_map<std::type_index, std::unique_ptr<std::any>> MissingAssetPool;
+        typedef std::unordered_map<std::type_index, std::vector<FileHandle>> AsyncQueue;
         typedef std::unordered_map<size_t, AssetPackage> PackageList;
 
         // Variables
         static ResourceList resources;
+        static MissingAssetPool missingResources;
         static PackageList packages;
         static AssetPackage* currentPackage;
-        static std::unique_ptr<Texture> MISSING_TEXTURE;
-        static std::unique_ptr<Image> MISSING_IMAGE;
-        static std::unique_ptr<Model> MISSING_MODEL;
-        static std::unique_ptr<Shader> MISSING_SHADER;
-        static std::unique_ptr<Font> MISSING_FONT;
-        static std::unique_ptr<SoundBuffer> MISSING_AUDIO;
+
+        static std::mutex asyncMutex;
+        static AsyncQueue asyncQueue;
+        static float loadingProgress;
 
         // Constructors
         Assets();
@@ -89,6 +243,7 @@ namespace Draft {
 
         // Helper functions
         static void remove_orphans(ResourcePool& map);
+        static void load_async_queue(size_t totalAssets);
 
     public:
         // Functions
@@ -133,7 +288,25 @@ namespace Draft {
         }
 
         template<typename T>
-        static const T& get_missing_placeholder();
+        static const T& get_missing_placeholder(){
+            assert(missingResources[typeid(T)] && "Asset is missing a placeholder");
+            return *std::any_cast<T*>(&missingResources[typeid(T)]);
+        }
+
+        template<typename T, typename... Args>
+        static void set_missing_placeholder(const Args& ...args){
+            // missingResources.insert(std::make_pair(typeid(T), std::make_unique<T>(args...)));
+        }
+
+        template<typename T>
+        static void queue_async_load(const FileHandle& handle){
+            // Creates an asyncronous loading queue
+            asyncQueue[typeid(T)].push_back(handle);
+        }
+
+        static void commit_async_load();
+        static bool is_loading();
+        static float progress();
 
         static void reload();
         static void cleanup();
