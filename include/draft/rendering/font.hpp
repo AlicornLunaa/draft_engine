@@ -39,7 +39,6 @@ namespace Draft {
         mutable unsigned int fontSize = 24;
         FileHandle handle;
 
-
         // Private functions
         void load_font();
         void bake_glyph(char ch) const;

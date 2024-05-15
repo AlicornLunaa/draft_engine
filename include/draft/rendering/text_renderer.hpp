@@ -23,7 +23,7 @@ namespace Draft {
     class TextRenderer {
     private:
         // Variables
-        const Font& defaultFont = Assets::get_asset<Font>("assets/fonts/default.ttf");
+        const Font& defaultFont = *Assets::get<Font>("assets/fonts/default.ttf", true);
         SpriteBatch batch;
 
         // Functions
@@ -31,7 +31,7 @@ namespace Draft {
 
     public:
         // Constructors
-        TextRenderer(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/text"), size_t maxChars = 10000);
+        TextRenderer(const Shader& shader = *Assets::get<Shader>("assets/shaders/text", true), size_t maxChars = 10000);
 
         // Functions
         Vector2f get_text_bounds(const TextProperties& props) const;

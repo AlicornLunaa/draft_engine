@@ -45,7 +45,7 @@ namespace Draft {
 
     public:
         // Constructors
-        ShapeBatch(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/shapes"), const size_t maxShapes = 1000);
+        ShapeBatch(const Shader& shader = *Assets::get<Shader>("assets/shaders/shapes", true), const size_t maxShapes = 1000);
 
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }

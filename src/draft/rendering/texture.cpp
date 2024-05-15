@@ -1,3 +1,4 @@
+#include "draft/rendering/image.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "draft/rendering/conversions_p.hpp"
@@ -54,7 +55,7 @@ namespace Draft {
         generate_opengl(wrapping);
         load_texture(Image(handle, true));
     }
-
+    
     Texture::~Texture(){
         cleanup();
     }

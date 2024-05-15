@@ -33,7 +33,7 @@ namespace Draft {
 
     public:
         // Constructors
-        UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader = Assets::get_asset<Shader>("assets/shaders/interface"));
+        UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader = *Assets::get<Shader>("assets/shaders/interface", true));
         UIContainer(const UIContainer& other) = delete;
         ~UIContainer();
 

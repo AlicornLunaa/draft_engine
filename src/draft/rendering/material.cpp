@@ -4,8 +4,8 @@
 
 namespace Draft {
     // Constructors
-    Material::Material(const std::string& name) : name(name), debugWhite(&Assets::get_asset<Texture>("assets/textures/debug_white.png")),
-        debugBlack(&Assets::get_asset<Texture>("assets/textures/debug_black.png")), emptyNormalMap(&Assets::get_asset<Texture>("assets/textures/empty_normal_map.png")) {}
+    Material::Material(const std::string& name) : name(name), debugWhite(Assets::get<Texture>("assets/textures/debug_white.png", true)),
+        debugBlack(Assets::get<Texture>("assets/textures/debug_black.png", true)), emptyNormalMap(Assets::get<Texture>("assets/textures/empty_normal_map.png", true)) {}
 
     // Functions
     void Material::apply(const Shader& shader) const {

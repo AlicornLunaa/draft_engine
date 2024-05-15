@@ -15,7 +15,7 @@ namespace Draft {
 
         // Get the texture location & data
         std::string texturePath = "assets/textures/" + static_cast<std::string>(data["meta"]["image"]);
-        texture = &Assets::get_asset<Texture>(FileHandle::automatic(texturePath));
+        texture = Assets::get<Texture>(FileHandle::automatic(texturePath), true);
 
         // Create each frame region
         for(json frameData : data["frames"]){

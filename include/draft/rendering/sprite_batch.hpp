@@ -67,7 +67,7 @@ namespace Draft {
 
     public:
         // Constructors
-        SpriteBatch(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/default"), const size_t maxSprites = 10000);
+        SpriteBatch(const Shader& shader = *Assets::get<Shader>("assets/shaders/default", true), const size_t maxSprites = 10000);
 
         // Functions
         inline const Shader& get_shader() const { return shader; }

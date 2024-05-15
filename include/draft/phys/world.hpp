@@ -46,7 +46,7 @@ namespace Draft {
         void destroy_joint(Joint*& joint);
         void destroy_joint(Joint* joint);
 
-        void set_debug_renderer(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/shapes"), void* renderer = nullptr);
+        void set_debug_renderer(const Shader& shader = *Assets::get<Shader>("assets/shaders/shapes", true), void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(Time timeStep, int32_t velocityIterations, int32_t positionIterations);
         void debug_draw(const RenderWindow& window, const Camera* camera = nullptr);
