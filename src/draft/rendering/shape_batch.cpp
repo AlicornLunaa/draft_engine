@@ -26,7 +26,7 @@ namespace Draft {
     }
 
     // Constructor
-    ShapeBatch::ShapeBatch(const Shader& shader, const size_t maxShapes) : maxShapes(maxShapes), shader(shader) {
+    ShapeBatch::ShapeBatch(std::shared_ptr<Shader> shader, const size_t maxShapes) : maxShapes(maxShapes), shader(shader) {
         // Setup data buffers
         dynamicVertexBufLoc = vertexBuffer.start_buffer<ShapeVertex>(maxShapes);
         vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(ShapeVertex), 0);
@@ -266,7 +266,7 @@ namespace Draft {
         vertexBuffer.set_dynamic_data(dynamicIndexBufLoc, indices);
 
         // Render VBO
-        shader.bind();
+        shader->bind();
         
         if(camera)
             camera->apply(window, shader);

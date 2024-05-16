@@ -8,7 +8,7 @@ namespace Draft {
     class Animation {
     private:
         // Variables
-        Texture const* texture = nullptr;
+        std::shared_ptr<Texture> texture = nullptr;
         std::vector<FloatRect> frames;
         std::vector<float> frameTimes;
         float totalFrameTime = 0.f;

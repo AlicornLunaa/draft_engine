@@ -4,7 +4,6 @@
 #include "draft/input/event.hpp"
 #include "draft/input/mouse.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/asset_manager.hpp"
 #include "draft/util/clock.hpp"
 #include "draft/interface/widgets/console.hpp"
 #include "draft/interface/widgets/stats.hpp"
@@ -23,7 +22,6 @@ namespace Draft {
         double accumulator = 0.0; // Used for fixed timestep
 
     public:
-        AssetManager assets;
         RenderWindow window;
         Mouse mouse;
         Keyboard keyboard;
@@ -36,6 +34,7 @@ namespace Draft {
         
         Application(const char* title, const unsigned int width, const unsigned int height);
         Application(const Application& rhs) = delete; // Dont allow copying.
+        Application& operator=(const Application& rhs) = delete;
         ~Application();
 
         /**

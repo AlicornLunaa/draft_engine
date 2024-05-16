@@ -13,7 +13,7 @@ using namespace std;
 
 namespace Draft {
     // Private functions
-    void SpriteBatch::assemble_quad(std::vector<QuadVertex>& vertices, std::vector<int>& indices, std::queue<std::pair<const Texture*, size_t>>& textureRegister, const SpriteProps& props){
+    void SpriteBatch::assemble_quad(std::vector<QuadVertex>& vertices, std::vector<int>& indices, std::queue<std::pair<std::shared_ptr<Texture>, size_t>>& textureRegister, const SpriteProps& props){
         // Create quad data
         size_t index = vertices.size();
 
@@ -98,7 +98,7 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(const Shader& shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
+    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
         // Buffer the data on the GPU
         dynamicVertexBufLoc = vertexBuffer.start_buffer<QuadVertex>(maxSprites * 4);
         vertexBuffer.set_attribute(0, GL_FLOAT, 3, sizeof(QuadVertex), 0);
@@ -116,9 +116,9 @@ namespace Draft {
     // Functions
     void SpriteBatch::draw(SpriteProps props){
         // Preprocessing for the props
-        if(props.texture == nullptr){
+        if(!props.texture){
             // No texture means use debug white
-            props.texture = &whiteTexture;
+            props.texture = whiteTexture;
         }
 
         // Check if the sprite is translucent or not
@@ -131,10 +131,10 @@ namespace Draft {
         }
     }
 
-    void SpriteBatch::draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
+    void SpriteBatch::draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
         // Shortcut function for backwards compat
         draw({
-            &texture,
+            texture,
             position,
             rotation,
             size,
@@ -149,7 +149,7 @@ namespace Draft {
         if(textureRegister.empty() && transparentQuads.empty())
             return;
 
-        shader.bind();
+        shader->bind();
 
         if(camera)
             camera->apply(window, shader);

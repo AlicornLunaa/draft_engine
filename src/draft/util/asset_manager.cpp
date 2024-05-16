@@ -1,70 +1,61 @@
-#include <cassert>
 #include <cstddef>
 #include <mutex>
 #include <string>
 #include <thread>
-#include <typeindex>
 #include <unordered_map>
-#include <vector>
 
 #include "draft/util/asset_manager.hpp"
+#include "draft/audio/sound_buffer.hpp"
+#include "draft/rendering/font.hpp"
+#include "draft/rendering/image.hpp"
+#include "draft/rendering/model.hpp"
+#include "draft/rendering/shader.hpp"
+#include "draft/rendering/texture.hpp"
 #include "draft/util/logger.hpp"
 
 namespace Draft {
-    // Variables
-    std::unordered_map<std::string, Assets::BaseResource*> Assets::resources{};
-    std::unordered_map<std::type_index, Assets::BaseLoader*> Assets::loaders{};
-    std::unordered_map<size_t, Assets::Package> Assets::packages{};
-    Assets::Package* Assets::currentPackage = nullptr;
-
-    std::unordered_map<std::type_index, std::vector<Assets::BaseResource*>> Assets::loadQueue{};
-    std::mutex Assets::asyncMutex{};
-    float Assets::loadingProgress = 1.f;
-
     // Private functions
-    void Assets::remove_orphans(){
-        std::vector<std::string> markedForDeletion;
-
-        for(auto& [key, res] : resources){
-            if(res->ownerCount == 0){
-                // Mark for deletion
-                markedForDeletion.push_back(key);
-            }
-        }
-
-        for(auto& key : markedForDeletion){
-            resources.erase(key);
-        }
-    }
-
-    void Assets::load_async_queue(size_t totalAssets){
+    void Assets::load_async_queue(std::queue<BaseLoader*>& loadQueue, std::queue<BaseLoader*>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut){
         // Variables
         size_t currentLoaded = 0;
 
         // Error handle
         if(loadQueue.empty()){
             // No queue, end this thread as a success
-            loadingProgress = 1.f;
+            std::lock_guard<std::mutex> guard(mut);
+            *progress = 1.f;
             return;
         }
 
-        // Load the assets one by one
-        for(auto& [type, vec] : loadQueue){
-            for(auto* res : vec){
-                // Implement into the loaded resources
-                res->load_async();
-                resources[res->handle.get_path()] = res;
-                currentPackage->own(*res);
+        while(!loadQueue.empty()){
+            auto* loader = loadQueue.front();
+            loader->load_async();
+
+            {
+                // Prevent race conditions
+                std::lock_guard<std::mutex> guard(mut);
 
                 // Try queuing up the resources that need finalized
+                finishQueue.push(loader);
 
                 // Update percentage
-                {
-                    std::lock_guard<std::mutex> guard(asyncMutex);
-                    currentLoaded++;
-                    loadingProgress = currentLoaded / (float)totalAssets;
-                }
+                currentLoaded++;
+                *progress = currentLoaded / (float)totalAssets;
             }
+
+            loadQueue.pop();
+        }
+    }
+
+    void Assets::finish_async_queue(){
+        // Prevent race conditions
+        std::lock_guard<std::mutex> guard(asyncMutex);
+
+        while(!finishAsyncQueue.empty()){
+            auto* loader = finishAsyncQueue.front();
+            resources[loader->handle.get_path()] = loader->finish_async_gl();
+            delete loader;
+            finishAsyncQueue.pop();
         }
     }
 
@@ -73,83 +64,53 @@ namespace Draft {
     }
 
     // Constructors
-    Assets::Assets(){}
+    Assets::Assets(){
+        // Setup loaders
+        set_loader<SoundBuffer>(new GenericLoader<SoundBuffer>());
+        set_loader<Image>(new GenericLoader<Image>());
+        set_loader<Font>(new GenericLoader<Font>());
+        set_loader<Model>(new GenericSyncLoader<Model>());
+        set_loader<Shader>(new GenericSyncLoader<Shader>());
+        set_loader<Texture>(new GenericSyncLoader<Texture>());
+    }
+
     Assets::~Assets(){ cleanup(); }
 
+    // Public vars
+    Assets Assets::manager;
+
     // Functions
-    size_t Assets::start_package(){
-        // Create a new package
-        size_t id = packages.size();
-        packages.emplace(id, id);
-        currentPackage = &packages.at(id);
-        return id;
-    }
-
-    void Assets::select_package(size_t package){
-        // Check if package exists
-        assert(packages.find(package) != packages.end() && "Package selected does not exist");
-        currentPackage = &packages.at(package);
-    }
-
-    void Assets::end_package(size_t package){
-        auto iter = packages.find(package);
-        assert(iter != packages.end() && "Package ended does not exist");
-
-        // Remove the package
-        packages.erase(iter);
-
-        // Remove pointer if deleting this package
-        if(currentPackage && package == currentPackage->id)
-            currentPackage = nullptr;
-
-        // Check each resource to see if orphaned resources are ready to be deleted
-        remove_orphans();
-    }
-
-    void Assets::end_package(){
-        assert(currentPackage && "Cannot end a package with none selected");
-        end_package(currentPackage->id);
-    }
-
     void Assets::load(){
-        // If no package currently exists, start one
-        if(!currentPackage)
-            start_package();
-
         // Load everything in the load queue
-        for(auto& [type, vec] : loadQueue){
-            for(auto* res : vec){
-                // Implement into the loaded resources
-                res->load_sync();
-                resources[res->handle.get_path()] = res;
-                currentPackage->own(*res);
-            }
+        while(!loadQueue.empty()){
+            auto* loader = loadQueue.front();
+            resources[loader->handle.get_path()] = loader->load_sync();
+            delete loader;
+            loadQueue.pop();
         }
-
-        // Clear queue
-        loadQueue.clear();
     }
 
     void Assets::load_async(){
-        // If no package currently exists, start one
-        if(!currentPackage)
-            start_package();
-
         // Get total assets to keep a percentage
         size_t totalAssets = 0;
         loadingProgress = 0.f;
-
-        for(auto& [type, vec] : loadQueue){
-            totalAssets += vec.size();
-        }
+        loadingAsyncronously = true;
+        totalAssets += loadQueue.size();
 
         // Spawn thread to run the asyncronous load
-        std::thread loadThread(load_async_queue, totalAssets);
+        std::thread loadThread([this, totalAssets](){ load_async_queue(loadQueue, finishAsyncQueue, totalAssets, &loadingProgress, asyncMutex); });
         loadThread.detach();
     }
 
-    bool Assets::is_loading_finished(){
-        return get_loading_progress() >= 1.f;
+    bool Assets::poll_async(){
+        bool loadingFinished = get_loading_progress() >= 1.f;
+
+        if(loadingFinished && loadingAsyncronously){
+            finish_async_queue();
+            loadingAsyncronously = false;
+        }
+
+        return loadingFinished;
     }
 
     float Assets::get_loading_progress(){
@@ -161,7 +122,7 @@ namespace Draft {
         Logger::print(Level::INFO, "Asset Manager", "Reloading...");
 
         for(auto& [key, res] : resources){
-            res->reload();
+            // res->reload();
         }
 
         Logger::print_raw("Complete\n");
@@ -169,15 +130,21 @@ namespace Draft {
 
     void Assets::cleanup(){
         // Cleans all resources
-        for(auto& [type, loader] : loaders){
-            if(!loader) continue;
-            delete loader;
+        while(!loadQueue.empty()){
+            delete loadQueue.front();
+            loadQueue.pop();
         }
 
-        packages.clear();
-        loadQueue.clear();
-        loaders.clear();
-        currentPackage = nullptr;
-        remove_orphans();
+        while(!finishAsyncQueue.empty()){
+            delete finishAsyncQueue.front();
+            finishAsyncQueue.pop();
+        }
+
+        for(auto& [type, ptr] : loaderTemplates){
+            delete ptr;
+        }
+
+        resources.clear();
+        loaderTemplates.clear();
     }
 }

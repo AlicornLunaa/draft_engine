@@ -1,8 +1,8 @@
-#include "draft/rendering/image.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "draft/rendering/conversions_p.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/rendering/image.hpp"
 #include "draft/util/file_handle.hpp"
 
 #include "stb_image.h"

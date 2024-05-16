@@ -12,7 +12,7 @@ void Draft::render_system(Registry& registry, SpriteBatch& batch, RenderWindow& 
         auto& transformComponent = view.get<TransformComponent>(entity);
 
         batch.draw({
-            &spriteComponent.texture,
+            spriteComponent.texture,
             transformComponent.position,
             transformComponent.rotation,
             spriteComponent.size,

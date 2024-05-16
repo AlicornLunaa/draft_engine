@@ -190,7 +190,7 @@ namespace Draft {
         }
     }
 
-    void Model::load(const FileHandle& handle){
+    void Model::load(const FileHandle& handle, bool avoidGL){
         // Prep vectors
         materials.clear();
         meshes.clear();
@@ -247,9 +247,9 @@ namespace Draft {
     // Constructors
     Model::Model() : reloadable(false) {}
 
-    Model::Model(const FileHandle& handle) : reloadable(true), handle(handle) {
+    Model::Model(const FileHandle& handle, bool avoidGL) : reloadable(true), handle(handle) {
         // Construct from file handle, for gltf
-        load(handle);
+        load(handle, avoidGL);
         buffer_meshes();
     }
 
@@ -284,7 +284,13 @@ namespace Draft {
     }
 
     // Functions
-    void Model::render(const Shader& shader, const Matrix4& modelMatrix) const {
+    void Model::reload_materials(){
+        auto mdl = load_model(handle);
+        materials.clear();
+        load_materials(handle, &materials, mdl);
+    }
+
+    void Model::render(std::shared_ptr<Shader> shader, const Matrix4& modelMatrix) const {
         // Draws the meshes
         for(size_t i = 0; i < buffers.size(); i++){
             auto& vbo = buffers[i];
@@ -294,8 +300,8 @@ namespace Draft {
 
             // Render each vbo with mesh data
             vbo->bind();
-            material.apply(shader);
-            shader.set_uniform("model", modelMatrix * matrix);
+            material.apply(*shader);
+            shader->set_uniform("model", modelMatrix * matrix);
 
             if(mesh.is_indexed()){
                 glDrawElements(GL_TRIANGLES, mesh.get_indices().size(), GL_UNSIGNED_INT, 0);

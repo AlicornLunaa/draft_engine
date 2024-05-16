@@ -17,7 +17,7 @@
 namespace Draft {
     struct SpriteProps {
         // Variables
-        const Texture* texture = nullptr;
+        std::shared_ptr<Texture> texture = nullptr;
 
         Vector2f position{0, 0};
         float rotation = 0.f;
@@ -46,34 +46,34 @@ namespace Draft {
         };
 
         // Batch variables
+        const std::shared_ptr<Texture> whiteTexture{new Texture(Image())};
         const size_t maxSprites;
-        const Shader& shader;
         VertexBuffer vertexBuffer;
         size_t dynamicVertexBufLoc;
         size_t dynamicIndexBufLoc;
-        Texture whiteTexture{Image()};
+        std::shared_ptr<Shader> shader;
         
         // Opaque queue variables
         std::vector<QuadVertex> vertices;
         std::vector<int> indices;
-        std::queue<std::pair<const Texture*, size_t>> textureRegister;
+        std::queue<std::pair<std::shared_ptr<Texture>, size_t>> textureRegister;
 
         // Transparent queue variables
         std::priority_queue<SpriteProps, std::vector<SpriteProps>, ZIndexComparator> transparentQuads;
 
         // Private functions
-        void assemble_quad(std::vector<QuadVertex>& vertices, std::vector<int>& indices, std::queue<std::pair<const Texture*, size_t>>& textureRegister, const SpriteProps& props);
+        void assemble_quad(std::vector<QuadVertex>& vertices, std::vector<int>& indices, std::queue<std::pair<std::shared_ptr<Texture>, size_t>>& textureRegister, const SpriteProps& props);
         void flush_batch_internal();
 
     public:
         // Constructors
-        SpriteBatch(const Shader& shader = *Assets::get<Shader>("assets/shaders/default", true), const size_t maxSprites = 10000);
+        SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true), const size_t maxSprites = 10000);
 
         // Functions
-        inline const Shader& get_shader() const { return shader; }
+        inline const std::shared_ptr<Shader> get_shader() const { return shader; }
 
         void draw(SpriteProps props); // Add quad to scene
-        void draw(const Texture& texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
+        void draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
         void flush(const RenderWindow& window, const Camera* camera = nullptr); // Send quads to shader
     };
 };

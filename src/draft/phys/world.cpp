@@ -155,7 +155,7 @@ namespace Draft {
         joints.erase(std::find(joints.begin(), joints.end(), joint));
     }
 
-    void World::set_debug_renderer(const Shader& shader, void* renderer){
+    void World::set_debug_renderer(std::shared_ptr<Shader> shader, void* renderer){
         if(!renderer){
             if(ptr->physRenderer)
                 delete ptr->physRenderer;

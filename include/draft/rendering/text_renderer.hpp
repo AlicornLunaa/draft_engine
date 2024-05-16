@@ -7,12 +7,13 @@
 #include "draft/rendering/sprite_batch.hpp"
 #include "draft/util/asset_manager.hpp"
 
+#include <memory>
 #include <string>
 
 namespace Draft {
     struct TextProperties {
         std::string str = "Hello World!";
-        const Font* font = nullptr;
+        std::shared_ptr<Font> font = nullptr;
         Vector2f position = {0, 0};
         Vector2f origin = {0, 0};
         Vector4f color = {1, 1, 1, 1};
@@ -23,7 +24,7 @@ namespace Draft {
     class TextRenderer {
     private:
         // Variables
-        const Font& defaultFont = *Assets::get<Font>("assets/fonts/default.ttf", true);
+        const std::shared_ptr<Font> defaultFont = Assets::manager.get<Font>("assets/fonts/default.ttf", true);
         SpriteBatch batch;
 
         // Functions
@@ -31,12 +32,12 @@ namespace Draft {
 
     public:
         // Constructors
-        TextRenderer(const Shader& shader = *Assets::get<Shader>("assets/shaders/text", true), size_t maxChars = 10000);
+        TextRenderer(const std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/text", true), size_t maxChars = 10000);
 
         // Functions
         Vector2f get_text_bounds(const TextProperties& props) const;
         void draw_text(const TextProperties& props);
-        void draw_text(const std::string& str, const Font* font, const Vector2f& position, float scale = 1.f, const Vector4f& color = { 1, 1, 1, 1 });
+        void draw_text(const std::string& str, std::shared_ptr<Font> font, const Vector2f& position, float scale = 1.f, const Vector4f& color = { 1, 1, 1, 1 });
         void flush(const RenderWindow& window, const Camera* camera = nullptr);
     };
 };

@@ -1,6 +1,7 @@
 #include "draft/rendering/text_renderer.hpp"
 #include "draft/math/glm.hpp"
 #include <algorithm>
+#include <memory>
 
 namespace Draft {
     // Private functions
@@ -8,11 +9,11 @@ namespace Draft {
         if(props.font)
             return *props.font;
 
-        return defaultFont;
+        return *defaultFont;
     }
 
     // Constructors
-    TextRenderer::TextRenderer(const Shader& shader, size_t maxChars) : batch(shader, maxChars) {}
+    TextRenderer::TextRenderer(const std::shared_ptr<Shader> shader, size_t maxChars) : batch(shader, maxChars) {}
 
     // Functions
     Vector2f TextRenderer::get_text_bounds(const TextProperties& props) const {
@@ -39,7 +40,7 @@ namespace Draft {
         for(char ch : props.str){
             // Get glyph to render
             auto& glyph = font.get_glyph(ch);
-            Vector2f glyphTextureSize = glyph.region.texture.get_size();
+            Vector2f glyphTextureSize = glyph.region.texture->get_size();
             
             float xPos = currX + glyph.bearing.x * props.scale;
             float yPos = props.position.y - (glyph.size.y - glyph.bearing.y) * props.scale;
@@ -48,7 +49,7 @@ namespace Draft {
 
             // Render glyph
             batch.draw({
-                &glyph.region.texture,
+                glyph.region.texture,
                 Vector2f{0, 0},
                 props.rotation,
                 {w, h},
@@ -63,7 +64,7 @@ namespace Draft {
         }
     }
 
-    void TextRenderer::draw_text(const std::string& str, const Font* font, const Vector2f& position, float scale, const Vector4f& color){
+    void TextRenderer::draw_text(const std::string& str, std::shared_ptr<Font> font, const Vector2f& position, float scale, const Vector4f& color){
         draw_text({ str, font, position, {0, 0}, color, 0.f, scale });
     }
 

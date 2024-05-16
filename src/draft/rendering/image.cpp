@@ -93,6 +93,8 @@ namespace Draft {
         }
     }
 
+    Image::Image(const std::vector<std::byte>& rawData, bool flip) : Image() { load(rawData, flip); }
+
     Image::Image(const FileHandle& handle, bool flip) : Image() { load(handle, flip); }
 
     Image::Image(const Image& other) : size(other.size), colorSpace(other.colorSpace), pixelCount(other.pixelCount) {

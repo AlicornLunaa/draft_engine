@@ -26,7 +26,7 @@ namespace Draft {
         // Structures
         struct FontType {
             std::unordered_map<char, Glyph> glyphs;
-            std::vector<Texture*> textures;
+            std::vector<std::shared_ptr<Texture>> textures;
             std::vector<Image> images;
             IntRect previousGlyphBounds = {0, 0, 0, 0};
             int rowDepth = 0;
@@ -34,6 +34,7 @@ namespace Draft {
         };
 
         // Variables
+        std::vector<std::byte> rawData;
         mutable std::map<unsigned int, size_t> fontSizeToTextureMap;
         mutable std::vector<FontType> fontTypes;
         mutable unsigned int fontSize = 24;
@@ -47,6 +48,7 @@ namespace Draft {
     public:
         // Constructors
         Font(const FileHandle& handle);
+        Font(const std::vector<std::byte>& rawData);
         Font(const Font& other) = delete;
         ~Font();
 

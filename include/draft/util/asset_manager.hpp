@@ -3,8 +3,11 @@
 #include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
 
+#include <cassert>
 #include <cstddef>
+#include <memory>
 #include <mutex>
+#include <queue>
 #include <string>
 #include <typeindex>
 #include <unordered_map>
@@ -16,19 +19,27 @@ namespace Draft {
     public:
         // Structures
         struct BaseLoader {
+            FileHandle handle;
             virtual ~BaseLoader(){}
-            virtual void* load_sync(const FileHandle& handle) = 0; // Loading on main thread
-            virtual void* load_async(const FileHandle& handle) = 0; // Loading in a separate thread with no OpenGL context
-            virtual void* finish_async_gl() = 0; // Called after async loading without OpenGL
+
+            virtual std::shared_ptr<void> load_sync() const = 0; // Loading on main thread
+
+            virtual void load_async() = 0; // Loading in a separate thread with no OpenGL context
+            virtual std::shared_ptr<void> finish_async_gl() = 0; // Called after async loading without OpenGL
+
+            virtual BaseLoader* clone(const FileHandle& handle) const = 0;
         };
 
         template<typename T>
         struct GenericLoader : public BaseLoader {
+            // Variables
+            std::vector<std::byte> rawData;
+
             // Loading on main thread
-            virtual void* load_sync(const FileHandle& handle) override {
+            virtual std::shared_ptr<void> load_sync() const override {
                 // Default to basic call of default filehandle constructor
                 try {
-                    return new T(handle);
+                    return std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });
                 } catch(int e){
                     Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
                 }
@@ -37,10 +48,15 @@ namespace Draft {
             }
 
             // Loading in a separate thread with no OpenGL context
-            virtual void* load_async(const FileHandle& handle) override {
+            virtual void load_async() override {
+                rawData = handle.read_bytes();
+            }
+
+            // Create the finalized object
+            virtual std::shared_ptr<void> finish_async_gl() override {
                 // Default to basic call of default filehandle constructor
                 try {
-                    return new T(handle);
+                    return std::shared_ptr<T>(new T(rawData), [](void* ptr){ delete static_cast<T*>(ptr); });
                 } catch(int e){
                     Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
                 }
@@ -48,173 +64,122 @@ namespace Draft {
                 return nullptr;
             }
 
-            // Create the finalized object
-            virtual void* finish_async_gl() override {
+            // Cloning
+            virtual BaseLoader* clone(const FileHandle& handle) const override {
+                auto* ptr = new GenericLoader<T>();
+                ptr->handle = handle;
+                return ptr;
+            }
+        };
+
+        template<typename T>
+        struct GenericSyncLoader : public BaseLoader {
+            // Loading on main thread
+            virtual std::shared_ptr<void> load_sync() const override {
+                // Default to basic call of default filehandle constructor
+                try {
+                    return std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });
+                } catch(int e){
+                    Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
+                }
+
                 return nullptr;
+            }
+
+            // Loading in a separate thread with no OpenGL context
+            virtual void load_async() override {}
+
+            // Create the finalized object
+            virtual std::shared_ptr<void> finish_async_gl() override {
+                // Default to basic call of default filehandle constructor
+                try {
+                    return std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });
+                } catch(int e){
+                    Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
+                }
+
+                return nullptr;
+            }
+
+            // Cloning
+            virtual BaseLoader* clone(const FileHandle& handle) const override {
+                auto* ptr = new GenericSyncLoader<T>();
+                ptr->handle = handle;
+                return ptr;
             }
         };
 
     private:
-        // Structures
-        struct BaseResource {
-            size_t ownerCount = 0;
-            FileHandle handle;
-
-            BaseResource(const FileHandle& handle) : handle(handle) {}
-            virtual ~BaseResource(){}
-
-            virtual bool is_loaded() = 0;
-            virtual void reload() = 0;
-            virtual void load_sync() = 0;
-            virtual void load_async() = 0;
-            virtual void finish_async() = 0;
-        };
-
-        template<typename T>
-        struct Resource : public BaseResource {
-            T* resPtr = nullptr;
-            BaseLoader* loader = nullptr;
-            
-            Resource(T* ptr) : resPtr(ptr), loader(nullptr) {}
-            Resource(BaseLoader* loader, const FileHandle& handle) : resPtr(nullptr), loader(loader), BaseResource(handle) {}
-            Resource(const Resource<T>& other) = delete;
-            virtual ~Resource(){ if(resPtr) delete resPtr; }
-
-            Resource<T>& operator=(const Resource<T>& other) = delete;
-
-            virtual bool is_loaded() override { return !resPtr; }
-            virtual void reload() override { if(resPtr) resPtr->reload(); }
-            virtual void load_sync() override { resPtr = (T*)loader->load_sync(handle); }
-            virtual void load_async() override { resPtr = (T*)loader->load_async(handle); }
-            virtual void finish_async() override { loader->finish_async_gl(); }
-        };
-
-        struct Package {
-        private:
-            std::vector<BaseResource*> claimedResources;
-            size_t assetCount = 0;
-
-        public:
-            const size_t id;
-
-            Package(size_t id) : id(id){}
-            Package(const Package& other) = delete;
-            Package& operator=(const Package& other) = delete;
-
-            ~Package(){
-                for(auto& res : claimedResources){
-                    if(!res) continue;
-                    res->ownerCount--;
-                }
-            }
-
-            void own(BaseResource& res){
-                // Adds this package as an owner for the resource
-                claimedResources.push_back(&res);
-                res.ownerCount++;
-                assetCount++;
-            }
-
-            inline size_t get_asset_count() const { return assetCount; }
-        };
-
         // Variables
-        static std::unordered_map<std::string, BaseResource*> resources;
-        static std::unordered_map<std::type_index, BaseLoader*> loaders;
-        static std::unordered_map<size_t, Package> packages;
-        static Package* currentPackage;
+        std::unordered_map<std::type_index, const BaseLoader*> loaderTemplates;
+        std::unordered_map<std::string, std::shared_ptr<void>> resources;
 
-        static std::unordered_map<std::type_index, std::vector<BaseResource*>> loadQueue;
-        static std::mutex asyncMutex;
-        static float loadingProgress;
+        std::queue<BaseLoader*> loadQueue; // Stage 1, no OpenGL, non-blocking
+        std::queue<BaseLoader*> finishAsyncQueue; // Stage 2, context provided, blocking
+        std::mutex asyncMutex;
+        float loadingProgress = 1.f;
+        bool loadingAsyncronously = false;
+
+        // Helper funcs
+        template<typename T>
+        void load_sync_immediate(const FileHandle& handle){
+            auto* loaderTemplate = loaderTemplates[typeid(T)];
+            auto* loader = loaderTemplate->clone(handle);
+            resources[handle.get_path()] = loader->load_sync();
+            delete loader;
+        }
+
+        static void load_async_queue(std::queue<BaseLoader*>& loadQueue, std::queue<BaseLoader*>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut);
+        void finish_async_queue();
+        bool has_asset_loaded(const std::string& str);
+
+    public:
+        // Variables
+        static Assets manager;
 
         // Constructors
         Assets();
         ~Assets();
 
-        // Helper funcs
-        template<typename T>
-        static void load_sync_immediate(const FileHandle& handle){
-            if(!loaders[typeid(T)])
-                loaders[typeid(T)] = new GenericLoader<T>();
-
-            if(!currentPackage)
-                start_package();
-
-            resources[handle.get_path()] = new Resource<T>(loaders[typeid(T)], handle);
-            resources[handle.get_path()]->load_sync();
-            currentPackage->own(*resources[handle.get_path()]);
-        }
-
-        static void remove_orphans();
-        static void load_async_queue(size_t totalAssets);
-        static bool has_asset_loaded(const std::string& str);
-
-    public:
         // Functions
-        static size_t start_package();
-        static void select_package(size_t package);
-        static void end_package(size_t package);
-        static void end_package();
-
         template<typename T>
-        static void set_loader(BaseLoader* loader){
-            loaders[typeid(T)] = loader;
+        void set_loader(BaseLoader* loader){
+            if(loaderTemplates[typeid(T)])
+                delete loaderTemplates[typeid(T)];
+
+            loaderTemplates[typeid(T)] = loader;
         }
 
         template<typename T>
-        static const T* get(const FileHandle& handle, bool loadOnFail = false){
+        const std::shared_ptr<T> get(const std::string& key, bool loadOnFail = false){
             // Retrieve an asset
-            std::string str = handle.get_path();
-
-            if(resources.find(str) == resources.end()){
+            if(resources.find(key) == resources.end()){
                 // No asset exists by this name, try loading it if load on fail is true
                 if(loadOnFail){
-                    load_sync_immediate<T>(handle);
+                    load_sync_immediate<T>(FileHandle::automatic(key));
                 } else {
                     return nullptr;
                 }
             }
 
             // Get the resource pointer
-            BaseResource* rawResource = resources.at(str);
-            Resource<T>* dataPtr = dynamic_cast<Resource<T>*>(rawResource);
-
-            // Error check
-            if(!dataPtr){
-                Logger::println(Level::CRITICAL, "Asset Manager", "Something went seriously wrong!");
-                exit(0);
-            }
-
-            return dataPtr->resPtr;
+            return std::static_pointer_cast<T>(resources.at(key));
         }
 
         template<typename T>
-        static void queue(const FileHandle& handle){
+        void queue(const FileHandle& handle){
             // Check if it needs a loader too
-            if(!loaders[typeid(T)])
-                loaders[typeid(T)] = new GenericLoader<T>();
-
-            loadQueue[typeid(T)].push_back(new Resource<T>(loaders[typeid(T)], handle));
+            auto* loader = loaderTemplates[typeid(T)];
+            assert(loader != nullptr && "Loader for asset does not exist");
+            loadQueue.push(loader->clone(handle));
         }
 
-        static void load();
-        static void load_async();
-        static bool is_loading_finished();
-        static float get_loading_progress();
+        void load();
+        void load_async();
+        bool poll_async(); // Poll function on main thread
+        float get_loading_progress();
 
-        static void reload();
-        static void cleanup();
-    };
-
-    class AssetManager {
-    private:
-        size_t packageID;
-
-    public:
-        AssetManager() : packageID(Assets::start_package()) {}
-        AssetManager(const AssetManager& other) = delete;
-        AssetManager& operator=(const AssetManager& other) = delete;
-        ~AssetManager(){ Assets::end_package(packageID); }
+        void reload();
+        void cleanup();
     };
 }

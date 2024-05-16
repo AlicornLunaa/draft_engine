@@ -2,6 +2,7 @@
 
 #include "draft/math/glm.hpp"
 #include "draft/rendering/texture.hpp"
+#include <memory>
 
 namespace Draft {
     /**
@@ -10,13 +11,13 @@ namespace Draft {
      */
     struct SpriteComponent {
         // Variables
-        const Texture& texture;
+        std::shared_ptr<Texture> texture;
         Vector2f size = { 64, 64 };
         Vector2f origin = { 0, 0 };
         float zIndex = 0.f;
 
         // Constructors
         SpriteComponent(const SpriteComponent& transform) = default;
-        SpriteComponent(const Texture& texture, const Vector2f& size, const Vector2f& origin = {}) : texture(texture), size(size), origin(origin) {}
+        SpriteComponent(std::shared_ptr<Texture> texture, const Vector2f& size, const Vector2f& origin = {}) : texture(texture), size(size), origin(origin) {}
     };
 }

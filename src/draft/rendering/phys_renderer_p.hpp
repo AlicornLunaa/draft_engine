@@ -9,7 +9,7 @@ namespace Draft {
         ShapeBatch batch;
 
     public:
-        PhysicsDebugRender(const Shader& shader);
+        PhysicsDebugRender(std::shared_ptr<Shader> shader);
 
         void render(const RenderWindow& window, const Camera* camera = nullptr);
 

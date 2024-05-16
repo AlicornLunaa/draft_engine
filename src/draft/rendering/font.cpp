@@ -31,7 +31,7 @@ namespace Draft {
             exit(0);
         }
 
-        if(FT_New_Face(ptr->fontLibrary, handle.get_path().c_str(), 0, &ptr->fontFace)){
+        if(FT_New_Memory_Face(ptr->fontLibrary, reinterpret_cast<unsigned char*>(rawData.data()), rawData.size(), 0, &ptr->fontFace)){
             Logger::println(Level::CRITICAL, "Font", "Cannot load font");
             exit(0);
         }
@@ -50,7 +50,7 @@ namespace Draft {
 
             auto& ref = fontTypes.emplace_back(
                 std::unordered_map<char, Glyph>{},
-                std::vector<Texture*>{},
+                std::vector<std::shared_ptr<Texture>>{},
                 std::vector<Image>{},
                 IntRect{0, 0, 0, 0},
                 0,
@@ -58,13 +58,13 @@ namespace Draft {
             );
 
             ref.images.emplace_back(2048, 2048, Vector4f{0, 0, 0, 0}, ColorSpace::GREYSCALE);
-            ref.textures.push_back(new Texture(ref.images.back(), CLAMP_TO_EDGE));
+            ref.textures.push_back(std::shared_ptr<Texture>(new Texture(ref.images.back(), CLAMP_TO_EDGE)));
         }
 
         // Get font type data
         auto& fontType = fontTypes[fontSizeToTextureMap[fontSize]];
         auto& baseImage = fontType.images.back();
-        auto* baseTexture = fontType.textures.back();
+        auto baseTexture = fontType.textures.back();
 
         // Load this character into the font glyph
         FT_Set_Pixel_Sizes(ptr->fontFace, 0, fontSize);
@@ -97,7 +97,7 @@ namespace Draft {
             fontType.previousGlyphBounds = {0, 0, 0, 0};
             fontType.rowDepth = 0;
             fontType.images.emplace_back(2048, 2048, Vector4f{0, 0, 0, 0}, ColorSpace::GREYSCALE);
-            fontType.textures.push_back(new Texture(fontType.images.back(), CLAMP_TO_EDGE));
+            fontType.textures.push_back(std::shared_ptr<Texture>(new Texture(fontType.images.back(), CLAMP_TO_EDGE)));
             baseImage = fontType.images.back();
             baseTexture = fontType.textures.back();
         }
@@ -110,7 +110,7 @@ namespace Draft {
 
         // Save glyph data
         fontType.glyphs.emplace(ch, Glyph{
-            TextureRegion{*baseTexture, bounds},
+            TextureRegion{baseTexture, bounds},
             { ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows },
             { ptr->fontFace->glyph->bitmap_left, ptr->fontFace->glyph->bitmap_top },
             ptr->fontFace->glyph->advance.x
@@ -118,12 +118,6 @@ namespace Draft {
     }
     
     void Font::clear(){
-        for(auto& type : fontTypes){
-            for(auto* ptr : type.textures){
-                delete ptr;
-            }
-        }
-
         fontSizeToTextureMap.clear();
         fontTypes.clear();
 
@@ -134,6 +128,12 @@ namespace Draft {
     // Constructors
     Font::Font(const FileHandle& handle) : ptr(std::make_unique<Impl>()), handle(handle) {
         // Load font data
+        rawData = handle.read_bytes();
+        load_font();
+    }
+
+    Font::Font(const std::vector<std::byte>& rawData) : ptr(std::make_unique<Impl>()) {
+        this->rawData = rawData;
         load_font();
     }
 

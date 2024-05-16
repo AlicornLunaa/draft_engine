@@ -4,7 +4,7 @@
 
 namespace Draft {
     // Constructors
-    ParticleSystem::ParticleSystem(const Shader& shader, const size_t maxParticles) : batch(shader) {
+    ParticleSystem::ParticleSystem(const std::shared_ptr<Shader> shader, const size_t maxParticles) : batch(shader) {
         particlePool.resize(maxParticles);
         poolIndex = maxParticles - 1;
     }

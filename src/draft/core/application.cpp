@@ -1,3 +1,4 @@
+#include "draft/util/asset_manager.hpp"
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -14,18 +15,15 @@ namespace Draft {
         mouse.add_callback([this](Event e){ window.queue_event(e); });
 
         // Register basic commands
-        console.register_cmd("reload_assets", [this](ConsoleArgs args){
-            Assets::reload();
-            return true;
-        });
-
         console.register_cmd("cl_vsync", [this](ConsoleArgs args){
             window.set_vsync(std::stoi(args[1]) > 0);
             return true;
         });
     }
 
-    Application::~Application(){}
+    Application::~Application(){
+        Assets::manager.cleanup();
+    }
 
     // Functions
     void Application::run(){

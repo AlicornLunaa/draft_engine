@@ -15,7 +15,7 @@ namespace Draft {
 
         // Get the texture location & data
         std::string texturePath = "assets/textures/" + static_cast<std::string>(data["meta"]["image"]);
-        texture = Assets::get<Texture>(FileHandle::automatic(texturePath), true);
+        texture = Assets::manager.get<Texture>(texturePath, true);
 
         // Create each frame region
         for(json frameData : data["frames"]){
@@ -42,11 +42,11 @@ namespace Draft {
         // Get required frame
         for(size_t i = 0; i < frames.size(); i++){
             if(frameTimes[i] > frameTime){
-                return { *texture, frames[i] };
+                return { texture, frames[i] };
             }
         }
 
         // Error
-        return { *texture, frames[(int)(frameTime / 100) % 20] };
+        return { texture, frames[(int)(frameTime / 100) % 20] };
     }
 };

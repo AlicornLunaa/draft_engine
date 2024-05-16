@@ -10,9 +10,9 @@
 namespace Draft {
     class Material {
     private:
-        const Texture* debugWhite;
-        const Texture* debugBlack;
-        const Texture* emptyNormalMap;
+        std::shared_ptr<Texture> debugWhite;
+        std::shared_ptr<Texture> debugBlack;
+        std::shared_ptr<Texture> emptyNormalMap;
 
     public:
         // Variables

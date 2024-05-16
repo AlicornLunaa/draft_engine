@@ -32,10 +32,10 @@ namespace Draft {
         std::vector<ShapeVertex> vertices;
         std::vector<int> indices;
 
+        std::shared_ptr<Shader> shader;
         VertexBuffer vertexBuffer;
         size_t dynamicVertexBufLoc;
         size_t dynamicIndexBufLoc;
-        const Shader& shader;
 
         Vector4f currentColor{ 1, 1, 1, 1 };
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
@@ -45,7 +45,7 @@ namespace Draft {
 
     public:
         // Constructors
-        ShapeBatch(const Shader& shader = *Assets::get<Shader>("assets/shaders/shapes", true), const size_t maxShapes = 1000);
+        ShapeBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), const size_t maxShapes = 1000);
 
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }
