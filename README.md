@@ -26,9 +26,9 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] missing `on_attach` and `on_detach` methods for scenes
 - [x] fix up rendering pipeline
 - [x] maybe condense widgets and interface into the same directory?
-- [ ] asyncronous loading of assets, in case of OpenGL, loading raw data first
+- [x] asyncronous loading of assets, in case of OpenGL, loading raw data first
 - [ ] just a better animation class
-- [ ] loading particles from files
+- [x] loading particles from files
 - [ ] namespace inconsistencies for the UI
 - [ ] more widgets for UIContainer class
 - [ ] implement styling for UIContainer
@@ -39,14 +39,6 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 ### OpenGL Resources
 - Every OpenGL class has had RAII in mind.
 - Do not instantiate an OpenGL class without having an OpenGL context ready!
-
-### Asset manager
-- The asset manager works using whats called asset packages. This is an ID
-which corresponds to current loaded assets. An asset package can be deleted which will unload only the assets in the package.
-- The function called `start_package()->size-t` starts a new package
-- The function called `select_package(size-t)` selects the package as current context
-- The function called `end_package(size_t)` deselects current package and unloads the
-assets it is currently using, if and only if no other resources are using it.
 
 ### File handle
 - File handle controls reading and writing

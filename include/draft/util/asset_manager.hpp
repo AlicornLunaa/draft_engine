@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -39,7 +40,8 @@ namespace Draft {
             virtual std::shared_ptr<void> load_sync() const override {
                 // Default to basic call of default filehandle constructor
                 try {
-                    return std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });
+                    auto ptr = std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });;
+                    return ptr;
                 } catch(int e){
                     Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
                 }
@@ -113,6 +115,7 @@ namespace Draft {
         // Variables
         std::unordered_map<std::type_index, const BaseLoader*> loaderTemplates;
         std::unordered_map<std::string, std::shared_ptr<void>> resources;
+        std::vector<std::function<void(void)>> reloadFunctions;
 
         std::queue<BaseLoader*> loadQueue; // Stage 1, no OpenGL, non-blocking
         std::queue<BaseLoader*> finishAsyncQueue; // Stage 2, context provided, blocking

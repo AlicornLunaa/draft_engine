@@ -9,8 +9,10 @@
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/model.hpp"
+#include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/util/asset_loaders.hpp"
 #include "draft/util/logger.hpp"
 
 namespace Draft {
@@ -72,6 +74,7 @@ namespace Draft {
         set_loader<Model>(new GenericSyncLoader<Model>());
         set_loader<Shader>(new GenericSyncLoader<Shader>());
         set_loader<Texture>(new GenericSyncLoader<Texture>());
+        set_loader<ParticleProps>(new ParticleLoader());
     }
 
     Assets::~Assets(){ cleanup(); }
@@ -121,8 +124,8 @@ namespace Draft {
     void Assets::reload(){
         Logger::print(Level::INFO, "Asset Manager", "Reloading...");
 
-        for(auto& [key, res] : resources){
-            // res->reload();
+        for(auto& func : reloadFunctions){
+            func();
         }
 
         Logger::print_raw("Complete\n");
@@ -144,6 +147,7 @@ namespace Draft {
             delete ptr;
         }
 
+        reloadFunctions.clear();
         resources.clear();
         loaderTemplates.clear();
     }
