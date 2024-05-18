@@ -1,5 +1,6 @@
 #include "draft/input/event.hpp"
 #include "draft/math/rect.hpp"
+#include "draft/rendering/camera.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/interface/ui_container.hpp"
@@ -113,6 +114,18 @@ namespace Draft {
         auto size = app->window.get_size();
         windowBounds.width = size.x;
         windowBounds.height = size.y;
+
+        // Update camera
+        uiCamera = OrthographicCamera(
+            uiCamera.get_position(),
+            uiCamera.get_forward(),
+            0,
+            (float)size.x,
+            0,
+            (float)size.y,
+            uiCamera.get_near(),
+            uiCamera.get_far()
+        );
 
         // Handle updates
         for(auto* p : panels)

@@ -24,7 +24,7 @@ namespace Draft {
          * @brief Called when an event is polled from the window
          * @param event 
          */
-        virtual void handleEvent(Event event);
+        virtual void handle_event(Event event);
 
         /**
          * @brief Called in a fixed time step which is set in the application

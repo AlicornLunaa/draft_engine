@@ -41,7 +41,7 @@ namespace Draft {
 
                 default:
                     if(activeScene)
-                        activeScene->handleEvent(event);
+                        activeScene->handle_event(event);
                     break;
                 }
             }

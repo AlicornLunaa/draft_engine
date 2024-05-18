@@ -68,16 +68,24 @@ namespace Draft {
     // Constructors
     Assets::Assets(){
         // Setup loaders
-        set_loader<SoundBuffer>(new GenericLoader<SoundBuffer>());
         set_loader<Image>(new GenericLoader<Image>());
         set_loader<Font>(new GenericLoader<Font>());
+        set_loader<SoundBuffer>(new GenericSyncLoader<SoundBuffer>());
         set_loader<Model>(new GenericSyncLoader<Model>());
         set_loader<Shader>(new GenericSyncLoader<Shader>());
         set_loader<Texture>(new GenericSyncLoader<Texture>());
         set_loader<ParticleProps>(new ParticleLoader());
     }
 
-    Assets::~Assets(){ cleanup(); }
+    Assets::~Assets(){
+        cleanup();
+
+        for(auto& [type, ptr] : loaderTemplates){
+            delete ptr;
+        }
+
+        loaderTemplates.clear();
+    }
 
     // Public vars
     Assets Assets::manager;
@@ -143,12 +151,7 @@ namespace Draft {
             finishAsyncQueue.pop();
         }
 
-        for(auto& [type, ptr] : loaderTemplates){
-            delete ptr;
-        }
-
         reloadFunctions.clear();
         resources.clear();
-        loaderTemplates.clear();
     }
 }

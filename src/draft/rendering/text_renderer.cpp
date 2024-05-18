@@ -54,7 +54,7 @@ namespace Draft {
                 props.rotation,
                 {w, h},
                 center - Vector2f(xPos, yPos),
-                0.f,
+                1.f,
                 glyph.region.bounds,
                 props.color,
                 true

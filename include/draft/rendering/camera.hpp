@@ -52,8 +52,8 @@ namespace Draft {
          */
         inline void set_viewport(const Rect<float>& rect){ viewport = rect; }
 
-        inline const Rect<float>& get_position() const { return viewport; }
-        inline const Matrix4& get_viewport() const { return viewMatrix; }
+        inline const Vector3f& get_position() const { return position; }
+        inline const FloatRect& get_viewport() const { return viewport; }
         inline const Vector3f& get_forward() const { return forward; }
         inline const Vector3f& get_right() const { return right; }
         inline const Vector3f& get_up() const { return up; }
