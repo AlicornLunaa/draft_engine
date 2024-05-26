@@ -7,6 +7,7 @@
 namespace Draft {
     class Application;
     class Entity;
+    class PhysicsSystem;
 
     class Scene {
     protected:
@@ -16,6 +17,8 @@ namespace Draft {
     public:
         Scene(Application* app);
         Scene(const Scene& other) = delete;
+
+        friend class PhysicsSystem;
 
         Registry& get_registry();
         Entity create_entity();

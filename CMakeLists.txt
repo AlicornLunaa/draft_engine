@@ -120,6 +120,8 @@ set(INTERFACES
     include/draft/rendering/text_renderer.hpp
     include/draft/rendering/image.hpp
     include/draft/rendering/animation.hpp
+    include/draft/systems/physics_system.hpp
+    include/draft/systems/render_system.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
@@ -129,7 +131,6 @@ set(INTERFACES
     include/draft/util/json.hpp
     include/draft/util/time.hpp
     include/draft/util/clock.hpp
-    include/draft/systems.hpp
 )
 
 set(RESOURCES

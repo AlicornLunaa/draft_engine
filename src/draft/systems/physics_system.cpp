@@ -1,19 +1,33 @@
 #include "draft/core/application.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/components/rigid_body_component.hpp"
+#include "draft/systems/physics_system.hpp"
 #include "draft/phys/fixture.hpp"
-#include "draft/systems.hpp"
 
-void Draft::physics_system(Registry& registry, const Application* app, World& world){
-    world.step(app->timeStep, world.VELOCITY_ITER, world.POSITION_ITER);
+namespace Draft {
+    // Constructors
+    PhysicsSystem::PhysicsSystem(Scene& sceneRef, World& worldRef) : appPtr(sceneRef.app), registryRef(sceneRef.get_registry()), worldRef(worldRef) {
+        // Attach listeners
 
-    auto view = registry.view<TransformComponent, RigidBodyComponent>();
-
-    for(auto entity : view){
-        TransformComponent& transformComponent = view.get<TransformComponent>(entity);
-        RigidBody& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
-
-        transformComponent.position = rigidBodyComponent.get_position();
-        transformComponent.rotation = rigidBodyComponent.get_angle();
     }
-}
+
+    PhysicsSystem::~PhysicsSystem(){
+        // Remove listeners
+
+    }
+
+    // Functions
+    void PhysicsSystem::update(){
+        worldRef.step(appPtr->timeStep, worldRef.VELOCITY_ITER, worldRef.POSITION_ITER);
+
+        auto view = registryRef.view<TransformComponent, RigidBodyComponent>();
+
+        for(auto entity : view){
+            TransformComponent& transformComponent = view.get<TransformComponent>(entity);
+            RigidBody& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
+
+            transformComponent.position = rigidBodyComponent.get_position();
+            transformComponent.rotation = rigidBodyComponent.get_angle();
+        }
+    }
+};

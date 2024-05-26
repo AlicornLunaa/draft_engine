@@ -1,25 +1,37 @@
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/sprite_batch.hpp"
-#include "draft/systems.hpp"
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
+#include "draft/systems/render_system.hpp"
 
-void Draft::render_system(Registry& registry, SpriteBatch& batch, RenderWindow& window, const Camera* camera){
-    auto view = registry.view<SpriteComponent, TransformComponent>();
-
-    for(auto entity : view){
-        auto& spriteComponent = view.get<SpriteComponent>(entity);
-        auto& transformComponent = view.get<TransformComponent>(entity);
-
-        batch.draw({
-            spriteComponent.texture,
-            transformComponent.position,
-            transformComponent.rotation,
-            spriteComponent.size,
-            spriteComponent.origin,
-            spriteComponent.zIndex
-        });
+namespace Draft {
+    // Constructors
+    RenderSystem::RenderSystem(Registry& registryRef, RenderWindow& windowRef) : registryRef(registryRef), windowRef(windowRef) {
+        // Attach listeners
     }
 
-    batch.flush(window, camera);
-}
+    RenderSystem::~RenderSystem(){
+
+    }
+
+    // Functions
+    void RenderSystem::render(SpriteBatch& batch, const Camera* camera){
+        auto view = registryRef.view<SpriteComponent, TransformComponent>();
+
+        for(auto entity : view){
+            auto& spriteComponent = view.get<SpriteComponent>(entity);
+            auto& transformComponent = view.get<TransformComponent>(entity);
+
+            batch.draw({
+                spriteComponent.texture,
+                transformComponent.position,
+                transformComponent.rotation,
+                spriteComponent.size,
+                spriteComponent.origin,
+                spriteComponent.zIndex
+            });
+        }
+
+        batch.flush(windowRef, camera);
+    }
+};
