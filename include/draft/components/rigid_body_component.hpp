@@ -11,10 +11,6 @@ namespace Draft {
 
         // Constructors
         RigidBodyComponent(World* world, const BodyDef& def) : bodyPtr(world->create_rigid_body(def)) {}
-        ~RigidBodyComponent(){
-            if(bodyPtr && bodyPtr->is_valid())
-                bodyPtr->destroy();
-        }
 
         // Operators
         operator RigidBody& () { return *bodyPtr; }

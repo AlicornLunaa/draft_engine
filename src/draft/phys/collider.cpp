@@ -14,5 +14,10 @@ namespace Draft {
         }
     }
 
+    // Operators
+    Collider& Collider::operator=(const Collider& other){
+        return *this;
+    }
+
     // Functions
 }

@@ -17,8 +17,8 @@ namespace Draft {
     class RigidBody {
     private:
         // Variables
+        std::vector<std::unique_ptr<Fixture>> fixtures;
         World* currentWorld = nullptr;
-        std::vector<Fixture*> fixtures;
 
         // Constructor
         RigidBody(World* worldPtr, void* bodyPtr);
@@ -46,7 +46,7 @@ namespace Draft {
         
         Fixture* create_fixture(const FixtureDef& def);
         Fixture* create_fixture(const Shape* shape, float density);
-        void destroy_fixture(Fixture* fixture);
+        void destroy_fixture(Fixture* fixturePtr);
         void destroy();
 
         void set_transform(const Vector2f& position, float angle);

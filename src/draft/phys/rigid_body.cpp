@@ -13,7 +13,6 @@
 #include "draft/math/vector2_p.hpp"
 
 #include <memory>
-#include <algorithm>
 
 using namespace std;
 
@@ -61,12 +60,7 @@ namespace Draft {
         ptr->body = (b2Body*)bodyPtr;
     }
 
-    RigidBody::~RigidBody(){
-        for(Fixture* fixture : fixtures){
-            if(!fixture) continue;
-            delete fixture;
-        }
-    }
+    RigidBody::~RigidBody(){}
 
     // Functions
     bool RigidBody::is_valid() const { return (ptr && ptr->body && currentWorld); }
@@ -97,7 +91,7 @@ namespace Draft {
         }
 
         if(fixture)
-            fixtures.push_back(fixture);
+            fixtures.push_back(std::unique_ptr<Fixture>(fixture));
 
         return fixture;
     }
@@ -117,22 +111,28 @@ namespace Draft {
         }
 
         if(fixture)
-            fixtures.push_back(fixture);
+            fixtures.push_back(std::unique_ptr<Fixture>(fixture));
 
         return fixture;
     }
 
-    void RigidBody::destroy_fixture(Fixture* fixture){
-        ptr->body->DestroyFixture((b2Fixture*)fixture->get_fixture_ptr());
-        fixtures.erase(std::find(fixtures.begin(), fixtures.end(), fixture));
+    void RigidBody::destroy_fixture(Fixture* fixturePtr){
+        assert(fixturePtr && "rigidBodyPtr cannot be null");
+        ptr->body->DestroyFixture((b2Fixture*)fixturePtr->get_fixture_ptr());
+
+        for(size_t i = 0; i < fixtures.size(); i++){
+            auto& ptr = fixtures[i];
+
+            // Find the pointer responsible
+            if(ptr.get() == fixturePtr){
+                // This is the one, erase it. This also handles deletion because of unique_ptr
+                fixtures.erase(fixtures.begin() + i);
+                break;
+            }
+        }
     }
 
     void RigidBody::destroy(){
-        for(Fixture* fixture : fixtures){
-            if(!fixture) continue;
-            delete fixture;
-        }
-
         currentWorld->destroy_body(this);
     }
 

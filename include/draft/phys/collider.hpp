@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "draft/math/glm.hpp"
+#include "draft/phys/fixture.hpp"
 #include "draft/phys/shape.hpp"
 
 namespace Draft {
@@ -24,7 +25,12 @@ namespace Draft {
         Collider(const Collider& other);
         ~Collider();
 
+        // Operators
+        Collider& operator=(const Collider& other);
+
         // Functions
         void add_shape(const Shape& shape);
+        void attach(RigidBody* rigidBodyPtr){}
+        void detach(){}
     };
 }

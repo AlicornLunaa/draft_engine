@@ -18,8 +18,8 @@ namespace Draft {
     class World {
     private:
         // Variables
-        std::vector<RigidBody*> rigidBodies;
-        std::vector<Joint*> joints;
+        std::vector<std::unique_ptr<RigidBody>> rigidBodies;
+        std::vector<std::unique_ptr<Joint>> joints;
 
     public:
         // Static public vars
@@ -32,18 +32,18 @@ namespace Draft {
         ~World();
 
         // Operators
-        World(World&& other) noexcept = delete;
         World& operator=(const World& other) = delete;
-        World& operator=(World&& other) noexcept = delete;
+
+        // Friends
+        friend class RigidBody;
 
         // Functions
         RigidBody* create_rigid_body(const BodyDef& def);
-        void destroy_body(RigidBody* rigidBody);
+        void destroy_body(RigidBody* rigidBodyPtr);
 
         template<typename T>
         Joint* create_joint(const T& def);
-        void destroy_joint(Joint*& joint);
-        void destroy_joint(Joint* joint);
+        void destroy_joint(Joint* jointPtr);
 
         void set_debug_renderer(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;

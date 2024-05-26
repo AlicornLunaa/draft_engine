@@ -11,14 +11,14 @@
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/phys_renderer_p.hpp"
 
-#include <algorithm>
+#include <cassert>
 #include <memory>
 
 namespace Draft {
     // pImpl
     struct World::Impl {
         b2World world = b2World({0, 0});
-        PhysicsDebugRender* physRenderer = nullptr;
+        std::unique_ptr<PhysicsDebugRender> physRenderer = nullptr;
     };
 
     // Constructors
@@ -26,37 +26,30 @@ namespace Draft {
         ptr->world.SetGravity(vector_to_b2(gravity));
     }
 
-    World::~World(){
-        for(RigidBody* rb : rigidBodies){
-            if(!rb) continue;
-            delete rb;
-        }
-
-        for(Joint* j : joints){
-            if(!j) continue;
-            delete j;
-        }
-
-        rigidBodies.clear();
-        joints.clear();
-
-        if(ptr->physRenderer)
-            delete ptr->physRenderer;
-    }
+    World::~World(){}
 
     // Functions
     RigidBody* World::create_rigid_body(const BodyDef& def){
         b2BodyDef tmp = bodydef_to_b2(def);
         b2Body* body = ptr->world.CreateBody(&tmp);
-        RigidBody* rb = new RigidBody(this, body);
-        rigidBodies.push_back(rb);
-        return rb;
+        rigidBodies.push_back(std::unique_ptr<RigidBody>(new RigidBody(this, body)));
+        return rigidBodies.back().get();
     }
 
-    void World::destroy_body(RigidBody* rigidBody){
-        ptr->world.DestroyBody((b2Body*)rigidBody->get_body_ptr());
-        rigidBodies.erase(std::find(rigidBodies.begin(), rigidBodies.end(), rigidBody));
-        delete rigidBody;
+    void World::destroy_body(RigidBody* rigidBodyPtr){
+        assert(rigidBodyPtr && "rigidBodyPtr cannot be null");
+        ptr->world.DestroyBody((b2Body*)rigidBodyPtr->get_body_ptr());
+
+        for(size_t i = 0; i < rigidBodies.size(); i++){
+            auto& ptr = rigidBodies[i];
+
+            // Find the pointer responsible
+            if(ptr.get() == rigidBodyPtr){
+                // This is the one, erase it. This also handles deletion because of unique_ptr
+                rigidBodies.erase(rigidBodies.begin() + i);
+                break;
+            }
+        }
     }
 
     template<typename T>
@@ -126,7 +119,7 @@ namespace Draft {
                 break;
         }
 
-        joints.push_back(joint);
+        joints.push_back(std::unique_ptr<Joint>(joint));
         return joint;
     }
     template Joint* World::create_joint(const DistanceJointDef& def);
@@ -140,23 +133,27 @@ namespace Draft {
     template Joint* World::create_joint(const WeldJointDef& def);
     template Joint* World::create_joint(const WheelJointDef& def);
 
-    void World::destroy_joint(Joint*& joint){
-        destroy_body(reinterpret_cast<RigidBody*>(joint));
-        joint = nullptr;
-    }
+    void World::destroy_joint(Joint* jointPtr){
+        assert(jointPtr && "jointPtr cannot be null");
+        ptr->world.DestroyJoint((b2Joint*)jointPtr->get_joint_ptr());
 
-    void World::destroy_joint(Joint* joint){
-        ptr->world.DestroyJoint((b2Joint*)joint->get_joint_ptr());
-        joints.erase(std::find(joints.begin(), joints.end(), joint));
+        for(size_t i = 0; i < joints.size(); i++){
+            auto& ptr = joints[i];
+
+            // Find the pointer responsible
+            if(ptr.get() == jointPtr){
+                // This is the one, erase it. This also handles deletion because of unique_ptr
+                joints.erase(joints.begin() + i);
+                break;
+            }
+        }
     }
 
     void World::set_debug_renderer(std::shared_ptr<Shader> shader, void* renderer){
         if(!renderer){
-            if(ptr->physRenderer)
-                delete ptr->physRenderer;
-            
-            ptr->physRenderer = new PhysicsDebugRender(shader);
-            ptr->world.SetDebugDraw(ptr->physRenderer);
+            ptr->physRenderer.reset();
+            ptr->physRenderer = std::unique_ptr<PhysicsDebugRender>(new PhysicsDebugRender(shader));
+            ptr->world.SetDebugDraw(ptr->physRenderer.get());
             return;
         }
 

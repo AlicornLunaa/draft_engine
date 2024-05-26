@@ -14,8 +14,10 @@ namespace Draft {
         World& worldRef;
 
         // Private functions
-        void construct_func(Registry& reg, entt::entity rawEnt);
-        void deconstruct_func(Registry& reg, entt::entity rawEnt);
+        void construct_body_func(Registry& reg, entt::entity rawEnt);
+        void deconstruct_body_func(Registry& reg, entt::entity rawEnt);
+        void construct_collider_func(Registry& reg, entt::entity rawEnt);
+        void deconstruct_collider_func(Registry& reg, entt::entity rawEnt);
 
     public:
         // Constructors

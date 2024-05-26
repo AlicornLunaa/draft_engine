@@ -76,6 +76,7 @@ set(INTERFACES
     include/draft/components/texture_component.hpp
     include/draft/components/sprite_component.hpp
     include/draft/components/transform_component.hpp
+    include/draft/components/collider_component.hpp
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
     include/draft/core/entity.hpp
