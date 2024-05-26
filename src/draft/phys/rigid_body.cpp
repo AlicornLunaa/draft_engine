@@ -69,7 +69,7 @@ namespace Draft {
     }
 
     // Functions
-    bool RigidBody::is_valid() const { return (ptr->body != nullptr && currentWorld != nullptr); }
+    bool RigidBody::is_valid() const { return (ptr && ptr->body && currentWorld); }
 
     Fixture* RigidBody::create_fixture(const FixtureDef& def){
         Fixture* fixture = nullptr;
@@ -127,12 +127,12 @@ namespace Draft {
         fixtures.erase(std::find(fixtures.begin(), fixtures.end(), fixture));
     }
 
-    void RigidBody::destroy_fixture(Fixture*& fixture){
-        destroy_fixture(reinterpret_cast<Fixture*>(fixture ));
-        fixture = nullptr;
-    }
-
     void RigidBody::destroy(){
+        for(Fixture* fixture : fixtures){
+            if(!fixture) continue;
+            delete fixture;
+        }
+
         currentWorld->destroy_body(this);
     }
 

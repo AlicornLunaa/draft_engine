@@ -53,16 +53,11 @@ namespace Draft {
         return rb;
     }
 
-    void World::destroy_body(RigidBody*& rigidBody){
-        destroy_body(reinterpret_cast<RigidBody*>(rigidBody));
-        rigidBody = nullptr;
-    }
-
     void World::destroy_body(RigidBody* rigidBody){
         ptr->world.DestroyBody((b2Body*)rigidBody->get_body_ptr());
         rigidBodies.erase(std::find(rigidBodies.begin(), rigidBodies.end(), rigidBody));
+        delete rigidBody;
     }
-
 
     template<typename T>
     Joint* World::create_joint(const T& def){

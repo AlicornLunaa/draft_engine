@@ -18,6 +18,12 @@ namespace Draft {
         Entity(const Entity& other) = default;
 
         /**
+         * @brief Removes the entity from the scene, nullifying it
+         * @return bool
+         */
+        bool destroy();
+
+        /**
          * @brief Adds a component to the entity
          * @tparam T
          * @tparam Args

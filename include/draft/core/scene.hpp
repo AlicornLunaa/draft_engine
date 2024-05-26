@@ -17,6 +17,7 @@ namespace Draft {
     public:
         Scene(Application* app);
         Scene(const Scene& other) = delete;
+        virtual ~Scene() = default;
 
         friend class PhysicsSystem;
 

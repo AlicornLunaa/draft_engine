@@ -7,14 +7,18 @@
 namespace Draft {
     struct RigidBodyComponent {
         // Variables
-        RigidBody* ptr = nullptr;
+        RigidBody* bodyPtr = nullptr;
 
         // Constructors
-        RigidBodyComponent(World* world, const BodyDef& def) : ptr(world->create_rigid_body(def)) {}
+        RigidBodyComponent(World* world, const BodyDef& def) : bodyPtr(world->create_rigid_body(def)) {}
+        ~RigidBodyComponent(){
+            if(bodyPtr && bodyPtr->is_valid())
+                bodyPtr->destroy();
+        }
 
         // Operators
-        operator RigidBody& () { return *ptr; }
-        operator RigidBody* () { return ptr; }
-        operator const RigidBody* () const { return ptr; }
+        operator RigidBody& () { return *bodyPtr; }
+        operator RigidBody* () { return bodyPtr; }
+        operator const RigidBody* () const { return bodyPtr; }
     };
 }

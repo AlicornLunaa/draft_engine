@@ -13,6 +13,10 @@ namespace Draft {
         Registry& registryRef;
         World& worldRef;
 
+        // Private functions
+        void construct_func(Registry& reg, entt::entity rawEnt);
+        void deconstruct_func(Registry& reg, entt::entity rawEnt);
+
     public:
         // Constructors
         PhysicsSystem(Scene& sceneRef, World& worldRef);

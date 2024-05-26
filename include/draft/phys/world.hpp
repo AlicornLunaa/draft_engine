@@ -38,7 +38,6 @@ namespace Draft {
 
         // Functions
         RigidBody* create_rigid_body(const BodyDef& def);
-        void destroy_body(RigidBody*& rigidBody);
         void destroy_body(RigidBody* rigidBody);
 
         template<typename T>
