@@ -39,6 +39,16 @@ namespace Draft {
         shapes.push_back(shape.clone());
     }
 
+    void Collider::set_position(const Vector2f& position){ this->position = position; }
+    void Collider::set_origin(const Vector2f& origin){ this->origin = origin; }
+    void Collider::set_scale(const Vector2f& scale){ this->scale = scale; }
+    void Collider::set_rotation(float rotation){ this->rotation = rotation; }
+
+    const Vector2f& Collider::get_position() const { return position; }
+    const Vector2f& Collider::get_origin() const { return origin; }
+    const Vector2f& Collider::get_scale() const { return scale; }
+    float Collider::get_rotation() const { return rotation; }
+
     void Collider::attach(RigidBody* rigidBodyPtr){
         assert(rigidBodyPtr && "rigidBodyPtr cannot be null");
 
@@ -60,6 +70,11 @@ namespace Draft {
             Fixture* fixturePtr = rigidBodyPtr->create_fixture(fixtureDef);
             fixtures.push_back(fixturePtr);
         }
+    }
+
+    void Collider::update_collider(){
+        assert(rigidBodyPtr && "Must have a rigid body already attached");
+        attach(rigidBodyPtr);
     }
 
     void Collider::detach(){

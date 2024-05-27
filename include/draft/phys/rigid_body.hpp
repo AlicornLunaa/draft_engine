@@ -4,7 +4,7 @@
 #include "draft/phys/fixture.hpp"
 #include "draft/phys/fixture_def.hpp"
 #include "draft/phys/joint_def.hpp"
-#include "draft/phys/shape.hpp"
+#include "draft/phys/shapes/shape.hpp"
 
 #include <memory>
 #include <vector>

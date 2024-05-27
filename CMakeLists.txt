@@ -28,7 +28,9 @@ set(SOURCES
     src/draft/phys/fixture.cpp
     src/draft/phys/joint.cpp
     src/draft/phys/rigid_body.cpp
-    src/draft/phys/shape.cpp
+    src/draft/phys/shapes/polygon_shape.cpp
+    src/draft/phys/shapes/edge_shape.cpp
+    src/draft/phys/shapes/circle_shape.cpp
     src/draft/phys/world.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/sprite_batch.cpp
@@ -105,8 +107,11 @@ set(INTERFACES
     include/draft/phys/joint_def.hpp
     include/draft/phys/joint.hpp
     include/draft/phys/rigid_body.hpp
-    include/draft/phys/shape.hpp
     include/draft/phys/world.hpp
+    include/draft/phys/shapes/shape.hpp
+    include/draft/phys/shapes/polygon_shape.hpp
+    include/draft/phys/shapes/edge_shape.hpp
+    include/draft/phys/shapes/circle_shape.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
     include/draft/rendering/model.hpp

@@ -22,7 +22,11 @@ namespace Draft {
     public:
         // Constructors
         PhysicsSystem(Scene& sceneRef, World& worldRef);
+        PhysicsSystem(const PhysicsSystem& other) = delete;
         ~PhysicsSystem();
+
+        // Operators
+        PhysicsSystem& operator=(const PhysicsSystem& other) = delete;
 
         // Functions
         void update();

@@ -62,8 +62,9 @@ namespace Draft {
     }
 
     b2CircleShape shape_to_b2(const CircleShape& shape){
+        const Vector2f& position = shape.get_position();
         b2CircleShape s;
-        s.m_p.Set(shape.position.x, shape.position.y);
+        s.m_p.Set(position.x, position.y);
         s.m_radius = shape.get_radius();
         return s;
     }

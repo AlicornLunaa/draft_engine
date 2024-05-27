@@ -14,7 +14,11 @@ namespace Draft {
     public:
         // Constructors
         RenderSystem(Registry& registryRef, RenderWindow& windowRef);
+        RenderSystem(const RenderSystem& other) = delete;
         ~RenderSystem();
+
+        // Operators
+        RenderSystem& operator=(const RenderSystem& other) = delete;
 
         // Functions
         void render(SpriteBatch& batch, const Camera* camera = nullptr);

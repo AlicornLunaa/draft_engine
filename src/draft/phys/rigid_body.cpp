@@ -5,7 +5,7 @@
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_circle_shape.h"
 #include "box2d/b2_edge_shape.h"
-#include "draft/phys/shape.hpp"
+#include "draft/phys/shapes/shape.hpp"
 #include "draft/phys/conversions_p.hpp"
 #include "draft/phys/world.hpp"
 #include "draft/phys/rigid_body.hpp"
