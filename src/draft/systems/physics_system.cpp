@@ -8,20 +8,23 @@
 namespace Draft {
     // Private functions
     void PhysicsSystem::construct_body_func(Registry& reg, entt::entity rawEnt){
+        // Get component and construct it in the world
+        RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
+        bodyComponent.bodyPtr = worldRef.create_rigid_body(bodyComponent.bodyDef);
+
         // Add colliders to new body in the simulation, first check if it has any collider components
         if(!reg.all_of<RigidBodyComponent, ColliderComponent>(rawEnt))
             // No collider or rigidbody, dont attach
             return;
 
         // Add the collider component to the rigidbody
-        RigidBody* rigidBodyPtr = reg.get<RigidBodyComponent>(rawEnt);
         Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
-        colliderRef.attach(rigidBodyPtr);
+        colliderRef.attach(bodyComponent.bodyPtr);
     }
 
     void PhysicsSystem::deconstruct_body_func(Registry& reg, entt::entity rawEnt){
         // Destroy old body in the simulation
-        RigidBody& rigidBody = reg.get<RigidBodyComponent>(rawEnt);
+        RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
 
         // Reset colliders if they were on the shape
         if(reg.all_of<ColliderComponent>(rawEnt)){
@@ -31,12 +34,13 @@ namespace Draft {
         }
 
         // Remove it
-        rigidBody.destroy();
+        bodyComponent.bodyPtr->destroy();
+        bodyComponent.bodyPtr = nullptr;
     }
 
     void PhysicsSystem::construct_collider_func(Registry& reg, entt::entity rawEnt){
         // Add colliders to new body in the simulation, first check if it has any body components
-        if(!reg.all_of<RigidBodyComponent, ColliderComponent>(rawEnt))
+        if(!reg.all_of<RigidBodyComponent>(rawEnt))
             // No collider or rigidbody, dont attach
             return;
 
@@ -44,6 +48,7 @@ namespace Draft {
         RigidBody* rigidBodyPtr = reg.get<RigidBodyComponent>(rawEnt);
         Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
         colliderRef.attach(rigidBodyPtr);
+        //! PROBLEM HERE, WHEN COLLIDER IS CONSTRUCTED THERES NOTHING ATTACHED
     }
 
     void PhysicsSystem::deconstruct_collider_func(Registry& reg, entt::entity rawEnt){

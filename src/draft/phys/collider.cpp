@@ -37,6 +37,9 @@ namespace Draft {
     void Collider::add_shape(const Shape& shape){
         // Copy and add shape to this collider
         shapes.push_back(shape.clone());
+
+        if(is_attached())
+            update_collider();
     }
 
     void Collider::set_position(const Vector2f& position){ this->position = position; }
