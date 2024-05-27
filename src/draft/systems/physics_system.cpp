@@ -33,6 +33,19 @@ namespace Draft {
             colliderRef.detach();
         }
 
+        // Save state to the component definition
+        bodyComponent.bodyDef.position = bodyComponent.bodyPtr->get_position();
+        bodyComponent.bodyDef.angle = bodyComponent.bodyPtr->get_angle();
+        bodyComponent.bodyDef.linearVelocity = bodyComponent.bodyPtr->get_linear_velocity();
+        bodyComponent.bodyDef.angularVelocity = bodyComponent.bodyPtr->get_angular_velocity();
+        bodyComponent.bodyDef.linearDamping = bodyComponent.bodyPtr->get_linear_damping();
+        bodyComponent.bodyDef.angularDamping = bodyComponent.bodyPtr->get_angular_damping();
+        bodyComponent.bodyDef.awake = bodyComponent.bodyPtr->is_awake();
+        bodyComponent.bodyDef.fixedRotation = bodyComponent.bodyPtr->is_fixed_rotation();
+        bodyComponent.bodyDef.bullet = bodyComponent.bodyPtr->is_bullet();
+        bodyComponent.bodyDef.enabled = bodyComponent.bodyPtr->is_enabled();
+        bodyComponent.bodyDef.gravityScale = bodyComponent.bodyPtr->get_gravity_scale();
+
         // Remove it
         bodyComponent.bodyPtr->destroy();
         bodyComponent.bodyPtr = nullptr;
@@ -48,7 +61,6 @@ namespace Draft {
         RigidBody* rigidBodyPtr = reg.get<RigidBodyComponent>(rawEnt);
         Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
         colliderRef.attach(rigidBodyPtr);
-        //! PROBLEM HERE, WHEN COLLIDER IS CONSTRUCTED THERES NOTHING ATTACHED
     }
 
     void PhysicsSystem::deconstruct_collider_func(Registry& reg, entt::entity rawEnt){

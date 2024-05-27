@@ -7,7 +7,7 @@ namespace Draft {
     class CircleShape : public Shape {
     private:
         // Variables
-        Vector2f position;
+        Vector2f position{0, 0};
         float radius = 1.f;
 
     public:
