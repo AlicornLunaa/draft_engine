@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "draft/math/glm.hpp"
@@ -25,6 +26,7 @@ namespace Draft {
         virtual ~Shape(){};
 
         // Functions
+        virtual std::unique_ptr<Shape> clone() const = 0;
         virtual bool contains(const Vector2f& point) const = 0;
     };
 
@@ -38,6 +40,7 @@ namespace Draft {
         PolygonShape() : Shape(ShapeType::POLYGON) {}
 
         // Functions
+        std::unique_ptr<Shape> clone() const;
         bool contains(const Vector2f& point) const;
 
         void set_as_box(float halfWidth, float halfHeight);
@@ -59,6 +62,7 @@ namespace Draft {
         CircleShape() : Shape(ShapeType::CIRCLE) {}
 
         // Functions
+        std::unique_ptr<Shape> clone() const;
         bool contains(const Vector2f& point) const;
 
         inline float get_radius() const { return radius; }
@@ -76,6 +80,7 @@ namespace Draft {
         EdgeShape() : Shape(ShapeType::EDGE) {}
 
         // Functions
+        std::unique_ptr<Shape> clone() const;
         bool contains(const Vector2f& point) const;
 
         inline void set_start(Vector2f v){ start = v; }
