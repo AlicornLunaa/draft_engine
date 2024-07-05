@@ -96,6 +96,7 @@ set(INTERFACES
     include/draft/interface/progress_bar.hpp
     include/draft/interface/widgets/console.hpp
     include/draft/interface/widgets/stats.hpp
+    include/draft/math/funcs.hpp
     include/draft/math/bounds.hpp
     include/draft/math/rect.hpp
     include/draft/math/glm.hpp
