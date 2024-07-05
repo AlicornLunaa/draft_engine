@@ -38,6 +38,7 @@ namespace Draft {
         Texture& operator=(const Texture& other) = delete;
         
         // Functions
+        inline unsigned int get_texture_id() const { return texId; }
         inline bool is_loaded() const { return loaded; }
         inline bool is_transparent() const { return transparent; }
         inline const Vector2i& get_size() const { return size; }
