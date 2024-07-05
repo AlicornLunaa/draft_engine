@@ -249,8 +249,8 @@ namespace Draft {
             for(size_t y = dimensions.y; y < dimensions.height; y++){
                 // Set each pixel frm the src to the destination
                 for(int i = 0; i < stride; i++){
-                    size_t srcIndex = x + y * src.size.x + i;
-                    size_t targetIndex = (position.x + x) + (position.y + y) * size.x + i;
+                    size_t srcIndex = (x + y * src.size.x) * stride + i;
+                    size_t targetIndex = ((position.x + x) + (position.y + y) * size.x) * stride + i;
 
                     if(applyAlpha && src.colorSpace == ColorSpace::RGBA && i != 3){
                         float scalar = byte_to_float(src.data[x + y * src.size.x + 3]);
@@ -265,9 +265,9 @@ namespace Draft {
 
     void Image::flip_horizontally(){
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
-            size_t index1 = x1 + y1 * size.x;
-            size_t index2 = x2 + y2 * size.x;
             int stride = static_cast<int>(colorSpace);
+            size_t index1 = (x1 + y1 * size.x) * stride;
+            size_t index2 = (x2 + y2 * size.x) * stride;
 
             for(size_t i = 0; i < stride; i++){
                 std::byte temp = data[index1 + i];
@@ -286,8 +286,8 @@ namespace Draft {
     void Image::flip_vertically(){
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
             int stride = static_cast<int>(colorSpace);
-            size_t index1 = x1 + y1 * size.x;
-            size_t index2 = x2 + y2 * size.x;
+            size_t index1 = (x1 + y1 * size.x) * stride;
+            size_t index2 = (x2 + y2 * size.x) * stride;
 
             for(size_t i = 0; i < stride; i++){
                 std::byte temp = data[index1 + i];
@@ -304,7 +304,8 @@ namespace Draft {
     }
 
     void Image::set_pixel(Vector2u position, Vector4f color){
-        size_t startIndex = position.x + position.y * size.x;
+        int stride = static_cast<int>(colorSpace);
+        size_t startIndex = (position.x + position.y * size.x) * stride;
         assert(startIndex < pixelCount && "Out of bounds");
 
         if(colorSpace == ColorSpace::GREYSCALE){
@@ -322,7 +323,8 @@ namespace Draft {
     }
 
     Vector4f Image::get_pixel(Vector2u position) const {
-        size_t startIndex = position.x + position.y * size.x;
+        int stride = static_cast<int>(colorSpace);
+        size_t startIndex = (position.x + position.y * size.x) * stride;
         assert(startIndex < pixelCount && "Out of bounds");
 
         if(colorSpace == ColorSpace::GREYSCALE){
