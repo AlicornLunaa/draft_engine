@@ -43,7 +43,10 @@ namespace Draft {
         auto rotate_vertex = [props](Vector3f& v){
             v *= Vector3f{props.size, 1.f};
             v -= Vector3f{props.origin, 0.f};
-            v = Vector3f(Math::rotate(Matrix3(1.f), props.rotation) * v);
+
+            if(props.rotation != 0)
+                v = Vector3f(Math::rotate(Matrix3(1.f), props.rotation) * v);
+
             v += Vector3f{props.position, 0.f};
         };
         rotate_vertex(vertices[index].position);
@@ -64,7 +67,7 @@ namespace Draft {
         // Loops through the texture register and renders the quads
         while(!textureRegister.empty()){
             // Get data
-            auto [texture, quadCount] = textureRegister.front();
+            auto& [texture, quadCount] = textureRegister.front();
             size_t maxQuads = std::min(quadCount, maxSprites);
 
             // Buffer data
@@ -156,6 +159,13 @@ namespace Draft {
 
         // Render each texture
         flush_batch_internal();
+
+        // Exit early
+        if(transparentQuads.empty()){
+            vertices.clear();
+            indices.clear();
+            return;
+        }
 
         // After the opaque textures were rendered, start on the transparent ones
         glDepthMask(GL_FALSE);
