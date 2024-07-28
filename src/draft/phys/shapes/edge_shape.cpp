@@ -25,6 +25,11 @@ namespace Draft {
         return s.TestPoint(b2Transform(), vector_to_b2(point));
     }
 
+    void EdgeShape::set(const Vector2f& s, const Vector2f& e){
+        set_start(s);
+        set_end(e);
+    }
+
     void EdgeShape::set_start(Vector2f v){
         start = v;
     }
