@@ -103,6 +103,82 @@ namespace Draft {
         }
     }
 
+    void ShapeBatch::draw_triangle(const Vector2f& position, const Vector2f& size, float rotation){
+        // Generate and add vertices
+        auto& tup = get_current_render_type_instance();
+        size_t indexStart = vertices.size();
+
+        get<1>(tup) += 3;
+
+        vertices.push_back({ Vector2f{ 0.f, 0.f }, currentColor });
+        vertices.push_back({ Vector2f{ size.x, 0.f }, currentColor });
+        vertices.push_back({ Vector2f{ 0.f, size.y }, currentColor });
+
+        vertices[vertices.size() - 1].position = Math::rotate(vertices[vertices.size() - 1].position, rotation);
+        vertices[vertices.size() - 2].position = Math::rotate(vertices[vertices.size() - 2].position, rotation);
+        vertices[vertices.size() - 3].position = Math::rotate(vertices[vertices.size() - 3].position, rotation);
+
+        vertices[vertices.size() - 1].position += position;
+        vertices[vertices.size() - 2].position += position;
+        vertices[vertices.size() - 3].position += position;
+
+        // Connect all indices, depending on filled or lines
+        if(currentRenderType == RenderType::FILL){
+            // Two triangles to fill
+            indices.push_back(1 + indexStart);
+            indices.push_back(0 + indexStart);
+            indices.push_back(2 + indexStart);
+            get<2>(tup) += 3;
+        } else {
+            // Lines
+            for(size_t i = 0; i < 3; i++){
+                indices.push_back(i + indexStart);
+                indices.push_back((i + 1) % 3 + indexStart);
+            }
+            
+            // Increase length for render type
+            get<2>(tup) += 6;
+        }
+    }
+
+    void ShapeBatch::draw_equi_triangle(const Vector2f& position, const Vector2f& size, float rotation){
+        // Generate and add vertices
+        auto& tup = get_current_render_type_instance();
+        size_t indexStart = vertices.size();
+
+        get<1>(tup) += 3;
+
+        vertices.push_back({ Vector2f{ 0.f, 0.f }, currentColor });
+        vertices.push_back({ Vector2f{ size.x, 0.f }, currentColor });
+        vertices.push_back({ Vector2f{ size.x / 2.f, size.y }, currentColor });
+
+        vertices[vertices.size() - 1].position = Math::rotate(vertices[vertices.size() - 1].position, rotation);
+        vertices[vertices.size() - 2].position = Math::rotate(vertices[vertices.size() - 2].position, rotation);
+        vertices[vertices.size() - 3].position = Math::rotate(vertices[vertices.size() - 3].position, rotation);
+
+        vertices[vertices.size() - 1].position += position;
+        vertices[vertices.size() - 2].position += position;
+        vertices[vertices.size() - 3].position += position;
+
+        // Connect all indices, depending on filled or lines
+        if(currentRenderType == RenderType::FILL){
+            // Two triangles to fill
+            indices.push_back(1 + indexStart);
+            indices.push_back(0 + indexStart);
+            indices.push_back(2 + indexStart);
+            get<2>(tup) += 3;
+        } else {
+            // Lines
+            for(size_t i = 0; i < 3; i++){
+                indices.push_back(i + indexStart);
+                indices.push_back((i + 1) % 3 + indexStart);
+            }
+            
+            // Increase length for render type
+            get<2>(tup) += 6;
+        }
+    }
+
     void ShapeBatch::draw_circle(const Vector2f& position, float radius, float rotation, size_t segments){
         // Generate and add vertices
         auto& tup = get_current_render_type_instance();
