@@ -53,7 +53,7 @@ namespace Draft {
         void draw_polygon(const std::vector<Vector2f>& polygonVertices);
         void draw_rect(const Vector2f& position, const Vector2f& size, float rotation);
         void draw_triangle(const Vector2f& position, const Vector2f& size, float rotation);
-        void draw_equi_triangle(const Vector2f& position, const Vector2f& size, float rotation);
+        void draw_triangle(const std::array<Vector2f, 3>& positions);
         void draw_circle(const Vector2f& position, float radius, float rotation, size_t segments = 10);
         void draw_line(const Vector2f& start, const Vector2f& end);
         void draw_rect_line(const Vector2f& start, const Vector2f& end, float width = 1.f);

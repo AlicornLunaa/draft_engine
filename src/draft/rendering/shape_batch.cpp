@@ -141,30 +141,22 @@ namespace Draft {
         }
     }
 
-    void ShapeBatch::draw_equi_triangle(const Vector2f& position, const Vector2f& size, float rotation){
+    void ShapeBatch::draw_triangle(const std::array<Vector2f, 3>& positions){
         // Generate and add vertices
         auto& tup = get_current_render_type_instance();
         size_t indexStart = vertices.size();
 
         get<1>(tup) += 3;
 
-        vertices.push_back({ Vector2f{ 0.f, 0.f }, currentColor });
-        vertices.push_back({ Vector2f{ size.x, 0.f }, currentColor });
-        vertices.push_back({ Vector2f{ size.x / 2.f, size.y }, currentColor });
-
-        vertices[vertices.size() - 1].position = Math::rotate(vertices[vertices.size() - 1].position, rotation);
-        vertices[vertices.size() - 2].position = Math::rotate(vertices[vertices.size() - 2].position, rotation);
-        vertices[vertices.size() - 3].position = Math::rotate(vertices[vertices.size() - 3].position, rotation);
-
-        vertices[vertices.size() - 1].position += position;
-        vertices[vertices.size() - 2].position += position;
-        vertices[vertices.size() - 3].position += position;
+        vertices.push_back({ positions[0], currentColor });
+        vertices.push_back({ positions[1], currentColor });
+        vertices.push_back({ positions[2], currentColor });
 
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
-            indices.push_back(1 + indexStart);
             indices.push_back(0 + indexStart);
+            indices.push_back(1 + indexStart);
             indices.push_back(2 + indexStart);
             get<2>(tup) += 3;
         } else {
