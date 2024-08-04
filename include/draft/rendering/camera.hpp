@@ -41,6 +41,11 @@ namespace Draft {
         void point(const Vector3f& dir);
 
         /**
+         * @brief Set the rotation of the camera
+         */
+        void set_rotation(float rotation);
+
+        /**
          * @brief Set the camera's own position
          * @param vec 
          */

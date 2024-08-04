@@ -10,8 +10,7 @@ namespace Draft {
     // Private functions
     void Camera::update_vectors(const Vector3f& newForward){
         forward = newForward;
-        right = Math::normalize(Math::cross({0, 1, 0}, forward));
-        up = Math::cross(forward, right);
+        right = Math::normalize(Math::cross(up, forward));
     }
 
     // Constructor
@@ -30,6 +29,13 @@ namespace Draft {
     void Camera::point(const Vector3f& dir){
         // Sets the view matrix to a direction
         target(position + dir);
+    }
+
+    void Camera::set_rotation(float rotation){
+        // Set the rotation
+        up = { -Math::sin(rotation), Math::cos(rotation), 0.0f };
+        update_vectors(forward);
+        viewMatrix = Math::lookAt(position, position + forward, up);
     }
 
     void Camera::apply(const RenderWindow& window, const std::shared_ptr<Shader>& shader) const {
