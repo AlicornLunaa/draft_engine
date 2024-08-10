@@ -14,6 +14,7 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/util/asset_loaders.hpp"
 #include "draft/util/logger.hpp"
+#include "nlohmann/json_fwd.hpp"
 
 namespace Draft {
     // Private functions
@@ -75,6 +76,7 @@ namespace Draft {
         set_loader<Shader>(new GenericSyncLoader<Shader>());
         set_loader<Texture>(new GenericSyncLoader<Texture>());
         set_loader<ParticleProps>(new ParticleLoader());
+        set_loader<nlohmann::json>(new JSONLoader());
     }
 
     Assets::~Assets(){

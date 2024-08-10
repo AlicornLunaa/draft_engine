@@ -8,6 +8,7 @@
 using json = nlohmann::json;
 
 namespace Draft {
+    // Particle loader
     std::shared_ptr<void> ParticleLoader::load_sync() const {
         // Default to basic call of default filehandle constructor
         try {
@@ -74,6 +75,35 @@ namespace Draft {
     Assets::BaseLoader* ParticleLoader::clone(const FileHandle& handle) const {
         auto* ptr = new ParticleLoader();
         ptr->handle = handle;
+        return ptr;
+    }
+
+    // JSON Loader
+    std::shared_ptr<void> JSONLoader::load_sync() const {
+        // Default to basic call of default filehandle constructor
+        try {
+            auto ptr = std::shared_ptr<nlohmann::json>(data, [](void* ptr){ delete static_cast<nlohmann::json*>(ptr); });
+            *data = json::parse(handle.read_string());
+            return ptr;
+        } catch(int e){
+            Logger::print(Level::SEVERE, typeid(JSONLoader).name(), std::to_string(e));
+        }
+
+        return nullptr;
+    }
+
+    void JSONLoader::load_async(){
+        data = new nlohmann::json();
+        *data = json::parse(handle.read_string());
+    }
+
+    std::shared_ptr<void> JSONLoader::finish_async_gl(){
+        auto ptr = std::shared_ptr<nlohmann::json>(data, [](void* ptr){ delete static_cast<nlohmann::json*>(ptr); });
+        return ptr;
+    }
+
+    Assets::BaseLoader* JSONLoader::clone(const FileHandle& handle) const {
+        auto* ptr = new JSONLoader();
         return ptr;
     }
 };
