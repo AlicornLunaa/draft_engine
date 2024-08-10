@@ -14,7 +14,7 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/util/asset_loaders.hpp"
 #include "draft/util/logger.hpp"
-#include "nlohmann/json_fwd.hpp"
+#include "nlohmann/json.hpp" // IWYU pragma: keep
 
 namespace Draft {
     // Private functions
