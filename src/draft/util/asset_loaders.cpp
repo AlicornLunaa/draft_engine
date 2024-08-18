@@ -82,8 +82,8 @@ namespace Draft {
     std::shared_ptr<void> JSONLoader::load_sync() const {
         // Default to basic call of default filehandle constructor
         try {
-            auto ptr = std::shared_ptr<nlohmann::json>(data, [](void* ptr){ delete static_cast<nlohmann::json*>(ptr); });
-            *data = json::parse(handle.read_string());
+            auto ptr = std::shared_ptr<nlohmann::json>(new nlohmann::json(), [](void* ptr){ delete static_cast<nlohmann::json*>(ptr); });
+            *ptr = json::parse(handle.read_string());
             return ptr;
         } catch(int e){
             Logger::print(Level::SEVERE, typeid(JSONLoader).name(), std::to_string(e));
@@ -104,6 +104,7 @@ namespace Draft {
 
     Assets::BaseLoader* JSONLoader::clone(const FileHandle& handle) const {
         auto* ptr = new JSONLoader();
+        ptr->handle = handle;
         return ptr;
     }
 };

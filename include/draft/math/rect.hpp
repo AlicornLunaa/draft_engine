@@ -6,10 +6,10 @@ namespace Draft {
     template<typename T>
     struct Rect {
         // Variables
-        T x;
-        T y;
-        T width;
-        T height;
+        T x{};
+        T y{};
+        T width{};
+        T height{};
 
         // Operator
         operator Bounds() const {
