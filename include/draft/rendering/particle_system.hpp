@@ -4,7 +4,7 @@
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/sprite_batch.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/asset_manager.hpp"
 #include "draft/util/time.hpp"

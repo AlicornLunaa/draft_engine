@@ -77,3 +77,6 @@ call to a singular call. This should be generalized enough to work for both
 - Panels can hold a pointer to their parent, if the parent is invalidated, so is the child.
     Parent->child invalidations are checked in the ui container
     
+### Editor
+- Scenes are collection of entities
+    * Decoder class for abstract data to classes

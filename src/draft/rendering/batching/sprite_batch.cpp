@@ -1,6 +1,6 @@
 #include "draft/math/glm.hpp"
-#include "draft/rendering/sprite_batch.hpp"
-#include "draft/rendering/camera.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
+#include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
@@ -101,7 +101,7 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader, const size_t maxSprites) : maxSprites(maxSprites), shader(shader) {
+    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader, const size_t maxSprites) : Batch(maxSprites, shader) {
         // Buffer the data on the GPU
         dynamicVertexBufLoc = vertexBuffer.start_buffer<QuadVertex>(maxSprites * 4);
         vertexBuffer.set_attribute(0, GL_FLOAT, 3, sizeof(QuadVertex), 0);
@@ -147,15 +147,14 @@ namespace Draft {
         });
     }
 
-    void SpriteBatch::flush(const RenderWindow& window, const Camera* camera){
+    void SpriteBatch::flush(const RenderWindow& window){
         // Draws all the shapes to opengl
         if(textureRegister.empty() && transparentQuads.empty())
             return;
 
-        shader->bind();
-
-        if(camera)
-            camera->apply(window, shader);
+        shaderPtr->bind();
+        shaderPtr->set_uniform("view", get_trans_matrix());
+        shaderPtr->set_uniform("projection", get_proj_matrix());
 
         // Render each texture
         flush_batch_internal();

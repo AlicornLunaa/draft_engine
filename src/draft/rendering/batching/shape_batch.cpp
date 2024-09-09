@@ -1,5 +1,6 @@
 #include "draft/math/glm.hpp"
-#include "draft/rendering/shape_batch.hpp"
+#include "draft/rendering/batching/shape_batch.hpp"
+#include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/logger.hpp"
@@ -26,7 +27,7 @@ namespace Draft {
     }
 
     // Constructor
-    ShapeBatch::ShapeBatch(std::shared_ptr<Shader> shader, const size_t maxShapes) : maxShapes(maxShapes), shader(shader) {
+    ShapeBatch::ShapeBatch(std::shared_ptr<Shader> shader, const size_t maxShapes) : Batch(maxShapes, shader) {
         // Setup data buffers
         dynamicVertexBufLoc = vertexBuffer.start_buffer<ShapeVertex>(maxShapes);
         vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(ShapeVertex), 0);
@@ -302,7 +303,7 @@ namespace Draft {
         get<2>(tup) += 6;
     }
 
-    void ShapeBatch::flush(const RenderWindow& window, const Camera* camera){
+    void ShapeBatch::flush(const RenderWindow& window){
         // Draws all the shapes to opengl
         bool flushAgain = false; // Turns true if the shape type changed
 
@@ -316,16 +317,16 @@ namespace Draft {
 
         // Check if this has zero data
         if(vertexCount == 0 || indexCount == 0){
-            flush(window, camera);
+            flush(window);
             return;
         }
 
         // Check if this run needs to be chopped up
-        if(vertexCount > maxShapes || indexCount > maxShapes * 2){
+        if(vertexCount > maxSprites || indexCount > maxSprites * 2){
             // Buffer has to be run in two parts
-            renderTypes.emplace(type, vertexCount - maxShapes, indexCount - maxShapes * 2);
-            vertexCount = maxShapes;
-            indexCount = maxShapes * 2;
+            renderTypes.emplace(type, vertexCount - maxSprites, indexCount - maxSprites * 2);
+            vertexCount = maxSprites;
+            indexCount = maxSprites * 2;
             flushAgain = true;
         }
 
@@ -334,11 +335,10 @@ namespace Draft {
         vertexBuffer.set_dynamic_data(dynamicIndexBufLoc, indices);
 
         // Render VBO
-        shader->bind();
+        shaderPtr->bind();
+        shaderPtr->set_uniform("view", get_trans_matrix());
+        shaderPtr->set_uniform("projection", get_proj_matrix());
         
-        if(camera)
-            camera->apply(window, shader);
-
         vertexBuffer.bind();
         glDrawElements((type == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
         vertexBuffer.unbind();
@@ -361,6 +361,6 @@ namespace Draft {
 
         // Do it again for the rest of the quads
         if(flushAgain)
-            flush(window, camera);
+            flush(window);
     }
 };

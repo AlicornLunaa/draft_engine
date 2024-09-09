@@ -1,5 +1,5 @@
 #include "draft/rendering/camera.hpp"
-#include "draft/rendering/sprite_batch.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/systems/render_system.hpp"
@@ -11,7 +11,6 @@ namespace Draft {
     }
 
     RenderSystem::~RenderSystem(){
-
     }
 
     // Functions
@@ -32,6 +31,7 @@ namespace Draft {
             });
         }
 
-        batch.flush(windowRef, camera);
+        batch.set_proj_matrix(camera->get_combined());
+        batch.flush(windowRef);
     }
 };

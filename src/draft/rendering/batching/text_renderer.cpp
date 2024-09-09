@@ -1,4 +1,4 @@
-#include "draft/rendering/text_renderer.hpp"
+#include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/math/glm.hpp"
 #include <algorithm>
 #include <memory>
@@ -70,6 +70,7 @@ namespace Draft {
 
     void TextRenderer::flush(const RenderWindow& window, const Camera* camera){
         // Generate every quad for each character
-        batch.flush(window, camera);
+        batch.set_proj_matrix(camera->get_combined());
+        batch.flush(window);
     }
 };

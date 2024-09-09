@@ -1,7 +1,8 @@
 #pragma once
 
 #include "box2d/b2_draw.h"
-#include "draft/rendering/shape_batch.hpp"
+#include "draft/rendering/batching/shape_batch.hpp"
+#include "draft/rendering/camera.hpp"
 
 namespace Draft {
     class PhysicsDebugRender : public b2Draw {

@@ -33,8 +33,6 @@ set(SOURCES
     src/draft/phys/shapes/circle_shape.cpp
     src/draft/phys/world.cpp
     src/draft/rendering/render_window.cpp
-    src/draft/rendering/sprite_batch.cpp
-    src/draft/rendering/shape_batch.cpp
     src/draft/rendering/shader.cpp
     src/draft/rendering/model.cpp
     src/draft/rendering/camera.cpp
@@ -44,11 +42,14 @@ set(SOURCES
     src/draft/rendering/material.cpp
     src/draft/rendering/font.cpp
     src/draft/rendering/phys_renderer_p.cpp
-    src/draft/rendering/text_renderer.cpp
     src/draft/rendering/image.cpp
     src/draft/rendering/conversions.cpp
     src/draft/rendering/particle_system.cpp
     src/draft/rendering/animation.cpp
+    src/draft/rendering/batching/batch.cpp
+    src/draft/rendering/batching/shape_batch.cpp
+    src/draft/rendering/batching/sprite_batch.cpp
+    src/draft/rendering/batching/text_renderer.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -117,16 +118,17 @@ set(INTERFACES
     include/draft/rendering/mesh.hpp
     include/draft/rendering/model.hpp
     include/draft/rendering/render_window.hpp
-    include/draft/rendering/sprite_batch.hpp
-    include/draft/rendering/shape_batch.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/material.hpp
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/texture.hpp
     include/draft/rendering/font.hpp
-    include/draft/rendering/text_renderer.hpp
     include/draft/rendering/image.hpp
     include/draft/rendering/animation.hpp
+    include/draft/rendering/batching/batch.hpp
+    include/draft/rendering/batching/shape_batch.hpp
+    include/draft/rendering/batching/sprite_batch.hpp
+    include/draft/rendering/batching/text_renderer.hpp
     include/draft/systems/physics_system.hpp
     include/draft/systems/render_system.hpp
     include/draft/util/file_handle.hpp

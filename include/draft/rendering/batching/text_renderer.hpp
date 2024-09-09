@@ -4,7 +4,7 @@
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/sprite_batch.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/util/asset_manager.hpp"
 
 #include <memory>

@@ -2,8 +2,7 @@
 
 #include "draft/math/rect.hpp"
 #include "draft/math/glm.hpp"
-#include "draft/rendering/camera.hpp"
-#include "draft/rendering/image.hpp"
+#include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
@@ -30,15 +29,13 @@ namespace Draft {
         Vector4f color{1};
 
         bool renderAsTransparent = false;
+        
+        bool operator()(SpriteProps const& a, SpriteProps const& b){ return a.zIndex > b.zIndex; }
     };
 
-    class SpriteBatch {
+    class SpriteBatch : public Batch {
     private:
         // Data structures
-        struct ZIndexComparator {
-            bool operator()(SpriteProps const& a, SpriteProps const& b){ return a.zIndex > b.zIndex; }
-        };
-
         struct QuadVertex {
             Vector3f position;
             Vector2f texCoords;
@@ -46,12 +43,9 @@ namespace Draft {
         };
 
         // Batch variables
-        const std::shared_ptr<Texture> whiteTexture{new Texture(Image())};
-        const size_t maxSprites;
         VertexBuffer vertexBuffer;
         size_t dynamicVertexBufLoc;
         size_t dynamicIndexBufLoc;
-        std::shared_ptr<Shader> shader;
         
         // Opaque queue variables
         std::vector<QuadVertex> vertices;
@@ -59,7 +53,7 @@ namespace Draft {
         std::queue<std::pair<std::shared_ptr<Texture>, size_t>> textureRegister;
 
         // Transparent queue variables
-        std::priority_queue<SpriteProps, std::vector<SpriteProps>, ZIndexComparator> transparentQuads;
+        std::priority_queue<SpriteProps, std::vector<SpriteProps>, SpriteProps> transparentQuads;
 
         // Private functions
         void assemble_quad(std::vector<QuadVertex>& vertices, std::vector<int>& indices, std::queue<std::pair<std::shared_ptr<Texture>, size_t>>& textureRegister, const SpriteProps& props);
@@ -70,10 +64,8 @@ namespace Draft {
         SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true), const size_t maxSprites = 10000);
 
         // Functions
-        inline const std::shared_ptr<Shader> get_shader() const { return shader; }
-
         void draw(SpriteProps props); // Add quad to scene
         void draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
-        void flush(const RenderWindow& window, const Camera* camera = nullptr); // Send quads to shader
+        virtual void flush(const RenderWindow& window); // Send quads to shader
     };
 };

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/rendering/camera.hpp"
+#include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
@@ -13,7 +13,7 @@
 #include <vector>
 
 namespace Draft {
-    class ShapeBatch {
+    class ShapeBatch : public Batch {
     public:
         enum class RenderType { FILL, LINE };
 
@@ -27,16 +27,14 @@ namespace Draft {
         static std::array<Vector2f, 4> quadVertices;
 
         // Variables
-        const size_t maxShapes;
         std::queue<std::tuple<RenderType, size_t, size_t>> renderTypes; // Contains render type and the length of its vertices and indices
         std::vector<ShapeVertex> vertices;
         std::vector<int> indices;
 
-        std::shared_ptr<Shader> shader;
         VertexBuffer vertexBuffer;
         size_t dynamicVertexBufLoc;
         size_t dynamicIndexBufLoc;
-
+        
         Vector4f currentColor{ 1, 1, 1, 1 };
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
         
@@ -58,6 +56,7 @@ namespace Draft {
         void draw_line(const Vector2f& start, const Vector2f& end);
         void draw_rect_line(const Vector2f& start, const Vector2f& end, float width = 1.f);
         void draw_arrow(const Vector2f& head, const Vector2f& tail);
-        void flush(const RenderWindow& window, const Camera* camera = nullptr); // Send shapes to shader
+
+        virtual void flush(const RenderWindow& window); // Send shapes to shader
     };
 };

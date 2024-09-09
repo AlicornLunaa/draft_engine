@@ -1,7 +1,7 @@
 #include "draft/rendering/phys_renderer_p.hpp"
 #include "box2d/b2_draw.h"
 #include "box2d/b2_math.h"
-#include "draft/rendering/shape_batch.hpp"
+#include "draft/rendering/batching/shape_batch.hpp"
 
 namespace Draft {
     PhysicsDebugRender::PhysicsDebugRender(std::shared_ptr<Shader> shader) : batch(shader) {
@@ -9,7 +9,8 @@ namespace Draft {
     }
 
     void PhysicsDebugRender::render(const RenderWindow& window, const Camera* camera){
-        batch.flush(window, camera);
+        batch.set_proj_matrix(camera->get_combined());
+        batch.flush(window);
     }
 
     /// Draw a closed polygon provided in CCW order.
