@@ -4,6 +4,7 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
+#include "glm/ext/matrix_transform.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -63,7 +64,7 @@ namespace Draft {
     //     indices.push_back(2 + index);
     // }
 
-    void SpriteBatch::flush_batch_internal(){
+    // void SpriteBatch::flush_batch_internal(){
         // Loops through the texture register and renders the quads
         // while(!textureRegister.empty()){
         //     // Get data
@@ -98,26 +99,28 @@ namespace Draft {
         //         textureRegister.pop();
         //     }
         // }
-    }
+    // }
 
     // Constructor
     SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader, const size_t maxSprites) : Batch(maxSprites, shader) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, QUAD_VERTICES);
-        vertexBuffer.buffer(4, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
+        vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
 
-        // https://stackoverflow.com/questions/70090484/opengl-batch-renderer-should-transformations-take-place-on-the-cpu-or-gpu
-        // https://www.geeks3d.com/20140704/tutorial-introduction-to-opengl-4-3-shader-storage-buffers-objects-ssbo-demo/
         dynamicDataLoc = vertexBuffer.start_buffer<InstanceData>(maxSprites);
-        vertexBuffer.set_attribute(1, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords));
-        vertexBuffer.set_attribute(2, GL_FLOAT, 4, sizeof(InstanceData), offsetof(InstanceData, color));
-        vertexBuffer.set_attribute(3, GL_INT, 1, sizeof(InstanceData), offsetof(InstanceData, modelIndex));
+        vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(InstanceData), offsetof(InstanceData, color));
+        vertexBuffer.set_attribute(2, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords));
+        vertexBuffer.set_attribute(3, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 1);
+        vertexBuffer.set_attribute(4, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 2);
+        vertexBuffer.set_attribute(5, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 3);
         glVertexAttribDivisor(1, 1);
         glVertexAttribDivisor(2, 1);
         glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
         vertexBuffer.end_buffer();
 
-        instances.reserve(maxSprites);
+        quadQueue.reserve(maxSprites);
     }
 
     // Functions
@@ -134,19 +137,7 @@ namespace Draft {
             transparentQuads.push(props);
         } else {
             // Clean sprite, fully opaque. Store its render information immediately
-            auto& textureSize = props.texture->get_size();
-            float x = props.region.x / textureSize.x;
-            float y = props.region.y / textureSize.y;
-            float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
-            float h = ((props.region.height <= 0) ? textureSize.y : props.region.height) / textureSize.y;
-
-            instances.push_back({
-                {x + w, y + h},
-                props.color,
-                (int)instances.size()
-            });
-            
-            matrixArray.matrix[instances.size() - 1] = Matrix4(1.f);
+            quadQueue.push_back(props);
         }
     }
 
@@ -163,15 +154,54 @@ namespace Draft {
         });
     }
 
+    void SpriteBatch::begin(const RenderWindow& window){
+        // Save the current window so flushing can happen
+    }
+
     void SpriteBatch::flush(const RenderWindow& window){
         // Draws all the shapes to opengl
-        if(instances.empty() && transparentQuads.empty())
+        if(quadQueue.empty() && transparentQuads.empty())
             return;
 
+        // Count the triangles, max of 2 * maxSprites
+        size_t quadsRendered = std::min(quadQueue.size(), maxSprites);
+        std::vector<InstanceData> instances;
+        instances.reserve(quadsRendered);
+
+        // Prep all the model matrices
+        for(size_t i = 0; i < quadsRendered; i++){
+            auto& props = quadQueue[i];
+
+            auto& textureSize = props.texture->get_size();
+            float x = props.region.x / textureSize.x;
+            float y = props.region.y / textureSize.y;
+            float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
+            float h = ((props.region.height <= 0) ? textureSize.y : props.region.height) / textureSize.y;
+
+            instances.push_back({
+                props.color,
+                {
+                    {x, y},
+                    {x + w, y},
+                    {x + w, y + h},
+                    {x, y + h}
+                },
+            });
+
+            Matrix4 model(1.f);
+            model *= Math::translate(Matrix4(1.f), Vector3f(props.position, 1.f));
+            model *= Math::rotate(props.rotation, Vector3f(0.f, 0.f, 1.f));
+            model *= Math::translate(Matrix4(1.f), Vector3f(-props.origin, 1.f));
+            model *= Math::scale(Matrix4(1.f), Vector3f(props.size, 1.f));
+            matrixArray.matrix[i] = model;
+        }
+
+        // Prep the shader
         shaderPtr->bind();
         shaderPtr->set_uniform("view", get_trans_matrix());
         shaderPtr->set_uniform("projection", get_proj_matrix());
 
+        // Render the opaque instances
         shaderBuffer.bind();
         shaderBuffer.set(matrixArray);
 
@@ -179,7 +209,10 @@ namespace Draft {
         vertexBuffer.set_dynamic_data(dynamicDataLoc, instances);
 
         // Render every triangle
-        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, quadsRendered * 2);
+
+        // Clear all the triangles rendered
+        quadQueue.clear();
 
         // Exit early
         if(transparentQuads.empty()){
@@ -202,7 +235,7 @@ namespace Draft {
         }
 
         // Flush again for the new transparent data
-        flush_batch_internal();
+        // flush_batch_internal();
 
         // Back to normal rendering
         glDisable(GL_BLEND);

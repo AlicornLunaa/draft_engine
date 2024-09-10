@@ -37,46 +37,41 @@ namespace Draft {
     private:
         // Data structures
         struct InstanceData {
-            Vector2f texCoords;
             Vector4f color;
-            int modelIndex;
+            Vector2f texCoords[4];
         };
 
-        struct MatrixArray {
-            Matrix4 matrix[1024];
-        } matrixArray;
+        struct MatrixArray { Matrix4 matrix[1024]; } matrixArray;
 
         // Static data
         const std::vector<Vector2f> QUAD_VERTICES = {
-            Vector2f(-0.5f,  0.5f), // Top-left
-            Vector2f( 0.5f,  0.5f), // Top-right
-            Vector2f( 0.5f, -0.5f), // Bottom-right
-            Vector2f(-0.5f, -0.5f) // Bottom-left
+            Vector2f(0, 1), // Top-left
+            Vector2f(1, 1), // Top-right
+            Vector2f(1, 0), // Bottom-right
+            Vector2f(0, 0) // Bottom-left
         };
         const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
 
         // Batch variables
-        VertexBuffer vertexBuffer;
         ShaderBuffer<MatrixArray> shaderBuffer;
+        VertexBuffer vertexBuffer;
         size_t dynamicDataLoc;
         
         // Opaque queue variables
-        std::vector<InstanceData> instances;
-        std::shared_ptr<Texture> previousTexture;
+        std::shared_ptr<Texture> previousTexture = nullptr;
+        std::vector<SpriteProps> quadQueue;
 
         // Transparent queue variables
         std::priority_queue<SpriteProps, std::vector<SpriteProps>, SpriteProps> transparentQuads;
 
-        // Private functions
-        void flush_batch_internal();
-
     public:
         // Constructors
-        SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true), const size_t maxSprites = 10000);
+        SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true), const size_t maxSprites = 1024);
 
         // Functions
         void draw(SpriteProps props); // Add quad to scene
         void draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
+        virtual void begin(const RenderWindow& window);
         virtual void flush(const RenderWindow& window); // Send quads to shader
     };
 };
