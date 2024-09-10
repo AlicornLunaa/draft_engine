@@ -37,6 +37,7 @@ set(SOURCES
     src/draft/rendering/model.cpp
     src/draft/rendering/camera.cpp
     src/draft/rendering/vertex_buffer.cpp
+    src/draft/rendering/shader_buffer.cpp
     src/draft/rendering/texture.cpp
     src/draft/rendering/mesh.cpp
     src/draft/rendering/material.cpp
@@ -121,6 +122,7 @@ set(INTERFACES
     include/draft/rendering/shader.hpp
     include/draft/rendering/material.hpp
     include/draft/rendering/vertex_buffer.hpp
+    include/draft/rendering/shader_buffer.hpp
     include/draft/rendering/texture.hpp
     include/draft/rendering/font.hpp
     include/draft/rendering/image.hpp
@@ -234,6 +236,6 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC entt imgui glm::glm nlohmann_json::nlohmann_json)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d stb simplex_noise ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

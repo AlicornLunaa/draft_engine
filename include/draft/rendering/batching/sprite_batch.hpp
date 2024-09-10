@@ -5,12 +5,12 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
+#include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/asset_manager.hpp"
 
 #include <queue>
-#include <utility>
 #include <vector>
 
 namespace Draft {
@@ -36,27 +36,38 @@ namespace Draft {
     class SpriteBatch : public Batch {
     private:
         // Data structures
-        struct QuadVertex {
-            Vector3f position;
+        struct InstanceData {
             Vector2f texCoords;
             Vector4f color;
+            int modelIndex;
         };
+
+        struct MatrixArray {
+            Matrix4 matrix[1024];
+        } matrixArray;
+
+        // Static data
+        const std::vector<Vector2f> QUAD_VERTICES = {
+            Vector2f(-0.5f,  0.5f), // Top-left
+            Vector2f( 0.5f,  0.5f), // Top-right
+            Vector2f( 0.5f, -0.5f), // Bottom-right
+            Vector2f(-0.5f, -0.5f) // Bottom-left
+        };
+        const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
 
         // Batch variables
         VertexBuffer vertexBuffer;
-        size_t dynamicVertexBufLoc;
-        size_t dynamicIndexBufLoc;
+        ShaderBuffer<MatrixArray> shaderBuffer;
+        size_t dynamicDataLoc;
         
         // Opaque queue variables
-        std::vector<QuadVertex> vertices;
-        std::vector<int> indices;
-        std::queue<std::pair<std::shared_ptr<Texture>, size_t>> textureRegister;
+        std::vector<InstanceData> instances;
+        std::shared_ptr<Texture> previousTexture;
 
         // Transparent queue variables
         std::priority_queue<SpriteProps, std::vector<SpriteProps>, SpriteProps> transparentQuads;
 
         // Private functions
-        void assemble_quad(std::vector<QuadVertex>& vertices, std::vector<int>& indices, std::queue<std::pair<std::shared_ptr<Texture>, size_t>>& textureRegister, const SpriteProps& props);
         void flush_batch_internal();
 
     public:

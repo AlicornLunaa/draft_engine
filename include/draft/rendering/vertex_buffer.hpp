@@ -1,12 +1,14 @@
 #pragma once
+
 #include <algorithm>
 #include <cstddef>
-#define GL_ARRAY_BUFFER 0x8892
 
 #include "draft/math/glm.hpp"
 
 #include <cassert>
 #include <vector>
+
+#define GL_ARRAY_BUFFER 0x8892
 
 namespace Draft {
     class VertexBuffer {
