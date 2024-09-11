@@ -37,7 +37,8 @@ namespace Draft {
         void set_proj_matrix(const Matrix4& m);
         void set_trans_matrix(const Matrix4& m);
 
-        virtual void flush(const RenderWindow& window) = 0;
+        virtual void begin() = 0;
+        virtual void flush() = 0;
         void flush_dep(const RenderWindow& window, const Camera* camera);
     };
 };

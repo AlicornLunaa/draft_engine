@@ -303,7 +303,10 @@ namespace Draft {
         get<2>(tup) += 6;
     }
 
-    void ShapeBatch::flush(const RenderWindow& window){
+    void ShapeBatch::begin(){
+    }
+
+    void ShapeBatch::flush(){
         // Draws all the shapes to opengl
         bool flushAgain = false; // Turns true if the shape type changed
 
@@ -317,7 +320,7 @@ namespace Draft {
 
         // Check if this has zero data
         if(vertexCount == 0 || indexCount == 0){
-            flush(window);
+            flush();
             return;
         }
 
@@ -361,6 +364,6 @@ namespace Draft {
 
         // Do it again for the rest of the quads
         if(flushAgain)
-            flush(window);
+            flush();
     }
 };

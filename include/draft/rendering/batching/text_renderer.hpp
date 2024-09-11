@@ -38,6 +38,6 @@ namespace Draft {
         Vector2f get_text_bounds(const TextProperties& props) const;
         void draw_text(const TextProperties& props);
         void draw_text(const std::string& str, std::shared_ptr<Font> font, const Vector2f& position, float scale = 1.f, const Vector4f& color = { 1, 1, 1, 1 });
-        void flush(const RenderWindow& window, const Camera* camera = nullptr);
+        void flush(const Camera* camera = nullptr);
     };
 };

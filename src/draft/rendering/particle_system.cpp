@@ -70,6 +70,6 @@ namespace Draft {
         }
 
         batch.set_proj_matrix(camera->get_combined());
-        batch.flush(window);
+        batch.flush();
     }
 };

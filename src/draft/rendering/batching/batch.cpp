@@ -35,6 +35,6 @@ namespace Draft {
             return;
 
         set_proj_matrix(camera->get_combined());
-        flush(window);
+        flush();
     }
 };

@@ -3,7 +3,6 @@
 #include "draft/math/rect.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/rendering/batching/batch.hpp"
-#include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/texture.hpp"
@@ -64,6 +63,10 @@ namespace Draft {
         // Transparent queue variables
         std::priority_queue<SpriteProps, std::vector<SpriteProps>, SpriteProps> transparentQuads;
 
+        // Private functions
+        void internal_flush_opaque();
+        void internal_flush_transparent();
+
     public:
         // Constructors
         SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true), const size_t maxSprites = 1024);
@@ -71,7 +74,7 @@ namespace Draft {
         // Functions
         void draw(SpriteProps props); // Add quad to scene
         void draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
-        virtual void begin(const RenderWindow& window);
-        virtual void flush(const RenderWindow& window); // Send quads to shader
+        virtual void begin();
+        virtual void flush(); // Send quads to shader
     };
 };

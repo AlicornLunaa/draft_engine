@@ -10,7 +10,7 @@ namespace Draft {
 
     void PhysicsDebugRender::render(const RenderWindow& window, const Camera* camera){
         batch.set_proj_matrix(camera->get_combined());
-        batch.flush(window);
+        batch.flush();
     }
 
     /// Draw a closed polygon provided in CCW order.

@@ -2,7 +2,6 @@
 
 #include "draft/math/glm.hpp"
 #include "draft/rendering/batching/batch.hpp"
-#include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/asset_manager.hpp"
@@ -57,6 +56,7 @@ namespace Draft {
         void draw_rect_line(const Vector2f& start, const Vector2f& end, float width = 1.f);
         void draw_arrow(const Vector2f& head, const Vector2f& tail);
 
-        virtual void flush(const RenderWindow& window); // Send shapes to shader
+        virtual void begin();
+        virtual void flush(); // Send shapes to shader
     };
 };

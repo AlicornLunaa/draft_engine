@@ -68,9 +68,9 @@ namespace Draft {
         draw_text({ str, font, position, {0, 0}, color, 0.f, scale });
     }
 
-    void TextRenderer::flush(const RenderWindow& window, const Camera* camera){
+    void TextRenderer::flush(const Camera* camera){
         // Generate every quad for each character
         batch.set_proj_matrix(camera->get_combined());
-        batch.flush(window);
+        batch.flush();
     }
 };
