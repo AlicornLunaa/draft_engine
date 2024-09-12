@@ -4,9 +4,7 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "glad/gl.h"
-#include "glm/ext/matrix_transform.hpp"
 
-#include <algorithm>
 #include <cstddef>
 #include <vector>
 
@@ -15,119 +13,142 @@ using namespace std;
 namespace Draft {
     // Private functions
     void SpriteBatch::internal_flush_opaque(){
-        // Flush all the opaque ones
-        // Count the triangles, max of 2 * maxSprites
-        size_t quadsRendered = std::min(quadQueue.size(), maxSprites);
+        // Flush all the opaque quads to gpu
+        Texture const* texturePtr = nullptr;
         std::vector<InstanceData> instances;
-        instances.reserve(quadsRendered);
-
-        // Prep all the model matrices
-        for(size_t i = 0; i < quadsRendered; i++){
-            auto& props = quadQueue[i];
-
-            auto& textureSize = props.texture->get_size();
-            float x = props.region.x / textureSize.x;
-            float y = props.region.y / textureSize.y;
-            float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
-            float h = ((props.region.height <= 0) ? textureSize.y : props.region.height) / textureSize.y;
-
-            instances.push_back({
-                props.color,
-                {
-                    {x, y},
-                    {x + w, y},
-                    {x + w, y + h},
-                    {x, y + h}
-                },
-            });
-
-            Matrix4 model(1.f);
-            model *= Math::translate(Matrix4(1.f), Vector3f(props.position, 1.f));
-            model *= Math::rotate(props.rotation, Vector3f(0.f, 0.f, 1.f));
-            model *= Math::translate(Matrix4(1.f), Vector3f(-props.origin, 1.f));
-            model *= Math::scale(Matrix4(1.f), Vector3f(props.size, 1.f));
-            matrixArray.matrix[i] = model;
-        }
+        instances.reserve(maxSprites);
 
         // Prep the shader
         shaderPtr->bind();
         shaderPtr->set_uniform("view", get_trans_matrix());
         shaderPtr->set_uniform("projection", get_proj_matrix());
 
-        // Render the opaque instances
-        shaderBuffer.bind();
-        shaderBuffer.set(matrixArray);
+        // Assemble quads and render them in chunks of maxSprites
+        while(!opaqueQuads.empty()){
+            for(size_t i = 0; i < maxSprites && !opaqueQuads.empty(); i++){
+                auto& props = opaqueQuads.front();
 
-        vertexBuffer.bind();
-        vertexBuffer.set_dynamic_data(dynamicDataLoc, instances);
+                auto& texture = props.texture;
+                auto& textureSize = props.texture->get_size();
+                float x = props.region.x / textureSize.x;
+                float y = props.region.y / textureSize.y;
+                float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
+                float h = ((props.region.height <= 0) ? textureSize.y : props.region.height) / textureSize.y;
 
-        // Render every triangle
-        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, quadsRendered);
+                instances.push_back({
+                    props.color,
+                    {
+                        {x, y},
+                        {x + w, y},
+                        {x + w, y + h},
+                        {x, y + h}
+                    },
+                });
 
-        // Clear all the triangles rendered
-        quadQueue.clear();
+                matrixArray.matrix[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
+
+                opaqueQuads.pop();
+
+                if(!texturePtr){
+                    // No texture previously, bind it
+                    texturePtr = texture.get();
+                    texturePtr->bind();
+                }
+
+                if(texture.get() != texturePtr){
+                    // Different texture, bind it and flush immediately
+                    texturePtr = texture.get();
+                    texturePtr->bind();
+                    break;
+                }
+            }
+
+            // Render the opaque instances
+            shaderBuffer.bind();
+            shaderBuffer.set(matrixArray);
+
+            vertexBuffer.bind();
+            vertexBuffer.set_dynamic_data(dynamicDataLoc, instances);
+
+            // Render every triangle
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
+
+            // Reset instances
+            instances.clear();
+        }
     }
 
     void SpriteBatch::internal_flush_transparent(){
         // Flush all the transparent quads
-        if(transparentQuads.empty())
-            return; // Exit early
-
-        // Count the triangles, max of 2 * maxSprites
-        size_t quadsRendered = std::min(transparentQuads.size(), maxSprites);
-        size_t currentModel = 0;
+        Texture const* texturePtr = nullptr;
         std::vector<InstanceData> instances;
-        instances.reserve(quadsRendered);
-
-        // Prep all the model matrices
-        while(!transparentQuads.empty()){
-            auto& props = transparentQuads.top();
-
-            auto& textureSize = props.texture->get_size();
-            float x = props.region.x / textureSize.x;
-            float y = props.region.y / textureSize.y;
-            float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
-            float h = ((props.region.height <= 0) ? textureSize.y : props.region.height) / textureSize.y;
-
-            instances.push_back({
-                props.color,
-                {
-                    {x, y},
-                    {x + w, y},
-                    {x + w, y + h},
-                    {x, y + h}
-                },
-            });
-
-            Matrix4 model(1.f);
-            model *= Math::translate(Matrix4(1.f), Vector3f(props.position, 1.f));
-            model *= Math::rotate(props.rotation, Vector3f(0.f, 0.f, 1.f));
-            model *= Math::translate(Matrix4(1.f), Vector3f(-props.origin, 1.f));
-            model *= Math::scale(Matrix4(1.f), Vector3f(props.size, 1.f));
-            matrixArray.matrix[currentModel++] = model;
-
-            transparentQuads.pop();
-        }
+        instances.reserve(maxSprites);
 
         // Prep the shader
         shaderPtr->bind();
         shaderPtr->set_uniform("view", get_trans_matrix());
         shaderPtr->set_uniform("projection", get_proj_matrix());
 
-        // Render the opaque instances
-        shaderBuffer.bind();
-        shaderBuffer.set(matrixArray);
-
-        vertexBuffer.bind();
-        vertexBuffer.set_dynamic_data(dynamicDataLoc, instances);
-
-        // Render every triangle
+        // Set render options
         glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, quadsRendered);
+        // Render in maxSprites chunks
+        while(!transparentQuads.empty()){
+            for(size_t i = 0; i < maxSprites && !transparentQuads.empty(); i++){
+                auto& props = transparentQuads.top();
 
+                auto& texture = props.texture;
+                auto& textureSize = props.texture->get_size();
+                float x = props.region.x / textureSize.x;
+                float y = props.region.y / textureSize.y;
+                float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
+                float h = ((props.region.height <= 0) ? textureSize.y : props.region.height) / textureSize.y;
+
+                instances.push_back({
+                    props.color,
+                    {
+                        {x, y},
+                        {x + w, y},
+                        {x + w, y + h},
+                        {x, y + h}
+                    },
+                });
+
+                matrixArray.matrix[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
+
+                transparentQuads.pop();
+
+                if(!texturePtr){
+                    // No texture previously, bind it
+                    texturePtr = texture.get();
+                    texturePtr->bind();
+                }
+
+                if(texture.get() != texturePtr){
+                    // Different texture, bind it and flush immediately
+                    texturePtr = texture.get();
+                    texturePtr->bind();
+                    break;
+                }
+            }
+
+            // Render the opaque instances
+            shaderBuffer.bind();
+            shaderBuffer.set(matrixArray);
+
+            vertexBuffer.bind();
+            vertexBuffer.set_dynamic_data(dynamicDataLoc, instances);
+
+            // Render every triangle
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
+
+            // Remove maxSprites from queue
+            instances.clear();
+        }
+
+        // Restore opengl
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
     }
@@ -150,8 +171,6 @@ namespace Draft {
         glVertexAttribDivisor(4, 1);
         glVertexAttribDivisor(5, 1);
         vertexBuffer.end_buffer();
-
-        quadQueue.reserve(maxSprites);
     }
 
     // Functions
@@ -162,25 +181,13 @@ namespace Draft {
             props.texture = whiteTexture;
         }
 
-        // Check texture, if its changed flush immediately
-        if(props.texture != previousTexture){
-            internal_flush_opaque();
-            previousTexture = props.texture;
-            props.texture->bind();
-        }
-
-        // Flush immediately if there are too many sprites
-        if(quadQueue.size() >= maxSprites){
-            internal_flush_opaque();
-        }
-
         // Check if the sprite is translucent or not
         if(props.color.a < 1.f || props.texture->is_transparent() || props.renderAsTransparent){
             // translucent sprite, save sprite information and recreate it at runtime for the buffer
             transparentQuads.push(props);
         } else {
             // Clean sprite, fully opaque. Store its render information immediately
-            quadQueue.push_back(props);
+            opaqueQuads.push(props);
         }
     }
 
@@ -199,12 +206,16 @@ namespace Draft {
 
     void SpriteBatch::begin(){
         // Save the current window so flushing can happen
-        previousTexture = nullptr;
+        while(!transparentQuads.empty())
+            transparentQuads.pop();
+
+        while(!opaqueQuads.empty())
+            opaqueQuads.pop();
     }
 
     void SpriteBatch::flush(){
         // Draws all the shapes to opengl
-        if(quadQueue.empty() && transparentQuads.empty())
+        if(opaqueQuads.empty() && transparentQuads.empty())
             return;
 
         // Flush first batch of opaque & transparent remaining

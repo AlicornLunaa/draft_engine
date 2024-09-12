@@ -23,6 +23,7 @@ set(SOURCES
     src/draft/interface/widgets/console.cpp
     src/draft/interface/widgets/stats.cpp
     src/draft/math/bounds.cpp
+    src/draft/math/glm.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
     src/draft/phys/fixture.cpp

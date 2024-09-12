@@ -56,12 +56,9 @@ namespace Draft {
         VertexBuffer vertexBuffer;
         size_t dynamicDataLoc;
         
-        // Opaque queue variables
-        std::shared_ptr<Texture> previousTexture = nullptr;
-        std::vector<SpriteProps> quadQueue;
-
-        // Transparent queue variables
+        // Queues
         std::priority_queue<SpriteProps, std::vector<SpriteProps>, SpriteProps> transparentQuads;
+        std::queue<SpriteProps> opaqueQuads;
 
         // Private functions
         void internal_flush_opaque();
