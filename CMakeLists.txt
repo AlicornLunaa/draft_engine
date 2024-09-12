@@ -203,6 +203,7 @@ add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
 add_subdirectory(vendor/entt)
 add_subdirectory(vendor/opensimplexnoise)
+add_subdirectory(vendor/tracy)
 find_package(Freetype REQUIRED)
 
 if(WIN32)
@@ -238,5 +239,6 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json)
-target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise tracy ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

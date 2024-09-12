@@ -1,11 +1,14 @@
 #include "draft/util/asset_manager.hpp"
-#define GLFW_INCLUDE_NONE
 
 #include <string>
 
 #include "draft/core/application.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/core/scene.hpp"
+
+#include "tracy/Tracy.hpp"
+
+#define GLFW_INCLUDE_NONE
 
 namespace Draft {
     // Constructors
@@ -67,6 +70,9 @@ namespace Draft {
             console.draw();
             
             window.display();
+
+            // Profiler setup
+            FrameMarkNamed("main");
         }
     }
 
