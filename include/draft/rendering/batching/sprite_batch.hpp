@@ -44,10 +44,10 @@ namespace Draft {
 
         // Static data
         const std::vector<Vector2f> QUAD_VERTICES = {
-            Vector2f(0, 1), // Top-left
-            Vector2f(1, 1), // Top-right
-            Vector2f(1, 0), // Bottom-right
-            Vector2f(0, 0) // Bottom-left
+            Vector2f(0, 0), // Top-left
+            Vector2f(1, 0), // Top-right
+            Vector2f(1, 1), // Bottom-right
+            Vector2f(0, 1) // Bottom-left
         };
         const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
 
