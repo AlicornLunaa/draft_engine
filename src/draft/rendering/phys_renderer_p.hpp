@@ -12,7 +12,8 @@ namespace Draft {
     public:
         PhysicsDebugRender(std::shared_ptr<Shader> shader);
 
-        void render(const RenderWindow& window, const Camera* camera = nullptr);
+        void begin(const Camera* camera = nullptr);
+        void render();
 
         /// Draw a closed polygon provided in CCW order.
         virtual void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;

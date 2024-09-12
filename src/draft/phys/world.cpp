@@ -165,7 +165,8 @@ namespace Draft {
     }
 
     void World::debug_draw(const RenderWindow& window, const Camera* camera){
+        ptr->physRenderer->begin(camera);
         ptr->world.DebugDraw();
-        ptr->physRenderer->render(window, camera);
+        ptr->physRenderer->render();
     }
 };

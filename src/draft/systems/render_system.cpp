@@ -17,6 +17,9 @@ namespace Draft {
     void RenderSystem::render(SpriteBatch& batch, const Camera* camera){
         auto view = registryRef.view<SpriteComponent, TransformComponent>();
 
+        batch.set_proj_matrix(camera->get_combined());
+        batch.begin();
+
         for(auto entity : view){
             auto& spriteComponent = view.get<SpriteComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
@@ -31,7 +34,6 @@ namespace Draft {
             });
         }
 
-        batch.set_proj_matrix(camera->get_combined());
         batch.flush();
     }
 };
