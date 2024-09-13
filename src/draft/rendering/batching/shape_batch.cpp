@@ -9,209 +9,109 @@
 using namespace std;
 
 namespace Draft {
-    // Static data
-    array<Vector2f, 4> ShapeBatch::quadVertices = array<Vector2f, 4>({
-        {0.f, 0.f}, // Top left
-        {1.f, 0.f}, // Top right
-        {1.f, 1.f}, // Bottom right
-        {0.f, 1.f}  // Bottom left
-    });
-
-    // Private function
-    std::tuple<ShapeBatch::RenderType, size_t, size_t>& ShapeBatch::get_current_render_type_instance(){
-        if(!renderTypes.empty())
-            return renderTypes.back();
-
-        renderTypes.push({ currentRenderType, 0, 0 });
-        return renderTypes.back();
-    }
-
     // Constructor
     ShapeBatch::ShapeBatch(std::shared_ptr<Shader> shader, const size_t maxShapes) : Batch(maxShapes, shader) {
         // Setup data buffers
-        dynamicVertexBufLoc = vertexBuffer.start_buffer<ShapeVertex>(maxShapes);
-        vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(ShapeVertex), 0);
-        vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(ShapeVertex), offsetof(ShapeVertex, color));
-        vertexBuffer.end_buffer();
-
-        dynamicIndexBufLoc = vertexBuffer.start_buffer<int>(maxShapes * 2, GL_ELEMENT_ARRAY_BUFFER);
+        dynamicVertexBufLoc = vertexBuffer.start_buffer<Point>(maxShapes);
+        vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(Point), 0);
+        vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(Point), offsetof(Point, color));
         vertexBuffer.end_buffer();
     }
 
     // Functions
     void ShapeBatch::set_render_type(RenderType type){
-        if(get<0>(get_current_render_type_instance()) == type)
-            return; // Skip if its the same type
+        if(currentRenderType != type)
+            flush();
 
         currentRenderType = type;
-        renderTypes.push({ type, 0, 0 });
     }
 
     void ShapeBatch::draw_polygon(const std::vector<Vector2f>& polygonVertices){
-        // Lines can only be GL_LINES
-        if(currentRenderType != RenderType::LINE){
-            Logger::println(Level::WARNING, "Shape Batch", "draw_polygon(const std::vector<Vector2f>&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
-            set_render_type(RenderType::LINE);
-        }
-
         // Generate and add vertices
-        auto& tup = get_current_render_type_instance();
-        size_t indexStart = vertices.size();
-
-        for(auto& v : polygonVertices){
-            vertices.push_back({ v, currentColor });
-        }
-        get<1>(tup) += polygonVertices.size();
-
-        // Connect all indices
         for(size_t i = 0; i < polygonVertices.size(); i++){
-            indices.push_back(i + indexStart);
-            indices.push_back((i + 1) % polygonVertices.size() + indexStart);
+            points.push_back({ polygonVertices[i], currentColor });
+            points.push_back({ polygonVertices[(i + 1) % polygonVertices.size()], currentColor });
         }
-        get<2>(tup) += (polygonVertices.size() * 2);
     }
 
     void ShapeBatch::draw_rect(const Vector2f& position, const Vector2f& size, float rotation){
         // Generate and add vertices
-        auto& tup = get_current_render_type_instance();
-        size_t indexStart = vertices.size();
-
-        vertices.push_back({ position, currentColor });
-        vertices.push_back({ position + Vector2f{ size.x, 0.f }, currentColor });
-        vertices.push_back({ position + Vector2f{ size.x, size.y }, currentColor });
-        vertices.push_back({ position + Vector2f{ 0.f, size.y }, currentColor });
-        get<1>(tup) += 4;
-
-        // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
-            indices.push_back(1 + indexStart);
-            indices.push_back(0 + indexStart);
-            indices.push_back(3 + indexStart);
-            indices.push_back(1 + indexStart);
-            indices.push_back(3 + indexStart);
-            indices.push_back(2 + indexStart);
-            get<2>(tup) += 6;
+            for(int index : QUAD_INDICES){
+                points.push_back({QUAD_VERTICES[index] * size + position, currentColor});
+            }
         } else {
             // Lines
-            for(size_t i = 0; i < 4; i++){
-                indices.push_back(i + indexStart);
-                indices.push_back((i + 1) % 4 + indexStart);
+            for(size_t i = 0; i < QUAD_VERTICES.size(); i++){
+                points.push_back({QUAD_VERTICES[i] * size + position, currentColor});
+                points.push_back({QUAD_VERTICES[(i + 1) % QUAD_VERTICES.size()] * size + position, currentColor});
             }
-            
-            // Increase length for render type
-            get<2>(tup) += 8;
         }
     }
 
     void ShapeBatch::draw_triangle(const Vector2f& position, const Vector2f& size, float rotation){
-        // Generate and add vertices
-        auto& tup = get_current_render_type_instance();
-        size_t indexStart = vertices.size();
-
-        get<1>(tup) += 3;
-
-        vertices.push_back({ Vector2f{ 0.f, 0.f }, currentColor });
-        vertices.push_back({ Vector2f{ size.x, 0.f }, currentColor });
-        vertices.push_back({ Vector2f{ 0.f, size.y }, currentColor });
-
-        vertices[vertices.size() - 1].position = Math::rotate(vertices[vertices.size() - 1].position, rotation);
-        vertices[vertices.size() - 2].position = Math::rotate(vertices[vertices.size() - 2].position, rotation);
-        vertices[vertices.size() - 3].position = Math::rotate(vertices[vertices.size() - 3].position, rotation);
-
-        vertices[vertices.size() - 1].position += position;
-        vertices[vertices.size() - 2].position += position;
-        vertices[vertices.size() - 3].position += position;
-
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
-            indices.push_back(1 + indexStart);
-            indices.push_back(0 + indexStart);
-            indices.push_back(2 + indexStart);
-            get<2>(tup) += 3;
+            for(const Vector2f& v : TRI_VERTICES){
+                points.push_back({Math::rotate(v * size, rotation) + position, currentColor});
+            }
         } else {
             // Lines
-            for(size_t i = 0; i < 3; i++){
-                indices.push_back(i + indexStart);
-                indices.push_back((i + 1) % 3 + indexStart);
+            for(size_t i = 0; i < TRI_VERTICES.size(); i++){
+                points.push_back({Math::rotate(TRI_VERTICES[i] * size, rotation) + position, currentColor});
+                points.push_back({Math::rotate(TRI_VERTICES[(i + 1) % TRI_VERTICES.size()] * size, rotation) + position, currentColor});
             }
-            
-            // Increase length for render type
-            get<2>(tup) += 6;
         }
     }
 
     void ShapeBatch::draw_triangle(const std::array<Vector2f, 3>& positions){
         // Generate and add vertices
-        auto& tup = get_current_render_type_instance();
-        size_t indexStart = vertices.size();
-
-        get<1>(tup) += 3;
-
-        vertices.push_back({ positions[0], currentColor });
-        vertices.push_back({ positions[1], currentColor });
-        vertices.push_back({ positions[2], currentColor });
 
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
-            indices.push_back(0 + indexStart);
-            indices.push_back(1 + indexStart);
-            indices.push_back(2 + indexStart);
-            get<2>(tup) += 3;
+            points.push_back({ positions[0], currentColor });
+            points.push_back({ positions[1], currentColor });
+            points.push_back({ positions[2], currentColor });
         } else {
             // Lines
-            for(size_t i = 0; i < 3; i++){
-                indices.push_back(i + indexStart);
-                indices.push_back((i + 1) % 3 + indexStart);
+            for(size_t i = 0; i < positions.size(); i++){
+                points.push_back({ positions[i], currentColor });
+                points.push_back({ positions[(i + 1) % positions.size()], currentColor });
             }
-            
-            // Increase length for render type
-            get<2>(tup) += 6;
         }
     }
 
     void ShapeBatch::draw_circle(const Vector2f& position, float radius, float rotation, size_t segments){
         // Generate and add vertices
-        auto& tup = get_current_render_type_instance();
-        size_t indexStart = vertices.size();
         float pointsEveryRadian = 2*3.14f / segments;
-
-        vertices.push_back({ position, currentColor });
-
-        // Circular vertices
-        for(size_t i = 0; i < segments; i++){
-            float radians = i * pointsEveryRadian;
-            Vector2f coords(std::cos(radians + rotation), std::sin(radians + rotation));
-            coords *= radius;
-            coords += position;
-            vertices.push_back({coords, currentColor});
-        }
-        get<1>(tup) += (segments + 1);
 
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
-            // Triangles, so 0, i, i + 1
             for(size_t i = 0; i < segments; i++){
-                indices.push_back(indexStart);
-                indices.push_back(i % segments + indexStart + 1);
-                indices.push_back((i + 1) % segments + indexStart + 1);
+                float radians1 = i * pointsEveryRadian;
+                float radians2 = (i + 1) % segments * pointsEveryRadian;
+                Vector2f coords1 = Vector2f(std::cos(radians1 + rotation), std::sin(radians1 + rotation)) * radius + position;
+                Vector2f coords2 = Vector2f(std::cos(radians2 + rotation), std::sin(radians2 + rotation)) * radius + position;
+                points.push_back({coords1, currentColor});
+                points.push_back({coords2, currentColor});
+                points.push_back({position, currentColor});
             }
-            
-            // Increase length for render type
-            get<2>(tup) += (segments * 3);
         } else {
             // Lines
             for(size_t i = 0; i < segments; i++){
-                indices.push_back(indexStart + i);
-                indices.push_back((i + 1) % (segments + 1) + indexStart);
+                float radians1 = i * pointsEveryRadian;
+                float radians2 = (i + 1) % segments * pointsEveryRadian;
+                Vector2f coords1 = Vector2f(std::cos(radians1 + rotation), std::sin(radians1 + rotation)) * radius + position;
+                Vector2f coords2 = Vector2f(std::cos(radians2 + rotation), std::sin(radians2 + rotation)) * radius + position;
+                points.push_back({coords1, currentColor});
+                points.push_back({coords2, currentColor});
             }
-            indices.push_back(indexStart + segments);
-            indices.push_back(indexStart + 1);
-            
-            // Increase length for render type
-            get<2>(tup) += (segments * 2 + 2);
+
+            points.push_back({position, currentColor});
+            points.push_back({Vector2f(std::cos(rotation), std::sin(rotation)) * radius + position, currentColor});
         }
     }
 
@@ -223,52 +123,40 @@ namespace Draft {
         }
 
         // Generate and add vertices
-        size_t indexStart = vertices.size();
-        vertices.push_back({ start, currentColor });
-        vertices.push_back({ end, currentColor });
-        indices.push_back(indexStart);
-        indices.push_back(indexStart + 1);
-        
-        // Increase length for render type
-        auto& tup = get_current_render_type_instance();
-        get<1>(tup) += 2;
-        get<2>(tup) += 2;
+        points.push_back({ start, currentColor });
+        points.push_back({ end, currentColor });
     }
 
     void ShapeBatch::draw_rect_line(const Vector2f& start, const Vector2f& end, float width){
         // Generate and add vertices
-        auto& tup = get_current_render_type_instance();
-        size_t indexStart = vertices.size();
-
         float radians = std::atan2(start.y - end.y, start.x - end.x);
         Vector2f right = Math::rotate(Vector2f(0, 1), radians);
         right *= 0.02f * width;
 
-        vertices.push_back({ start + right, currentColor });
-        vertices.push_back({ start - right, currentColor });
-        vertices.push_back({ end - right, currentColor });
-        vertices.push_back({ end + right, currentColor });
-        get<1>(tup) += 4;
+        points.push_back({ start + right, currentColor }); // 0
+        points.push_back({ start - right, currentColor }); // 1
+        points.push_back({ end - right, currentColor }); // 2
+        points.push_back({ end + right, currentColor }); // 3
 
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
-            indices.push_back(1 + indexStart);
-            indices.push_back(0 + indexStart);
-            indices.push_back(3 + indexStart);
-            indices.push_back(1 + indexStart);
-            indices.push_back(3 + indexStart);
-            indices.push_back(2 + indexStart);
-            get<2>(tup) += 6;
+            points.push_back({ start - right, currentColor }); // 1
+            points.push_back({ start + right, currentColor }); // 0
+            points.push_back({ end + right, currentColor }); // 3
+            points.push_back({ start - right, currentColor }); // 1
+            points.push_back({ end + right, currentColor }); // 3
+            points.push_back({ end - right, currentColor }); // 2
         } else {
             // Lines
-            for(size_t i = 0; i < 4; i++){
-                indices.push_back(i + indexStart);
-                indices.push_back((i + 1) % 4 + indexStart);
-            }
-            
-            // Increase length for render type
-            get<2>(tup) += 8;
+            points.push_back({ start + right, currentColor }); // 0
+            points.push_back({ start - right, currentColor }); // 1
+            points.push_back({ start - right, currentColor }); // 1
+            points.push_back({ end - right, currentColor }); // 2
+            points.push_back({ end - right, currentColor }); // 2
+            points.push_back({ end + right, currentColor }); // 3
+            points.push_back({ end + right, currentColor }); // 3
+            points.push_back({ start + right, currentColor }); // 0
         }
     }
 
@@ -285,85 +173,40 @@ namespace Draft {
         Vector2f right = Math::rotate(Vector2f(0, 1), radians + 2*3.141592654f/3.f) * 0.08f;
 
         // Generate and add vertices
-        size_t indexStart = vertices.size();
-        vertices.push_back({ head, currentColor });
-        vertices.push_back({ head + Vector2f(left.x, left.y), currentColor });
-        vertices.push_back({ head + Vector2f(right.x, right.y), currentColor });
-        vertices.push_back({ tail, currentColor });
-        indices.push_back(indexStart);
-        indices.push_back(indexStart + 1);
-        indices.push_back(indexStart);
-        indices.push_back(indexStart + 2);
-        indices.push_back(indexStart);
-        indices.push_back(indexStart + 3);
-        
-        // Increase length for render type
-        auto& tup = get_current_render_type_instance();
-        get<1>(tup) += 4;
-        get<2>(tup) += 6;
+        points.push_back({ head, currentColor }); // 0
+        points.push_back({ head + Vector2f(left.x, left.y), currentColor }); // 1
+        points.push_back({ head, currentColor }); // 0
+        points.push_back({ head + Vector2f(right.x, right.y), currentColor }); // 2
+        points.push_back({ head, currentColor }); // 0
+        points.push_back({ tail, currentColor }); // 3
     }
 
     void ShapeBatch::begin(){
+        points.clear();
     }
 
     void ShapeBatch::flush(){
         // Draws all the shapes to opengl
-        bool flushAgain = false; // Turns true if the shape type changed
-
-        // Early exit if theres nothing to do
-        if(vertices.empty() || indices.empty() || renderTypes.empty())
+        if(points.empty())
             return;
-
-        // Run through for each draw type
-        auto [type, vertexCount, indexCount] = renderTypes.front();
-        renderTypes.pop();
-
-        // Check if this has zero data
-        if(vertexCount == 0 || indexCount == 0){
-            flush();
-            return;
-        }
-
-        // Check if this run needs to be chopped up
-        if(vertexCount > maxSprites || indexCount > maxSprites * 2){
-            // Buffer has to be run in two parts
-            renderTypes.emplace(type, vertexCount - maxSprites, indexCount - maxSprites * 2);
-            vertexCount = maxSprites;
-            indexCount = maxSprites * 2;
-            flushAgain = true;
-        }
-
-        // Buffer data so far
-        vertexBuffer.set_dynamic_data(dynamicVertexBufLoc, vertices);
-        vertexBuffer.set_dynamic_data(dynamicIndexBufLoc, indices);
 
         // Render VBO
         shaderPtr->bind();
         shaderPtr->set_uniform("view", get_trans_matrix());
         shaderPtr->set_uniform("projection", get_proj_matrix());
         
-        vertexBuffer.bind();
-        glDrawElements((type == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-        vertexBuffer.unbind();
+        for(size_t i = 0; i <= points.size() / maxSprites; i++){
+            // Repeat for number of render chunks
+            size_t pointsRendered = std::min(points.size(), maxSprites);
 
-        // Clean used vertices
-        if(renderTypes.empty()){
-            vertices.clear();
-            indices.clear();
-        } else {
-            vertices.erase(vertices.begin(), vertices.begin() + vertexCount);
-            indices.erase(indices.begin(), indices.begin() + indexCount);
+            vertexBuffer.bind();
+            vertexBuffer.set_dynamic_data(dynamicVertexBufLoc, points);
 
-            // Shift indices for the deleted vertices
-            for(auto& index : indices){
-                index -= vertexCount;
-            }
+            glDrawArrays((currentRenderType == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, pointsRendered);
 
-            flushAgain = true;
+            points.erase(points.begin(), points.begin() + pointsRendered);
         }
 
-        // Do it again for the rest of the quads
-        if(flushAgain)
-            flush();
+        vertexBuffer.unbind();
     }
 };

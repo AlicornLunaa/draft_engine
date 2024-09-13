@@ -23,12 +23,28 @@ namespace Draft {
         shaderPtr->set_uniform("view", get_trans_matrix());
         shaderPtr->set_uniform("projection", get_proj_matrix());
 
+        // Prep buffer
+        vertexBuffer.bind();
+
         // Assemble quads and render them in chunks of maxSprites
         while(!opaqueQuads.empty()){
+            texturePtr = nullptr;
+
             for(size_t i = 0; i < maxSprites && !opaqueQuads.empty(); i++){
                 auto& props = opaqueQuads.front();
 
-                auto& texture = props.texture;
+                if(!texturePtr){
+                    // No texture previously, bind it
+                    texturePtr = props.texture.get();
+                    texturePtr->bind();
+                }
+
+                if(props.texture.get() != texturePtr){
+                    // Different texture, bind it and flush immediately
+                    texturePtr = nullptr;
+                    break;
+                }
+
                 auto& textureSize = props.texture->get_size();
                 float x = props.region.x / textureSize.x;
                 float y = props.region.y / textureSize.y;
@@ -48,26 +64,10 @@ namespace Draft {
                 matrixArray.matrix[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
 
                 opaqueQuads.pop();
-
-                if(!texturePtr){
-                    // No texture previously, bind it
-                    texturePtr = texture.get();
-                    texturePtr->bind();
-                }
-
-                if(texture.get() != texturePtr){
-                    // Different texture, bind it and flush immediately
-                    texturePtr = texture.get();
-                    texturePtr->bind();
-                    break;
-                }
             }
 
             // Render the opaque instances
-            shaderBuffer.bind();
             shaderBuffer.set(matrixArray);
-
-            vertexBuffer.bind();
             vertexBuffer.set_dynamic_data(dynamicDataLoc, instances);
 
             // Render every triangle
@@ -89,6 +89,9 @@ namespace Draft {
         shaderPtr->set_uniform("view", get_trans_matrix());
         shaderPtr->set_uniform("projection", get_proj_matrix());
 
+        // Prep buffer
+        vertexBuffer.bind();
+
         // Set render options
         glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
@@ -96,10 +99,23 @@ namespace Draft {
 
         // Render in maxSprites chunks
         while(!transparentQuads.empty()){
+            texturePtr = nullptr;
+
             for(size_t i = 0; i < maxSprites && !transparentQuads.empty(); i++){
                 auto& props = transparentQuads.top();
 
-                auto& texture = props.texture;
+                if(!texturePtr){
+                    // No texture previously, bind it
+                    texturePtr = props.texture.get();
+                    texturePtr->bind();
+                }
+
+                if(props.texture.get() != texturePtr){
+                    // Different texture, flush immediately
+                    texturePtr = nullptr;
+                    break;
+                }
+
                 auto& textureSize = props.texture->get_size();
                 float x = props.region.x / textureSize.x;
                 float y = props.region.y / textureSize.y;
@@ -119,26 +135,10 @@ namespace Draft {
                 matrixArray.matrix[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
 
                 transparentQuads.pop();
-
-                if(!texturePtr){
-                    // No texture previously, bind it
-                    texturePtr = texture.get();
-                    texturePtr->bind();
-                }
-
-                if(texture.get() != texturePtr){
-                    // Different texture, bind it and flush immediately
-                    texturePtr = texture.get();
-                    texturePtr->bind();
-                    break;
-                }
             }
 
             // Render the opaque instances
-            shaderBuffer.bind();
             shaderBuffer.set(matrixArray);
-
-            vertexBuffer.bind();
             vertexBuffer.set_dynamic_data(dynamicDataLoc, instances);
 
             // Render every triangle

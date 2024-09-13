@@ -8,7 +8,6 @@
 
 #include <array>
 #include <cstddef>
-#include <queue>
 #include <vector>
 
 namespace Draft {
@@ -18,27 +17,32 @@ namespace Draft {
 
     private:
         // Data structures
-        struct ShapeVertex {
+        struct Point {
             Vector2f position;
             Vector4f color{1, 1, 1, 1};
         };
 
-        static std::array<Vector2f, 4> quadVertices;
+        // Static data
+        const std::vector<Vector2f> TRI_VERTICES = {
+            Vector2f(0, 0), // Top
+            Vector2f(1, 0), // Bottom-right
+            Vector2f(0, 1) // Bottom-left
+        };
+        const std::vector<Vector2f> QUAD_VERTICES = {
+            Vector2f(0, 0), // Top-left
+            Vector2f(1, 0), // Top-right
+            Vector2f(1, 1), // Bottom-right
+            Vector2f(0, 1) // Bottom-left
+        };
+        const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
 
         // Variables
-        std::queue<std::tuple<RenderType, size_t, size_t>> renderTypes; // Contains render type and the length of its vertices and indices
-        std::vector<ShapeVertex> vertices;
-        std::vector<int> indices;
+        std::vector<Point> points;
+        Vector4f currentColor{ 1, 1, 1, 1 };
+        RenderType currentRenderType = ShapeBatch::RenderType::LINE;
 
         VertexBuffer vertexBuffer;
         size_t dynamicVertexBufLoc;
-        size_t dynamicIndexBufLoc;
-        
-        Vector4f currentColor{ 1, 1, 1, 1 };
-        RenderType currentRenderType = ShapeBatch::RenderType::LINE;
-        
-        // Private functions
-        std::tuple<RenderType, size_t, size_t>& get_current_render_type_instance();
 
     public:
         // Constructors
@@ -47,6 +51,7 @@ namespace Draft {
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }
         void set_render_type(RenderType type);
+        
         void draw_polygon(const std::vector<Vector2f>& polygonVertices);
         void draw_rect(const Vector2f& position, const Vector2f& size, float rotation);
         void draw_triangle(const Vector2f& position, const Vector2f& size, float rotation);
