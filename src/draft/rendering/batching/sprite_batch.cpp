@@ -154,7 +154,7 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader, const size_t maxSprites) : Batch(maxSprites, shader) {
+    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader, const size_t maxSprites) : Batch(maxSprites, shader ? shader : Draft::Assets::manager.get<Draft::Shader>("assets/shaders/shapes", true)) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, QUAD_VERTICES);
         vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
