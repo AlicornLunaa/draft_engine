@@ -33,6 +33,10 @@ namespace Draft {
     };
 
     class SpriteBatch : public Batch {
+    public:
+        // Static data
+        static constexpr size_t MAX_SPRITES_TO_RENDER = 1024;
+
     private:
         // Data structures
         struct InstanceData {
@@ -40,7 +44,7 @@ namespace Draft {
             Vector2f texCoords[4];
         };
 
-        struct MatrixArray { Matrix4 matrix[1024]; } matrixArray;
+        struct MatrixArray { Matrix4 matrices[MAX_SPRITES_TO_RENDER]; } matrixArray;
 
         // Static data
         const std::vector<Vector2f> QUAD_VERTICES = {
@@ -66,7 +70,8 @@ namespace Draft {
 
     public:
         // Constructors
-        SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true), const size_t maxSprites = 1024);
+        SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true));
+        ~SpriteBatch();
 
         // Functions
         void draw(SpriteProps props); // Add quad to scene

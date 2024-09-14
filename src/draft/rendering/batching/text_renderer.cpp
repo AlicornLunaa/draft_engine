@@ -13,7 +13,7 @@ namespace Draft {
     }
 
     // Constructors
-    TextRenderer::TextRenderer(const std::shared_ptr<Shader> shader, size_t maxChars) : batch(shader, maxChars) {}
+    TextRenderer::TextRenderer(const std::shared_ptr<Shader> shader) : batch(shader) {}
 
     // Functions
     Vector2f TextRenderer::get_text_bounds(const TextProperties& props) const {

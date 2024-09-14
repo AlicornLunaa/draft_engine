@@ -61,7 +61,7 @@ namespace Draft {
                     },
                 });
 
-                matrixArray.matrix[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
+                matrixArray.matrices[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
 
                 opaqueQuads.pop();
             }
@@ -132,7 +132,7 @@ namespace Draft {
                     },
                 });
 
-                matrixArray.matrix[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
+                matrixArray.matrices[instances.size() - 1] = Optimal::fast_model_matrix(props.position, props.rotation, props.size, props.origin, props.zIndex);
 
                 transparentQuads.pop();
             }
@@ -154,7 +154,7 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader, const size_t maxSprites) : Batch(maxSprites, shader ? shader : Draft::Assets::manager.get<Draft::Shader>("assets/shaders/shapes", true)) {
+    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader) : Batch(MAX_SPRITES_TO_RENDER, shader ? shader : Draft::Assets::manager.get<Draft::Shader>("assets/shaders/default", true)) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, QUAD_VERTICES);
         vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
@@ -172,6 +172,8 @@ namespace Draft {
         glVertexAttribDivisor(5, 1);
         vertexBuffer.end_buffer();
     }
+
+    SpriteBatch::~SpriteBatch(){}
 
     // Functions
     void SpriteBatch::draw(SpriteProps props){

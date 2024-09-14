@@ -32,7 +32,7 @@ namespace Draft {
 
     public:
         // Constructors
-        TextRenderer(const std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/text", true), size_t maxChars = 10000);
+        TextRenderer(const std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/text", true));
 
         // Functions
         Vector2f get_text_bounds(const TextProperties& props) const;
