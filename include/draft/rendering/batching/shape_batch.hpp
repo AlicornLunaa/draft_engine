@@ -51,6 +51,9 @@ namespace Draft {
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }
         void set_render_type(RenderType type);
+
+        inline const Vector4f& get_color() const { return currentColor; }
+        inline const RenderType& get_render_type() const { return currentRenderType; }
         
         void draw_polygon(const std::vector<Vector2f>& polygonVertices);
         void draw_rect(const Vector2f& position, const Vector2f& size, float rotation);
