@@ -34,9 +34,23 @@ namespace Draft {
     }
 
     // Functions
-    void Collider::add_shape(const Shape& shape){
+    Shape* Collider::add_shape(const Shape& shape){
         // Copy and add shape to this collider
         shapes.push_back(shape.clone());
+        return shapes.back().get();
+
+        if(is_attached())
+            update_collider();
+    }
+
+    void Collider::del_shape(const Shape* shapePtr){
+        // Removes the shape
+        for(size_t i = 0; i < shapes.size(); i++){
+            if(shapes[i].get() == shapePtr){
+                shapes.erase(shapes.begin() + i);
+                break;
+            }
+        }
 
         if(is_attached())
             update_collider();

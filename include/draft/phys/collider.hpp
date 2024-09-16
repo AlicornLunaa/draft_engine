@@ -34,7 +34,8 @@ namespace Draft {
         Collider& operator=(const Collider& other);
 
         // Functions
-        void add_shape(const Shape& shape);
+        Shape* add_shape(const Shape& shape);
+        void del_shape(const Shape* shapePtr);
 
         void set_position(const Vector2f& position);
         void set_origin(const Vector2f& origin);
