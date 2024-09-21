@@ -112,7 +112,7 @@ namespace Draft {
         inline float get_top() const { return topClip; }
         inline float get_near() const { return nearClip; }
         inline float get_far() const { return farClip; }
+        inline float get_zoom() const { return zoom; }
         void set_zoom(float z);
-        float get_zoom();
     };
 };

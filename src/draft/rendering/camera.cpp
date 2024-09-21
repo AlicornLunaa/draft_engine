@@ -78,6 +78,4 @@ namespace Draft {
         zoom = z;
         update_matrices();
     }
-
-    float OrthographicCamera::get_zoom(){ return zoom; }
 };
