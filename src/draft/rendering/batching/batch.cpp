@@ -29,12 +29,4 @@ namespace Draft {
         transMatrix = m;
         update_combined();
     }
-
-    void Batch::flush_dep(const RenderWindow& window, const Camera* camera){
-        if(!camera)
-            return;
-
-        set_proj_matrix(camera->get_combined());
-        flush();
-    }
 };

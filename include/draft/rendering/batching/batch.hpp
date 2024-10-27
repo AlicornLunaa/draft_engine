@@ -1,8 +1,6 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/rendering/camera.hpp"
-#include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 
@@ -39,6 +37,5 @@ namespace Draft {
 
         virtual void begin() = 0;
         virtual void flush() = 0;
-        void flush_dep(const RenderWindow& window, const Camera* camera);
     };
 };
