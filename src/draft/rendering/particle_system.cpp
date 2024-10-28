@@ -4,7 +4,7 @@
 
 namespace Draft {
     // Constructors
-    ParticleSystem::ParticleSystem(const std::shared_ptr<Shader> shader, const size_t maxParticles) : batch(shader) {
+    ParticleSystem::ParticleSystem(const size_t maxParticles) {
         particlePool.resize(maxParticles);
         poolIndex = maxParticles - 1;
     }
@@ -43,13 +43,7 @@ namespace Draft {
         }
     }
 
-    void ParticleSystem::render(const Camera* camera){
-        if(camera == nullptr)
-            return;
-        
-        batch.set_proj_matrix(camera->get_combined());
-        batch.begin();
-
+    void ParticleSystem::render(SpriteBatch& batch){
         for(auto& particle : particlePool){
             if(!particle.active)
                 continue;
@@ -71,7 +65,5 @@ namespace Draft {
                 color
             });
         }
-
-        batch.end();
     }
 };

@@ -8,10 +8,8 @@ namespace Draft {
         SetFlags(b2Draw::e_shapeBit | b2Draw::e_jointBit | b2Draw::e_centerOfMassBit);
     }
 
-    void PhysicsDebugRender::begin(const Camera* camera){
-        if(camera)
-            batch.set_proj_matrix(camera->get_combined());
-
+    void PhysicsDebugRender::begin(const Matrix4& m){
+        batch.set_proj_matrix(m);
         batch.begin();
     }
 

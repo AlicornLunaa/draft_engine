@@ -2,7 +2,6 @@
 
 #include "box2d/b2_draw.h"
 #include "draft/rendering/batching/shape_batch.hpp"
-#include "draft/rendering/camera.hpp"
 
 namespace Draft {
     class PhysicsDebugRender : public b2Draw {
@@ -12,7 +11,7 @@ namespace Draft {
     public:
         PhysicsDebugRender(std::shared_ptr<Shader> shader);
 
-        void begin(const Camera* camera = nullptr);
+        void begin(const Matrix4& m);
         void render();
 
         /// Draw a closed polygon provided in CCW order.

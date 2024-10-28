@@ -1,8 +1,6 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/rendering/camera.hpp"
-#include "draft/rendering/shader.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/asset_manager.hpp"
@@ -39,17 +37,16 @@ namespace Draft {
         };
 
         // Variables
-        SpriteBatch batch;
         std::vector<Particle> particlePool;
         size_t poolIndex;
 
     public:
         // Constructors
-        ParticleSystem(const std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true), const size_t maxParticles = 1000);
+        ParticleSystem(const size_t maxParticles = 1000);
 
         // Functions
         void emit(const ParticleProps& props);
         void update(Time timeStep);
-        void render(const Camera* camera);
+        void render(SpriteBatch& batch);
     };
 };

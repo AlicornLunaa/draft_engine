@@ -30,6 +30,7 @@ namespace Draft {
         virtual ~Batch() = default;
 
         // Functions
+        inline bool is_active() const { return Batch::activeBatch == this; }
         inline const std::shared_ptr<Shader> get_shader() const { return shaderPtr; }
         inline const Matrix4& get_proj_matrix() const { return projMatrix; }
         inline const Matrix4& get_trans_matrix() const { return transMatrix; }

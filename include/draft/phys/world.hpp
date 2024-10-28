@@ -5,7 +5,6 @@
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
-#include "draft/rendering/camera.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/util/asset_manager.hpp"
 #include "draft/util/time.hpp"
@@ -47,7 +46,7 @@ namespace Draft {
         void set_debug_renderer(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(Time timeStep, int32_t velocityIterations, int32_t positionIterations);
-        void debug_draw(const Camera* camera = nullptr);
+        void debug_draw(const Matrix4& m = Matrix4(1.f));
         
     private:
         // pImpl
