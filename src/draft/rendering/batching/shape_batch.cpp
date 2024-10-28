@@ -10,9 +10,9 @@ using namespace std;
 
 namespace Draft {
     // Constructor
-    ShapeBatch::ShapeBatch(std::shared_ptr<Shader> shader, const size_t maxShapes) : Batch(maxShapes, shader) {
+    ShapeBatch::ShapeBatch(std::shared_ptr<Shader> shader) : Batch(shader) {
         // Setup data buffers
-        dynamicVertexBufLoc = vertexBuffer.start_buffer<Point>(maxShapes);
+        dynamicVertexBufLoc = vertexBuffer.start_buffer<Point>(MAX_SHAPES_TO_RENDER);
         vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(Point), 0);
         vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(Point), offsetof(Point, color));
         vertexBuffer.end_buffer();
@@ -182,6 +182,7 @@ namespace Draft {
     }
 
     void ShapeBatch::begin(){
+        Batch::begin();
         points.clear();
     }
 
@@ -195,9 +196,9 @@ namespace Draft {
         shaderPtr->set_uniform("view", get_trans_matrix());
         shaderPtr->set_uniform("projection", get_proj_matrix());
         
-        for(size_t i = 0; i <= points.size() / maxSprites; i++){
+        for(size_t i = 0; i <= points.size() / MAX_SHAPES_TO_RENDER; i++){
             // Repeat for number of render chunks
-            size_t pointsRendered = std::min(points.size(), maxSprites);
+            size_t pointsRendered = std::min(points.size(), MAX_SHAPES_TO_RENDER);
 
             vertexBuffer.bind();
             vertexBuffer.set_dynamic_data(dynamicVertexBufLoc, points);
@@ -208,5 +209,9 @@ namespace Draft {
         }
 
         vertexBuffer.unbind();
+    }
+
+    void ShapeBatch::end(){
+        Batch::end();
     }
 };

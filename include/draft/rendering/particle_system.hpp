@@ -2,7 +2,6 @@
 
 #include "draft/math/glm.hpp"
 #include "draft/rendering/camera.hpp"
-#include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/texture.hpp"
@@ -51,6 +50,6 @@ namespace Draft {
         // Functions
         void emit(const ParticleProps& props);
         void update(Time timeStep);
-        void render(const RenderWindow& window, const Camera* camera);
+        void render(const Camera* camera);
     };
 };

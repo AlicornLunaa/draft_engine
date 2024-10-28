@@ -16,7 +16,7 @@ namespace Draft {
     }
 
     void PhysicsDebugRender::render(){
-        batch.flush();
+        batch.end();
     }
 
     /// Draw a closed polygon provided in CCW order.

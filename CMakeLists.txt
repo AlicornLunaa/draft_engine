@@ -209,7 +209,7 @@ add_subdirectory(vendor/tracy)
 find_package(Freetype REQUIRED)
 
 if(WIN32)
-	set(SFML_FLAGS sfml-audio sfml-network sfml-main sfml-system -static)
+	set(SFML_FLAGS sfml-audio sfml-network sfml-system -static)
 elseif(LINUX)
     set(SFML_FLAGS sfml-audio sfml-network sfml-system)
 endif()

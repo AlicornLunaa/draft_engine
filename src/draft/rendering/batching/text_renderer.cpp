@@ -50,12 +50,12 @@ namespace Draft {
             // Render glyph
             batch.draw({
                 glyph.region.texture,
+                glyph.region.bounds,
                 Vector2f{0, 0},
                 props.rotation,
                 {w, h},
                 center - Vector2f(xPos, yPos),
                 1.f,
-                glyph.region.bounds,
                 props.color,
                 true
             });
@@ -68,9 +68,16 @@ namespace Draft {
         draw_text({ str, font, position, {0, 0}, color, 0.f, scale });
     }
 
-    void TextRenderer::flush(const Camera* camera){
+    void TextRenderer::begin(){
+        batch.begin();
+    }
+
+    void TextRenderer::flush(){
         // Generate every quad for each character
-        batch.set_proj_matrix(camera->get_combined());
         batch.flush();
+    }
+
+    void TextRenderer::end(){
+        batch.end();
     }
 };

@@ -164,7 +164,7 @@ namespace Draft {
         ptr->world.Step(timeStep.as_seconds(), velocityIterations, positionIterations);
     }
 
-    void World::debug_draw(const RenderWindow& window, const Camera* camera){
+    void World::debug_draw(const Camera* camera){
         ptr->physRenderer->begin(camera);
         ptr->world.DebugDraw();
         ptr->physRenderer->render();

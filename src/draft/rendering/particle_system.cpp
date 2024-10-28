@@ -43,9 +43,12 @@ namespace Draft {
         }
     }
 
-    void ParticleSystem::render(const RenderWindow& window, const Camera* camera){
+    void ParticleSystem::render(const Camera* camera){
         if(camera == nullptr)
             return;
+        
+        batch.set_proj_matrix(camera->get_combined());
+        batch.begin();
 
         for(auto& particle : particlePool){
             if(!particle.active)
@@ -59,17 +62,16 @@ namespace Draft {
 
             batch.draw({
                 particle.props.texture,
+                FloatRect{},
                 particle.position,
                 particle.rotation,
                 Vector2f{particle.size},
                 Vector2f{particle.size * 0.5f},
                 2.f,
-                FloatRect{},
                 color
             });
         }
 
-        batch.set_proj_matrix(camera->get_combined());
-        batch.flush();
+        batch.end();
     }
 };

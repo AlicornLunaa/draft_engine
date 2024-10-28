@@ -16,7 +16,7 @@ namespace Draft {
         // Flush all the opaque quads to gpu
         Texture const* texturePtr = nullptr;
         std::vector<InstanceData> instances;
-        instances.reserve(maxSprites);
+        instances.reserve(MAX_SPRITES_TO_RENDER);
 
         // Prep the shader
         shaderPtr->bind();
@@ -30,7 +30,7 @@ namespace Draft {
         while(!opaqueQuads.empty()){
             texturePtr = nullptr;
 
-            for(size_t i = 0; i < maxSprites && !opaqueQuads.empty(); i++){
+            for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !opaqueQuads.empty(); i++){
                 auto& props = opaqueQuads.front();
 
                 if(!texturePtr){
@@ -82,7 +82,7 @@ namespace Draft {
         // Flush all the transparent quads
         Texture const* texturePtr = nullptr;
         std::vector<InstanceData> instances;
-        instances.reserve(maxSprites);
+        instances.reserve(MAX_SPRITES_TO_RENDER);
 
         // Prep the shader
         shaderPtr->bind();
@@ -93,15 +93,15 @@ namespace Draft {
         vertexBuffer.bind();
 
         // Set render options
+        if(blend){ glEnable(GL_BLEND); } else { glDisable(GL_BLEND); }
         glDepthMask(GL_FALSE);
-        glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // Render in maxSprites chunks
         while(!transparentQuads.empty()){
             texturePtr = nullptr;
 
-            for(size_t i = 0; i < maxSprites && !transparentQuads.empty(); i++){
+            for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !transparentQuads.empty(); i++){
                 auto& props = transparentQuads.top();
 
                 if(!texturePtr){
@@ -154,12 +154,12 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader) : Batch(MAX_SPRITES_TO_RENDER, shader ? shader : Draft::Assets::manager.get<Draft::Shader>("assets/shaders/default", true)) {
+    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader) : Batch(shader ? shader : Draft::Assets::manager.get<Draft::Shader>("assets/shaders/default", true)) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, QUAD_VERTICES);
         vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
 
-        dynamicDataLoc = vertexBuffer.start_buffer<InstanceData>(maxSprites);
+        dynamicDataLoc = vertexBuffer.start_buffer<InstanceData>(MAX_SPRITES_TO_RENDER);
         vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(InstanceData), offsetof(InstanceData, color));
         vertexBuffer.set_attribute(2, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords));
         vertexBuffer.set_attribute(3, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 1);
@@ -172,9 +172,7 @@ namespace Draft {
         glVertexAttribDivisor(5, 1);
         vertexBuffer.end_buffer();
     }
-
-    SpriteBatch::~SpriteBatch(){}
-
+    
     // Functions
     void SpriteBatch::draw(SpriteProps props){
         // Preprocessing for the props
@@ -195,19 +193,21 @@ namespace Draft {
 
     void SpriteBatch::draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
         // Shortcut function for backwards compat
-        draw({
+        draw(SpriteProps{
             texture,
+            region,
             position,
             rotation,
             size,
             origin,
-            0,
-            region
+            0
         });
     }
 
     void SpriteBatch::begin(){
-        // Save the current window so flushing can happen
+        // Prep for rendering
+        Batch::begin();
+
         while(!transparentQuads.empty())
             transparentQuads.pop();
 
@@ -223,5 +223,10 @@ namespace Draft {
         // Flush first batch of opaque & transparent remaining
         internal_flush_opaque();
         internal_flush_transparent();
+    }
+    
+    void SpriteBatch::end(){
+        // Finalize rendering
+        Batch::end();
     }
 };

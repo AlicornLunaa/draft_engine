@@ -16,6 +16,7 @@ namespace Draft {
     struct SpriteProps {
         // Variables
         std::shared_ptr<Texture> texture = nullptr;
+        FloatRect region{};
 
         Vector2f position{0, 0};
         float rotation = 0.f;
@@ -24,9 +25,7 @@ namespace Draft {
         Vector2f origin{0, 0};
         float zIndex = 0.f;
 
-        FloatRect region{};
         Vector4f color{1};
-
         bool renderAsTransparent = false;
         
         bool operator()(SpriteProps const& a, SpriteProps const& b){ return a.zIndex > b.zIndex; }
@@ -71,12 +70,13 @@ namespace Draft {
     public:
         // Constructors
         SpriteBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true));
-        ~SpriteBatch();
+        virtual ~SpriteBatch() = default;
 
         // Functions
         void draw(SpriteProps props); // Add quad to scene
         void draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
         virtual void begin();
-        virtual void flush(); // Send quads to shader
+        virtual void flush();
+        virtual void end();
     };
 };

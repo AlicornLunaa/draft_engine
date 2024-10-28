@@ -13,6 +13,7 @@
 namespace Draft {
     class ShapeBatch : public Batch {
     public:
+        static constexpr size_t MAX_SHAPES_TO_RENDER = 1024;
         enum class RenderType { FILL, LINE };
 
     private:
@@ -46,7 +47,8 @@ namespace Draft {
 
     public:
         // Constructors
-        ShapeBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), const size_t maxShapes = 1000);
+        ShapeBatch(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true));
+        virtual ~ShapeBatch() = default;
 
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }
@@ -66,5 +68,6 @@ namespace Draft {
 
         virtual void begin();
         virtual void flush(); // Send shapes to shader
+        virtual void end();
     };
 };

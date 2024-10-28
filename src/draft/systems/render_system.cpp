@@ -26,6 +26,7 @@ namespace Draft {
 
             batch.draw({
                 spriteComponent.texture,
+                {0, 0, -1, -1},
                 transformComponent.position,
                 transformComponent.rotation,
                 spriteComponent.size,
@@ -34,6 +35,6 @@ namespace Draft {
             });
         }
 
-        batch.flush();
+        batch.end();
     }
 };
