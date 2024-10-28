@@ -1,14 +1,14 @@
-#include "draft/util/asset_loaders.hpp"
+#include "draft/util/asset_manager/particle_loader.hpp"
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/texture.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/logger.hpp"
 #include "draft/util/file_handle.hpp"
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
 namespace Draft {
-    // Particle loader
     std::shared_ptr<void> ParticleLoader::load_sync() const {
         // Default to basic call of default filehandle constructor
         try {
@@ -72,38 +72,8 @@ namespace Draft {
         return ptr;
     }
 
-    Assets::BaseLoader* ParticleLoader::clone(const FileHandle& handle) const {
+    BaseLoader* ParticleLoader::clone(const FileHandle& handle) const {
         auto* ptr = new ParticleLoader();
-        ptr->handle = handle;
-        return ptr;
-    }
-
-    // JSON Loader
-    std::shared_ptr<void> JSONLoader::load_sync() const {
-        // Default to basic call of default filehandle constructor
-        try {
-            auto ptr = std::shared_ptr<nlohmann::json>(new nlohmann::json(), [](void* ptr){ delete static_cast<nlohmann::json*>(ptr); });
-            *ptr = json::parse(handle.read_string());
-            return ptr;
-        } catch(int e){
-            Logger::print(Level::SEVERE, typeid(JSONLoader).name(), std::to_string(e));
-        }
-
-        return nullptr;
-    }
-
-    void JSONLoader::load_async(){
-        data = new nlohmann::json();
-        *data = json::parse(handle.read_string());
-    }
-
-    std::shared_ptr<void> JSONLoader::finish_async_gl(){
-        auto ptr = std::shared_ptr<nlohmann::json>(data, [](void* ptr){ delete static_cast<nlohmann::json*>(ptr); });
-        return ptr;
-    }
-
-    Assets::BaseLoader* JSONLoader::clone(const FileHandle& handle) const {
-        auto* ptr = new JSONLoader();
         ptr->handle = handle;
         return ptr;
     }

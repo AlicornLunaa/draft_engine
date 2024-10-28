@@ -7,7 +7,7 @@
 #include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <queue>
 #include <vector>

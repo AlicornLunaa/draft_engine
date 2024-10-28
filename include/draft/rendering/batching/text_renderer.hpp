@@ -4,7 +4,7 @@
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <memory>
 #include <string>

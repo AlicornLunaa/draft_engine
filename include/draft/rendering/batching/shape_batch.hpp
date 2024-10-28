@@ -4,7 +4,7 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <array>
 #include <cstddef>

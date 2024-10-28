@@ -1,4 +1,4 @@
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <string>
 

@@ -4,7 +4,7 @@
 #include <thread>
 #include <unordered_map>
 
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/image.hpp"
@@ -12,7 +12,9 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
-#include "draft/util/asset_loaders.hpp"
+#include "draft/util/asset_manager/generic_loader.hpp"
+#include "draft/util/asset_manager/particle_loader.hpp"
+#include "draft/util/asset_manager/json_loader.hpp"
 #include "draft/util/logger.hpp"
 #include "nlohmann/json.hpp" // IWYU pragma: keep
 

@@ -6,7 +6,7 @@
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/time.hpp"
 
 #include <memory>

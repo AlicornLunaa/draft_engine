@@ -1,6 +1,6 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/math/glm.hpp"
 #include <memory>
 

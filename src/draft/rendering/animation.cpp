@@ -1,6 +1,6 @@
 #include "draft/rendering/animation.hpp"
 #include "draft/rendering/texture.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "nlohmann/json.hpp"
 
 #include <string>

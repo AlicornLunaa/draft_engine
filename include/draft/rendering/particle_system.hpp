@@ -3,7 +3,7 @@
 #include "draft/math/glm.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/texture.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/time.hpp"
 
 #include <cstddef>
