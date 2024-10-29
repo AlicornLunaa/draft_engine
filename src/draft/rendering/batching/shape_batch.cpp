@@ -3,6 +3,7 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 
@@ -10,7 +11,7 @@ using namespace std;
 
 namespace Draft {
     // Constructor
-    ShapeBatch::ShapeBatch(std::shared_ptr<Shader> shader) : Batch(shader) {
+    ShapeBatch::ShapeBatch(Shader* shaderPtr) : Batch(shaderPtr ? shaderPtr : Assets::manager.get<Shader>("assets/shaders/shapes", true)) {
         // Setup data buffers
         dynamicVertexBufLoc = vertexBuffer.start_buffer<Point>(MAX_SHAPES_TO_RENDER);
         vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(Point), 0);

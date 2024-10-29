@@ -2,6 +2,7 @@
 
 #include "box2d/b2_draw.h"
 #include "draft/rendering/batching/shape_batch.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 
 namespace Draft {
     class PhysicsDebugRender : public b2Draw {
@@ -9,7 +10,7 @@ namespace Draft {
         ShapeBatch batch;
 
     public:
-        PhysicsDebugRender(std::shared_ptr<Shader> shader);
+        PhysicsDebugRender(Resource<Shader> shader);
 
         void begin(const Matrix4& m);
         void render();

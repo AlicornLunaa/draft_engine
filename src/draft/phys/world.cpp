@@ -149,7 +149,7 @@ namespace Draft {
         }
     }
 
-    void World::set_debug_renderer(std::shared_ptr<Shader> shader, void* renderer){
+    void World::set_debug_renderer(Resource<Shader> shader, void* renderer){
         if(!renderer){
             ptr->physRenderer.reset();
             ptr->physRenderer = std::unique_ptr<PhysicsDebugRender>(new PhysicsDebugRender(shader));

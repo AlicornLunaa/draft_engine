@@ -3,6 +3,7 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "glad/gl.h"
 
 #include <cstddef>
@@ -35,11 +36,11 @@ namespace Draft {
 
                 if(!texturePtr){
                     // No texture previously, bind it
-                    texturePtr = props.texture.get();
+                    texturePtr = props.texture;
                     texturePtr->bind();
                 }
 
-                if(props.texture.get() != texturePtr){
+                if(props.texture != texturePtr){
                     // Different texture, bind it and flush immediately
                     texturePtr = nullptr;
                     break;
@@ -106,11 +107,11 @@ namespace Draft {
 
                 if(!texturePtr){
                     // No texture previously, bind it
-                    texturePtr = props.texture.get();
+                    texturePtr = props.texture;
                     texturePtr->bind();
                 }
 
-                if(props.texture.get() != texturePtr){
+                if(props.texture != texturePtr){
                     // Different texture, flush immediately
                     texturePtr = nullptr;
                     break;
@@ -154,7 +155,7 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> shader) : Batch(shader ? shader : Draft::Assets::manager.get<Draft::Shader>("assets/shaders/default", true)) {
+    SpriteBatch::SpriteBatch(Shader* shaderPtr) : Batch(shaderPtr ? shaderPtr : Assets::manager.get<Draft::Shader>("assets/shaders/default", true)) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, QUAD_VERTICES);
         vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
@@ -178,7 +179,7 @@ namespace Draft {
         // Preprocessing for the props
         if(!props.texture){
             // No texture means use debug white
-            props.texture = whiteTexture;
+            props.texture = &whiteTexture;
         }
 
         // Check if the sprite is translucent or not
@@ -191,7 +192,7 @@ namespace Draft {
         }
     }
 
-    void SpriteBatch::draw(const std::shared_ptr<Texture> texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
+    void SpriteBatch::draw(Texture* texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
         // Shortcut function for backwards compat
         draw(SpriteProps{
             texture,

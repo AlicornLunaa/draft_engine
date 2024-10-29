@@ -20,7 +20,7 @@ namespace Draft {
         float sizeEnd = 0.1f;
         float sizeVariation = 0.f;
         float lifeTime = 1.f;
-        std::shared_ptr<Texture> texture = Assets::manager.get<Texture>("assets/textures/particles/circle.png", true);
+        Resource<Texture> texture = Assets::manager.get<Texture>("assets/textures/particles/circle.png", true);
     };
 
     class ParticleSystem {

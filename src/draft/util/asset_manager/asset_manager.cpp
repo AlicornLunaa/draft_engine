@@ -2,7 +2,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
-#include <unordered_map>
+#include <utility>
 
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/audio/sound_buffer.hpp"
@@ -20,7 +20,7 @@
 
 namespace Draft {
     // Private functions
-    void Assets::load_async_queue(std::queue<BaseLoader*>& loadQueue, std::queue<BaseLoader*>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut){
+    void Assets::load_async_queue(std::queue<std::unique_ptr<BaseLoader>>& loadQueue, std::queue<std::unique_ptr<BaseLoader>>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut){
         // Variables
         size_t currentLoaded = 0;
 
@@ -33,7 +33,7 @@ namespace Draft {
         }
 
         while(!loadQueue.empty()){
-            auto* loader = loadQueue.front();
+            auto& loader = loadQueue.front();
             loader->load_async();
 
             {
@@ -41,7 +41,7 @@ namespace Draft {
                 std::lock_guard<std::mutex> guard(mut);
 
                 // Try queuing up the resources that need finalized
-                finishQueue.push(loader);
+                finishQueue.push(std::move(loader));
 
                 // Update percentage
                 currentLoaded++;
@@ -56,39 +56,24 @@ namespace Draft {
         // Prevent race conditions
         std::lock_guard<std::mutex> guard(asyncMutex);
 
-        while(!finishAsyncQueue.empty()){
-            auto* loader = finishAsyncQueue.front();
-            resources[loader->handle.get_path()] = loader->finish_async_gl();
-            delete loader;
-            finishAsyncQueue.pop();
+        while(!stage2Queue.empty()){
+            auto& loader = stage2Queue.front();
+            resources.insert({ResourceKey{loader->handle.get_path(), loader->type}, loader->finish_async_gl()});
+            stage2Queue.pop();
         }
-    }
-
-    bool Assets::has_asset_loaded(const std::string& str){
-        return resources.find(str) != resources.end();
     }
 
     // Constructors
     Assets::Assets(){
         // Setup loaders
-        set_loader<Image>(new GenericLoader<Image>());
-        set_loader<Font>(new GenericLoader<Font>());
-        set_loader<SoundBuffer>(new GenericSyncLoader<SoundBuffer>());
-        set_loader<Model>(new GenericSyncLoader<Model>());
-        set_loader<Shader>(new GenericSyncLoader<Shader>());
-        set_loader<Texture>(new GenericSyncLoader<Texture>());
-        set_loader<ParticleProps>(new ParticleLoader());
-        set_loader<nlohmann::json>(new JSONLoader());
-    }
-
-    Assets::~Assets(){
-        cleanup();
-
-        for(auto& [type, ptr] : loaderTemplates){
-            delete ptr;
-        }
-
-        loaderTemplates.clear();
+        register_loader<Image>(new GenericLoader<Image>());
+        register_loader<Font>(new GenericLoader<Font>());
+        register_loader<SoundBuffer>(new GenericSyncLoader<SoundBuffer>());
+        register_loader<Model>(new GenericSyncLoader<Model>());
+        register_loader<Shader>(new GenericSyncLoader<Shader>());
+        register_loader<Texture>(new GenericSyncLoader<Texture>());
+        register_loader<ParticleProps>(new ParticleLoader());
+        register_loader<nlohmann::json>(new JSONLoader());
     }
 
     // Public vars
@@ -97,11 +82,10 @@ namespace Draft {
     // Functions
     void Assets::load(){
         // Load everything in the load queue
-        while(!loadQueue.empty()){
-            auto* loader = loadQueue.front();
-            resources[loader->handle.get_path()] = loader->load_sync();
-            delete loader;
-            loadQueue.pop();
+        while(!stage1Queue.empty()){
+            auto& loader = stage1Queue.front();
+            resources.insert({ResourceKey{loader->handle.get_path(), loader->type}, loader->load_sync()});
+            stage1Queue.pop();
         }
     }
 
@@ -110,10 +94,10 @@ namespace Draft {
         size_t totalAssets = 0;
         loadingProgress = 0.f;
         loadingAsyncronously = true;
-        totalAssets += loadQueue.size();
+        totalAssets += stage1Queue.size();
 
         // Spawn thread to run the asyncronous load
-        std::thread loadThread([this, totalAssets](){ load_async_queue(loadQueue, finishAsyncQueue, totalAssets, &loadingProgress, asyncMutex); });
+        std::thread loadThread([this, totalAssets](){ load_async_queue(stage1Queue, stage2Queue, totalAssets, &loadingProgress, asyncMutex); });
         loadThread.detach();
     }
 
@@ -136,26 +120,10 @@ namespace Draft {
     void Assets::reload(){
         Logger::print(Level::INFO, "Asset Manager", "Reloading...");
 
-        for(auto& func : reloadFunctions){
-            func();
-        }
+        // for(auto& func : reloadFunctions){
+        //     func();
+        // }
 
         Logger::print_raw("Complete\n");
-    }
-
-    void Assets::cleanup(){
-        // Cleans all resources
-        while(!loadQueue.empty()){
-            delete loadQueue.front();
-            loadQueue.pop();
-        }
-
-        while(!finishAsyncQueue.empty()){
-            delete finishAsyncQueue.front();
-            finishAsyncQueue.pop();
-        }
-
-        reloadFunctions.clear();
-        resources.clear();
     }
 }

@@ -3,6 +3,7 @@
 #include "draft/math/glm.hpp"
 #include "draft/rendering/material.hpp"
 #include "draft/rendering/mesh.hpp"
+#include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/util/file_handle.hpp"
 
@@ -21,6 +22,7 @@ namespace Draft {
         std::vector<int> meshToMaterialMap;
         std::vector<Matrix4> meshToMatrixMap;
         std::vector<std::unique_ptr<VertexBuffer>> buffers;
+        std::vector<std::unique_ptr<Texture>> embeddedTextures;
 
         // Private functions
         size_t component_byte_size(int type);
@@ -39,7 +41,7 @@ namespace Draft {
 
         // Functions
         void reload_materials();
-        void render(std::shared_ptr<Shader> shader, const Matrix4& matrix) const;
+        void render(Shader& shader, const Matrix4& matrix) const;
         void reload();
     };
 };

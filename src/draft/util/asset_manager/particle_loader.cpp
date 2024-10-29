@@ -2,17 +2,22 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_ptr.hpp"
+#include "draft/util/asset_manager/base_loader.hpp"
 #include "draft/util/logger.hpp"
 #include "draft/util/file_handle.hpp"
 #include "nlohmann/json.hpp"
+#include <memory>
 
 using json = nlohmann::json;
 
 namespace Draft {
-    std::shared_ptr<void> ParticleLoader::load_sync() const {
+    ParticleLoader::ParticleLoader() : BaseLoader(typeid(ParticleProps)) {}
+
+    AssetPtr ParticleLoader::load_sync() const {
         // Default to basic call of default filehandle constructor
         try {
-            auto ptr = std::shared_ptr<ParticleProps>(new ParticleProps(), [](void* ptr){ delete static_cast<ParticleProps*>(ptr); });
+            auto ptr = new ParticleProps();
             json json = json::parse(handle.read_string());
 
             ptr->velocity.x = json["velocity"]["x"];
@@ -33,12 +38,12 @@ namespace Draft {
             ptr->lifeTime = json["lifetime"];
             ptr->texture = Assets::manager.get<Texture>(json["texture"], true);
 
-            return ptr;
+            return make_asset_ptr(ptr);
         } catch(int e){
             Logger::print(Level::SEVERE, typeid(ParticleLoader).name(), std::to_string(e));
         }
 
-        return nullptr;
+        return make_asset_ptr<ParticleProps>(nullptr);
     }
 
     void ParticleLoader::load_async(){
@@ -66,14 +71,13 @@ namespace Draft {
         propPtr = ptr;
     }
 
-    std::shared_ptr<void> ParticleLoader::finish_async_gl(){
-        auto ptr = std::shared_ptr<ParticleProps>(propPtr, [](void* ptr){ delete static_cast<ParticleProps*>(ptr); });;
-        ptr->texture = Assets::manager.get<Texture>(texture, true);
-        return ptr;
+    AssetPtr ParticleLoader::finish_async_gl(){
+        propPtr->texture = Assets::manager.get<Texture>(texture, true);
+        return make_asset_ptr(propPtr);
     }
 
-    BaseLoader* ParticleLoader::clone(const FileHandle& handle) const {
-        auto* ptr = new ParticleLoader();
+    std::unique_ptr<BaseLoader> ParticleLoader::clone(const FileHandle& handle) const {
+        auto ptr = std::unique_ptr<BaseLoader>(new ParticleLoader());
         ptr->handle = handle;
         return ptr;
     }

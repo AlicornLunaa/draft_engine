@@ -66,7 +66,7 @@ namespace Draft {
         inline const Matrix4& get_view() const { return viewMatrix; }
         inline const Matrix4 get_combined() const { return projMatrix * viewMatrix; }
 
-        void apply(const RenderWindow& window, const std::shared_ptr<Shader>& shader) const;
+        void apply(const RenderWindow& window, const Shader& shader) const;
         Vector2f project(const Vector2f& point) const;
         Vector2f unproject(const Vector2f& point) const;
     };

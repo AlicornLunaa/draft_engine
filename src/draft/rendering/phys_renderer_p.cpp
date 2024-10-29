@@ -4,7 +4,7 @@
 #include "draft/rendering/batching/shape_batch.hpp"
 
 namespace Draft {
-    PhysicsDebugRender::PhysicsDebugRender(std::shared_ptr<Shader> shader) : batch(shader) {
+    PhysicsDebugRender::PhysicsDebugRender(Resource<Shader> shader) : batch(shader) {
         SetFlags(b2Draw::e_shapeBit | b2Draw::e_jointBit | b2Draw::e_centerOfMassBit);
     }
 

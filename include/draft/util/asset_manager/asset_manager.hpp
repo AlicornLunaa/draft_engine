@@ -1,6 +1,8 @@
 #pragma once
 
+#include "draft/util/asset_manager/asset_ptr.hpp"
 #include "draft/util/asset_manager/base_loader.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
 
 #include <cassert>
@@ -12,19 +14,38 @@
 #include <string>
 #include <typeindex>
 #include <unordered_map>
-#include <vector>
+#include <utility>
+
+/**
+ * Unload system should swap pointer to the missing asset placeholder and then release the item
+ *
+ * If an item is requested, return a new handle but as a redirect to missing, then if a resource
+ *      was loaded, it can be swapped to the correct asset.
+ */
+
+ // Asset class holds unique pointers to Resource class. Resource is a superclass that contains several
+ // methods specific to loading and unloading. There can also be a container class called DynamicResource
+ // which instead holds a reference to the pointer, so the resource can be changed at will.
 
 namespace Draft {
     // Owns and manages all resources inside the game, singleton to encapsulate the data
     class Assets {
     private:
         // Variables
-        std::unordered_map<std::type_index, const BaseLoader*> loaderTemplates;
-        std::unordered_map<std::string, std::shared_ptr<void>> resources;
-        std::vector<std::function<void(void)>> reloadFunctions;
+        typedef std::pair<std::string, std::type_index> ResourceKey;
 
-        std::queue<BaseLoader*> loadQueue; // Stage 1, no OpenGL, non-blocking
-        std::queue<BaseLoader*> finishAsyncQueue; // Stage 2, context provided, blocking
+        struct KeyHash {
+            std::size_t operator()(const ResourceKey& k) const {
+                return std::hash<std::string>()(k.first) ^ k.second.hash_code();
+            }
+        };
+
+        std::unordered_map<std::type_index, std::unique_ptr<BaseLoader>> loaders;
+        std::unordered_map<std::type_index, AssetPtr> placeholders;
+        std::unordered_map<ResourceKey, AssetPtr, KeyHash> resources;
+
+        std::queue<std::unique_ptr<BaseLoader>> stage1Queue; // Stage 1, no OpenGL, non-blocking
+        std::queue<std::unique_ptr<BaseLoader>> stage2Queue; // Stage 2, context provided, blocking
         std::mutex asyncMutex;
         float loadingProgress = 1.f;
         bool loadingAsyncronously = false;
@@ -32,15 +53,16 @@ namespace Draft {
         // Helper funcs
         template<typename T>
         void load_sync_immediate(const FileHandle& handle){
-            auto* loaderTemplate = loaderTemplates[typeid(T)];
-            auto* loader = loaderTemplate->clone(handle);
-            resources[handle.get_path()] = loader->load_sync();
-            delete loader;
+            auto const& loaderTemplate = loaders[typeid(T)];
+            auto loader = loaderTemplate->clone(handle);
+            resources.insert({ResourceKey{handle.get_path(), typeid(T)}, loader->load_sync()});
         }
 
-        static void load_async_queue(std::queue<BaseLoader*>& loadQueue, std::queue<BaseLoader*>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut);
+        static void load_async_queue(std::queue<std::unique_ptr<BaseLoader>>& loadQueue, std::queue<std::unique_ptr<BaseLoader>>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut);
         void finish_async_queue();
-        bool has_asset_loaded(const std::string& str);
+
+        template<typename T>
+        bool has_asset_loaded(const std::string& str){ return resources.find({str, typeid(T)}) != resources.end(); }
 
     public:
         // Variables
@@ -48,39 +70,43 @@ namespace Draft {
 
         // Constructors
         Assets();
-        ~Assets();
+        ~Assets() = default;
 
         // Functions
         template<typename T>
-        void set_loader(BaseLoader* loader){
-            if(loaderTemplates[typeid(T)])
-                delete loaderTemplates[typeid(T)];
-
-            loaderTemplates[typeid(T)] = loader;
+        void register_loader(BaseLoader* pTemplate){
+            loaders.insert({typeid(T), std::unique_ptr<BaseLoader>(pTemplate)});
         }
 
         template<typename T>
-        const std::shared_ptr<T> get(const std::string& key, bool loadOnFail = false){
+        void register_placeholder(T* placeholder){
+            placeholders.insert({typeid(T), make_asset_ptr(placeholder)});
+        }
+
+        template<typename T>
+        Resource<T> get(const std::string& key, bool loadOnFail = false){
             // Retrieve an asset
-            if(resources.find(key) == resources.end()){
+            ResourceKey keyPair{key, typeid(T)};
+
+            if(resources.find(keyPair) == resources.end()){
                 // No asset exists by this name, try loading it if load on fail is true
                 if(loadOnFail){
                     load_sync_immediate<T>(FileHandle::automatic(key));
                 } else {
-                    return nullptr;
+                    return Resource<T>(placeholders.at(typeid(T)));
                 }
             }
 
             // Get the resource pointer
-            return std::static_pointer_cast<T>(resources.at(key));
+            return Resource<T>(resources.at(keyPair));
         }
 
         template<typename T>
         void queue(const FileHandle& handle){
             // Check if it needs a loader too
-            auto* loader = loaderTemplates[typeid(T)];
+            auto const& loader = loaders[typeid(T)];
             assert(loader != nullptr && "Loader for asset does not exist");
-            loadQueue.push(loader->clone(handle));
+            stage1Queue.push(loader->clone(handle));
         }
 
         void load();
@@ -89,6 +115,5 @@ namespace Draft {
         float get_loading_progress();
 
         void reload();
-        void cleanup();
     };
 }

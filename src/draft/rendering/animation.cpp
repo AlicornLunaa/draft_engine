@@ -27,7 +27,7 @@ namespace Draft {
 
             frames.push_back({
                 bounds["x"],
-                texture->get_size().y - static_cast<float>(bounds["y"]) - static_cast<float>(bounds["h"]),
+                texture.get().get_size().y - static_cast<float>(bounds["y"]) - static_cast<float>(bounds["h"]),
                 bounds["w"],
                 bounds["h"]
             });
@@ -35,7 +35,7 @@ namespace Draft {
     }
 
     // Functions
-    const TextureRegion Animation::get_frame(float frameTime) const {
+    TextureRegion Animation::get_frame(float frameTime) {
         // Keep time
         frameTime = fmodf(frameTime, totalFrameTime);
 
@@ -47,6 +47,6 @@ namespace Draft {
         }
 
         // Error
-        return { texture, frames[(int)(frameTime / 100) % 20] };
+        return { texture, /*  */frames[(int)(frameTime / 100) % 20] };
     }
 };

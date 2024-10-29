@@ -1,6 +1,8 @@
 #pragma once
 
 #include "draft/rendering/texture.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
 #include <vector>
 
@@ -8,7 +10,7 @@ namespace Draft {
     class Animation {
     private:
         // Variables
-        std::shared_ptr<Texture> texture = nullptr;
+        Resource<Texture> texture = Assets::manager.get<Texture>("assets/textures/debug_white.png", true);
         std::vector<FloatRect> frames;
         std::vector<float> frameTimes;
         float totalFrameTime = 0.f;
@@ -22,6 +24,6 @@ namespace Draft {
         Animation& operator=(const Animation& other) = delete;
 
         // Functions
-        const TextureRegion get_frame(float frameTime = 0.f) const;
+        TextureRegion get_frame(float frameTime = 0.f);
     };
 };

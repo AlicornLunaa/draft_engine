@@ -21,6 +21,6 @@ namespace Draft {
         RenderSystem& operator=(const RenderSystem& other) = delete;
 
         // Functions
-        void render(SpriteBatch& batch, const Camera* camera = nullptr);
+        void render(SpriteBatch& batch);
     };
 };

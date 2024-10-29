@@ -43,7 +43,7 @@ namespace Draft {
         Joint* create_joint(const T& def);
         void destroy_joint(Joint* jointPtr);
 
-        void set_debug_renderer(std::shared_ptr<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), void* renderer = nullptr);
+        void set_debug_renderer(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(Time timeStep, int32_t velocityIterations, int32_t positionIterations);
         void debug_draw(const Matrix4& m = Matrix4(1.f));

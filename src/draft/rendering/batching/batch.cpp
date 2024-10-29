@@ -2,7 +2,6 @@
 #include "draft/rendering/shader.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/math/glm.hpp"
-#include <memory>
 
 namespace Draft {
     // Private vars
@@ -16,7 +15,7 @@ namespace Draft {
     }
 
     // Constructors
-    Batch::Batch(std::shared_ptr<Shader> shaderPtr) : shaderPtr(shaderPtr ? shaderPtr : Assets::manager.get<Shader>("assets/shaders/default", true)) {
+    Batch::Batch(Shader* shaderPtr) : shaderPtr(shaderPtr ? shaderPtr : Assets::manager.get<Shader>("assets/shaders/default", true)) {
     }
 
     // Functions
@@ -27,11 +26,11 @@ namespace Draft {
         this->blend = blend;
     }
 
-    void Batch::set_shader(const std::shared_ptr<Shader> shader){
+    void Batch::set_shader(const Shader& shader){
         if(activeBatch == this)
             flush();
 
-        shaderPtr = shader;
+        shaderPtr = &shader;
     }
 
     void Batch::set_proj_matrix(const Matrix4& m){

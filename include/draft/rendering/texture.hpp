@@ -49,7 +49,7 @@ namespace Draft {
     };
 
     struct TextureRegion {
-        const std::shared_ptr<Texture> texture;
+        Texture& texture;
         FloatRect bounds;
     };
 };

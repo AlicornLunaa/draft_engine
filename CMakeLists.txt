@@ -59,7 +59,6 @@ set(SOURCES
     src/draft/util/asset_manager/asset_manager.cpp
     src/draft/util/asset_manager/particle_loader.cpp
     src/draft/util/asset_manager/json_loader.cpp
-    src/draft/util/asset_manager/base_loader.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
     src/draft/systems/render_system.cpp
@@ -146,6 +145,8 @@ set(INTERFACES
     include/draft/util/asset_manager/generic_loader.hpp
     include/draft/util/asset_manager/particle_loader.hpp
     include/draft/util/asset_manager/json_loader.hpp
+    include/draft/util/asset_manager/resource.hpp
+    include/draft/util/asset_manager/asset_ptr.hpp
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp

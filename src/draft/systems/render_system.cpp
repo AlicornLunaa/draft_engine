@@ -1,4 +1,3 @@
-#include "draft/rendering/camera.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
@@ -14,7 +13,7 @@ namespace Draft {
     }
 
     // Functions
-    void RenderSystem::render(SpriteBatch& batch, const Camera* camera){
+    void RenderSystem::render(SpriteBatch& batch){
         auto view = registryRef.view<SpriteComponent, TransformComponent>();
 
         for(auto entity : view){

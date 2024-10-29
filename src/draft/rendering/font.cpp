@@ -110,7 +110,7 @@ namespace Draft {
 
         // Save glyph data
         fontType.glyphs.emplace(ch, Glyph{
-            TextureRegion{baseTexture, bounds},
+            TextureRegion{*baseTexture.get(), bounds},
             { ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows },
             { ptr->fontFace->glyph->bitmap_left, ptr->fontFace->glyph->bitmap_top },
             ptr->fontFace->glyph->advance.x

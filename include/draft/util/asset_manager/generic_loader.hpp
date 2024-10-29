@@ -1,7 +1,9 @@
 #pragma once
 
+#include "draft/util/asset_manager/asset_ptr.hpp"
 #include "draft/util/asset_manager/base_loader.hpp"
 #include "draft/util/logger.hpp"
+#include <memory>
 
 namespace Draft {
     template<typename T>
@@ -9,17 +11,19 @@ namespace Draft {
         // Variables
         std::vector<std::byte> rawData;
 
+        // Constructors
+        GenericLoader() : BaseLoader(typeid(T)) {}
+
         // Loading on main thread
-        virtual std::shared_ptr<void> load_sync() const override {
+        virtual AssetPtr load_sync() const override {
             // Default to basic call of default filehandle constructor
             try {
-                auto ptr = std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });;
-                return ptr;
+                return make_asset_ptr(new T(handle));
             } catch(int e){
                 Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
             }
 
-            return nullptr;
+            return make_asset_ptr<T>(nullptr);
         }
 
         // Loading in a separate thread with no OpenGL context
@@ -28,20 +32,20 @@ namespace Draft {
         }
 
         // Create the finalized object
-        virtual std::shared_ptr<void> finish_async_gl() override {
+        virtual AssetPtr finish_async_gl() override {
             // Default to basic call of default filehandle constructor
             try {
-                return std::shared_ptr<T>(new T(rawData), [](void* ptr){ delete static_cast<T*>(ptr); });
+                return make_asset_ptr(new T(rawData));
             } catch(int e){
                 Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
             }
 
-            return nullptr;
+            return make_asset_ptr<T>(nullptr);
         }
 
         // Cloning
-        virtual BaseLoader* clone(const FileHandle& handle) const override {
-            auto* ptr = new GenericLoader<T>();
+        virtual std::unique_ptr<BaseLoader> clone(const FileHandle& handle) const override {
+            auto ptr = std::unique_ptr<BaseLoader>(new GenericLoader<T>());
             ptr->handle = handle;
             return ptr;
         }
@@ -49,36 +53,39 @@ namespace Draft {
 
     template<typename T>
     struct GenericSyncLoader : public BaseLoader {
+        // Constructors
+        GenericSyncLoader() : BaseLoader(typeid(T)) {}
+
         // Loading on main thread
-        virtual std::shared_ptr<void> load_sync() const override {
+        virtual AssetPtr load_sync() const override {
             // Default to basic call of default filehandle constructor
             try {
-                return std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });
+                return make_asset_ptr(new T(handle));
             } catch(int e){
                 Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
             }
 
-            return nullptr;
+            return make_asset_ptr<T>(nullptr);
         }
 
         // Loading in a separate thread with no OpenGL context
         virtual void load_async() override {}
 
         // Create the finalized object
-        virtual std::shared_ptr<void> finish_async_gl() override {
+        virtual AssetPtr finish_async_gl() override {
             // Default to basic call of default filehandle constructor
             try {
-                return std::shared_ptr<T>(new T(handle), [](void* ptr){ delete static_cast<T*>(ptr); });
+                return make_asset_ptr(new T(handle));
             } catch(int e){
                 Logger::print(Level::SEVERE, typeid(T).name(), std::to_string(e));
             }
 
-            return nullptr;
+            return make_asset_ptr<T>(nullptr);
         }
 
         // Cloning
-        virtual BaseLoader* clone(const FileHandle& handle) const override {
-            auto* ptr = new GenericSyncLoader<T>();
+        virtual std::unique_ptr<BaseLoader> clone(const FileHandle& handle) const override {
+            auto ptr = std::unique_ptr<BaseLoader>(new GenericSyncLoader<T>());
             ptr->handle = handle;
             return ptr;
         }

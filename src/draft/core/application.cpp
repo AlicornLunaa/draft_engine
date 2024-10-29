@@ -1,5 +1,3 @@
-#include "draft/util/asset_manager/asset_manager.hpp"
-
 #include <string>
 
 #include "draft/core/application.hpp"
@@ -25,7 +23,6 @@ namespace Draft {
     }
 
     Application::~Application(){
-        Assets::manager.cleanup();
     }
 
     // Functions

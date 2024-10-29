@@ -38,7 +38,7 @@ namespace Draft {
         viewMatrix = Math::lookAt(position, position + forward, up);
     }
 
-    void Camera::apply(const RenderWindow& window, const std::shared_ptr<Shader>& shader) const {
+    void Camera::apply(const RenderWindow& window, const Shader& shader) const {
         if(viewport.width <= 0 || viewport.height <= 0){
             auto size = window.get_size();
             glViewport(0, 0, size.x, size.y);
@@ -46,8 +46,8 @@ namespace Draft {
             glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
         }
 
-        shader->set_uniform("view", get_view());
-        shader->set_uniform("projection", get_projection());
+        shader.set_uniform("view", get_view());
+        shader.set_uniform("projection", get_projection());
     }
 
     Vector2f Camera::project(const Vector2f& point) const {

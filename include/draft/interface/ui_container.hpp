@@ -22,7 +22,7 @@ namespace Draft {
         VertexBuffer* buffer = nullptr;
 
         const Application* app = nullptr;
-        const std::shared_ptr<Shader> uiShader;
+        const Shader& uiShader;
         OrthographicCamera uiCamera;
         FloatRect windowBounds;
 
@@ -33,7 +33,7 @@ namespace Draft {
 
     public:
         // Constructors
-        UIContainer(const Application* app, const Vector2f& size, const std::shared_ptr<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/interface", true));
+        UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader = Assets::manager.get<Shader>("assets/shaders/interface", true));
         UIContainer(const UIContainer& other) = delete;
         ~UIContainer();
 
