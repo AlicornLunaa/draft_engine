@@ -1,9 +1,10 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
+#include "draft/rendering/batching/batch.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <array>
 #include <cstddef>
@@ -46,7 +47,7 @@ namespace Draft {
 
     public:
         // Constructors
-        ShapeBatch(Shader* shaderPtr = nullptr);
+        ShapeBatch(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true));
         virtual ~ShapeBatch() = default;
 
         // Functions

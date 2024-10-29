@@ -2,11 +2,12 @@
 
 #include "draft/math/rect.hpp"
 #include "draft/math/glm.hpp"
-#include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
+#include "draft/rendering/batching/batch.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <queue>
 #include <vector>
@@ -14,7 +15,7 @@
 namespace Draft {
     struct SpriteProps {
         // Variables
-        Texture* texture = nullptr;
+        Texture const* texture = nullptr;
         FloatRect region{};
 
         Vector2f position{0, 0};
@@ -68,7 +69,7 @@ namespace Draft {
 
     public:
         // Constructors
-        SpriteBatch(Shader* shader = nullptr);
+        SpriteBatch(Resource<Shader> shader = Assets::manager.get<Draft::Shader>("assets/shaders/default", true));
         virtual ~SpriteBatch() = default;
 
         // Functions

@@ -30,7 +30,7 @@ namespace Draft {
 
     public:
         // Constructors
-        TextRenderer(Shader* shaderPtr = nullptr);
+        TextRenderer(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/text", true));
         virtual ~TextRenderer() = default;
 
         // Functions

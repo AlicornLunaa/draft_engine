@@ -19,7 +19,7 @@ namespace Draft::UI {
         invalidate();
     }
 
-    Picture::Picture(float x, float y, float w, float h, const Texture& texture) : Panel(6, nullptr), texture(texture) {
+    Picture::Picture(float x, float y, float w, float h, Resource<Texture> texture) : Panel(6, nullptr), texture(texture) {
         bounds.x = x;
         bounds.y = y;
         bounds.width = w;

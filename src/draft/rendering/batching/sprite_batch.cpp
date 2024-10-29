@@ -1,9 +1,8 @@
 #include "draft/math/glm.hpp"
-#include "draft/rendering/batching/sprite_batch.hpp"
-#include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/rendering/batching/batch.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
 #include "glad/gl.h"
 
 #include <cstddef>
@@ -20,9 +19,10 @@ namespace Draft {
         instances.reserve(MAX_SPRITES_TO_RENDER);
 
         // Prep the shader
-        shaderPtr->bind();
-        shaderPtr->set_uniform("view", get_trans_matrix());
-        shaderPtr->set_uniform("projection", get_proj_matrix());
+        Shader* shader = this->shader;
+        shader->bind();
+        shader->set_uniform("view", get_trans_matrix());
+        shader->set_uniform("projection", get_proj_matrix());
 
         // Prep buffer
         vertexBuffer.bind();
@@ -86,9 +86,10 @@ namespace Draft {
         instances.reserve(MAX_SPRITES_TO_RENDER);
 
         // Prep the shader
-        shaderPtr->bind();
-        shaderPtr->set_uniform("view", get_trans_matrix());
-        shaderPtr->set_uniform("projection", get_proj_matrix());
+        Shader* shader = this->shader;
+        shader->bind();
+        shader->set_uniform("view", get_trans_matrix());
+        shader->set_uniform("projection", get_proj_matrix());
 
         // Prep buffer
         vertexBuffer.bind();
@@ -155,7 +156,7 @@ namespace Draft {
     }
 
     // Constructor
-    SpriteBatch::SpriteBatch(Shader* shaderPtr) : Batch(shaderPtr ? shaderPtr : Assets::manager.get<Draft::Shader>("assets/shaders/default", true)) {
+    SpriteBatch::SpriteBatch(Resource<Shader> shader) : Batch(shader) {
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, QUAD_VERTICES);
         vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);

@@ -12,7 +12,7 @@ namespace Draft {
     }
 
     // Constructors
-    TextRenderer::TextRenderer(Shader* shaderPtr) : batch(shaderPtr ? shaderPtr : Assets::manager.get<Shader>("assets/shaders/text", true)) {}
+    TextRenderer::TextRenderer(Resource<Shader> shader) : batch(shader) {}
 
     // Functions
     Vector2f TextRenderer::get_text_bounds(const TextProperties& props) const {
@@ -39,7 +39,7 @@ namespace Draft {
         for(char ch : props.str){
             // Get glyph to render
             auto& glyph = font.get_glyph(ch);
-            Vector2f glyphTextureSize = glyph.region.texture.get_size();
+            Vector2f glyphTextureSize = glyph.region.texture.get().get_size();
             
             float xPos = currX + glyph.bearing.x * props.scale;
             float yPos = props.position.y - (glyph.size.y - glyph.bearing.y) * props.scale;
@@ -47,8 +47,8 @@ namespace Draft {
             float h = glyph.size.y * props.scale;
 
             // Render glyph
-            batch.draw({
-                &glyph.region.texture,
+            batch.draw(SpriteProps{
+                glyph.region.texture,
                 glyph.region.bounds,
                 Vector2f{0, 0},
                 props.rotation,

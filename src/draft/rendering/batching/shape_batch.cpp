@@ -3,7 +3,6 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 
@@ -11,7 +10,7 @@ using namespace std;
 
 namespace Draft {
     // Constructor
-    ShapeBatch::ShapeBatch(Shader* shaderPtr) : Batch(shaderPtr ? shaderPtr : Assets::manager.get<Shader>("assets/shaders/shapes", true)) {
+    ShapeBatch::ShapeBatch(Resource<Shader> shader) : Batch(shader) {
         // Setup data buffers
         dynamicVertexBufLoc = vertexBuffer.start_buffer<Point>(MAX_SHAPES_TO_RENDER);
         vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(Point), 0);
@@ -193,9 +192,10 @@ namespace Draft {
             return;
 
         // Render VBO
-        shaderPtr->bind();
-        shaderPtr->set_uniform("view", get_trans_matrix());
-        shaderPtr->set_uniform("projection", get_proj_matrix());
+        Shader* shader = this->shader;
+        shader->bind();
+        shader->set_uniform("view", get_trans_matrix());
+        shader->set_uniform("projection", get_proj_matrix());
         
         for(size_t i = 0; i <= points.size() / MAX_SHAPES_TO_RENDER; i++){
             // Repeat for number of render chunks

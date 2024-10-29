@@ -58,7 +58,7 @@ namespace Draft {
 
         while(!stage2Queue.empty()){
             auto& loader = stage2Queue.front();
-            resources.insert({ResourceKey{loader->handle.get_path(), loader->type}, loader->finish_async_gl()});
+            resources.insert_or_assign(ResourceKey{loader->handle.get_path(), loader->type}, loader->finish_async_gl());
             stage2Queue.pop();
         }
     }
@@ -82,14 +82,19 @@ namespace Draft {
     // Functions
     void Assets::load(){
         // Load everything in the load queue
+        register_placeholder(new Texture(Image(1, 1, {1, 0, 1, 1}, ColorSpace::RGB)));
+        
         while(!stage1Queue.empty()){
             auto& loader = stage1Queue.front();
-            resources.insert({ResourceKey{loader->handle.get_path(), loader->type}, loader->load_sync()});
+            resources.insert_or_assign(ResourceKey{loader->handle.get_path(), loader->type}, loader->load_sync());
             stage1Queue.pop();
         }
     }
 
     void Assets::load_async(){
+        // Placeholders
+        register_placeholder(new Texture(Image(1, 1, {1, 0, 1, 1}, ColorSpace::RGB)));
+
         // Get total assets to keep a percentage
         size_t totalAssets = 0;
         loadingProgress = 0.f;
@@ -120,9 +125,11 @@ namespace Draft {
     void Assets::reload(){
         Logger::print(Level::INFO, "Asset Manager", "Reloading...");
 
-        // for(auto& func : reloadFunctions){
-        //     func();
-        // }
+        for(auto& [key, assetPtr] : resources){
+            auto const& loader = loaders[key.second];
+            stage1Queue.push(loader->clone(FileHandle::automatic(key.first)));
+        }
+        load();
 
         Logger::print_raw("Complete\n");
     }

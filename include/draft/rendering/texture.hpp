@@ -3,6 +3,7 @@
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/image.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
 
 namespace Draft {
@@ -49,7 +50,7 @@ namespace Draft {
     };
 
     struct TextureRegion {
-        Texture& texture;
+        Resource<Texture> texture;
         FloatRect bounds;
     };
 };

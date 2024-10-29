@@ -55,7 +55,7 @@ namespace Draft {
         void load_sync_immediate(const FileHandle& handle){
             auto const& loaderTemplate = loaders[typeid(T)];
             auto loader = loaderTemplate->clone(handle);
-            resources.insert({ResourceKey{handle.get_path(), typeid(T)}, loader->load_sync()});
+            resources.insert_or_assign(ResourceKey{handle.get_path(), typeid(T)}, loader->load_sync());
         }
 
         static void load_async_queue(std::queue<std::unique_ptr<BaseLoader>>& loadQueue, std::queue<std::unique_ptr<BaseLoader>>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut);
@@ -75,12 +75,12 @@ namespace Draft {
         // Functions
         template<typename T>
         void register_loader(BaseLoader* pTemplate){
-            loaders.insert({typeid(T), std::unique_ptr<BaseLoader>(pTemplate)});
+            loaders.insert_or_assign(typeid(T), std::unique_ptr<BaseLoader>(pTemplate));
         }
 
         template<typename T>
         void register_placeholder(T* placeholder){
-            placeholders.insert({typeid(T), make_asset_ptr(placeholder)});
+            placeholders.insert_or_assign(typeid(T), make_asset_ptr(placeholder));
         }
 
         template<typename T>
@@ -93,7 +93,9 @@ namespace Draft {
                 if(loadOnFail){
                     load_sync_immediate<T>(FileHandle::automatic(key));
                 } else {
-                    return Resource<T>(placeholders.at(typeid(T)));
+                    // Create a redirect unique pointer to the placeholder asset
+                    T* ptr = static_cast<T*>(placeholders.at(keyPair.second).get());
+                    resources.insert({keyPair, AssetPtr(ptr, [](void* p){})});
                 }
             }
 
