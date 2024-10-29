@@ -1,21 +1,28 @@
 #pragma once
 
+#include "draft/math/glm.hpp"
+#include "draft/rendering/texture.hpp"
+
 namespace Draft {
     class Framebuffer {
     private:
         // Variables
+        Texture texture;
         unsigned int fbo;
         unsigned int rbo;
-        unsigned int tex;
+
+        // Private functions
+        void bind();
+        void unbind();
 
     public:
         // Constructors
-        Framebuffer();
+        Framebuffer(const Vector2i& size);
         ~Framebuffer();
 
         // Functions
-        void clear();
-        void bind() const;
-        void unbind() const;
+        void begin();
+        void end();
+        inline const Texture& get_texture() const { return texture; }
     };
 };

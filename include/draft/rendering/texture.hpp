@@ -19,8 +19,8 @@ namespace Draft {
 
         unsigned int texId;
         Vector2i size;
-        ColorSpace colorSpace;
-        bool transparent;
+        ColorSpace colorSpace = ColorSpace::RGB;
+        bool transparent = false;
 
         // Private functions
         void generate_opengl(Wrap wrapping);
@@ -39,6 +39,7 @@ namespace Draft {
         Texture& operator=(const Texture& other) = delete;
         
         // Functions
+        inline ColorSpace get_color_space() const { return colorSpace; }
         inline unsigned int get_texture_id() const { return texId; }
         inline bool is_loaded() const { return loaded; }
         inline bool is_transparent() const { return transparent; }

@@ -1,47 +1,44 @@
 #include "draft/rendering/frame_buffer.hpp"
+#include "draft/rendering/image.hpp"
 #include "draft/rendering/shader_buffer.hpp"
 
 namespace Draft {
+    // Private functions
+    void Framebuffer::bind(){ glBindFramebuffer(GL_FRAMEBUFFER, fbo); }
+    void Framebuffer::unbind(){ glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+
     // Constructors
-    Framebuffer::Framebuffer(){
+    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), ColorSpace::RGB)) {
         glGenFramebuffers(1, &fbo);
 
         bind();
-
-        glGenTextures(1, &tex);
-        glBindTexture(GL_TEXTURE_2D, tex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        texture.bind();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.get_texture_id(), 0);
+        texture.unbind();
 
         glGenRenderbuffers(1, &rbo);
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1280, 720);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, size.x, size.y);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
         unbind();
     }
 
     Framebuffer::~Framebuffer(){
-        glDeleteTextures(1, &tex);
         glDeleteRenderbuffers(1, &rbo);
         glDeleteFramebuffers(1, &fbo);
     }
 
     // Functions
-    void Framebuffer::clear(){
-        glClearColor(0.05f, 0.05f, 0.05f, 1.f);
+    void Framebuffer::begin(){
+        bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-    
-    void Framebuffer::bind() const {
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    }
 
-    void Framebuffer::unbind() const {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    void Framebuffer::end(){
+        unbind();
     }
 };
