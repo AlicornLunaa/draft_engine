@@ -66,6 +66,7 @@ namespace Draft {
                 for(const BufferAttribute& attrib : buf.attribs){
                     // Enable each attrib
                     glEnableVertexAttribArray(attrib.index);
+                    glVertexAttribDivisor(attrib.index, attrib.divisor);
 
                     // Setup for each type
                     if(attrib.type == GL_INT){

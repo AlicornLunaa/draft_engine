@@ -17,6 +17,7 @@ namespace Draft {
         unsigned long stride = sizeof(float);
         unsigned long offset = 0;
         bool normalized = false;
+        unsigned long divisor = 0;
     };
 
     struct RawBuffer {
