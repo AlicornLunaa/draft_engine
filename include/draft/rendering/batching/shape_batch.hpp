@@ -2,8 +2,9 @@
 
 #include "draft/math/glm.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/vertex_buffer.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include "draft/rendering/batching/batch.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <array>
@@ -38,12 +39,10 @@ namespace Draft {
         const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
 
         // Variables
+        VertexArray vertexArray;
         std::vector<Point> points;
         Vector4f currentColor{ 1, 1, 1, 1 };
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
-
-        VertexBuffer vertexBuffer;
-        size_t dynamicVertexBufLoc;
 
     public:
         // Constructors

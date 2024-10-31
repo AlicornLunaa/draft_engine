@@ -51,6 +51,8 @@ namespace Draft {
         bool loadingAsyncronously = false;
 
         // Helper funcs
+        void register_placeholders();
+
         template<typename T>
         void load_sync_immediate(const FileHandle& handle){
             auto const& loaderTemplate = loaders[typeid(T)];

@@ -63,6 +63,11 @@ namespace Draft {
         }
     }
 
+    void Assets::register_placeholders(){
+        register_placeholder(new Texture(Image(1, 1, {1, 0, 1, 1}, ColorSpace::RGB)));
+        register_placeholder(new Shader("assets/shaders/missing_shader"));
+    }
+
     // Constructors
     Assets::Assets(){
         // Setup loaders
@@ -82,7 +87,7 @@ namespace Draft {
     // Functions
     void Assets::load(){
         // Load everything in the load queue
-        register_placeholder(new Texture(Image(1, 1, {1, 0, 1, 1}, ColorSpace::RGB)));
+        register_placeholders();
         
         while(!stage1Queue.empty()){
             auto& loader = stage1Queue.front();
@@ -93,7 +98,7 @@ namespace Draft {
 
     void Assets::load_async(){
         // Placeholders
-        register_placeholder(new Texture(Image(1, 1, {1, 0, 1, 1}, ColorSpace::RGB)));
+        register_placeholders();
 
         // Get total assets to keep a percentage
         size_t totalAssets = 0;

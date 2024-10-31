@@ -2,7 +2,7 @@
 #include "draft/rendering/batching/shape_batch.hpp"
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/vertex_buffer.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 
@@ -12,10 +12,12 @@ namespace Draft {
     // Constructor
     ShapeBatch::ShapeBatch(Resource<Shader> shader) : Batch(shader) {
         // Setup data buffers
-        dynamicVertexBufLoc = vertexBuffer.start_buffer<Point>(MAX_SHAPES_TO_RENDER);
-        vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(Point), 0);
-        vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(Point), offsetof(Point, color));
-        vertexBuffer.end_buffer();
+        vertexArray.create({
+            DynamicBuffer::create<Point>(MAX_SHAPES_TO_RENDER, {
+                BufferAttribute{0, GL_FLOAT, 2, sizeof(Point), 0, false},
+                BufferAttribute{1, GL_FLOAT, 4, sizeof(Point), offsetof(Point, color), false}
+            })
+        });
     }
 
     // Functions
@@ -201,15 +203,15 @@ namespace Draft {
             // Repeat for number of render chunks
             size_t pointsRendered = std::min(points.size(), MAX_SHAPES_TO_RENDER);
 
-            vertexBuffer.bind();
-            vertexBuffer.set_dynamic_data(dynamicVertexBufLoc, points);
+            vertexArray.bind();
+            vertexArray.set_data(0, points);
 
             glDrawArrays((currentRenderType == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, pointsRendered);
 
             points.erase(points.begin(), points.begin() + pointsRendered);
         }
 
-        vertexBuffer.unbind();
+        vertexArray.unbind();
     }
 
     void ShapeBatch::end(){
