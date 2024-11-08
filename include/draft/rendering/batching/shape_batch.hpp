@@ -46,7 +46,7 @@ namespace Draft {
 
     public:
         // Constructors
-        ShapeBatch(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true));
+        ShapeBatch(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true));
         virtual ~ShapeBatch() = default;
 
         // Functions
