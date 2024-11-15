@@ -14,13 +14,13 @@
 namespace Draft {
     class ShapeBatch : public Batch {
     public:
-        static constexpr size_t MAX_SHAPES_TO_RENDER = 1024;
+        static constexpr size_t MAX_POINTS_PER_PASS = 1024;
         enum class RenderType { FILL, LINE };
 
     private:
         // Data structures
         struct Point {
-            Vector2f position;
+            Vector2f position{0, 0};
             Vector4f color{1, 1, 1, 1};
         };
 
