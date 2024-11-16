@@ -1,15 +1,16 @@
 #include "draft/rendering/frame_buffer.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/shader_buffer.hpp"
+#include "draft/rendering/texture.hpp"
 
 namespace Draft {
     // Private functions
     void Framebuffer::bind(){ glBindFramebuffer(GL_FRAMEBUFFER, fbo); }
     void Framebuffer::unbind(){ glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
-    // Constructors
-    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), ColorSpace::RGBA)) {
+    void Framebuffer::generate(){
         glGenFramebuffers(1, &fbo);
+        Vector2i size = texture.get_size();
 
         bind();
         texture.bind();
@@ -26,9 +27,18 @@ namespace Draft {
         unbind();
     }
 
-    Framebuffer::~Framebuffer(){
+    void Framebuffer::cleanup(){
         glDeleteRenderbuffers(1, &rbo);
         glDeleteFramebuffers(1, &fbo);
+    }
+
+    // Constructors
+    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), ColorSpace::RGBA)) {
+        generate();
+    }
+
+    Framebuffer::~Framebuffer(){
+        cleanup();
     }
 
     // Functions
@@ -40,5 +50,12 @@ namespace Draft {
 
     void Framebuffer::end(){
         unbind();
+    }
+
+    void Framebuffer::resize(const Vector2i& size){
+        // Resize the texture
+        texture = Texture(Image(size.x, size.y, {1, 1, 1, 1}, texture.get_color_space()));
+        cleanup();
+        generate();
     }
 };

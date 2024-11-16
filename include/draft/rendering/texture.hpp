@@ -36,7 +36,7 @@ namespace Draft {
         ~Texture();
 
         // Operators
-        Texture& operator=(const Texture& other) = delete;
+        Texture& operator=(Texture&& other) noexcept;
         
         // Functions
         inline ColorSpace get_color_space() const { return colorSpace; }

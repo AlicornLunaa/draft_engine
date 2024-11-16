@@ -38,7 +38,9 @@ namespace Draft {
     }
 
     void Texture::cleanup(){
-        glDeleteTextures(1, &texId);
+        // Delete the texture if it isnt 0
+        if(texId)
+            glDeleteTextures(1, &texId);
     }
     
     // Constructors
@@ -58,6 +60,30 @@ namespace Draft {
     
     Texture::~Texture(){
         cleanup();
+    }
+
+    // Operators
+    Texture& Texture::operator=(Texture&& other) noexcept {
+        // Skip if self
+        if(&other == this)
+            return *this;
+
+        // Cleanup old texture from here
+        cleanup();
+
+        // Set everything from other to this
+        loaded = other.loaded;
+        handle = other.handle;
+        texId = other.texId;
+        size = other.size;
+        colorSpace = other.colorSpace;
+        transparent = other.transparent;
+
+        // Stop the r-value from deleting the texture when its deleted
+        other.texId = 0;
+
+        // Return this again
+        return *this;
     }
 
     // Functions

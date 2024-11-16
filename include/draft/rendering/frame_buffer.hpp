@@ -14,6 +14,8 @@ namespace Draft {
         // Private functions
         void bind();
         void unbind();
+        void generate();
+        void cleanup();
 
     public:
         // Constructors
@@ -23,6 +25,7 @@ namespace Draft {
         // Functions
         void begin();
         void end();
+        void resize(const Vector2i& size);
         inline const Texture& get_texture() const { return texture; }
     };
 };

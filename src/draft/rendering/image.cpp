@@ -47,20 +47,21 @@ namespace Draft {
         pixelCount = width * height * static_cast<int>(colorSpace);
         data = new std::byte[pixelCount];
 
+        // Values
+        std::byte avgColor = float_to_byte((color.r + color.g + color.b) / 3.f);
+        std::byte red = float_to_byte(color.r);
+        std::byte green = float_to_byte(color.g);
+        std::byte blue = float_to_byte(color.b);
+        std::byte alpha = float_to_byte(color.a);
+
         // Fill the data, depending on the color space provided
         if(colorSpace == ColorSpace::GREYSCALE){
             // Greyscale
-            std::byte avgColor = float_to_byte((color.r + color.g + color.b) / 3.f);
-
             for(size_t i = 0; i < pixelCount; i++){
                 data[i] = avgColor;
             }
         } else if(colorSpace == ColorSpace::RGB){
             // RGB
-            std::byte red = float_to_byte(color.r);
-            std::byte green = float_to_byte(color.g);
-            std::byte blue = float_to_byte(color.b);
-
             for(size_t i = 0; i < pixelCount; i += 3){
                 data[i] = red;
                 data[i + 1] = green;
@@ -68,11 +69,6 @@ namespace Draft {
             }
         } else {
             // RGBA
-            std::byte red = float_to_byte(color.r);
-            std::byte green = float_to_byte(color.g);
-            std::byte blue = float_to_byte(color.b);
-            std::byte alpha = float_to_byte(color.a);
-
             for(size_t i = 0; i < pixelCount; i += 4){
                 data[i] = red;
                 data[i + 1] = green;
