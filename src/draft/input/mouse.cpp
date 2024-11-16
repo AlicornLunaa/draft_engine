@@ -1,3 +1,4 @@
+#include "draft/math/rect.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/input/mouse.hpp"
 #include "draft/input/event.hpp"
@@ -137,6 +138,10 @@ namespace Draft {
     const Vector2d& Mouse::get_position() const {
         glfwGetCursorPos((GLFWwindow*)window->get_raw_window(), &position.x, &position.y);
         return position;
+    }
+
+    const Vector2d Mouse::get_normalized_position() const {
+        return Math::normalize_coordinates(*window, get_position());
     }
 
     void Mouse::set_position(const Vector2f& pos){
