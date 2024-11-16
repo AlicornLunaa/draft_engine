@@ -15,7 +15,9 @@ namespace Draft {
         return Entity{ this, registry.create() };
     }
 
-    void Scene::handleEvent(Event event){}
-    void Scene::update(Time deltaTime){}
+    void Scene::handle_event(Event event){}
+    void Scene::update(Time timeStep){}
     void Scene::render(Time deltaTime){}
+    void Scene::on_attach(){}
+    void Scene::on_detach(){}
 }

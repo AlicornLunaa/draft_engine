@@ -1,12 +1,10 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/rendering/camera.hpp"
-#include "draft/rendering/render_window.hpp"
-#include "draft/rendering/shader.hpp"
-#include "draft/rendering/sprite_batch.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/texture.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/time.hpp"
 
 #include <cstddef>
 #include <vector>
@@ -22,7 +20,7 @@ namespace Draft {
         float sizeEnd = 0.1f;
         float sizeVariation = 0.f;
         float lifeTime = 1.f;
-        const Texture* texture = &Assets::get_asset<Texture>("assets/particles/circle.png");
+        Resource<Texture> texture = Assets::manager.get<Texture>("assets/textures/particles/circle.png", true);
     };
 
     class ParticleSystem {
@@ -39,17 +37,16 @@ namespace Draft {
         };
 
         // Variables
-        SpriteBatch batch;
         std::vector<Particle> particlePool;
         size_t poolIndex;
 
     public:
         // Constructors
-        ParticleSystem(const Shader& shader = Assets::get_asset<Shader>("assets/shaders/default"), const size_t maxParticles = 1000);
+        ParticleSystem(const size_t maxParticles = 1000);
 
         // Functions
         void emit(const ParticleProps& props);
-        void update(float timeStep);
-        void render(const RenderWindow& window, const Camera* camera);
+        void update(Time timeStep);
+        void render(SpriteBatch& batch);
     };
 };

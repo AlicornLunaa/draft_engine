@@ -1,6 +1,6 @@
 # Engine library
 cmake_minimum_required(VERSION 3.8)
-project("draft_engine" VERSION 0.1.0 LANGUAGES CXX)
+project("draft_engine" VERSION 0.2.0 LANGUAGES CXX)
 
 set(SOURCES
     src/draft/audio/sound_buffer.cpp
@@ -18,38 +18,50 @@ set(SOURCES
     src/draft/interface/slider.cpp
     src/draft/interface/button.cpp
     src/draft/interface/joystick.cpp
+    src/draft/interface/picture.cpp
+    src/draft/interface/progress_bar.cpp
+    src/draft/interface/widgets/console.cpp
+    src/draft/interface/widgets/stats.cpp
     src/draft/math/bounds.cpp
+    src/draft/math/glm.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
     src/draft/phys/fixture.cpp
     src/draft/phys/joint.cpp
     src/draft/phys/rigid_body.cpp
-    src/draft/phys/shape.cpp
+    src/draft/phys/shapes/polygon_shape.cpp
+    src/draft/phys/shapes/edge_shape.cpp
+    src/draft/phys/shapes/circle_shape.cpp
     src/draft/phys/world.cpp
     src/draft/rendering/render_window.cpp
-    src/draft/rendering/sprite_batch.cpp
-    src/draft/rendering/shape_batch.cpp
     src/draft/rendering/shader.cpp
     src/draft/rendering/model.cpp
     src/draft/rendering/camera.cpp
+    src/draft/rendering/vertex_array.cpp
     src/draft/rendering/vertex_buffer.cpp
+    src/draft/rendering/shader_buffer.cpp
     src/draft/rendering/texture.cpp
     src/draft/rendering/mesh.cpp
     src/draft/rendering/material.cpp
     src/draft/rendering/font.cpp
     src/draft/rendering/phys_renderer_p.cpp
-    src/draft/rendering/text_renderer.cpp
     src/draft/rendering/image.cpp
     src/draft/rendering/conversions.cpp
     src/draft/rendering/particle_system.cpp
+    src/draft/rendering/animation.cpp
+    src/draft/rendering/frame_buffer.cpp
+    src/draft/rendering/batching/batch.cpp
+    src/draft/rendering/batching/shape_batch.cpp
+    src/draft/rendering/batching/sprite_batch.cpp
+    src/draft/rendering/batching/text_renderer.cpp
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
-    src/draft/util/asset_manager.cpp
+    src/draft/util/asset_manager/asset_manager.cpp
+    src/draft/util/asset_manager/particle_loader.cpp
+    src/draft/util/asset_manager/json_loader.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
-    src/draft/widgets/console.cpp
-    src/draft/widgets/stats.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
 )
@@ -72,6 +84,7 @@ set(INTERFACES
     include/draft/components/texture_component.hpp
     include/draft/components/sprite_component.hpp
     include/draft/components/transform_component.hpp
+    include/draft/components/collider_component.hpp
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
     include/draft/core/entity.hpp
@@ -85,6 +98,11 @@ set(INTERFACES
     include/draft/interface/slider.hpp
     include/draft/interface/button.hpp
     include/draft/interface/joystick.hpp
+    include/draft/interface/picture.hpp
+    include/draft/interface/progress_bar.hpp
+    include/draft/interface/widgets/console.hpp
+    include/draft/interface/widgets/stats.hpp
+    include/draft/math/funcs.hpp
     include/draft/math/bounds.hpp
     include/draft/math/rect.hpp
     include/draft/math/glm.hpp
@@ -96,32 +114,45 @@ set(INTERFACES
     include/draft/phys/joint_def.hpp
     include/draft/phys/joint.hpp
     include/draft/phys/rigid_body.hpp
-    include/draft/phys/shape.hpp
     include/draft/phys/world.hpp
+    include/draft/phys/shapes/shape.hpp
+    include/draft/phys/shapes/polygon_shape.hpp
+    include/draft/phys/shapes/edge_shape.hpp
+    include/draft/phys/shapes/circle_shape.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
     include/draft/rendering/model.hpp
     include/draft/rendering/render_window.hpp
-    include/draft/rendering/sprite_batch.hpp
-    include/draft/rendering/shape_batch.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/material.hpp
+    include/draft/rendering/vertex_array.hpp
     include/draft/rendering/vertex_buffer.hpp
+    include/draft/rendering/shader_buffer.hpp
     include/draft/rendering/texture.hpp
     include/draft/rendering/font.hpp
-    include/draft/rendering/text_renderer.hpp
     include/draft/rendering/image.hpp
+    include/draft/rendering/animation.hpp
+    include/draft/rendering/frame_buffer.hpp
+    include/draft/rendering/batching/batch.hpp
+    include/draft/rendering/batching/shape_batch.hpp
+    include/draft/rendering/batching/sprite_batch.hpp
+    include/draft/rendering/batching/text_renderer.hpp
+    include/draft/systems/physics_system.hpp
+    include/draft/systems/render_system.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
-    include/draft/util/asset_manager.hpp
+    include/draft/util/asset_manager/asset_manager.hpp
+    include/draft/util/asset_manager/base_loader.hpp
+    include/draft/util/asset_manager/generic_loader.hpp
+    include/draft/util/asset_manager/particle_loader.hpp
+    include/draft/util/asset_manager/json_loader.hpp
+    include/draft/util/asset_manager/resource.hpp
+    include/draft/util/asset_manager/asset_ptr.hpp
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp
     include/draft/util/clock.hpp
-    include/draft/widgets/console.hpp
-    include/draft/widgets/stats.hpp
-    include/draft/systems.hpp
 )
 
 set(RESOURCES
@@ -181,10 +212,12 @@ add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
 add_subdirectory(vendor/entt)
+add_subdirectory(vendor/opensimplexnoise)
+add_subdirectory(vendor/tracy)
 find_package(Freetype REQUIRED)
 
 if(WIN32)
-	set(SFML_FLAGS sfml-audio sfml-network sfml-main sfml-system -static)
+	set(SFML_FLAGS sfml-audio sfml-network sfml-system -static)
 elseif(LINUX)
     set(SFML_FLAGS sfml-audio sfml-network sfml-system)
 endif()
@@ -215,6 +248,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC entt imgui glm::glm)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad box2d stb nlohmann_json::nlohmann_json ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise tracy ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

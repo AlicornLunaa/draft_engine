@@ -2,6 +2,7 @@
 
 #include "draft/rendering/conversions_p.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/rendering/image.hpp"
 #include "draft/util/file_handle.hpp"
 
 #include "stb_image.h"
@@ -21,24 +22,19 @@ namespace Draft {
         unbind();
     }
     
-    void Texture::load_texture(const std::byte* bytes, size_t length, bool flip){
+    void Texture::load_texture(const Image& img){
         // Load texture from file
-        stbi_set_flip_vertically_on_load(flip);
-
-        int channels;
-        unsigned char *data = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(bytes), length, &size.x, &size.y, &channels, 0);
-
-        colorSpace = channels_to_color_space(channels);
-        loaded = !(bool)(!data);
+        colorSpace = img.get_color_space();
+        size = img.get_size();
+        loaded = true;
+        transparent = img.is_transparent();
 
         int glColorSpace = color_space_to_gl(colorSpace);
 
         bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace, size.x, size.y, 0, glColorSpace, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace, size.x, size.y, 0, glColorSpace, GL_UNSIGNED_BYTE, img.c_arr());
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();
-
-        stbi_image_free(data);
     }
 
     void Texture::cleanup(){
@@ -51,27 +47,15 @@ namespace Draft {
     }
 
     Texture::Texture(const Image& image, Wrap wrapping) : reloadable(false) {
-        // Load raw pixel data
         generate_opengl(wrapping);
-
-        colorSpace = image.get_color_space();
-        size = image.get_size();
-        loaded = true;
-
-        int glColorSpace = color_space_to_gl(colorSpace);
-
-        bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace, size.x, size.y, 0, glColorSpace, GL_UNSIGNED_BYTE, image.c_arr());
-        glGenerateMipmap(GL_TEXTURE_2D);
-        unbind();
+        load_texture(image);
     }
 
     Texture::Texture(const FileHandle& handle, Wrap wrapping) : reloadable(true), handle(handle) {
         generate_opengl(wrapping);
-        auto bytes = handle.read_bytes();
-        load_texture(bytes.data(), bytes.size());
+        load_texture(Image(handle, true));
     }
-
+    
     Texture::~Texture(){
         cleanup();
     }
@@ -94,15 +78,17 @@ namespace Draft {
             rect.height = size.y;
         }
 
+        // Save properties
+        transparent = image.is_transparent();
+
         // Upload this image to the texture
+        bind();
         glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x, rect.y, rect.width, rect.height, color_space_to_gl(image.get_color_space()), GL_UNSIGNED_BYTE, image.c_arr());
     }
 
     void Texture::reload(){
         if(!reloadable) return;
         unbind();
-
-        auto bytes = handle.read_bytes();
-        load_texture(bytes.data(), bytes.size());
+        load_texture(Image(handle));
     }
 };

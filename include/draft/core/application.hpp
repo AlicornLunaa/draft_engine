@@ -4,10 +4,9 @@
 #include "draft/input/event.hpp"
 #include "draft/input/mouse.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/asset_manager.hpp"
 #include "draft/util/clock.hpp"
-#include "draft/widgets/console.hpp"
-#include "draft/widgets/stats.hpp"
+#include "draft/interface/widgets/console.hpp"
+#include "draft/interface/widgets/stats.hpp"
 
 namespace Draft {
     /**
@@ -23,12 +22,11 @@ namespace Draft {
         double accumulator = 0.0; // Used for fixed timestep
 
     public:
-        AssetManager assets;
         RenderWindow window;
         Mouse mouse;
         Keyboard keyboard;
         Time deltaTime;
-        double timeStep = 1.0/66.0;
+        Time timeStep = Time::seconds(1.0/66.0);
 
         Console console{this};
         Stats stats;
@@ -36,6 +34,7 @@ namespace Draft {
         
         Application(const char* title, const unsigned int width, const unsigned int height);
         Application(const Application& rhs) = delete; // Dont allow copying.
+        Application& operator=(const Application& rhs) = delete;
         ~Application();
 
         /**
@@ -43,7 +42,7 @@ namespace Draft {
          */
         void run();
 
-        inline void set_scene(Scene* scene){ activeScene = scene; }
-        inline Scene* get_scene(){ return activeScene; }
+        void set_scene(Scene* scene);
+        Scene* get_scene() const;
     };
 }

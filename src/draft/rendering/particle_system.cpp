@@ -1,9 +1,10 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/math/rect.hpp"
 
 namespace Draft {
     // Constructors
-    ParticleSystem::ParticleSystem(const Shader& shader, const size_t maxParticles) : batch(shader) {
+    ParticleSystem::ParticleSystem(const size_t maxParticles) {
         particlePool.resize(maxParticles);
         poolIndex = maxParticles - 1;
     }
@@ -26,7 +27,7 @@ namespace Draft {
         poolIndex = --poolIndex % particlePool.size();
     }
 
-    void ParticleSystem::update(float timeStep){
+    void ParticleSystem::update(Time timeStep){
         for(auto& particle : particlePool){
             if(!particle.active)
                 continue;
@@ -36,16 +37,13 @@ namespace Draft {
                 continue;
             }
 
-            particle.lifeRemaining -= timeStep;
-            particle.position += particle.velocity * timeStep;
-            particle.rotation += 0.01f * timeStep;
+            particle.lifeRemaining -= timeStep.as_seconds();
+            particle.position += particle.velocity * timeStep.as_seconds();
+            particle.rotation += 0.01f * timeStep.as_seconds();
         }
     }
 
-    void ParticleSystem::render(const RenderWindow& window, const Camera* camera){
-        if(camera == nullptr)
-            return;
-
+    void ParticleSystem::render(SpriteBatch& batch){
         for(auto& particle : particlePool){
             if(!particle.active)
                 continue;
@@ -56,10 +54,16 @@ namespace Draft {
             Vector4f color = particle.props.colorBegin + (particle.props.colorEnd - particle.props.colorBegin) * life;
             color.a *= life;
 
-            batch.set_color(color);
-            batch.draw(*particle.props.texture, particle.position, {particle.size, particle.size}, particle.rotation, {particle.size / 2.f, particle.size / 2.f});
+            batch.draw({
+                particle.props.texture,
+                FloatRect{},
+                particle.position,
+                particle.rotation,
+                Vector2f{particle.size},
+                Vector2f{particle.size * 0.5f},
+                2.f,
+                color
+            });
         }
-
-        batch.flush(window, camera);
     }
 };

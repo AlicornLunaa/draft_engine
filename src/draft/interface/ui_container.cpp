@@ -1,5 +1,6 @@
 #include "draft/input/event.hpp"
 #include "draft/math/rect.hpp"
+#include "draft/rendering/camera.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/interface/ui_container.hpp"
@@ -62,8 +63,8 @@ namespace Draft {
     }
 
     // Constructors
-    UIContainer::UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader) : buffer(new VertexBuffer()), windowBounds({0, 0, size.x, size.y}),
-        uiCamera({{ 0, 0, -10 }, { 0, 0, 1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), uiShader(uiShader), app(app) {}
+    UIContainer::UIContainer(const Application* app, const Vector2f& size, Resource<Shader> uiShader) : buffer(new VertexBuffer()), windowBounds({0, 0, size.x, size.y}),
+        uiCamera({{ 0, 0, 10 }, { 0, 0, -1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), uiShader(uiShader), app(app) {}
 
     UIContainer::~UIContainer(){
         if(buffer)
@@ -114,6 +115,18 @@ namespace Draft {
         windowBounds.width = size.x;
         windowBounds.height = size.y;
 
+        // Update camera
+        uiCamera = OrthographicCamera(
+            uiCamera.get_position(),
+            uiCamera.get_forward(),
+            0,
+            (float)size.x,
+            0,
+            (float)size.y,
+            uiCamera.get_near(),
+            uiCamera.get_far()
+        );
+
         // Handle updates
         for(auto* p : panels)
             p->update(deltaTime);
@@ -122,7 +135,7 @@ namespace Draft {
         validate_panels();
 
         // Render everything
-        uiShader.bind();
+        uiShader.get().bind();
         uiCamera.apply(app->window, uiShader);
         buffer->bind();
         glDrawArrays(GL_TRIANGLES, 0, currentBufferSize);

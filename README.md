@@ -12,24 +12,33 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [x] Refactor rendering
 - [x] Audio api
 - [x] Particles
-- [ ] Animation api
+- [x] Animation api
 - [ ] Profiler api
 - [ ] Scenegraph
 - [ ] Localization API
 - [ ] Handle errors gracefully
 
+## Oversights to fix
+- [x] draw_centered_text for TextRenderer
+- [x] font class needs to handle everything better, should be a single texture updated on demand
+- [x] figure whatever is wrong with the coordinate system
+- [x] updates need a timestep, not a deltatime
+- [x] missing `on_attach` and `on_detach` methods for scenes
+- [x] fix up rendering pipeline
+- [x] maybe condense widgets and interface into the same directory?
+- [x] asyncronous loading of assets, in case of OpenGL, loading raw data first
+- [ ] just a better animation class
+- [x] loading particles from files
+- [ ] namespace inconsistencies for the UI
+- [ ] more widgets for UIContainer class
+- [ ] implement styling for UIContainer
+- [ ] loading colliders from files
+- [ ] better handling of references vs pointer
+
 ## How the engine works
 ### OpenGL Resources
 - Every OpenGL class has had RAII in mind.
 - Do not instantiate an OpenGL class without having an OpenGL context ready!
-
-### Asset manager
-- The asset manager works using whats called asset packages. This is an ID
-which corresponds to current loaded assets. An asset package can be deleted which will unload only the assets in the package.
-- The function called `start_package()->size-t` starts a new package
-- The function called `select_package(size-t)` selects the package as current context
-- The function called `end_package(size_t)` deselects current package and unloads the
-assets it is currently using, if and only if no other resources are using it.
 
 ### File handle
 - File handle controls reading and writing
@@ -68,3 +77,6 @@ call to a singular call. This should be generalized enough to work for both
 - Panels can hold a pointer to their parent, if the parent is invalidated, so is the child.
     Parent->child invalidations are checked in the ui container
     
+### Editor
+- Scenes are collection of entities
+    * Decoder class for abstract data to classes

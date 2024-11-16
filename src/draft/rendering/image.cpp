@@ -4,6 +4,8 @@
 #include "stb_image_write.h"
 #include "stb_image.h"
 #include "glm/common.hpp"
+
+#include <string>
 #include <vector>
 
 namespace Draft {
@@ -34,7 +36,7 @@ namespace Draft {
     }
 
     float byte_to_float(std::byte byte){
-        // Convert the 0-1 to 0-255
+        // Convert the 0-255 to 1-0
         float val = reinterpret_cast<char&>(byte);
         return val / 255.f;
     };
@@ -91,7 +93,9 @@ namespace Draft {
         }
     }
 
-    Image::Image(const FileHandle& handle) : Image() { load(handle); }
+    Image::Image(const std::vector<std::byte>& rawData, bool flip) : Image() { load(rawData, flip); }
+
+    Image::Image(const FileHandle& handle, bool flip) : Image() { load(handle, flip); }
 
     Image::Image(const Image& other) : size(other.size), colorSpace(other.colorSpace), pixelCount(other.pixelCount) {
         // Copy data
@@ -111,8 +115,8 @@ namespace Draft {
     }
 
     Image::~Image(){
+        // Null reference check, for sanity
         if(data)
-            // Null reference check, for sanity
             delete[] data;
     }
 
@@ -127,6 +131,10 @@ namespace Draft {
 
     Image& Image::operator=(Image&& other) noexcept {
         if(this != &other){
+            // Delete old data
+            if(data)
+                delete[] data;
+
             this->data = other.data;
             this->size = other.size;
             this->colorSpace = other.colorSpace;
@@ -142,9 +150,9 @@ namespace Draft {
     }
 
     // Functions
-    void Image::load(const std::vector<std::byte>& arr){
+    void Image::load(const std::vector<std::byte>& arr, float flip){
         int width, height, channels;
-        stbi_set_flip_vertically_on_load(false);
+        stbi_set_flip_vertically_on_load(flip);
         unsigned char* pixelData = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(arr.data()), arr.size(), &width, &height, &channels, 0);
 
         if(data)
@@ -165,8 +173,8 @@ namespace Draft {
         stbi_image_free(pixelData);
     }
 
-    void Image::load(const FileHandle& handle){
-        load(handle.read_bytes());
+    void Image::load(const FileHandle& handle, float flip){
+        load(handle.read_bytes(), flip);
     }
 
     void Image::save(FileHandle handle) const {
@@ -179,6 +187,8 @@ namespace Draft {
 
         stbi_write_png(handle.get_path().c_str(), size.x, size.y, static_cast<int>(colorSpace), out.data(), 0);
     }
+
+    void Image::reload(){}
 
     void Image::mask(const Vector4f& color, float tolerance, std::byte alpha){
         // Conversion helper
@@ -219,8 +229,9 @@ namespace Draft {
                 float blue = byte_to_float(data[i + 2]);
                 float alpha = byte_to_float(data[i + 3]);
 
-                if(!is_masked({ red, green, blue, alpha }))
+                if(!is_masked({ red, green, blue, alpha })){
                     data[i + 3] = std::byte{0x0};
+                }
             }
         }
     }
@@ -236,11 +247,10 @@ namespace Draft {
         
         for(size_t x = dimensions.x; x < dimensions.width; x++){
             for(size_t y = dimensions.y; y < dimensions.height; y++){
-
                 // Set each pixel frm the src to the destination
                 for(int i = 0; i < stride; i++){
-                    size_t srcIndex = x + y * src.size.x + i;
-                    size_t targetIndex = (position.x + x) + (position.y + y) * size.x + i;
+                    size_t srcIndex = (x + y * src.size.x) * stride + i;
+                    size_t targetIndex = ((position.x + x) + (position.y + y) * size.x) * stride + i;
 
                     if(applyAlpha && src.colorSpace == ColorSpace::RGBA && i != 3){
                         float scalar = byte_to_float(src.data[x + y * src.size.x + 3]);
@@ -255,9 +265,9 @@ namespace Draft {
 
     void Image::flip_horizontally(){
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
-            size_t index1 = x1 + y1 * size.x;
-            size_t index2 = x2 + y2 * size.x;
             int stride = static_cast<int>(colorSpace);
+            size_t index1 = (x1 + y1 * size.x) * stride;
+            size_t index2 = (x2 + y2 * size.x) * stride;
 
             for(size_t i = 0; i < stride; i++){
                 std::byte temp = data[index1 + i];
@@ -268,16 +278,16 @@ namespace Draft {
 
         for(size_t y = 0; y < size.y; y++){
             for(size_t x = 0; x < size.x / 2; x++){
-                swap(x, y, size.x - x, y);
+                swap(x, y, size.x - x - 1, y);
             }
         }
     }
 
     void Image::flip_vertically(){
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
-            size_t index1 = x1 + y1 * size.x;
-            size_t index2 = x2 + y2 * size.x;
             int stride = static_cast<int>(colorSpace);
+            size_t index1 = (x1 + y1 * size.x) * stride;
+            size_t index2 = (x2 + y2 * size.x) * stride;
 
             for(size_t i = 0; i < stride; i++){
                 std::byte temp = data[index1 + i];
@@ -288,13 +298,14 @@ namespace Draft {
 
         for(size_t x = 0; x < size.x; x++){
             for(size_t y = 0; y < size.y / 2; y++){
-                swap(x, y, x, size.y - y);
+                swap(x, y, x, size.y - y - 1);
             }
         }
     }
 
     void Image::set_pixel(Vector2u position, Vector4f color){
-        size_t startIndex = position.x + position.y * size.x;
+        int stride = static_cast<int>(colorSpace);
+        size_t startIndex = (position.x + position.y * size.x) * stride;
         assert(startIndex < pixelCount && "Out of bounds");
 
         if(colorSpace == ColorSpace::GREYSCALE){
@@ -312,7 +323,8 @@ namespace Draft {
     }
 
     Vector4f Image::get_pixel(Vector2u position) const {
-        size_t startIndex = position.x + position.y * size.x;
+        int stride = static_cast<int>(colorSpace);
+        size_t startIndex = (position.x + position.y * size.x) * stride;
         assert(startIndex < pixelCount && "Out of bounds");
 
         if(colorSpace == ColorSpace::GREYSCALE){

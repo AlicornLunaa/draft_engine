@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/phys/shape.hpp"
+#include "draft/phys/shapes/shape.hpp"
 #include "draft/phys/filter.hpp"
 
 namespace Draft {

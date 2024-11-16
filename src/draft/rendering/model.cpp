@@ -50,9 +50,9 @@ namespace Draft {
         return mdl;
     }
 
-    void load_materials(const FileHandle& handle, std::vector<Material>* materials, tinygltf::Model& mdl){
+    void load_materials(const FileHandle& handle, std::vector<Material>* materials, std::vector<std::unique_ptr<Texture>>& embeddedTextures, tinygltf::Model& mdl){
         // Helper functions
-        auto load_texture = [=](int index) -> std::shared_ptr<Texture> {
+        auto load_texture = [mdl, materials, &embeddedTextures](int index) -> Texture* {
             if(index == -1){
                 // None, nullptr
                 return nullptr;
@@ -65,10 +65,12 @@ namespace Draft {
                 // No URI, its an embedded texture.
                 const unsigned char* data = &img.image[0];
                 Image image(img.width, img.height, channels_to_color_space(img.component), reinterpret_cast<const std::byte*>(data));
-                return std::make_shared<Texture>(image);
+                embeddedTextures.push_back(std::make_unique<Texture>(image));
+                return embeddedTextures.back().get();
             } else {
                 // URI provided, load it from the games asset folder
-                return std::make_shared<Texture>(FileHandle::local(img.uri));
+                embeddedTextures.push_back(std::make_unique<Texture>(FileHandle::local(img.uri)));
+                return embeddedTextures.back().get();
             }
         };
 
@@ -190,7 +192,7 @@ namespace Draft {
         }
     }
 
-    void Model::load(const FileHandle& handle){
+    void Model::load(const FileHandle& handle, bool avoidGL){
         // Prep vectors
         materials.clear();
         meshes.clear();
@@ -202,7 +204,7 @@ namespace Draft {
         auto mdl = load_model(handle);
 
         // Pass to functions
-        load_materials(handle, &materials, mdl);
+        load_materials(handle, &materials, embeddedTextures, mdl);
         load_meshes(meshes, meshToMaterialMap, meshToMatrixMap, mdl);
         load_nodes(meshes, meshToMatrixMap, mdl);
     }
@@ -247,9 +249,9 @@ namespace Draft {
     // Constructors
     Model::Model() : reloadable(false) {}
 
-    Model::Model(const FileHandle& handle) : reloadable(true), handle(handle) {
+    Model::Model(const FileHandle& handle, bool avoidGL) : reloadable(true), handle(handle) {
         // Construct from file handle, for gltf
-        load(handle);
+        load(handle, avoidGL);
         buffer_meshes();
     }
 
@@ -284,7 +286,13 @@ namespace Draft {
     }
 
     // Functions
-    void Model::render(const Shader& shader, const Matrix4& modelMatrix) const {
+    void Model::reload_materials(){
+        auto mdl = load_model(handle);
+        materials.clear();
+        load_materials(handle, &materials, embeddedTextures, mdl);
+    }
+
+    void Model::render(Shader& shader, const Matrix4& modelMatrix) const {
         // Draws the meshes
         for(size_t i = 0; i < buffers.size(); i++){
             auto& vbo = buffers[i];

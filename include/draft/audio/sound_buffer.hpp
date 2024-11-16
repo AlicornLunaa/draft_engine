@@ -19,6 +19,7 @@ namespace Draft {
     public:
         // Constructors
         SoundBuffer(const FileHandle& handle);
+        SoundBuffer(const std::vector<std::byte>& rawData);
         SoundBuffer(const SoundBuffer& other);
         ~SoundBuffer();
 

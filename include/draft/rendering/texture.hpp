@@ -3,6 +3,7 @@
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/image.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
 
 namespace Draft {
@@ -18,11 +19,12 @@ namespace Draft {
 
         unsigned int texId;
         Vector2i size;
-        ColorSpace colorSpace;
+        ColorSpace colorSpace = ColorSpace::RGB;
+        bool transparent = false;
 
         // Private functions
         void generate_opengl(Wrap wrapping);
-        void load_texture(const std::byte* bytes, size_t length, bool flip = true);
+        void load_texture(const Image& img);
         void cleanup();
 
     public:
@@ -37,11 +39,19 @@ namespace Draft {
         Texture& operator=(const Texture& other) = delete;
         
         // Functions
+        inline ColorSpace get_color_space() const { return colorSpace; }
+        inline unsigned int get_texture_id() const { return texId; }
         inline bool is_loaded() const { return loaded; }
+        inline bool is_transparent() const { return transparent; }
         inline const Vector2i& get_size() const { return size; }
         void bind(int unit = 0) const;
         void unbind() const;
         void update(const Image& image, IntRect rect = {0, 0, 0, 0});
         void reload();
+    };
+
+    struct TextureRegion {
+        Resource<Texture> texture;
+        FloatRect bounds;
     };
 };

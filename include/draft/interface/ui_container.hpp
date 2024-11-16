@@ -7,7 +7,8 @@
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/interface/panel.hpp"
-#include "draft/util/asset_manager.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 
 #include <vector>
 
@@ -22,7 +23,7 @@ namespace Draft {
         VertexBuffer* buffer = nullptr;
 
         const Application* app = nullptr;
-        const Shader& uiShader;
+        Resource<Shader> uiShader;
         OrthographicCamera uiCamera;
         FloatRect windowBounds;
 
@@ -33,11 +34,13 @@ namespace Draft {
 
     public:
         // Constructors
-        UIContainer(const Application* app, const Vector2f& size, const Shader& uiShader = Assets::get_asset<Shader>("assets/shaders/interface"));
+        UIContainer(const Application* app, const Vector2f& size, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/interface", true));
         UIContainer(const UIContainer& other) = delete;
         ~UIContainer();
 
         // Functions
+        inline OrthographicCamera& get_camera(){ return uiCamera; }
+
         template<typename T>
         T* add_panel(T* panel){
             panels.push_back(panel);

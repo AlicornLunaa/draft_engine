@@ -9,18 +9,18 @@ namespace Draft {
     class Camera {
     protected:
         // Variables
-        Vector3f position{};
         Rect<float> viewport = { 0, 0, -1, -1 };
+        Vector3f position{};
 
         Vector3f up{ 0, 1, 0 };
         Vector3f right{ 1, 0, 0 };
-        Vector3f forward{ 0, 0, 1 };
+        Vector3f forward{ 0, 0, -1 };
 
         Matrix4 projMatrix = Matrix4(1.f);
         Matrix4 viewMatrix = Matrix4(1.f);
 
         // Private functions
-        void update_vectors();
+        void update_vectors(const Vector3f& newForward);
         virtual void update_matrices() = 0;
 
     public:
@@ -41,6 +41,11 @@ namespace Draft {
         void point(const Vector3f& dir);
 
         /**
+         * @brief Set the rotation of the camera
+         */
+        void set_rotation(float rotation);
+
+        /**
          * @brief Set the camera's own position
          * @param vec 
          */
@@ -52,13 +57,14 @@ namespace Draft {
          */
         inline void set_viewport(const Rect<float>& rect){ viewport = rect; }
 
-        inline const Rect<float>& get_position() const { return viewport; }
-        inline const Matrix4& get_viewport() const { return viewMatrix; }
+        inline const Vector3f& get_position() const { return position; }
+        inline const FloatRect& get_viewport() const { return viewport; }
         inline const Vector3f& get_forward() const { return forward; }
         inline const Vector3f& get_right() const { return right; }
         inline const Vector3f& get_up() const { return up; }
         inline const Matrix4& get_projection() const { return projMatrix; }
         inline const Matrix4& get_view() const { return viewMatrix; }
+        inline const Matrix4 get_combined() const { return projMatrix * viewMatrix; }
 
         void apply(const RenderWindow& window, const Shader& shader) const;
         Vector2f project(const Vector2f& point) const;
@@ -100,7 +106,13 @@ namespace Draft {
         OrthographicCamera(const Vector3f& position, const Vector3f& direction, float left, float right, float bottom, float top, float near = 0.1f, float far = 100.f);
 
         // Functions
+        inline float get_left() const { return leftClip; }
+        inline float get_right() const { return rightClip; }
+        inline float get_bottom() const { return bottomClip; }
+        inline float get_top() const { return topClip; }
+        inline float get_near() const { return nearClip; }
+        inline float get_far() const { return farClip; }
+        inline float get_zoom() const { return zoom; }
         void set_zoom(float z);
-        float get_zoom();
     };
 };

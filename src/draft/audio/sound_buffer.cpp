@@ -20,6 +20,10 @@ namespace Draft {
         ptr->buffer.loadFromMemory(bytes.data(), bytes.size());
     }
 
+    SoundBuffer::SoundBuffer(const std::vector<std::byte>& rawData){
+        ptr->buffer.loadFromMemory(rawData.data(), rawData.size());
+    }
+
     SoundBuffer::SoundBuffer(const SoundBuffer& other) : ptr(std::make_unique<Impl>()) {
         // Copy the other buffer
         ptr->buffer = sf::SoundBuffer(other.ptr->buffer);

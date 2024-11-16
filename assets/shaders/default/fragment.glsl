@@ -9,9 +9,5 @@ uniform sampler2D baseTexture;
 
 void main() {
     vec4 col = texture(baseTexture, vTexCoord);
-
-    if(col.a < 0.5)
-        discard;
-
     outColor = col * vColor;
 }

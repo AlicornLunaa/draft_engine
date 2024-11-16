@@ -81,8 +81,6 @@ namespace Draft {
             // Setup opengl context
             glViewport(0, 0, w, h);
             glEnable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             // Setup imgui
             IMGUI_CHECKVERSION();

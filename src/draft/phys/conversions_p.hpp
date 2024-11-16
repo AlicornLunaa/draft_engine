@@ -1,11 +1,14 @@
 #pragma once
 
-#include "box2d/b2_joint.h"
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/phys/filter.hpp"
+#include "draft/phys/shapes/circle_shape.hpp"
+#include "draft/phys/shapes/edge_shape.hpp"
+#include "draft/phys/shapes/polygon_shape.hpp"
 
 #include "box2d/b2_body.h"
+#include "box2d/b2_joint.h"
 #include "box2d/b2_distance_joint.h"
 #include "box2d/b2_friction_joint.h"
 #include "box2d/b2_motor_joint.h"

@@ -1,11 +1,12 @@
-#define GLFW_INCLUDE_NONE
-
 #include <string>
 
 #include "draft/core/application.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/core/scene.hpp"
-#include "draft/widgets/stats.hpp"
+
+#include "tracy/Tracy.hpp"
+
+#define GLFW_INCLUDE_NONE
 
 namespace Draft {
     // Constructors
@@ -15,18 +16,14 @@ namespace Draft {
         mouse.add_callback([this](Event e){ window.queue_event(e); });
 
         // Register basic commands
-        console.register_cmd("reload_assets", [this](ConsoleArgs args){
-            Assets::reload();
-            return true;
-        });
-
         console.register_cmd("cl_vsync", [this](ConsoleArgs args){
             window.set_vsync(std::stoi(args[1]) > 0);
             return true;
         });
     }
 
-    Application::~Application(){}
+    Application::~Application(){
+    }
 
     // Functions
     void Application::run(){
@@ -44,7 +41,7 @@ namespace Draft {
 
                 default:
                     if(activeScene)
-                        activeScene->handleEvent(event);
+                        activeScene->handle_event(event);
                     break;
                 }
             }
@@ -52,11 +49,11 @@ namespace Draft {
             // Fixed physics time-step
             accumulator += deltaTime.as_seconds();
 
-            while(accumulator >= timeStep){
+            while(accumulator >= timeStep.as_seconds()){
                 if(activeScene)
-                    activeScene->update(deltaTime);
+                    activeScene->update(timeStep);
 
-                accumulator -= timeStep;
+                accumulator -= timeStep.as_seconds();
             }
             
             // Rendering stuff!
@@ -70,6 +67,25 @@ namespace Draft {
             console.draw();
             
             window.display();
+
+            // Profiler setup
+            FrameMarkNamed("main");
         }
+    }
+
+    void Application::set_scene(Scene* scene){
+        if(activeScene)
+            // Detach event on previous scene
+            activeScene->on_detach();
+
+        activeScene = scene;
+
+        if(activeScene)
+            // Attach event on new scene
+            activeScene->on_attach();
+    }
+
+    Scene* Application::get_scene() const {
+        return activeScene;
     }
 }
