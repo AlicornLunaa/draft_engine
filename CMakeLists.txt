@@ -37,6 +37,7 @@ set(SOURCES
     src/draft/rendering/shader.cpp
     src/draft/rendering/model.cpp
     src/draft/rendering/camera.cpp
+    src/draft/rendering/vertex_array.cpp
     src/draft/rendering/vertex_buffer.cpp
     src/draft/rendering/shader_buffer.cpp
     src/draft/rendering/texture.cpp
@@ -124,6 +125,7 @@ set(INTERFACES
     include/draft/rendering/render_window.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/material.hpp
+    include/draft/rendering/vertex_array.hpp
     include/draft/rendering/vertex_buffer.hpp
     include/draft/rendering/shader_buffer.hpp
     include/draft/rendering/texture.hpp

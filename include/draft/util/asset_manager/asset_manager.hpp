@@ -5,6 +5,8 @@
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
 
+#include "nlohmann/json.hpp" // IWYU pragma: keep
+
 #include <cassert>
 #include <cstddef>
 #include <functional>
@@ -51,6 +53,8 @@ namespace Draft {
         bool loadingAsyncronously = false;
 
         // Helper funcs
+        void register_placeholders();
+
         template<typename T>
         void load_sync_immediate(const FileHandle& handle){
             auto const& loaderTemplate = loaders[typeid(T)];

@@ -8,7 +8,7 @@ namespace Draft {
     void Framebuffer::unbind(){ glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
     // Constructors
-    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), ColorSpace::RGB)) {
+    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), ColorSpace::RGBA)) {
         glGenFramebuffers(1, &fbo);
 
         bind();
@@ -34,7 +34,7 @@ namespace Draft {
     // Functions
     void Framebuffer::begin(){
         bind();
-        glClearColor(0.0f, 0.0f, 0.0f, 1.f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 

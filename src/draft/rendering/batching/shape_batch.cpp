@@ -2,7 +2,7 @@
 #include "draft/rendering/batching/shape_batch.hpp"
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/vertex_buffer.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 
@@ -12,10 +12,12 @@ namespace Draft {
     // Constructor
     ShapeBatch::ShapeBatch(Resource<Shader> shader) : Batch(shader) {
         // Setup data buffers
-        dynamicVertexBufLoc = vertexBuffer.start_buffer<Point>(MAX_SHAPES_TO_RENDER);
-        vertexBuffer.set_attribute(0, GL_FLOAT, 2, sizeof(Point), 0);
-        vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(Point), offsetof(Point, color));
-        vertexBuffer.end_buffer();
+        vertexArray.create({
+            DynamicBuffer::create<Point>(MAX_POINTS_PER_PASS, {
+                BufferAttribute{0, GL_FLOAT, 2, sizeof(Point), 0, false},
+                BufferAttribute{1, GL_FLOAT, 4, sizeof(Point), offsetof(Point, color), false}
+            })
+        });
     }
 
     // Functions
@@ -191,25 +193,29 @@ namespace Draft {
         if(points.empty())
             return;
 
+        // Save the starting points to keep track of the amount of iterations
+        size_t iterations = points.size();
+
         // Render VBO
         Shader* shader = this->shader;
         shader->bind();
         shader->set_uniform("view", get_trans_matrix());
         shader->set_uniform("projection", get_proj_matrix());
         
-        for(size_t i = 0; i <= points.size() / MAX_SHAPES_TO_RENDER; i++){
+        for(size_t i = 0; i <= iterations / MAX_POINTS_PER_PASS; i++){
             // Repeat for number of render chunks
-            size_t pointsRendered = std::min(points.size(), MAX_SHAPES_TO_RENDER);
+            size_t pointsRendered = std::min(points.size(), MAX_POINTS_PER_PASS);
 
-            vertexBuffer.bind();
-            vertexBuffer.set_dynamic_data(dynamicVertexBufLoc, points);
+            vertexArray.bind();
+            vertexArray.set_data(0, points);
 
             glDrawArrays((currentRenderType == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, pointsRendered);
 
             points.erase(points.begin(), points.begin() + pointsRendered);
         }
 
-        vertexBuffer.unbind();
+        vertexArray.unbind();
+        points.clear();
     }
 
     void ShapeBatch::end(){

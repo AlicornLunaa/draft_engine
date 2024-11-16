@@ -2,8 +2,9 @@
 
 #include "draft/math/glm.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/vertex_buffer.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include "draft/rendering/batching/batch.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <array>
@@ -13,13 +14,13 @@
 namespace Draft {
     class ShapeBatch : public Batch {
     public:
-        static constexpr size_t MAX_SHAPES_TO_RENDER = 1024;
+        static constexpr size_t MAX_POINTS_PER_PASS = 1024;
         enum class RenderType { FILL, LINE };
 
     private:
         // Data structures
         struct Point {
-            Vector2f position;
+            Vector2f position{0, 0};
             Vector4f color{1, 1, 1, 1};
         };
 
@@ -38,16 +39,14 @@ namespace Draft {
         const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
 
         // Variables
+        VertexArray vertexArray;
         std::vector<Point> points;
         Vector4f currentColor{ 1, 1, 1, 1 };
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
 
-        VertexBuffer vertexBuffer;
-        size_t dynamicVertexBufLoc;
-
     public:
         // Constructors
-        ShapeBatch(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/default", true));
+        ShapeBatch(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true));
         virtual ~ShapeBatch() = default;
 
         // Functions
