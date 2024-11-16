@@ -5,6 +5,8 @@
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
 
+#include "nlohmann/json.hpp" // IWYU pragma: keep
+
 #include <cassert>
 #include <cstddef>
 #include <functional>
