@@ -10,6 +10,19 @@ namespace Draft {
     void PhysicsSystem::construct_body_func(Registry& reg, entt::entity rawEnt){
         // Get component and construct it in the world
         RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
+
+        // Check if it has a transform component, if it does initialize it
+        if(reg.all_of<RigidBodyComponent, TransformComponent>(rawEnt)){
+            TransformComponent& trans = reg.get<TransformComponent>(rawEnt);
+
+            bodyComponent.bodyDef.position = trans.position;
+            bodyComponent.bodyDef.angle = trans.rotation;
+
+            trans.dp = trans.position;
+            trans.dr = trans.rotation;
+        }
+        
+        // Construct actual body
         bodyComponent.bodyPtr = worldRef.create_rigid_body(bodyComponent.bodyDef);
 
         // Add colliders to new body in the simulation, first check if it has any collider components
@@ -31,6 +44,13 @@ namespace Draft {
             // No colliders, nothing to update
             Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
             colliderRef.detach();
+        }
+
+        // Check if it has a transform component, if it does save final transform
+        if(reg.all_of<RigidBodyComponent, TransformComponent>(rawEnt)){
+            TransformComponent& trans = reg.get<TransformComponent>(rawEnt);
+            trans.position = bodyComponent.bodyDef.position;
+            trans.rotation = bodyComponent.bodyDef.angle;
         }
 
         // Save state to the component definition
@@ -98,11 +118,24 @@ namespace Draft {
         auto view = registryRef.view<TransformComponent, RigidBodyComponent>();
 
         for(auto entity : view){
-            TransformComponent& transformComponent = view.get<TransformComponent>(entity);
-            RigidBody& rigidBodyComponent = view.get<RigidBodyComponent>(entity);
+            TransformComponent& trans = view.get<TransformComponent>(entity);
+            RigidBody& rb = view.get<RigidBodyComponent>(entity);
 
-            transformComponent.position = rigidBodyComponent.get_position();
-            transformComponent.rotation = rigidBodyComponent.get_angle();
+            // Move based on dp and dr
+            trans.dp = trans.position - trans.dp;
+            trans.dr = trans.rotation - trans.dr;
+
+            // If dp or dr is non-zero then update the body's position
+            if(trans.dp.x > 0.f || trans.dp.y > 0.f || trans.dr != 0.f)
+                rb.set_transform(rb.get_position() + trans.dp, rb.get_angle() + trans.dr);
+
+            // Save new positions
+            trans.position = rb.get_position();
+            trans.rotation = rb.get_angle();
+
+            // Reset deltas
+            trans.dp = trans.position;
+            trans.dr = trans.rotation;
         }
     }
 };

@@ -7,15 +7,23 @@ namespace Draft {
      * @brief Position and rotation, thats it
      */
     struct TransformComponent {
+    private:
+        // Private vars
+        Vector2f dp = {};
+        float dr = 0.f;
+
+    public:
         // Variables
         Vector2f position = {};
         float rotation = 0.f;
 
         // Constructors
         TransformComponent(const TransformComponent& transform) = default;
-        TransformComponent(Vector2f position, float rotation, Vector2f scale) : position(position), rotation(rotation) {}
         TransformComponent(Vector2f position, float rotation) : position(position), rotation(rotation) {}
         TransformComponent() {}
+
+        // Friends
+        friend class PhysicsSystem;
 
         // Operators
         operator Matrix4 () {
