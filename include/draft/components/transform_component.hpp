@@ -25,12 +25,24 @@ namespace Draft {
         // Friends
         friend class PhysicsSystem;
 
+        // Functions
+        Matrix3 get_transform() const {
+            Matrix3 mat = Matrix3(1.f);
+            mat = Math::translate(mat, position);
+            mat = Math::rotate(mat, rotation);
+            return mat;
+        }
+
+        Matrix4 get_matrix() const {
+            Matrix4 mat = Matrix4(1.f);
+            mat = Math::translate(mat, {position, 0.f});
+            mat = Math::rotate(mat, rotation, {0, 0, 1});
+            return mat;
+        }
+
         // Operators
         operator Matrix4 () {
-            auto t = Matrix4(1.f);
-            t = Math::translate(t, { position.x, position.y, 0 });
-            t = Math::rotate(t, rotation, { 0, 0, 1 });
-            return t;
+            return get_matrix();
         }
     };
 }
