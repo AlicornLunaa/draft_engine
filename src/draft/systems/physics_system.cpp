@@ -126,7 +126,7 @@ namespace Draft {
             trans.dr = trans.rotation - trans.dr;
 
             // If dp or dr is non-zero then update the body's position
-            if(trans.dp.x > 0.f || trans.dp.y > 0.f || trans.dr != 0.f)
+            if(Math::abs(trans.dp.x) > 0.f || Math::abs(trans.dp.y) > 0.f || trans.dr != 0.f)
                 rb.set_transform(rb.get_position() + trans.dp, rb.get_angle() + trans.dr);
 
             // Save new positions
