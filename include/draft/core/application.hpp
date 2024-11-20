@@ -42,6 +42,8 @@ namespace Draft {
          */
         void run();
 
+        void reset_timers();
+
         void set_scene(Scene* scene);
         Scene* get_scene() const;
     };

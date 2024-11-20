@@ -73,11 +73,18 @@ namespace Draft {
         }
     }
 
+    void Application::reset_timers(){
+        accumulator = 0.f;
+        deltaClock.restart();
+        deltaTime = Time();
+    }
+
     void Application::set_scene(Scene* scene){
         if(activeScene)
             // Detach event on previous scene
             activeScene->on_detach();
 
+        reset_timers(); // Reset dt to avoid large jumps in physics
         activeScene = scene;
 
         if(activeScene)
