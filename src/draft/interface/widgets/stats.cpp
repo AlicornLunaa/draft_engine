@@ -63,9 +63,18 @@ namespace Draft {
                 updateTimer = 0.f;
             }
 
+            avgFpsSamples[sampleTimer] = fps;
+            sampleTimer = (sampleTimer + 1) % fpsSamples;
+
+            float avgFps = 0.f;
+            for(int i = 0; i < fpsSamples; i++){
+                avgFps += avgFpsSamples[i];
+            }
+            avgFps /= fpsSamples;
+
             // Draw frame
             ImGui::Begin("Statistics");
-            ImGui::Text("FPS: %f", fps);
+            ImGui::Text("FPS: %f", avgFps);
             ImGui::Text("Frame Time: %f", frameTime);
             ImGui::Text("Time Step: %f", app.timeStep.as_seconds());
             ImGui::PlotLines("FPS", &fpsOverTime[0], samples, 0, nullptr, 0.f, maxFps, {0, 80});
