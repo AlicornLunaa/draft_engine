@@ -4,6 +4,7 @@
 #include "draft/phys/body_def.hpp"
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
+#include "draft/phys/raycast_props.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
@@ -37,6 +38,7 @@ namespace Draft {
 
         // Functions
         RigidBody* create_rigid_body(const BodyDef& def);
+        RigidBody* get_body(void* ptr) const;
         void destroy_body(RigidBody* rigidBodyPtr);
 
         template<typename T>
@@ -47,6 +49,8 @@ namespace Draft {
         void set_destruction_listener(void* listener) noexcept;
         void step(Time timeStep, int32_t velocityIterations, int32_t positionIterations);
         void debug_draw(const Matrix4& m = Matrix4(1.f));
+
+        void raycast(RaycastCallback callback, const Vector2f& point1, const Vector2f& point2) const;
         
     private:
         // pImpl

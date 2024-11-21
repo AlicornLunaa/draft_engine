@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/phys/raycast_props.hpp"
 #include "draft/phys/shapes/shape.hpp"
 
 #include <memory>
@@ -54,6 +55,8 @@ namespace Draft {
         float get_restitution() const;
 	    float get_restitution_threshold() const;
         bool is_sensor() const;
+
+	    bool raycast(RaycastResult& output, const RaycastProps& input, int32_t childIndex = 0) const;
 
     private:
         // pImpl

@@ -1,4 +1,6 @@
 #include "draft/phys/fixture.hpp"
+#include "box2d/b2_collision.h"
+#include "draft/phys/conversions_p.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "box2d/b2_fixture.h"
 
@@ -44,4 +46,20 @@ namespace Draft {
     float Fixture::get_restitution() const { return ptr->fixture->GetRestitution(); }
     float Fixture::get_restitution_threshold() const { return ptr->fixture->GetRestitutionThreshold(); }
     bool Fixture::is_sensor() const { return ptr->fixture->IsSensor(); }
+
+    bool Fixture::raycast(RaycastResult& output, const RaycastProps& input, int32_t childIndex) const {
+        if(!is_valid()){
+            output.fraction = 0.f;
+            output.normal = {0, 0};
+            return false;
+        }
+
+        b2RayCastInput in = raycast_to_b2(input);
+        b2RayCastOutput out{};
+
+        bool res = ptr->fixture->RayCast(&out, in, childIndex);
+        output = b2_to_raycast_result(out);
+        
+        return res;
+    }
 };

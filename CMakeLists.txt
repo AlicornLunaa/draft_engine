@@ -26,6 +26,7 @@ set(SOURCES
     src/draft/math/glm.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
+    src/draft/phys/b2_raycast_proxy.cpp
     src/draft/phys/fixture.cpp
     src/draft/phys/joint.cpp
     src/draft/phys/rigid_body.cpp
@@ -70,6 +71,7 @@ set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
     src/draft/phys/conversions_p.hpp
+    src/draft/phys/b2_raycast_proxy_p.hpp
     src/draft/rendering/phys_renderer_p.hpp
     src/draft/rendering/conversions_p.hpp
 )
@@ -111,6 +113,7 @@ set(INTERFACES
     include/draft/phys/filter.hpp
     include/draft/phys/fixture_def.hpp
     include/draft/phys/fixture.hpp
+    include/draft/phys/raycast_props.hpp
     include/draft/phys/joint_def.hpp
     include/draft/phys/joint.hpp
     include/draft/phys/rigid_body.hpp

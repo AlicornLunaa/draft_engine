@@ -12,7 +12,14 @@ namespace Draft {
     struct Mouse::GLFWImpl {
         static void mouse_enter_callback(GLFWwindow* window, int entered){
             Mouse* mouse = Mouse::windowMouseMap[(void*)window];
+
+            // Skip event if hovered over an IMGUI page
+            ImGuiIO& io = ImGui::GetIO();
             
+            if(io.WantCaptureMouse)
+                return;
+
+            // Create event for the engine
             Event event{};
             event.type = (entered ? Event::MouseEntered : Event::MouseLeft);
 
@@ -24,6 +31,13 @@ namespace Draft {
         static void mouse_move_callback(GLFWwindow* window, double x, double y){
             Mouse* mouse = Mouse::windowMouseMap[(void*)window];
 
+            // Skip event if hovered over an IMGUI page
+            ImGuiIO& io = ImGui::GetIO();
+            
+            if(io.WantCaptureMouse)
+                return;
+
+            // Create event for the engine
             Event event{};
             event.type = Event::MouseMoved;
             event.mouseMove.x = x;
@@ -43,6 +57,10 @@ namespace Draft {
             if(action == GLFW_RELEASE){
                 mouse->set_button_released(button);
             }
+
+            // Skip event if hovered over an IMGUI page
+            if(io.WantCaptureMouse)
+                return;
 
             // Convert to draft actions
             auto pos = mouse->get_position();
@@ -72,6 +90,13 @@ namespace Draft {
         static void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
             Mouse* mouse = Mouse::windowMouseMap[(void*)window];
 
+            // Skip event if hovered over an IMGUI page
+            ImGuiIO& io = ImGui::GetIO();
+            
+            if(io.WantCaptureMouse)
+                return;
+
+            // Create event
             Event event{};
             event.type = Event::MouseWheelScrolled;
             event.mouseWheelScroll.x = xoffset;
