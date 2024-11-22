@@ -2,6 +2,7 @@
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/texture.hpp"
+#include "tracy/TracyOpenGL.hpp"
 
 namespace Draft {
     // Private functions
@@ -9,6 +10,8 @@ namespace Draft {
     void Framebuffer::unbind(){ glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
     void Framebuffer::generate(){
+        TracyGpuZone("framebuffer_generate");
+
         glGenFramebuffers(1, &fbo);
         Vector2i size = texture.get_size();
 
@@ -28,6 +31,8 @@ namespace Draft {
     }
 
     void Framebuffer::cleanup(){
+        TracyGpuZone("framebuffer_cleanup");
+
         glDeleteRenderbuffers(1, &rbo);
         glDeleteFramebuffers(1, &fbo);
     }
@@ -43,6 +48,8 @@ namespace Draft {
 
     // Functions
     void Framebuffer::begin(){
+        TracyGpuZone("framebuffer_start");
+
         bind();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -53,6 +60,9 @@ namespace Draft {
     }
 
     void Framebuffer::resize(const Vector2i& size){
+        ZoneScopedN("framebuffer_resize");
+        TracyGpuZone("framebuffer_resize");
+
         // Resize the texture
         texture = Texture(Image(size.x, size.y, {1, 1, 1, 1}, texture.get_color_space()));
         cleanup();

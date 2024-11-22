@@ -11,6 +11,8 @@
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/phys_renderer_p.hpp"
+#include "tracy/Tracy.hpp"
+#include "tracy/TracyOpenGL.hpp"
 
 #include <cassert>
 #include <memory>
@@ -173,10 +175,19 @@ namespace Draft {
     }
 
     void World::step(Time timeStep, int32_t velocityIterations, int32_t positionIterations){
+        // Profiler
+        ZoneScopedN("physics_step");
+
+        // Actual update
         ptr->world.Step(timeStep.as_seconds(), velocityIterations, positionIterations);
     }
 
     void World::debug_draw(const Matrix4& m){
+        // Profiler
+        ZoneScopedN("phys_debug_render");
+        TracyGpuZone("phys_debug_render");
+
+        // Debug
         ptr->physRenderer->begin(m);
         ptr->world.DebugDraw();
         ptr->physRenderer->render();

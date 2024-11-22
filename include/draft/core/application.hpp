@@ -16,10 +16,16 @@ namespace Draft {
      */
     class Application {
     private:
+        // Private vars
         Scene* activeScene = nullptr;
         Clock deltaClock;
         Event event;
         double accumulator = 0.0; // Used for fixed timestep
+
+        // Private functions
+        void handle_events();
+        void tick();
+        void frame();
 
     public:
         RenderWindow window;

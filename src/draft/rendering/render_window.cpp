@@ -8,6 +8,8 @@
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
 
+#include "Tracy/tracy/TracyOpenGL.hpp"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -66,6 +68,12 @@ namespace Draft {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+            #ifdef TRACY_ENABLE
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+            #elif
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
+            #endif
+
             window = glfwCreateWindow(w, h, title.c_str(), nullptr, nullptr);
             glfwMakeContextCurrent(window);
             glfwSetWindowSizeCallback(window, window_size_callback);
@@ -81,6 +89,9 @@ namespace Draft {
             // Setup opengl context
             glViewport(0, 0, w, h);
             glEnable(GL_DEPTH_TEST);
+
+            // Start gpu profiler
+            TracyGpuContext;
 
             // Setup imgui
             IMGUI_CHECKVERSION();
@@ -157,6 +168,9 @@ namespace Draft {
     }
 
     void RenderWindow::clear(){
+        // Profiler frame start
+        TracyGpuZone("window_clear");
+
         // Clear window
         glClearColor(0.05f, 0.05f, 0.05f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -168,12 +182,18 @@ namespace Draft {
     }
 
     void RenderWindow::display(){
+        // End gpu frame
+        TracyGpuZone("window_display");
+
         // Finalize ImGUI
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Finalize frame
         glfwSwapBuffers(ptr->window);
+
+        // Collect profiler data
+        TracyGpuCollect;
     }
 
     void RenderWindow::close(){

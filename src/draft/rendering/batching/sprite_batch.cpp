@@ -4,6 +4,8 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "glad/gl.h"
+#include "tracy/Tracy.hpp"
+#include "tracy/TracyOpenGL.hpp"
 
 #include <cstddef>
 #include <vector>
@@ -157,6 +159,9 @@ namespace Draft {
 
     // Constructor
     SpriteBatch::SpriteBatch(Resource<Shader> shader) : Batch(shader) {
+        // Profiling
+        ZoneScopedN("sprite_batch_setup");
+
         // Buffer the data on the GPU
         vertexBuffer.buffer(0, QUAD_VERTICES);
         vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
@@ -177,6 +182,9 @@ namespace Draft {
     
     // Functions
     void SpriteBatch::draw(SpriteProps props){
+        // Profiling
+        ZoneScopedN("sprite_batch_draw");
+
         // Preprocessing for the props
         if(!props.texture){
             // No texture means use debug white
@@ -207,6 +215,9 @@ namespace Draft {
     }
 
     void SpriteBatch::begin(){
+        // Profiling
+        ZoneScopedN("sprite_batch_begin");
+        
         // Prep for rendering
         Batch::begin();
 
@@ -218,6 +229,10 @@ namespace Draft {
     }
 
     void SpriteBatch::flush(){
+        // Profiling
+        ZoneScopedN("sprite_batch_flush");
+        TracyGpuZone("sprite_batch");
+
         // Draws all the shapes to opengl
         if(opaqueQuads.empty() && transparentQuads.empty())
             return;
@@ -228,6 +243,9 @@ namespace Draft {
     }
     
     void SpriteBatch::end(){
+        // Profiling
+        ZoneScopedN("sprite_batch_end");
+
         // Finalize rendering
         Batch::end();
     }

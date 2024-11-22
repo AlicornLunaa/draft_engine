@@ -4,10 +4,14 @@
 #include "draft/components/collider_component.hpp"
 #include "draft/systems/physics_system.hpp"
 #include "draft/phys/fixture.hpp"
+#include "tracy/Tracy.hpp"
 
 namespace Draft {
     // Private functions
     void PhysicsSystem::construct_body_func(Registry& reg, entt::entity rawEnt){
+        // Profiler
+        ZoneScopedN("body_construction");
+        
         // Get component and construct it in the world
         RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
 
@@ -36,6 +40,9 @@ namespace Draft {
     }
 
     void PhysicsSystem::deconstruct_body_func(Registry& reg, entt::entity rawEnt){
+        // Profiler
+        ZoneScopedN("body_destruction");
+
         // Destroy old body in the simulation
         RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
 
@@ -72,6 +79,9 @@ namespace Draft {
     }
 
     void PhysicsSystem::construct_collider_func(Registry& reg, entt::entity rawEnt){
+        // Profiler
+        ZoneScopedN("collider_construction");
+
         // Add colliders to new body in the simulation, first check if it has any body components
         if(!reg.all_of<RigidBodyComponent>(rawEnt))
             // No collider or rigidbody, dont attach
@@ -84,6 +94,9 @@ namespace Draft {
     }
 
     void PhysicsSystem::deconstruct_collider_func(Registry& reg, entt::entity rawEnt){
+        // Profiler
+        ZoneScopedN("collider_destruction");
+
         // Destroy old collider in the simulation
         if(!reg.all_of<RigidBodyComponent, ColliderComponent>(rawEnt))
             // No collider or rigidbody, dont detach
@@ -113,6 +126,8 @@ namespace Draft {
 
     // Functions
     void PhysicsSystem::update(){
+        ZoneScopedN("physics_system");
+
         worldRef.step(appPtr->timeStep, worldRef.VELOCITY_ITER, worldRef.POSITION_ITER);
 
         auto view = registryRef.view<TransformComponent, RigidBodyComponent>();

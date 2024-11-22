@@ -1,6 +1,7 @@
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 #include "draft/core/entity.hpp"
+#include "tracy/Tracy.hpp"
 
 using namespace std;
 
@@ -12,6 +13,7 @@ namespace Draft {
     }
 
     Entity Scene::create_entity(){
+        ZoneScopedN("entity_creation");
         return Entity{ this, registry.create() };
     }
 
