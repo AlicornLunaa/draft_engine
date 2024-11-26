@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <string>
 
 #include "draft/core/application.hpp"
@@ -31,7 +32,9 @@ namespace Draft {
     void Application::tick(){
         // This function does a fixed time-step update
         ZoneScopedNCS("fixed_tick", 0xff3333, 20);
+
         accumulator += deltaTime.as_seconds();
+        accumulator = std::min(accumulator, (double)maxAccumulator.as_seconds()); // Needed to prevent accumulator spiral
 
         while(accumulator >= timeStep.as_seconds()){
             if(activeScene)

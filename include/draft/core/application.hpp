@@ -33,6 +33,7 @@ namespace Draft {
         Keyboard keyboard;
         Time deltaTime;
         Time timeStep = Time::seconds(1.0/66.0);
+        Time maxAccumulator = Time::seconds(1.0/5.0);
 
         Console console{this};
         Stats stats;
