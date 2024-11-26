@@ -2,6 +2,7 @@
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/texture.hpp"
+#include "tracy/Tracy.hpp"
 #include "tracy/TracyOpenGL.hpp"
 
 namespace Draft {

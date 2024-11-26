@@ -70,7 +70,7 @@ namespace Draft {
 
             #ifdef TRACY_ENABLE
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-            #elif
+            #else
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
             #endif
 
