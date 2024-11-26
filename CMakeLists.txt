@@ -63,6 +63,7 @@ set(SOURCES
     src/draft/util/asset_manager/json_loader.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
+    src/draft/systems/audio_system.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
 )
@@ -81,6 +82,7 @@ set(INTERFACES
     include/draft/audio/sound.hpp
     include/draft/audio/music.hpp
     include/draft/audio/listener.hpp
+    include/draft/components/audio_components.hpp
     include/draft/components/control_component.hpp
     include/draft/components/empty_component.hpp
     include/draft/components/texture_component.hpp
@@ -142,6 +144,7 @@ set(INTERFACES
     include/draft/rendering/batching/text_renderer.hpp
     include/draft/systems/physics_system.hpp
     include/draft/systems/render_system.hpp
+    include/draft/systems/audio_system.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
