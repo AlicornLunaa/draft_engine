@@ -10,6 +10,7 @@ using namespace std;
 
 namespace Draft {
     void process_mem_usage(float& vmUsage, float& residentSet){
+        #ifdef UNIX
         vmUsage     = 0.0;
         residentSet = 0.0;
 
@@ -35,6 +36,7 @@ namespace Draft {
         long pageSizeKb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
         vmUsage     = vsize / 1024.0;
         residentSet = rss * pageSizeKb / 1024.f;
+        #endif
     }
 
     void Stats::draw(Application& app){

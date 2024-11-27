@@ -8,11 +8,11 @@
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
 
-#include "Tracy/tracy/TracyOpenGL.hpp"
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+
+#include "tracy/TracyOpenGL.hpp"
 
 using namespace std;
 

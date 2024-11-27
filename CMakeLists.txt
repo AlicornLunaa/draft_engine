@@ -224,8 +224,10 @@ find_package(Freetype REQUIRED)
 
 if(WIN32)
 	set(SFML_FLAGS sfml-audio sfml-network sfml-system -static)
+    add_compile_definitions(WINDOWS)
 elseif(LINUX)
     set(SFML_FLAGS sfml-audio sfml-network sfml-system)
+    add_compile_definitions(UNIX)
 endif()
 
 # Resource compiler
@@ -254,7 +256,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json)
-target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise tracy ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json tracy)
+target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
