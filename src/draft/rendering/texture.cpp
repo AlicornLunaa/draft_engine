@@ -31,9 +31,10 @@ namespace Draft {
 
         int glColorSpace1 = color_space_to_gl(colorSpace);
         int glColorSpace2 = (colorSpace == ColorSpace::DEPTH) ? GL_DEPTH_COMPONENT : glColorSpace1;
+        int glDataType = (colorSpace == ColorSpace::DEPTH) ? GL_FLOAT : GL_UNSIGNED_BYTE;
 
         bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace1, size.x, size.y, 0, glColorSpace2, GL_UNSIGNED_BYTE, img.c_arr());
+        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace1, size.x, size.y, 0, glColorSpace2, glDataType, img.c_arr());
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();
     }
