@@ -57,6 +57,14 @@ namespace Draft {
             update_collider();
     }
 
+    void Collider::clear(){
+        // Remove every shape
+        shapes.clear();
+
+        if(is_attached())
+            update_collider();
+    }
+
     void Collider::set_position(const Vector2f& position){ this->position = position; }
     void Collider::set_origin(const Vector2f& origin){ this->origin = origin; }
     void Collider::set_scale(const Vector2f& scale){ this->scale = scale; }
