@@ -6,9 +6,21 @@
 #include "tracy/TracyOpenGL.hpp"
 
 namespace Draft {
+    // Static data
+    unsigned int Framebuffer::currentFbo = 0;
+
     // Private functions
-    void Framebuffer::bind(){ glBindFramebuffer(GL_FRAMEBUFFER, fbo); }
-    void Framebuffer::unbind(){ glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+    void Framebuffer::bind(){
+        previousFbo = currentFbo;
+        currentFbo = fbo;
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    }
+
+    void Framebuffer::unbind(){
+        glBindFramebuffer(GL_FRAMEBUFFER, previousFbo);
+        currentFbo = previousFbo;
+        previousFbo = 0;
+    }
 
     void Framebuffer::generate(){
         TracyGpuZone("framebuffer_generate");
@@ -77,8 +89,8 @@ namespace Draft {
         Vector2i size = texture.get_size();
 
         glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, currentFbo);
         glBlitFramebuffer(0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, currentFbo);
     }
 };

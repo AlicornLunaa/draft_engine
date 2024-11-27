@@ -6,10 +6,14 @@
 namespace Draft {
     class Framebuffer {
     private:
+        // Static data
+        static unsigned int currentFbo;
+
         // Variables
         Texture texture;
         Texture depthTexture;
         unsigned int fbo;
+        unsigned int previousFbo = 0;
 
         // Private functions
         void bind();
