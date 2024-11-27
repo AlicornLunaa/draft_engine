@@ -8,6 +8,10 @@ using namespace std;
 namespace Draft {
     Scene::Scene(Application* app) : app(app){}
 
+    Application* Scene::get_app(){
+        return app;
+    }
+
     Registry& Scene::get_registry(){
         return registry;
     }

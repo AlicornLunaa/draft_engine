@@ -21,6 +21,7 @@ namespace Draft {
 
         friend class PhysicsSystem;
 
+        Application* get_app();
         Registry& get_registry();
         Entity create_entity();
         
