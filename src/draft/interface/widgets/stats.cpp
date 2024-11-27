@@ -85,7 +85,7 @@ namespace Draft {
             ImGui::Checkbox("Debug", &app.debug);
 
             if(ImGui::Button("Reload Assets")){
-                app.console.run("reload_assets");
+                app.console.run("reload");
             }
 
             ImGui::End();
