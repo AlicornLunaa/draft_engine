@@ -8,8 +8,8 @@ namespace Draft {
     private:
         // Variables
         Texture texture;
+        Texture depthTexture;
         unsigned int fbo;
-        unsigned int rbo;
 
         // Private functions
         void bind();
@@ -26,6 +26,9 @@ namespace Draft {
         void begin();
         void end();
         void resize(const Vector2i& size);
+        void write_depth_stencil();
+
         inline const Texture& get_texture() const { return texture; }
+        inline const Texture& get_depth_texture() const { return depthTexture; }
     };
 };

@@ -29,10 +29,11 @@ namespace Draft {
         loaded = true;
         transparent = img.is_transparent();
 
-        int glColorSpace = color_space_to_gl(colorSpace);
+        int glColorSpace1 = color_space_to_gl(colorSpace);
+        int glColorSpace2 = (colorSpace == ColorSpace::DEPTH) ? GL_DEPTH_COMPONENT : glColorSpace1;
 
         bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace, size.x, size.y, 0, glColorSpace, GL_UNSIGNED_BYTE, img.c_arr());
+        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace1, size.x, size.y, 0, glColorSpace2, GL_UNSIGNED_BYTE, img.c_arr());
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();
     }
