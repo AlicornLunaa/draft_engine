@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.11)
 project("draft_engine" VERSION 0.2.0 LANGUAGES CXX)
 
 set(SOURCES
+    src/draft/aliasing/format.cpp
     src/draft/audio/sound_buffer.cpp
     src/draft/audio/sound.cpp
     src/draft/audio/music.cpp
@@ -47,7 +48,6 @@ set(SOURCES
     src/draft/rendering/font.cpp
     src/draft/rendering/phys_renderer_p.cpp
     src/draft/rendering/image.cpp
-    src/draft/rendering/conversions.cpp
     src/draft/rendering/particle_system.cpp
     src/draft/rendering/animation.cpp
     src/draft/rendering/frame_buffer.cpp
@@ -74,10 +74,14 @@ set(HEADERS
     src/draft/phys/conversions_p.hpp
     src/draft/phys/b2_raycast_proxy_p.hpp
     src/draft/rendering/phys_renderer_p.hpp
-    src/draft/rendering/conversions_p.hpp
 )
 
 set(INTERFACES
+    include/draft/aliasing/filter.hpp
+    include/draft/aliasing/format.hpp
+    include/draft/aliasing/parameter.hpp
+    include/draft/aliasing/target.hpp
+    include/draft/aliasing/wrap.hpp
     include/draft/audio/sound_buffer.hpp
     include/draft/audio/sound.hpp
     include/draft/audio/music.hpp

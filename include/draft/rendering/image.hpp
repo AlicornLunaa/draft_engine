@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/aliasing/format.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/util/file_handle.hpp"
@@ -8,13 +9,11 @@
 #include <vector>
 
 namespace Draft {
-    enum class ColorSpace { DEPTH = 0, GREYSCALE = 1, RGB = 3, RGBA = 4 };
-
     class Image {
     private:
         // Variables
         Vector2u size;
-        ColorSpace colorSpace;
+        ColorFormat colorSpace;
         std::byte* data = nullptr;
         size_t pixelCount = 0;
 
@@ -23,8 +22,8 @@ namespace Draft {
 
     public:
         // Constructors
-        Image(unsigned int width = 1, unsigned int height = 1, Vector4f color = {1, 1, 1, 1}, ColorSpace colorSpace = ColorSpace::RGBA);
-        Image(unsigned int width, unsigned int height, ColorSpace colorSpace, const std::byte* pixelData);
+        Image(unsigned int width = 1, unsigned int height = 1, Vector4f color = {1, 1, 1, 1}, ColorFormat colorSpace = ColorFormat::RGBA);
+        Image(unsigned int width, unsigned int height, ColorFormat colorSpace, const std::byte* pixelData);
         Image(const std::vector<std::byte>& rawData, bool flip = false);
         Image(const FileHandle& handle, bool flip = false);
         Image(const Image& other);
@@ -50,8 +49,8 @@ namespace Draft {
 
         inline const std::byte* c_arr() const { return data; }
         inline const Vector2u& get_size() const { return size; }
-        inline ColorSpace get_color_space() const { return colorSpace; }
+        inline ColorFormat get_color_space() const { return colorSpace; }
         inline size_t get_pixel_count() const { return pixelCount; }
-        inline bool is_transparent() const { return colorSpace == ColorSpace::RGBA; }
+        inline bool is_transparent() const { return colorSpace == ColorFormat::RGBA; }
     };
 };

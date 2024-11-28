@@ -1,4 +1,3 @@
-#include "draft/rendering/conversions_p.hpp"
 #include "draft/rendering/image.hpp"
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -64,7 +63,7 @@ namespace Draft {
             if(img.uri == ""){
                 // No URI, its an embedded texture.
                 const unsigned char* data = &img.image[0];
-                Image image(img.width, img.height, channels_to_color_space(img.component), reinterpret_cast<const std::byte*>(data));
+                Image image(img.width, img.height, channels_to_color_format(img.component), reinterpret_cast<const std::byte*>(data));
                 embeddedTextures.push_back(std::make_unique<Texture>(image));
                 return embeddedTextures.back().get();
             } else {

@@ -1,4 +1,5 @@
 #include "draft/rendering/image.hpp"
+#include "draft/aliasing/format.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "stb_image_write.h"
@@ -42,9 +43,9 @@ namespace Draft {
     };
 
     // Constructors
-    Image::Image(unsigned int width, unsigned int height, Vector4f color, ColorSpace colorSpace) : size(width, height), colorSpace(colorSpace) {
+    Image::Image(unsigned int width, unsigned int height, Vector4f color, ColorFormat colorSpace) : size(width, height), colorSpace(colorSpace) {
         // Create data to hold
-        pixelCount = width * height * static_cast<int>(colorSpace);
+        pixelCount = width * height * color_format_to_bytes(colorSpace);
         data = new std::byte[pixelCount];
 
         // Values
@@ -55,12 +56,12 @@ namespace Draft {
         std::byte alpha = float_to_byte(color.a);
 
         // Fill the data, depending on the color space provided
-        if(colorSpace == ColorSpace::GREYSCALE){
+        if(colorSpace == ColorFormat::GREYSCALE){
             // Greyscale
             for(size_t i = 0; i < pixelCount; i++){
                 data[i] = avgColor;
             }
-        } else if(colorSpace == ColorSpace::RGB || colorSpace == ColorSpace::DEPTH){
+        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
             // RGB
             for(size_t i = 0; i < pixelCount; i += 3){
                 data[i] = red;
@@ -78,9 +79,9 @@ namespace Draft {
         }
     }
 
-    Image::Image(unsigned int width, unsigned int height, ColorSpace colorSpace, const std::byte* pixelData) : size(width, height), colorSpace(colorSpace) {
+    Image::Image(unsigned int width, unsigned int height, ColorFormat colorSpace, const std::byte* pixelData) : size(width, height), colorSpace(colorSpace) {
         // Create data to hold this data, copy all available
-        pixelCount = width * height * static_cast<int>(colorSpace);
+        pixelCount = width * height * color_format_to_bytes(colorSpace);
         data = new std::byte[pixelCount];
 
         // Save data
@@ -106,7 +107,7 @@ namespace Draft {
 
         other.data = nullptr;
         other.size = {0, 0};
-        other.colorSpace = ColorSpace::RGBA;
+        other.colorSpace = ColorFormat::RGBA;
         other.pixelCount = 0;
     }
 
@@ -138,7 +139,7 @@ namespace Draft {
 
             other.data = nullptr;
             other.size = {0, 0};
-            other.colorSpace = ColorSpace::RGBA;
+            other.colorSpace = ColorFormat::RGBA;
             other.pixelCount = 0;
         }
 
@@ -155,10 +156,10 @@ namespace Draft {
             delete[] data;
 
         size = { width, height };
-        if(channels == 1) colorSpace = ColorSpace::GREYSCALE;
-        else if(channels == 3) colorSpace = ColorSpace::RGB;
-        else if(channels == 4) colorSpace = ColorSpace::RGBA;
-        pixelCount = width * height * static_cast<int>(colorSpace);
+        if(channels == 1) colorSpace = ColorFormat::GREYSCALE;
+        else if(channels == 3) colorSpace = ColorFormat::RGB;
+        else if(channels == 4) colorSpace = ColorFormat::RGBA;
+        pixelCount = width * height * color_format_to_bytes(colorSpace);
         data = new std::byte[pixelCount];
 
         for(size_t i = 0; i < pixelCount; i++){
@@ -181,7 +182,7 @@ namespace Draft {
             out[i] = reinterpret_cast<unsigned char&>(byte);
         }
 
-        stbi_write_png(handle.get_path().c_str(), size.x, size.y, static_cast<int>(colorSpace), out.data(), 0);
+        stbi_write_png(handle.get_path().c_str(), size.x, size.y, color_format_to_bytes(colorSpace), out.data(), 0);
     }
 
     void Image::reload(){}
@@ -196,7 +197,7 @@ namespace Draft {
         };
 
         // Set alpha for everything not matching
-        if(colorSpace == ColorSpace::GREYSCALE){
+        if(colorSpace == ColorFormat::GREYSCALE){
             // Greyscale
             for(size_t i = 0; i < pixelCount; i++){
                 float value = byte_to_float(data[i]);
@@ -204,7 +205,7 @@ namespace Draft {
                 if(!is_masked({ value, value, value, 1.f }))
                     data[i] = std::byte{0x0};
             }
-        } else if(colorSpace == ColorSpace::RGB || colorSpace == ColorSpace::DEPTH){
+        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
             // RGB
             for(size_t i = 0; i < pixelCount; i += 3){
                 float red = byte_to_float(data[i]);
@@ -234,7 +235,7 @@ namespace Draft {
 
     void Image::copy(const Image& src, Vector2u position, const IntRect& rect, bool applyAlpha){
         IntRect dimensions(rect);
-        int stride = std::min(static_cast<int>(src.colorSpace), static_cast<int>(colorSpace));
+        int stride = std::min(color_format_to_bytes(src.colorSpace), color_format_to_bytes(colorSpace));
 
         if(dimensions.width == 0 || dimensions.height == 0){
             dimensions.width = src.size.x;
@@ -248,7 +249,7 @@ namespace Draft {
                     size_t srcIndex = (x + y * src.size.x) * stride + i;
                     size_t targetIndex = ((position.x + x) + (position.y + y) * size.x) * stride + i;
 
-                    if(applyAlpha && src.colorSpace == ColorSpace::RGBA && i != 3){
+                    if(applyAlpha && src.colorSpace == ColorFormat::RGBA && i != 3){
                         float scalar = byte_to_float(src.data[x + y * src.size.x + 3]);
                         data[targetIndex] = float_to_byte(byte_to_float(src.data[srcIndex]) * scalar);
                     } else {
@@ -261,7 +262,7 @@ namespace Draft {
 
     void Image::flip_horizontally(){
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
-            int stride = static_cast<int>(colorSpace);
+            int stride = color_format_to_bytes(colorSpace);
             size_t index1 = (x1 + y1 * size.x) * stride;
             size_t index2 = (x2 + y2 * size.x) * stride;
 
@@ -281,7 +282,7 @@ namespace Draft {
 
     void Image::flip_vertically(){
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
-            int stride = static_cast<int>(colorSpace);
+            int stride = color_format_to_bytes(colorSpace);
             size_t index1 = (x1 + y1 * size.x) * stride;
             size_t index2 = (x2 + y2 * size.x) * stride;
 
@@ -300,13 +301,13 @@ namespace Draft {
     }
 
     void Image::set_pixel(Vector2u position, Vector4f color){
-        int stride = static_cast<int>(colorSpace);
+        int stride = color_format_to_bytes(colorSpace);
         size_t startIndex = (position.x + position.y * size.x) * stride;
         assert(startIndex < pixelCount && "Out of bounds");
 
-        if(colorSpace == ColorSpace::GREYSCALE){
+        if(colorSpace == ColorFormat::GREYSCALE){
             data[startIndex] = float_to_byte((color.r + color.g + color.b) / 3.f * color.a);
-        } else if(colorSpace == ColorSpace::RGB || colorSpace == ColorSpace::DEPTH){
+        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
             data[startIndex] = float_to_byte(color.r);
             data[startIndex + 1] = float_to_byte(color.g);
             data[startIndex + 2] = float_to_byte(color.b);
@@ -319,14 +320,14 @@ namespace Draft {
     }
 
     Vector4f Image::get_pixel(Vector2u position) const {
-        int stride = static_cast<int>(colorSpace);
+        int stride = color_format_to_bytes(colorSpace);
         size_t startIndex = (position.x + position.y * size.x) * stride;
         assert(startIndex < pixelCount && "Out of bounds");
 
-        if(colorSpace == ColorSpace::GREYSCALE){
+        if(colorSpace == ColorFormat::GREYSCALE){
             float val = byte_to_float(data[startIndex]);
             return {val, val, val, 1.f};
-        } else if(colorSpace == ColorSpace::RGB || colorSpace == ColorSpace::DEPTH){
+        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
             float red = byte_to_float(data[startIndex]);
             float green = byte_to_float(data[startIndex + 1]);
             float blue = byte_to_float(data[startIndex + 2]);

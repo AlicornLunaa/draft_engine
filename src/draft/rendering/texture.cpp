@@ -1,6 +1,7 @@
+#include "draft/aliasing/format.hpp"
+#include "draft/aliasing/target.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "draft/rendering/conversions_p.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/util/file_handle.hpp"
@@ -15,10 +16,10 @@ namespace Draft {
     void Texture::generate_opengl(Wrap wrapping){
         glGenTextures(1, &texId);
         bind();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_to_gl(wrapping));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_to_gl(wrapping));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
+        glTexParameteri(TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
+        glTexParameteri(TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+        glTexParameteri(TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         unbind();
     }
     
@@ -29,9 +30,9 @@ namespace Draft {
         loaded = true;
         transparent = img.is_transparent();
 
-        int glColorSpace1 = color_space_to_gl(colorSpace);
-        int glColorSpace2 = (colorSpace == ColorSpace::DEPTH) ? GL_DEPTH_COMPONENT : glColorSpace1;
-        int glDataType = (colorSpace == ColorSpace::DEPTH) ? GL_FLOAT : GL_UNSIGNED_BYTE;
+        int glColorSpace1 = colorSpace;
+        int glColorSpace2 = (colorSpace == DEPTH_COMPONENT) ? GL_DEPTH_COMPONENT : glColorSpace1;
+        int glDataType = (colorSpace == DEPTH_COMPONENT) ? GL_FLOAT : GL_UNSIGNED_BYTE;
 
         bind();
         glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace1, size.x, size.y, 0, glColorSpace2, glDataType, img.c_arr());
@@ -111,7 +112,7 @@ namespace Draft {
 
         // Upload this image to the texture
         bind();
-        glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x, rect.y, rect.width, rect.height, color_space_to_gl(image.get_color_space()), GL_UNSIGNED_BYTE, image.c_arr());
+        glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x, rect.y, rect.width, rect.height, image.get_color_space(), GL_UNSIGNED_BYTE, image.c_arr());
     }
 
     void Texture::reload(){

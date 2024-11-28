@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/aliasing/wrap.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/image.hpp"
@@ -7,9 +8,13 @@
 #include "draft/util/file_handle.hpp"
 
 namespace Draft {
-    enum Wrap { REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER };
-    enum Filter { NEAREST, LINEAR };
+    // Data structures
+    struct TextureProperties {
+        ColorFormat colorSpace = RGB;
+        Vector2u size = {1, 1};
+    };
 
+    // Class declarations
     class Texture {
     private:
         // Variables
@@ -19,7 +24,7 @@ namespace Draft {
 
         unsigned int texId;
         Vector2i size;
-        ColorSpace colorSpace = ColorSpace::RGB;
+        ColorFormat colorSpace = ColorFormat::RGB;
         bool transparent = false;
 
         // Private functions
@@ -39,7 +44,7 @@ namespace Draft {
         Texture& operator=(Texture&& other) noexcept;
         
         // Functions
-        inline ColorSpace get_color_space() const { return colorSpace; }
+        inline ColorFormat get_color_space() const { return colorSpace; }
         inline unsigned int get_texture_id() const { return texId; }
         inline bool is_loaded() const { return loaded; }
         inline bool is_transparent() const { return transparent; }

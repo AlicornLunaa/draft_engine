@@ -1,6 +1,5 @@
 #include "draft/rendering/frame_buffer.hpp"
 #include "draft/rendering/image.hpp"
-#include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/texture.hpp"
 #include "tracy/Tracy.hpp"
 #include "tracy/TracyOpenGL.hpp"
@@ -53,7 +52,7 @@ namespace Draft {
     }
 
     // Constructors
-    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), ColorSpace::RGBA)), depthTexture(Image(size.x, size.y, Vector4f(0), ColorSpace::DEPTH)) {
+    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), RGBA)), depthTexture(Image(size.x, size.y, Vector4f(0), DEPTH_COMPONENT)) {
         generate();
     }
 
