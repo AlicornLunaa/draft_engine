@@ -1,39 +1,18 @@
-# Draft Engine
+# Draft Engine v0.1.0
 Just a project to learn computer graphics, openGL, and C++ library creation.
 
-## Engine goals, loose things to do in free time
-- [x] Logging system ingame
-- [x] Rendering api
-- [x] Asset api
-- [x] Input api
-- [x] UI api
-- [x] Component api
-- [x] Physics api
-- [x] Refactor rendering
-- [x] Audio api
-- [x] Particles
-- [x] Animation api
+## Next version goals
 - [ ] Profiler api
-- [ ] Scenegraph
+- [ ] Better asyncronous loading of resources
+- [ ] Texture packer
+- [ ] Develop animation class
 - [ ] Localization API
 - [ ] Handle errors gracefully
-
-## Oversights to fix
-- [x] draw_centered_text for TextRenderer
-- [x] font class needs to handle everything better, should be a single texture updated on demand
-- [x] figure whatever is wrong with the coordinate system
-- [x] updates need a timestep, not a deltatime
-- [x] missing `on_attach` and `on_detach` methods for scenes
-- [x] fix up rendering pipeline
-- [x] maybe condense widgets and interface into the same directory?
-- [x] asyncronous loading of assets, in case of OpenGL, loading raw data first
-- [ ] just a better animation class
-- [x] loading particles from files
-- [ ] namespace inconsistencies for the UI
-- [ ] more widgets for UIContainer class
-- [ ] implement styling for UIContainer
-- [ ] loading colliders from files
-- [ ] better handling of references vs pointer
+- [ ] Overhaul UI
+- [ ] Load collider data from files
+- [ ] Serialization
+- [ ] JSON handling
+- [ ] Update to new physics engine
 
 ## How the engine works
 ### OpenGL Resources
@@ -46,17 +25,14 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - Access type INTERNAL means compiled into the exe
 
 ### Inputs
-- Keyboard and Mouse classes are static singletons
+- Keyboard and Mouse classes are classes which help abstract GLFW's functoins
 - Controls the interface with GLFW's input system
 - Has support for callbacks or direct checking
-- Before use, init should be called. Application does this automatically
-- After use, cleanup should be called. Application does this automatically
 
 ### Rendering
-- An instanced renderer takes a set of base vertices and indices, aka a mesh  
-and performs the model matrix on the CPU and buffers the data to reduce every
-call to a singular call. This should be generalized enough to work for both
-2D and 3D.
+- Done either using the shapebatch, spritebatch, or vertexarray.
+- ShapeBatch and SpriteBatch are extremely generalized, and therefore slow
+- VertexArray must be extremely specific, therefore faster
 
 ### Application
 - The fundamental class for the engine
@@ -71,11 +47,8 @@ call to a singular call. This should be generalized enough to work for both
 
 ### User interface
 - Each panel has the offset for the buffer data and the length to subbuffer
-- UI Container class holds the vertex buffers
-- Each panel, when invalidated, rebuilds its buffer data and sends it to the GPU.
-    Panels can define multiple vertices to draw
-- Panels can hold a pointer to their parent, if the parent is invalidated, so is the child.
-    Parent->child invalidations are checked in the ui container
+- Each panel, when invalidated, rebuilds its buffer data and sends it to the GPU. Panels can define multiple vertices to draw
+- Panels can hold a pointer to their parent, if the parent is invalidated, so is the child. Parent->child invalidations are checked in the ui container
     
 ### Editor
 - Scenes are collection of entities
