@@ -10,6 +10,7 @@ using namespace std;
 
 namespace Draft {
     void process_mem_usage(float& vmUsage, float& residentSet){
+        #ifdef UNIX
         vmUsage     = 0.0;
         residentSet = 0.0;
 
@@ -35,6 +36,7 @@ namespace Draft {
         long pageSizeKb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
         vmUsage     = vsize / 1024.0;
         residentSet = rss * pageSizeKb / 1024.f;
+        #endif
     }
 
     void Stats::draw(Application& app){
@@ -63,9 +65,18 @@ namespace Draft {
                 updateTimer = 0.f;
             }
 
+            avgFpsSamples[sampleTimer] = fps;
+            sampleTimer = (sampleTimer + 1) % fpsSamples;
+
+            float avgFps = 0.f;
+            for(int i = 0; i < fpsSamples; i++){
+                avgFps += avgFpsSamples[i];
+            }
+            avgFps /= fpsSamples;
+
             // Draw frame
             ImGui::Begin("Statistics");
-            ImGui::Text("FPS: %f", fps);
+            ImGui::Text("FPS: %f", avgFps);
             ImGui::Text("Frame Time: %f", frameTime);
             ImGui::Text("Time Step: %f", app.timeStep.as_seconds());
             ImGui::PlotLines("FPS", &fpsOverTime[0], samples, 0, nullptr, 0.f, maxFps, {0, 80});
@@ -74,7 +85,7 @@ namespace Draft {
             ImGui::Checkbox("Debug", &app.debug);
 
             if(ImGui::Button("Reload Assets")){
-                app.console.run("reload_assets");
+                app.console.run("reload");
             }
 
             ImGui::End();

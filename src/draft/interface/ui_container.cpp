@@ -7,6 +7,8 @@
 #include "draft/interface/panel.hpp"
 
 #include "glad/gl.h"
+#include "tracy/Tracy.hpp"
+#include "tracy/TracyOpenGL.hpp"
 #include <cstddef>
 #include <vector>
 
@@ -78,6 +80,9 @@ namespace Draft {
 
     // Functions
     bool UIContainer::handle_event(const Event& event){
+        // Profiler
+        ZoneScopedN("ui_event");
+
         // Update event positions for modern stuff
         Vector2f vec;
 
@@ -110,6 +115,10 @@ namespace Draft {
     }
 
     void UIContainer::render(const Time& deltaTime){
+        // Profiler
+        ZoneScopedN("ui_render");
+        TracyGpuZone("ui_render");
+
         // Check for window resize
         auto size = app->window.get_size();
         windowBounds.width = size.x;

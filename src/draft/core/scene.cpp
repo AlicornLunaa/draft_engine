@@ -1,17 +1,23 @@
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 #include "draft/core/entity.hpp"
+#include "tracy/Tracy.hpp"
 
 using namespace std;
 
 namespace Draft {
     Scene::Scene(Application* app) : app(app){}
 
+    Application* Scene::get_app(){
+        return app;
+    }
+
     Registry& Scene::get_registry(){
         return registry;
     }
 
     Entity Scene::create_entity(){
+        ZoneScopedN("entity_creation");
         return Entity{ this, registry.create() };
     }
 

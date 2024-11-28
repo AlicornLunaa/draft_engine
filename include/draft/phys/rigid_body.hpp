@@ -46,6 +46,7 @@ namespace Draft {
         
         Fixture* create_fixture(const FixtureDef& def);
         Fixture* create_fixture(const Shape* shape, float density);
+        Fixture* get_fixture(void* ptr) const;
         void destroy_fixture(Fixture* fixturePtr);
         void destroy();
 

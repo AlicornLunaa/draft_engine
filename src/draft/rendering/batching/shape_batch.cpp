@@ -5,6 +5,8 @@
 #include "draft/rendering/vertex_array.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
+#include "tracy/Tracy.hpp"
+#include "tracy/TracyOpenGL.hpp"
 
 using namespace std;
 
@@ -22,6 +24,9 @@ namespace Draft {
 
     // Functions
     void ShapeBatch::set_render_type(RenderType type){
+        // Profiling
+        ZoneScopedN("shape_batch_set_type");
+
         if(currentRenderType != type)
             flush();
 
@@ -29,6 +34,9 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_polygon(const std::vector<Vector2f>& polygonVertices){
+        // Profiling
+        ZoneScopedN("shape_batch_polygon");
+
         // Generate and add vertices
         for(size_t i = 0; i < polygonVertices.size(); i++){
             points.push_back({ polygonVertices[i], currentColor });
@@ -37,6 +45,9 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_rect(const Vector2f& position, const Vector2f& size, float rotation){
+        // Profiling
+        ZoneScopedN("shape_batch_rect");
+
         // Generate and add vertices
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
@@ -53,6 +64,9 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_triangle(const Vector2f& position, const Vector2f& size, float rotation){
+        // Profiling
+        ZoneScopedN("shape_batch_triangle");
+
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
@@ -69,7 +83,8 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_triangle(const std::array<Vector2f, 3>& positions){
-        // Generate and add vertices
+        // Profiling
+        ZoneScopedN("shape_batch_triangle");
 
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
@@ -87,6 +102,9 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_circle(const Vector2f& position, float radius, float rotation, size_t segments){
+        // Profiling
+        ZoneScopedN("shape_batch_circle");
+
         // Generate and add vertices
         float pointsEveryRadian = 2*3.14f / segments;
 
@@ -118,6 +136,9 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_line(const Vector2f& start, const Vector2f& end){
+        // Profiling
+        ZoneScopedN("shape_batch_line");
+
         // Lines can only be GL_LINES
         if(currentRenderType != RenderType::LINE){
             Logger::println(Level::WARNING, "Shape Batch", "draw_line(const Vector2f&, const Vector2f&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
@@ -130,6 +151,9 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_rect_line(const Vector2f& start, const Vector2f& end, float width){
+        // Profiling
+        ZoneScopedN("shape_batch_rect_line");
+
         // Generate and add vertices
         float radians = std::atan2(start.y - end.y, start.x - end.x);
         Vector2f right = Math::rotate(Vector2f(0, 1), radians);
@@ -163,6 +187,9 @@ namespace Draft {
     }
 
     void ShapeBatch::draw_arrow(const Vector2f& head, const Vector2f& tail){
+        // Profiling
+        ZoneScopedN("shape_batch_arrow");
+
         // Lines can only be GL_LINES
         if(currentRenderType != RenderType::LINE){
             Logger::println(Level::WARNING, "Shape Batch", "draw_arrow(const Vector2f&, const Vector2f&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
@@ -189,6 +216,10 @@ namespace Draft {
     }
 
     void ShapeBatch::flush(){
+        // Profiling
+        ZoneScopedN("shape_batch_flush");
+        TracyGpuZone("shape_batch");
+        
         // Draws all the shapes to opengl
         if(points.empty())
             return;
@@ -219,6 +250,9 @@ namespace Draft {
     }
 
     void ShapeBatch::end(){
+        // Profiling
+        ZoneScopedN("shape_batch_end");
+        
         Batch::end();
     }
 };

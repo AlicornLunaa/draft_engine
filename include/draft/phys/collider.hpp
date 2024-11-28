@@ -36,6 +36,7 @@ namespace Draft {
         // Functions
         Shape* add_shape(const Shape& shape);
         void del_shape(const Shape* shapePtr);
+        void clear();
 
         void set_position(const Vector2f& position);
         void set_origin(const Vector2f& origin);
@@ -48,6 +49,7 @@ namespace Draft {
         float get_rotation() const;
 
         inline bool is_attached() const { return rigidBodyPtr != nullptr; }
+        inline RigidBody* get_body() const { return rigidBodyPtr; }
         void attach(RigidBody* rigidBodyPtr);
         void update_collider(); // Reattaches the body
         void detach();

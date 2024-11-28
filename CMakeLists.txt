@@ -1,5 +1,5 @@
 # Engine library
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.11)
 project("draft_engine" VERSION 0.2.0 LANGUAGES CXX)
 
 set(SOURCES
@@ -26,6 +26,7 @@ set(SOURCES
     src/draft/math/glm.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
+    src/draft/phys/b2_raycast_proxy.cpp
     src/draft/phys/fixture.cpp
     src/draft/phys/joint.cpp
     src/draft/phys/rigid_body.cpp
@@ -62,6 +63,7 @@ set(SOURCES
     src/draft/util/asset_manager/json_loader.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
+    src/draft/systems/audio_system.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
 )
@@ -70,6 +72,7 @@ set(HEADERS
     src/draft/math/vector2_p.hpp
     src/draft/math/vector3_p.hpp
     src/draft/phys/conversions_p.hpp
+    src/draft/phys/b2_raycast_proxy_p.hpp
     src/draft/rendering/phys_renderer_p.hpp
     src/draft/rendering/conversions_p.hpp
 )
@@ -79,6 +82,7 @@ set(INTERFACES
     include/draft/audio/sound.hpp
     include/draft/audio/music.hpp
     include/draft/audio/listener.hpp
+    include/draft/components/audio_components.hpp
     include/draft/components/control_component.hpp
     include/draft/components/empty_component.hpp
     include/draft/components/texture_component.hpp
@@ -111,6 +115,7 @@ set(INTERFACES
     include/draft/phys/filter.hpp
     include/draft/phys/fixture_def.hpp
     include/draft/phys/fixture.hpp
+    include/draft/phys/raycast_props.hpp
     include/draft/phys/joint_def.hpp
     include/draft/phys/joint.hpp
     include/draft/phys/rigid_body.hpp
@@ -139,6 +144,7 @@ set(INTERFACES
     include/draft/rendering/batching/text_renderer.hpp
     include/draft/systems/physics_system.hpp
     include/draft/systems/render_system.hpp
+    include/draft/systems/audio_system.hpp
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
@@ -218,8 +224,10 @@ find_package(Freetype REQUIRED)
 
 if(WIN32)
 	set(SFML_FLAGS sfml-audio sfml-network sfml-system -static)
+    add_compile_definitions(WINDOWS)
 elseif(LINUX)
     set(SFML_FLAGS sfml-audio sfml-network sfml-system)
+    add_compile_definitions(UNIX)
 endif()
 
 # Resource compiler
@@ -248,7 +256,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json)
-target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise tracy ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json tracy)
+target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb simplex_noise ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

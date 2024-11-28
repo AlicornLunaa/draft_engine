@@ -36,6 +36,7 @@ namespace Draft {
         up = { -Math::sin(rotation), Math::cos(rotation), 0.0f };
         update_vectors(forward);
         viewMatrix = Math::lookAt(position, position + forward, up);
+        this->rotation = rotation;
     }
 
     void Camera::apply(const RenderWindow& window, const Shader& shader) const {

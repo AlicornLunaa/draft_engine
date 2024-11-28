@@ -15,6 +15,7 @@ namespace Draft {
         Vector3f up{ 0, 1, 0 };
         Vector3f right{ 1, 0, 0 };
         Vector3f forward{ 0, 0, -1 };
+        float rotation = 0.f;
 
         Matrix4 projMatrix = Matrix4(1.f);
         Matrix4 viewMatrix = Matrix4(1.f);
@@ -58,6 +59,7 @@ namespace Draft {
         inline void set_viewport(const Rect<float>& rect){ viewport = rect; }
 
         inline const Vector3f& get_position() const { return position; }
+        inline float get_rotation() const { return rotation; }
         inline const FloatRect& get_viewport() const { return viewport; }
         inline const Vector3f& get_forward() const { return forward; }
         inline const Vector3f& get_right() const { return right; }

@@ -5,6 +5,7 @@
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_circle_shape.h"
 #include "box2d/b2_edge_shape.h"
+#include "draft/phys/fixture.hpp"
 #include "draft/phys/shapes/shape.hpp"
 #include "draft/phys/conversions_p.hpp"
 #include "draft/phys/world.hpp"
@@ -13,6 +14,7 @@
 #include "draft/math/vector2_p.hpp"
 
 #include <memory>
+#include <unordered_map>
 
 using namespace std;
 
@@ -49,6 +51,7 @@ namespace Draft {
     // pImpl implementation
     struct RigidBody::Impl {
         b2Body* body;
+        std::unordered_map<void*, Fixture*> b2ToFixturePtrs;
     };
 
     // Private functions
@@ -90,8 +93,10 @@ namespace Draft {
             fixture = new Fixture(this, def.shape, ptr->body->CreateFixture(&b2Def));
         }
 
-        if(fixture)
+        if(fixture){
             fixtures.push_back(std::unique_ptr<Fixture>(fixture));
+            ptr->b2ToFixturePtrs[fixture->get_fixture_ptr()] = fixture;
+        }
 
         return fixture;
     }
@@ -110,10 +115,20 @@ namespace Draft {
             fixture = new Fixture(this, shape, ptr->body->CreateFixture(&edgeShape, density));
         }
 
-        if(fixture)
+        if(fixture){
             fixtures.push_back(std::unique_ptr<Fixture>(fixture));
+            ptr->b2ToFixturePtrs[fixture->get_fixture_ptr()] = fixture;
+        }
 
         return fixture;
+    }
+
+    Fixture* RigidBody::get_fixture(void* ptr) const {
+        // Converts a b2 fixture pointer to a draft fixture pointer
+        if(!ptr)
+            return nullptr;
+
+        return this->ptr->b2ToFixturePtrs[ptr];
     }
 
     void RigidBody::destroy_fixture(Fixture* fixturePtr){
@@ -126,6 +141,7 @@ namespace Draft {
             // Find the pointer responsible
             if(ptr.get() == fixturePtr){
                 // This is the one, erase it. This also handles deletion because of unique_ptr
+                this->ptr->b2ToFixturePtrs[fixturePtr->get_fixture_ptr()] = nullptr;
                 fixtures.erase(fixtures.begin() + i);
                 break;
             }
@@ -133,6 +149,8 @@ namespace Draft {
     }
 
     void RigidBody::destroy(){
+        ptr->body = nullptr;
+        ptr->b2ToFixturePtrs.clear();
         currentWorld->destroy_body(this);
     }
 

@@ -4,12 +4,15 @@
 #include "box2d/b2_world.h"
 
 #include "draft/math/vector2_p.hpp"
+#include "draft/phys/b2_raycast_proxy_p.hpp"
 #include "draft/phys/conversions_p.hpp"
 #include "draft/phys/world.hpp"
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/phys_renderer_p.hpp"
+#include "tracy/Tracy.hpp"
+#include "tracy/TracyOpenGL.hpp"
 
 #include <cassert>
 #include <memory>
@@ -19,6 +22,7 @@ namespace Draft {
     struct World::Impl {
         b2World world = b2World({0, 0});
         std::unique_ptr<PhysicsDebugRender> physRenderer = nullptr;
+        std::unordered_map<void*, RigidBody*> b2ToBodyPtrs;
     };
 
     // Constructors
@@ -33,9 +37,18 @@ namespace Draft {
         b2BodyDef tmp = bodydef_to_b2(def);
         b2Body* body = ptr->world.CreateBody(&tmp);
         rigidBodies.push_back(std::unique_ptr<RigidBody>(new RigidBody(this, body)));
+        ptr->b2ToBodyPtrs[body] = rigidBodies.back().get();
         return rigidBodies.back().get();
     }
 
+    RigidBody* World::get_body(void* ptr) const {
+        // Converts b2 body to draft body
+        if(!ptr)
+            return nullptr;
+
+        return this->ptr->b2ToBodyPtrs[ptr];
+    }
+    
     void World::destroy_body(RigidBody* rigidBodyPtr){
         assert(rigidBodyPtr && "rigidBodyPtr cannot be null");
         ptr->world.DestroyBody((b2Body*)rigidBodyPtr->get_body_ptr());
@@ -46,6 +59,7 @@ namespace Draft {
             // Find the pointer responsible
             if(ptr.get() == rigidBodyPtr){
                 // This is the one, erase it. This also handles deletion because of unique_ptr
+                this->ptr->b2ToBodyPtrs[rigidBodyPtr] = nullptr;
                 rigidBodies.erase(rigidBodies.begin() + i);
                 break;
             }
@@ -161,12 +175,31 @@ namespace Draft {
     }
 
     void World::step(Time timeStep, int32_t velocityIterations, int32_t positionIterations){
+        // Profiler
+        ZoneScopedN("physics_step");
+
+        // Actual update
         ptr->world.Step(timeStep.as_seconds(), velocityIterations, positionIterations);
     }
 
     void World::debug_draw(const Matrix4& m){
+        // Profiler
+        ZoneScopedN("phys_debug_render");
+        TracyGpuZone("phys_debug_render");
+
+        // Debug
         ptr->physRenderer->begin(m);
         ptr->world.DebugDraw();
         ptr->physRenderer->render();
+    }
+
+    void World::raycast(RaycastCallback callback, const Vector2f& point1, const Vector2f& point2) const {
+        B2RaycastProxy proxy(*this, callback);
+
+        ptr->world.RayCast(
+            &proxy,
+            vector_to_b2(point1),
+            vector_to_b2(point2)
+        );
     }
 };

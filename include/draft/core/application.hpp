@@ -16,10 +16,16 @@ namespace Draft {
      */
     class Application {
     private:
+        // Private vars
         Scene* activeScene = nullptr;
         Clock deltaClock;
         Event event;
         double accumulator = 0.0; // Used for fixed timestep
+
+        // Private functions
+        void handle_events();
+        void tick();
+        void frame();
 
     public:
         RenderWindow window;
@@ -27,6 +33,7 @@ namespace Draft {
         Keyboard keyboard;
         Time deltaTime;
         Time timeStep = Time::seconds(1.0/66.0);
+        Time maxAccumulator = Time::seconds(1.0/5.0);
 
         Console console{this};
         Stats stats;
@@ -41,6 +48,8 @@ namespace Draft {
          * @brief Runs the application. This starts and spawns the main application loop.
          */
         void run();
+
+        void reset_timers();
 
         void set_scene(Scene* scene);
         Scene* get_scene() const;

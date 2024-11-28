@@ -37,10 +37,11 @@ namespace Draft {
     Shape* Collider::add_shape(const Shape& shape){
         // Copy and add shape to this collider
         shapes.push_back(shape.clone());
-        return shapes.back().get();
 
         if(is_attached())
             update_collider();
+        
+        return shapes.back().get();
     }
 
     void Collider::del_shape(const Shape* shapePtr){
@@ -51,6 +52,14 @@ namespace Draft {
                 break;
             }
         }
+
+        if(is_attached())
+            update_collider();
+    }
+
+    void Collider::clear(){
+        // Remove every shape
+        shapes.clear();
 
         if(is_attached())
             update_collider();

@@ -1,5 +1,6 @@
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/math/glm.hpp"
+#include "tracy/Tracy.hpp"
 #include <algorithm>
 
 namespace Draft {
@@ -16,6 +17,9 @@ namespace Draft {
 
     // Functions
     Vector2f TextRenderer::get_text_bounds(const TextProperties& props) const {
+        // Profiling
+        ZoneScopedN("text_renderer_get_bounds");
+
         const Font& font = get_font(props);
         float currWidth = 0.f;
         float currHeight = 0.f;
@@ -31,6 +35,9 @@ namespace Draft {
     }
 
     void TextRenderer::draw_text(const TextProperties& props){
+        // Profiling
+        ZoneScopedN("text_renderer_draw");
+
         Vector2f size = get_text_bounds(props);
         Vector2f center = size * props.origin;
         const Font& font = get_font(props);

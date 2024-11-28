@@ -87,6 +87,12 @@ namespace Draft {
         const Vector2d& get_position() const;
 
         /**
+         * @brief Get the position of the mouse relative to the window with OpenGL coordinates
+         * @return const Vector2d& 
+         */
+        const Vector2d get_normalized_position() const;
+
+        /**
          * @brief Set the mouse position relative to the window. Doesnt work on every machine
          * @param pos 
          */

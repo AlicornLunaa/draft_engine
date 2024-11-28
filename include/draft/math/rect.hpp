@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/math/bounds.hpp"
+#include "draft/rendering/render_window.hpp"
 
 namespace Draft {
     template<typename T>
@@ -27,6 +28,7 @@ namespace Draft {
         }
     };
 
+    typedef Rect<unsigned int> UIntRect;
     typedef Rect<int> IntRect;
     typedef Rect<float> FloatRect;
     typedef Rect<double> DoubleRect;
@@ -35,6 +37,17 @@ namespace Draft {
 namespace glm {
     template<typename T>
     const Draft::Vector2<T> normalize_coordinates(const Draft::Rect<T>& rect, const Draft::Vector2<T>& coords){
+        return {
+            ((coords.x - rect.x) / rect.width - 0.5f) * 2.f,
+            (1.f - (coords.y - rect.y) / rect.height - 0.5f) * 2.f
+        };
+    }
+
+    template<typename T>
+    const Draft::Vector2<T> normalize_coordinates(const Draft::RenderWindow& window, const Draft::Vector2<T>& coords){
+        auto& size = window.get_size();
+        Draft::UIntRect rect{0, 0, size.x, size.y};
+
         return {
             ((coords.x - rect.x) / rect.width - 0.5f) * 2.f,
             (1.f - (coords.y - rect.y) / rect.height - 0.5f) * 2.f

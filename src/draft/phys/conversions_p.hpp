@@ -1,6 +1,10 @@
 #pragma once
 
+#include "box2d/b2_collision.h"
+#include "box2d/b2_math.h"
+#include "draft/math/glm.hpp"
 #include "draft/phys/joint_def.hpp"
+#include "draft/phys/raycast_props.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/phys/filter.hpp"
 #include "draft/phys/shapes/circle_shape.hpp"
@@ -44,4 +48,9 @@ namespace Draft {
     b2RevoluteJointDef jointdef_to_b2(const RevoluteJointDef& def);
     b2WeldJointDef jointdef_to_b2(const WeldJointDef& def);
     b2WheelJointDef jointdef_to_b2(const WheelJointDef& def);
+
+    b2Transform transform_to_b2(const Vector2f& pos, float rot);
+
+    b2RayCastInput raycast_to_b2(const RaycastProps& props);
+    RaycastResult b2_to_raycast_result(const b2RayCastOutput& props);
 };

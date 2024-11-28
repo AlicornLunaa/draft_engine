@@ -1,16 +1,20 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
+#include "tracy/Tracy.hpp"
 
 namespace Draft {
     // Constructors
     ParticleSystem::ParticleSystem(const size_t maxParticles) {
+        ZoneScopedN("particle_system_construction");
         particlePool.resize(maxParticles);
         poolIndex = maxParticles - 1;
     }
 
     // Functions
     void ParticleSystem::emit(const ParticleProps& props){
+        ZoneScopedN("particle_emit");
+
         Particle& particle = particlePool[poolIndex];
 
         particle.props = props;
@@ -28,6 +32,8 @@ namespace Draft {
     }
 
     void ParticleSystem::update(Time timeStep){
+        ZoneScopedN("particle_update");
+
         for(auto& particle : particlePool){
             if(!particle.active)
                 continue;
@@ -44,6 +50,8 @@ namespace Draft {
     }
 
     void ParticleSystem::render(SpriteBatch& batch){
+        ZoneScopedN("particle_render");
+
         for(auto& particle : particlePool){
             if(!particle.active)
                 continue;

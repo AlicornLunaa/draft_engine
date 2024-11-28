@@ -1,5 +1,8 @@
 #include "box2d/b2_body.h"
+#include "box2d/b2_collision.h"
+#include "box2d/b2_math.h"
 #include "draft/phys/conversions_p.hpp"
+#include "draft/phys/raycast_props.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/phys/body_def.hpp"
 #include "draft/math/vector2_p.hpp"
@@ -253,6 +256,27 @@ namespace Draft {
         tmp.damping = def.damping;
         tmp.enableLimit = def.enableLimit;
         tmp.enableMotor = def.enableMotor;
+        return tmp;
+    }
+
+    b2Transform transform_to_b2(const Vector2f& pos, float rot){
+        b2Transform tmp{};
+        tmp.Set(vector_to_b2(pos), rot);
+        return tmp;
+    }
+
+    b2RayCastInput raycast_to_b2(const RaycastProps& props){
+        b2RayCastInput tmp{};
+        tmp.p1 = vector_to_b2(props.origin);
+        tmp.p2 = vector_to_b2(props.translation);
+        tmp.maxFraction = props.maxFraction;
+        return tmp;
+    }
+
+    RaycastResult b2_to_raycast_result(const b2RayCastOutput& props){
+        RaycastResult tmp{};
+        tmp.normal = b2_to_vector<float>(props.normal);
+        tmp.fraction = props.fraction;
         return tmp;
     }
 };

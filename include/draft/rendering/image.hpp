@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace Draft {
-    enum class ColorSpace { GREYSCALE = 1, RGB = 3, RGBA = 4 };
+    enum class ColorSpace { DEPTH = 0, GREYSCALE = 1, RGB = 3, RGBA = 4 };
 
     class Image {
     private:

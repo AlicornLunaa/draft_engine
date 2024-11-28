@@ -6,14 +6,20 @@
 namespace Draft {
     class Framebuffer {
     private:
+        // Static data
+        static unsigned int currentFbo;
+
         // Variables
         Texture texture;
+        Texture depthTexture;
         unsigned int fbo;
-        unsigned int rbo;
+        unsigned int previousFbo = 0;
 
         // Private functions
         void bind();
         void unbind();
+        void generate();
+        void cleanup();
 
     public:
         // Constructors
@@ -23,6 +29,10 @@ namespace Draft {
         // Functions
         void begin();
         void end();
+        void resize(const Vector2i& size);
+        void write_depth_stencil();
+
         inline const Texture& get_texture() const { return texture; }
+        inline const Texture& get_depth_texture() const { return depthTexture; }
     };
 };

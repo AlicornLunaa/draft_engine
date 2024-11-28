@@ -17,6 +17,7 @@
 #include "draft/util/asset_manager/json_loader.hpp"
 #include "draft/util/logger.hpp"
 #include "nlohmann/json.hpp" // IWYU pragma: keep
+#include "tracy/Tracy.hpp"
 
 namespace Draft {
     // Private functions
@@ -86,6 +87,9 @@ namespace Draft {
 
     // Functions
     void Assets::load(){
+        // Profiler
+        ZoneScopedN("asset_load");
+
         // Load everything in the load queue
         register_placeholders();
         
@@ -128,6 +132,9 @@ namespace Draft {
     }
 
     void Assets::reload(){
+        // Profiler
+        ZoneScopedN("asset_reload");
+
         Logger::print(Level::INFO, "Asset Manager", "Reloading...");
 
         for(auto& [key, assetPtr] : resources){

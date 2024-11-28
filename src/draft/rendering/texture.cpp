@@ -29,16 +29,20 @@ namespace Draft {
         loaded = true;
         transparent = img.is_transparent();
 
-        int glColorSpace = color_space_to_gl(colorSpace);
+        int glColorSpace1 = color_space_to_gl(colorSpace);
+        int glColorSpace2 = (colorSpace == ColorSpace::DEPTH) ? GL_DEPTH_COMPONENT : glColorSpace1;
+        int glDataType = (colorSpace == ColorSpace::DEPTH) ? GL_FLOAT : GL_UNSIGNED_BYTE;
 
         bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace, size.x, size.y, 0, glColorSpace, GL_UNSIGNED_BYTE, img.c_arr());
+        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace1, size.x, size.y, 0, glColorSpace2, glDataType, img.c_arr());
         glGenerateMipmap(GL_TEXTURE_2D);
         unbind();
     }
 
     void Texture::cleanup(){
-        glDeleteTextures(1, &texId);
+        // Delete the texture if it isnt 0
+        if(texId)
+            glDeleteTextures(1, &texId);
     }
     
     // Constructors
@@ -58,6 +62,30 @@ namespace Draft {
     
     Texture::~Texture(){
         cleanup();
+    }
+
+    // Operators
+    Texture& Texture::operator=(Texture&& other) noexcept {
+        // Skip if self
+        if(&other == this)
+            return *this;
+
+        // Cleanup old texture from here
+        cleanup();
+
+        // Set everything from other to this
+        loaded = other.loaded;
+        handle = other.handle;
+        texId = other.texId;
+        size = other.size;
+        colorSpace = other.colorSpace;
+        transparent = other.transparent;
+
+        // Stop the r-value from deleting the texture when its deleted
+        other.texId = 0;
+
+        // Return this again
+        return *this;
     }
 
     // Functions

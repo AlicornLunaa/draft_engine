@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.11)
 project(simplex_noise)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)

@@ -38,6 +38,9 @@ namespace Draft {
         case ColorSpace::GREYSCALE:
             return GL_RED;
 
+        case ColorSpace::DEPTH:
+            return GL_DEPTH_COMPONENT24;
+
         case ColorSpace::RGB:
             return GL_RGB;
 
