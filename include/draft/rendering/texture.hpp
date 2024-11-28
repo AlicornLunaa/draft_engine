@@ -1,17 +1,32 @@
 #pragma once
 
+#include "draft/aliasing/filter.hpp"
+#include "draft/aliasing/parameter.hpp"
+#include "draft/aliasing/target.hpp"
 #include "draft/aliasing/wrap.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
+#include <map>
 
 namespace Draft {
     // Data structures
     struct TextureProperties {
-        ColorFormat colorSpace = RGB;
+        // Main parameters for the texture
+        TextureTarget target = TEXTURE_2D;
+        ColorFormat format = RGB;
         Vector2u size = {1, 1};
+        bool transparent = false;
+
+        // Additional parameters
+        std::map<Parameter, int> parameters = {
+            {TEXTURE_WRAP_S, REPEAT},
+            {TEXTURE_WRAP_S, REPEAT},
+            {TEXTURE_MIN_FILTER, NEAREST_MIPMAP_LINEAR},
+            {TEXTURE_MAG_FILTER, NEAREST}
+        };
     };
 
     // Class declarations
@@ -23,12 +38,10 @@ namespace Draft {
         FileHandle handle;
 
         unsigned int texId;
-        Vector2i size;
-        ColorFormat colorSpace = ColorFormat::RGB;
-        bool transparent = false;
+        TextureProperties properties;
 
         // Private functions
-        void generate_opengl(Wrap wrapping);
+        void generate_opengl();
         void load_texture(const Image& img);
         void cleanup();
 
@@ -44,11 +57,11 @@ namespace Draft {
         Texture& operator=(Texture&& other) noexcept;
         
         // Functions
-        inline ColorFormat get_color_space() const { return colorSpace; }
+        inline ColorFormat get_color_space() const { return properties.format; }
         inline unsigned int get_texture_id() const { return texId; }
         inline bool is_loaded() const { return loaded; }
-        inline bool is_transparent() const { return transparent; }
-        inline const Vector2i& get_size() const { return size; }
+        inline bool is_transparent() const { return properties.transparent; }
+        inline Vector2i get_size() const { return properties.size; }
         void bind(int unit = 0) const;
         void unbind() const;
         void update(const Image& image, IntRect rect = {0, 0, 0, 0});

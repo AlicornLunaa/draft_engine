@@ -1,7 +1,7 @@
-#include "draft/aliasing/format.hpp"
-#include "draft/aliasing/target.hpp"
+#include "draft/aliasing/parameter.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 
+#include "draft/aliasing/format.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/util/file_handle.hpp"
@@ -13,30 +13,31 @@ using namespace std;
 
 namespace Draft {
     // Private functions
-    void Texture::generate_opengl(Wrap wrapping){
+    void Texture::generate_opengl(){
         glGenTextures(1, &texId);
         bind();
-        glTexParameteri(TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
-        glTexParameteri(TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
-        glTexParameteri(TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-        glTexParameteri(TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        for(auto& [pname, value] : properties.parameters){
+            glTexParameteri(properties.target, pname, value);
+        }
+
         unbind();
     }
     
     void Texture::load_texture(const Image& img){
         // Load texture from file
-        colorSpace = img.get_color_space();
-        size = img.get_size();
+        properties.format = img.get_color_space();
+        properties.size = img.get_size();
+        properties.transparent = img.is_transparent();
         loaded = true;
-        transparent = img.is_transparent();
 
-        int glColorSpace1 = colorSpace;
-        int glColorSpace2 = (colorSpace == DEPTH_COMPONENT) ? GL_DEPTH_COMPONENT : glColorSpace1;
-        int glDataType = (colorSpace == DEPTH_COMPONENT) ? GL_FLOAT : GL_UNSIGNED_BYTE;
+        int glColorSpace1 = properties.format;
+        int glColorSpace2 = (properties.format == DEPTH_COMPONENT) ? GL_DEPTH_COMPONENT : glColorSpace1;
+        int glDataType = (properties.format == DEPTH_COMPONENT) ? GL_FLOAT : GL_UNSIGNED_BYTE;
 
         bind();
-        glTexImage2D(GL_TEXTURE_2D, 0, glColorSpace1, size.x, size.y, 0, glColorSpace2, glDataType, img.c_arr());
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexImage2D(properties.target, 0, glColorSpace1, properties.size.x, properties.size.y, 0, glColorSpace2, glDataType, img.c_arr());
+        glGenerateMipmap(properties.target);
         unbind();
     }
 
@@ -48,16 +49,22 @@ namespace Draft {
     
     // Constructors
     Texture::Texture(Wrap wrapping) : reloadable(false) {
-        generate_opengl(wrapping);
+        properties.parameters[TEXTURE_WRAP_S] = wrapping;
+        properties.parameters[TEXTURE_WRAP_T] = wrapping;
+        generate_opengl();
     }
 
     Texture::Texture(const Image& image, Wrap wrapping) : reloadable(false) {
-        generate_opengl(wrapping);
+        properties.parameters[TEXTURE_WRAP_S] = wrapping;
+        properties.parameters[TEXTURE_WRAP_T] = wrapping;
+        generate_opengl();
         load_texture(image);
     }
 
     Texture::Texture(const FileHandle& handle, Wrap wrapping) : reloadable(true), handle(handle) {
-        generate_opengl(wrapping);
+        properties.parameters[TEXTURE_WRAP_S] = wrapping;
+        properties.parameters[TEXTURE_WRAP_T] = wrapping;
+        generate_opengl();
         load_texture(Image(handle, true));
     }
     
@@ -78,9 +85,8 @@ namespace Draft {
         loaded = other.loaded;
         handle = other.handle;
         texId = other.texId;
-        size = other.size;
-        colorSpace = other.colorSpace;
-        transparent = other.transparent;
+        properties = other.properties;
+        properties.transparent = other.properties.transparent;
 
         // Stop the r-value from deleting the texture when its deleted
         other.texId = 0;
@@ -108,7 +114,7 @@ namespace Draft {
         }
 
         // Save properties
-        transparent = image.is_transparent();
+        properties.transparent = image.is_transparent();
 
         // Upload this image to the texture
         bind();

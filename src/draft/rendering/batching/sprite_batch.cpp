@@ -48,7 +48,7 @@ namespace Draft {
                     break;
                 }
 
-                auto& textureSize = props.texture->get_size();
+                auto textureSize = props.texture->get_size();
                 float x = props.region.x / textureSize.x;
                 float y = props.region.y / textureSize.y;
                 float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
@@ -120,7 +120,7 @@ namespace Draft {
                     break;
                 }
 
-                auto& textureSize = props.texture->get_size();
+                auto textureSize = props.texture->get_size();
                 float x = props.region.x / textureSize.x;
                 float y = props.region.y / textureSize.y;
                 float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
