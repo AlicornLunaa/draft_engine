@@ -48,7 +48,7 @@ namespace Draft {
                     break;
                 }
 
-                auto textureSize = props.texture->get_size();
+                auto textureSize = props.texture->get_properties().size;
                 float x = props.region.x / textureSize.x;
                 float y = props.region.y / textureSize.y;
                 float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
@@ -120,7 +120,7 @@ namespace Draft {
                     break;
                 }
 
-                auto textureSize = props.texture->get_size();
+                auto textureSize = props.texture->get_properties().size;
                 float x = props.region.x / textureSize.x;
                 float y = props.region.y / textureSize.y;
                 float w = ((props.region.width <= 0) ? textureSize.x : props.region.width) / textureSize.x;
@@ -192,7 +192,7 @@ namespace Draft {
         }
 
         // Check if the sprite is translucent or not
-        if(props.color.a < 1.f || props.texture->is_transparent() || props.renderAsTransparent){
+        if(props.color.a < 1.f || props.texture->get_properties().transparent || props.renderAsTransparent){
             // translucent sprite, save sprite information and recreate it at runtime for the buffer
             transparentQuads.push(props);
         } else {

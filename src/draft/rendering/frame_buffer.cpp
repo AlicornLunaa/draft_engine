@@ -1,8 +1,6 @@
 #include "draft/rendering/frame_buffer.hpp"
-#include "draft/rendering/image.hpp"
 #include "draft/rendering/texture.hpp"
 #include "tracy/Tracy.hpp"
-#include "tracy/TracyOpenGL.hpp"
 
 namespace Draft {
     // Static data
@@ -10,49 +8,51 @@ namespace Draft {
 
     // Private functions
     void Framebuffer::bind(){
+        // Keep a sort of stack for the framebuffer, so that they can be called within each other.
         previousFbo = currentFbo;
         currentFbo = fbo;
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     }
 
     void Framebuffer::unbind(){
+        // Keep a sort of stack for the framebuffer, so that they can be called within each other.
         glBindFramebuffer(GL_FRAMEBUFFER, previousFbo);
         currentFbo = previousFbo;
         previousFbo = 0;
     }
 
     void Framebuffer::generate(){
-        TracyGpuZone("framebuffer_generate");
-
+        // Create a new framebuffer
         glGenFramebuffers(1, &fbo);
-        Vector2i size = texture.get_size();
 
+        // Create textures based on the properties
+        texture.set_properties(colorBufferProps);
+        depthTexture.set_properties(depthBufferProps);
+
+        // Bind each texture to this framebuffer
         bind();
 
-        // Create a render texture
-        texture.bind();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.get_texture_id(), 0);
-        texture.unbind();
+        {
+            // Create a render texture
+            texture.bind();
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.get_texture_handle(), 0);
 
-        // Create a depth texture
-        depthTexture.bind();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture.get_texture_id(), 0);
-        depthTexture.unbind();
+            // Create a depth texture
+            depthTexture.bind();
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture.get_texture_handle(), 0);
+        }
 
         unbind();
     }
 
     void Framebuffer::cleanup(){
-        TracyGpuZone("framebuffer_cleanup");
         glDeleteFramebuffers(1, &fbo);
     }
 
     // Constructors
-    Framebuffer::Framebuffer(const Vector2i& size) : texture(Image(size.x, size.y, Vector4f(1), RGBA)), depthTexture(Image(size.x, size.y, Vector4f(0), DEPTH_COMPONENT)) {
+    Framebuffer::Framebuffer(const Vector2u& size){
+        colorBufferProps.size = size;
+        depthBufferProps.size = size;
         generate();
     }
 
@@ -62,8 +62,7 @@ namespace Draft {
 
     // Functions
     void Framebuffer::begin(){
-        TracyGpuZone("framebuffer_start");
-
+        // Begin this rendering
         bind();
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -73,20 +72,20 @@ namespace Draft {
         unbind();
     }
 
-    void Framebuffer::resize(const Vector2i& size){
+    void Framebuffer::resize(const Vector2u& size){
         ZoneScopedN("framebuffer_resize");
-        TracyGpuZone("framebuffer_resize");
 
-        // Resize the texture
-        texture = Texture(Image(size.x, size.y, {1, 1, 1, 1}, texture.get_color_space()));
-        depthTexture = Texture(Image(size.x, size.y, {0, 0, 0, 0}, depthTexture.get_color_space()));
+        // Resize color and depth texture
+        colorBufferProps.size = size;
+        depthBufferProps.size = size;
+
+        // Resize the framebuffer by regenerating it
         cleanup();
         generate();
     }
 
     void Framebuffer::write_depth_stencil(){
-        Vector2i size = texture.get_size();
-
+        Vector2i size = texture.get_properties().size;
         glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, currentFbo);
         glBlitFramebuffer(0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);

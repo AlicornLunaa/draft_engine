@@ -163,6 +163,7 @@ set(INTERFACES
     include/draft/util/json.hpp
     include/draft/util/time.hpp
     include/draft/util/clock.hpp
+    include/draft/util/types.hpp
 )
 
 set(RESOURCES

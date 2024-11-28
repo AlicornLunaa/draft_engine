@@ -58,7 +58,7 @@ namespace Draft {
             );
 
             ref.images.emplace_back(2048, 2048, Vector4f{0, 0, 0, 0}, GREYSCALE);
-            ref.textures.push_back(std::shared_ptr<Texture>(new Texture(ref.images.back(), CLAMP_TO_EDGE)));
+            ref.textures.push_back(std::shared_ptr<Texture>(new Texture(ref.images.back(), FONT_TEXTURE_PROPS)));
         }
 
         // Get font type data
@@ -97,7 +97,7 @@ namespace Draft {
             fontType.previousGlyphBounds = {0, 0, 0, 0};
             fontType.rowDepth = 0;
             fontType.images.emplace_back(2048, 2048, Vector4f{0, 0, 0, 0}, GREYSCALE);
-            fontType.textures.push_back(std::shared_ptr<Texture>(new Texture(fontType.images.back(), CLAMP_TO_EDGE)));
+            fontType.textures.push_back(std::shared_ptr<Texture>(new Texture(fontType.images.back(), FONT_TEXTURE_PROPS)));
             baseImage = fontType.images.back();
             baseTexture = fontType.textures.back();
         }
@@ -106,7 +106,7 @@ namespace Draft {
         Image image(ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, GREYSCALE, reinterpret_cast<std::byte*>(ptr->fontFace->glyph->bitmap.buffer));
         image.flip_vertically();
         baseImage.copy(image, {bounds.x, bounds.y});
-        baseTexture->update(baseImage);
+        baseTexture->set_image(baseImage);
 
         // Save glyph data
         fontType.glyphs.emplace(ch, Glyph{

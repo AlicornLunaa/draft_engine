@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/aliasing/wrap.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/image.hpp"
@@ -23,6 +24,18 @@ namespace Draft {
         };
 
     private:
+        // Constants
+        const TextureProperties FONT_TEXTURE_PROPS = {
+            TEXTURE_2D,
+            GREYSCALE,
+            {1, 1},
+            true,
+            {
+                {TEXTURE_WRAP_S, CLAMP_TO_EDGE},
+                {TEXTURE_WRAP_S, CLAMP_TO_EDGE},
+            }
+        };
+
         // Structures
         struct FontType {
             std::unordered_map<char, Glyph> glyphs;

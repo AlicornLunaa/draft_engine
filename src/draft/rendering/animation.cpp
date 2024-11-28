@@ -27,7 +27,7 @@ namespace Draft {
 
             frames.push_back({
                 bounds["x"],
-                texture.get().get_size().y - static_cast<float>(bounds["y"]) - static_cast<float>(bounds["h"]),
+                texture.get().get_properties().size.y - static_cast<float>(bounds["y"]) - static_cast<float>(bounds["h"]),
                 bounds["w"],
                 bounds["h"]
             });

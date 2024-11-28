@@ -9,6 +9,7 @@
 #include "draft/rendering/image.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
+#include <array>
 #include <map>
 
 namespace Draft {
@@ -27,29 +28,37 @@ namespace Draft {
             {TEXTURE_MIN_FILTER, NEAREST_MIPMAP_LINEAR},
             {TEXTURE_MAG_FILTER, NEAREST}
         };
+
+        // Uncommon parameters
+        uint glDataType = GL_UNSIGNED_BYTE;
     };
 
     // Class declarations
     class Texture {
     private:
+        // Static data
+        static std::array<uint, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS> boundTextures;
+
         // Variables
         const bool reloadable;
         bool loaded = false;
         FileHandle handle;
 
-        unsigned int texId;
+        uint texId = 0;
+        mutable uint lastTexUnit = 0;
         TextureProperties properties;
 
         // Private functions
+        void update_parameters(std::byte const* byteArray = nullptr);
         void generate_opengl();
-        void load_texture(const Image& img);
         void cleanup();
+        void load_texture(const Image& img);
 
     public:
         // Constructors
-        Texture(Wrap wrapping = REPEAT);
-        Texture(const Image& image, Wrap wrapping = REPEAT);
-        Texture(const FileHandle& handle, Wrap wrapping = REPEAT);
+        Texture(TextureProperties props = {});
+        Texture(const Image& image, TextureProperties props = {});
+        Texture(const FileHandle& handle, TextureProperties props = {});
         Texture(const Texture& other) = delete;
         ~Texture();
 
@@ -57,14 +66,15 @@ namespace Draft {
         Texture& operator=(Texture&& other) noexcept;
         
         // Functions
-        inline ColorFormat get_color_space() const { return properties.format; }
-        inline unsigned int get_texture_id() const { return texId; }
+        inline TextureProperties const& get_properties() const { return properties; }
+        inline uint get_texture_handle() const { return texId; }
+        inline bool is_reloadable() const { return reloadable; }
         inline bool is_loaded() const { return loaded; }
-        inline bool is_transparent() const { return properties.transparent; }
-        inline Vector2i get_size() const { return properties.size; }
-        void bind(int unit = 0) const;
+        void bind(uint unit = 0) const;
+        bool is_bound(uint unit = 0) const;
         void unbind() const;
-        void update(const Image& image, IntRect rect = {0, 0, 0, 0});
+        void set_image(const Image& image, IntRect rect = {0, 0, 0, 0});
+        void set_properties(TextureProperties const& props);
         void reload();
     };
 
