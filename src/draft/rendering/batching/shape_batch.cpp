@@ -6,7 +6,6 @@
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 #include "tracy/Tracy.hpp"
-#include "tracy/TracyOpenGL.hpp"
 
 using namespace std;
 
@@ -218,7 +217,6 @@ namespace Draft {
     void ShapeBatch::flush(){
         // Profiling
         ZoneScopedN("shape_batch_flush");
-        TracyGpuZone("shape_batch");
         
         // Draws all the shapes to opengl
         if(points.empty())
