@@ -24,11 +24,6 @@
  * If an item is requested, return a new handle but as a redirect to missing, then if a resource
  *      was loaded, it can be swapped to the correct asset.
  */
-
- // Asset class holds unique pointers to Resource class. Resource is a superclass that contains several
- // methods specific to loading and unloading. There can also be a container class called DynamicResource
- // which instead holds a reference to the pointer, so the resource can be changed at will.
-
 namespace Draft {
     // Owns and manages all resources inside the game, singleton to encapsulate the data
     class Assets {

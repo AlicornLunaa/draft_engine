@@ -12,9 +12,13 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/util/asset_manager/font_loader.hpp"
 #include "draft/util/asset_manager/generic_loader.hpp"
+#include "draft/util/asset_manager/image_loader.hpp"
 #include "draft/util/asset_manager/particle_loader.hpp"
 #include "draft/util/asset_manager/json_loader.hpp"
+#include "draft/util/asset_manager/sound_buffer_loader.hpp"
+#include "draft/util/asset_manager/texture_loader.hpp"
 #include "draft/util/logger.hpp"
 #include "nlohmann/json.hpp" // IWYU pragma: keep
 #include "tracy/Tracy.hpp"
@@ -72,12 +76,12 @@ namespace Draft {
     // Constructors
     Assets::Assets(){
         // Setup loaders
-        register_loader<Image>(new GenericLoader<Image>());
-        register_loader<Font>(new GenericLoader<Font>());
-        register_loader<SoundBuffer>(new GenericSyncLoader<SoundBuffer>());
+        register_loader<Image>(new ImageLoader());
+        register_loader<Font>(new FontLoader());
+        register_loader<SoundBuffer>(new SoundBufferLoader());
         register_loader<Model>(new GenericSyncLoader<Model>());
         register_loader<Shader>(new GenericSyncLoader<Shader>());
-        register_loader<Texture>(new GenericSyncLoader<Texture>());
+        register_loader<Texture>(new TextureLoader());
         register_loader<ParticleProps>(new ParticleLoader());
         register_loader<nlohmann::json>(new JSONLoader());
     }
@@ -139,6 +143,7 @@ namespace Draft {
 
         for(auto& [key, assetPtr] : resources){
             auto const& loader = loaders[key.second];
+            if(!loader) continue;
             stage1Queue.push(loader->clone(FileHandle::automatic(key.first)));
         }
         load();

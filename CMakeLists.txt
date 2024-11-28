@@ -61,6 +61,10 @@ set(SOURCES
     src/draft/util/asset_manager/asset_manager.cpp
     src/draft/util/asset_manager/particle_loader.cpp
     src/draft/util/asset_manager/json_loader.cpp
+    src/draft/util/asset_manager/font_loader.cpp
+    src/draft/util/asset_manager/image_loader.cpp
+    src/draft/util/asset_manager/sound_buffer_loader.cpp
+    src/draft/util/asset_manager/texture_loader.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
     src/draft/systems/audio_system.cpp
@@ -155,10 +159,14 @@ set(INTERFACES
     include/draft/util/asset_manager/asset_manager.hpp
     include/draft/util/asset_manager/base_loader.hpp
     include/draft/util/asset_manager/generic_loader.hpp
-    include/draft/util/asset_manager/particle_loader.hpp
-    include/draft/util/asset_manager/json_loader.hpp
     include/draft/util/asset_manager/resource.hpp
     include/draft/util/asset_manager/asset_ptr.hpp
+    include/draft/util/asset_manager/json_loader.hpp
+    include/draft/util/asset_manager/particle_loader.hpp
+    include/draft/util/asset_manager/font_loader.hpp
+    include/draft/util/asset_manager/image_loader.hpp
+    include/draft/util/asset_manager/sound_buffer_loader.hpp
+    include/draft/util/asset_manager/texture_loader.hpp
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp

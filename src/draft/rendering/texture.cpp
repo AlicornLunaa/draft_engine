@@ -81,6 +81,11 @@ namespace Draft {
         glGenerateMipmap(properties.target);
         loaded = true;
     }
+
+    void Texture::set_reloadable(FileHandle handle){
+        reloadable = true;
+        this->handle = handle;
+    }
     
     // Constructors
     Texture::Texture(TextureProperties props) : reloadable(false), properties(props) {
@@ -112,6 +117,7 @@ namespace Draft {
         cleanup();
 
         // Copy data from other
+        reloadable = other.reloadable;
         loaded = other.loaded;
         handle = other.handle;
         texId = other.texId;

@@ -40,7 +40,7 @@ namespace Draft {
         static std::array<uint, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS> boundTextures;
 
         // Variables
-        const bool reloadable;
+        bool reloadable = false;
         bool loaded = false;
         FileHandle handle;
 
@@ -54,6 +54,8 @@ namespace Draft {
         void cleanup();
         void load_texture(const Image& img);
 
+        void set_reloadable(FileHandle handle);
+
     public:
         // Constructors
         Texture(TextureProperties props = {});
@@ -61,6 +63,9 @@ namespace Draft {
         Texture(const FileHandle& handle, TextureProperties props = {});
         Texture(const Texture& other) = delete;
         ~Texture();
+
+        // freind :)
+        friend class TextureLoader;
 
         // Operators
         Texture& operator=(Texture&& other) noexcept;

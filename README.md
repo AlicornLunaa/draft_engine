@@ -3,7 +3,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 
 ## Next version goals
 - [ ] Profiler api
-- [ ] Better asyncronous loading of resources
+- [x] Better asyncronous loading of resources
 - [ ] Texture packer
 - [ ] Develop animation class
 - [ ] Localization API
