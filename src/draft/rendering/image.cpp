@@ -234,26 +234,31 @@ namespace Draft {
     }
 
     void Image::copy(const Image& src, Vector2u position, const IntRect& rect, bool applyAlpha){
+        uint srcStride = color_format_to_bytes(src.colorSpace);
+        uint destStride = color_format_to_bytes(this->colorSpace);
         IntRect dimensions(rect);
-        int stride = std::min(color_format_to_bytes(src.colorSpace), color_format_to_bytes(colorSpace));
 
-        if(dimensions.width == 0 || dimensions.height == 0){
+        if(dimensions.width <= 0 || dimensions.height <= 0){
             dimensions.width = src.size.x;
             dimensions.height = src.size.y;
         }
         
-        for(size_t x = dimensions.x; x < dimensions.width; x++){
-            for(size_t y = dimensions.y; y < dimensions.height; y++){
+        for(size_t y = dimensions.y; y < dimensions.y + dimensions.height; y++){
+            for(size_t x = dimensions.x; x < dimensions.x + dimensions.width; x++){
                 // Set each pixel frm the src to the destination
-                for(int i = 0; i < stride; i++){
-                    size_t srcIndex = (x + y * src.size.x) * stride + i;
-                    size_t targetIndex = ((position.x + x) + (position.y + y) * size.x) * stride + i;
+                for(int i = 0; i < destStride; i++){
+                    size_t srcIndex = (x + y * src.size.x) * srcStride + i;
+                    size_t targetIndex = ((position.x + x) + (position.y + y) * this->size.x) * destStride + i;
 
                     if(applyAlpha && src.colorSpace == ColorFormat::RGBA && i != 3){
                         float scalar = byte_to_float(src.data[x + y * src.size.x + 3]);
                         data[targetIndex] = float_to_byte(byte_to_float(src.data[srcIndex]) * scalar);
                     } else {
-                        data[targetIndex] = src.data[srcIndex];
+                        if(i >= srcStride){
+                            data[targetIndex] = std::byte(0xFF);
+                        } else {
+                            data[targetIndex] = src.data[srcIndex];
+                        }
                     }
                 }
             }

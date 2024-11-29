@@ -51,6 +51,7 @@ set(SOURCES
     src/draft/rendering/particle_system.cpp
     src/draft/rendering/animation.cpp
     src/draft/rendering/frame_buffer.cpp
+    src/draft/rendering/texture_packer.cpp
     src/draft/rendering/batching/batch.cpp
     src/draft/rendering/batching/shape_batch.cpp
     src/draft/rendering/batching/sprite_batch.cpp
@@ -146,6 +147,7 @@ set(INTERFACES
     include/draft/rendering/image.hpp
     include/draft/rendering/animation.hpp
     include/draft/rendering/frame_buffer.hpp
+    include/draft/rendering/texture_packer.hpp
     include/draft/rendering/batching/batch.hpp
     include/draft/rendering/batching/shape_batch.hpp
     include/draft/rendering/batching/sprite_batch.hpp
