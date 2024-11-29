@@ -12,9 +12,11 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/rendering/texture_packer.hpp"
 #include "draft/util/asset_manager/font_loader.hpp"
 #include "draft/util/asset_manager/generic_loader.hpp"
 #include "draft/util/asset_manager/image_loader.hpp"
+#include "draft/util/asset_manager/packed_texture_loader.hpp"
 #include "draft/util/asset_manager/particle_loader.hpp"
 #include "draft/util/asset_manager/json_loader.hpp"
 #include "draft/util/asset_manager/sound_buffer_loader.hpp"
@@ -84,6 +86,7 @@ namespace Draft {
         register_loader<Texture>(new TextureLoader());
         register_loader<ParticleProps>(new ParticleLoader());
         register_loader<nlohmann::json>(new JSONLoader());
+        register_loader<TexturePacker>(new PackedTextureLoader());
     }
 
     // Public vars

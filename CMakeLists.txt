@@ -66,6 +66,7 @@ set(SOURCES
     src/draft/util/asset_manager/image_loader.cpp
     src/draft/util/asset_manager/sound_buffer_loader.cpp
     src/draft/util/asset_manager/texture_loader.cpp
+    src/draft/util/asset_manager/packed_texture_loader.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
     src/draft/systems/audio_system.cpp
@@ -169,6 +170,7 @@ set(INTERFACES
     include/draft/util/asset_manager/image_loader.hpp
     include/draft/util/asset_manager/sound_buffer_loader.hpp
     include/draft/util/asset_manager/texture_loader.hpp
+    include/draft/util/asset_manager/packed_texture_loader.hpp
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp
