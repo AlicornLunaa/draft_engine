@@ -45,4 +45,6 @@ namespace Draft {
             return get_matrix();
         }
     };
+
+    typedef TransformComponent Transform;
 }
