@@ -38,7 +38,8 @@ namespace Draft {
                 {TEXTURE_WRAP_S, CLAMP_TO_EDGE},
                 {TEXTURE_MIN_FILTER, NEAREST},
                 {TEXTURE_MAG_FILTER, NEAREST},
-            }
+            },
+            GL_FLOAT
         };
 
         Texture texture{colorBufferProps};

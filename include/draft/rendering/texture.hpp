@@ -9,11 +9,16 @@
 #include "draft/rendering/image.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
+
 #include <array>
 #include <map>
 
 namespace Draft {
-    // Data structures
+    /**
+     * @brief Contains the properties for the Texture class. If Texture is instantiated with an Image or FileHandle,
+     *  it will overwrite the fields format, size, and transparent. This is because it will allocate the texture for
+     *  the size of the image data.
+     */
     struct TextureProperties {
         // Main parameters for the texture
         TextureTarget target = TEXTURE_2D;
@@ -33,7 +38,11 @@ namespace Draft {
         uint glDataType = GL_UNSIGNED_BYTE;
     };
 
-    // Class declarations
+    /**
+     * @brief OpenGL helper class which holds a singular texture on the graphics card. It takes a TextureProperties
+     *  which contains the list of things to do with a newly instantiated texture. OpenGL data is automatically freed
+     *  when class is destructed. Do not construct before OpenGL context was established.
+     */
     class Texture {
     private:
         // Static data
@@ -83,6 +92,9 @@ namespace Draft {
         void reload();
     };
 
+    /**
+     * @brief Contains a resource reference to a texture and region which can be scanned as UV coordinates.
+     */
     struct TextureRegion {
         Resource<Texture> texture;
         FloatRect bounds;

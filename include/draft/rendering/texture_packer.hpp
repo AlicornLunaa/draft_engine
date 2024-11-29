@@ -16,14 +16,14 @@ namespace Draft {
      */
     class TexturePacker {
     private:
-        // Static constants
-        static constexpr uint WIDTH_PER_ITER = 1024;
-
         // Variables
-        uint currentWidth = WIDTH_PER_ITER;
-        Image src{currentWidth, currentWidth, {0, 0, 0, 0}};
+        uint currentWidth = 128;
+        Image src{{currentWidth, currentWidth}, {0, 0, 0, 0}};
         std::unique_ptr<Texture> texture;
         std::unordered_map<std::string, FloatRect> regions;
+
+        // Private functions
+        void double_size();
 
     public:
         // Constructors

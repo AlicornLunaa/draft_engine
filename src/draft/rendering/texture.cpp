@@ -74,7 +74,7 @@ namespace Draft {
     
     void Texture::load_texture(const Image& img){
         // Load texture from file, where Image is a texture on the CPU
-        properties.format = img.get_color_space();
+        properties.format = img.get_format();
         properties.size = img.get_size();
         properties.transparent = img.is_transparent();
         update_parameters(img.c_arr());
@@ -98,8 +98,10 @@ namespace Draft {
     }
 
     Texture::Texture(const FileHandle& handle, TextureProperties props) : reloadable(true), handle(handle), properties(props) {
+        Image img(handle);
+        img.flip_vertically();
         generate_opengl();
-        load_texture(Image(handle, true));
+        load_texture(img);
     }
     
     Texture::~Texture(){
@@ -181,7 +183,7 @@ namespace Draft {
             rect.y,
             rect.width,
             rect.height,
-            image.get_color_space(),
+            image.get_format(),
             properties.glDataType,
             image.c_arr()
         );

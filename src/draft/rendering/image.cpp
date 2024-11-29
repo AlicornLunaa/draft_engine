@@ -2,31 +2,14 @@
 #include "draft/aliasing/format.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
+
 #include "stb_image_write.h"
 #include "stb_image.h"
-#include "glm/common.hpp"
 
 #include <string>
 #include <vector>
 
 namespace Draft {
-    // Private functions
-    void Image::copy_data(const Image& other){
-        // Copy data from other image provided
-        if(data)
-            delete[] data;
-
-        size = other.size;
-        colorSpace = other.colorSpace;
-        pixelCount = other.pixelCount;
-        data = new std::byte[other.pixelCount];
-
-        // Deep copy raw data
-        for(size_t i = 0; i < pixelCount; i++){
-            data[i] = other.data[i];
-        }
-    }
-
     // Converters
     std::byte float_to_byte(float value){
         // Convert the 0-1 to 0-255
@@ -42,83 +25,98 @@ namespace Draft {
         return val / 255.f;
     };
 
-    // Constructors
-    Image::Image(unsigned int width, unsigned int height, Vector4f color, ColorFormat colorSpace) : size(width, height), colorSpace(colorSpace) {
-        // Create data to hold
-        pixelCount = width * height * color_format_to_bytes(colorSpace);
-        data = new std::byte[pixelCount];
+    // Private functions
+    void Image::copy_data(const Image& other){
+        // Copy data from other image provided
+        // If this was initialized before, remove the old data to prevent a memory leak. Dont bother removing the dangling pointer because it will be immediately reallocated.
+        if(dataPtr)
+            delete[] dataPtr;
 
-        // Values
-        std::byte avgColor = float_to_byte((color.r + color.g + color.b) / 3.f);
-        std::byte red = float_to_byte(color.r);
-        std::byte green = float_to_byte(color.g);
-        std::byte blue = float_to_byte(color.b);
-        std::byte alpha = float_to_byte(color.a);
+        // Start copying the image-dependant data from the other image provided
+        dataPtr = new std::byte[other.pixelCount];
+        pixelCount = other.pixelCount;
+        format = other.format;
+        size = other.size;
 
-        // Fill the data, depending on the color space provided
-        if(colorSpace == ColorFormat::GREYSCALE){
-            // Greyscale
-            for(size_t i = 0; i < pixelCount; i++){
-                data[i] = avgColor;
-            }
-        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
-            // RGB
-            for(size_t i = 0; i < pixelCount; i += 3){
-                data[i] = red;
-                data[i + 1] = green;
-                data[i + 2] = blue;
-            }
-        } else {
-            // RGBA
-            for(size_t i = 0; i < pixelCount; i += 4){
-                data[i] = red;
-                data[i + 1] = green;
-                data[i + 2] = blue;
-                data[i + 3] = alpha;
-            }
-        }
-    }
-
-    Image::Image(unsigned int width, unsigned int height, ColorFormat colorSpace, const std::byte* pixelData) : size(width, height), colorSpace(colorSpace) {
-        // Create data to hold this data, copy all available
-        pixelCount = width * height * color_format_to_bytes(colorSpace);
-        data = new std::byte[pixelCount];
-
-        // Save data
+        // Deep copy raw data
         for(size_t i = 0; i < pixelCount; i++){
-            data[i] = pixelData[i];
+            dataPtr[i] = other.dataPtr[i];
         }
     }
 
-    Image::Image(const std::vector<std::byte>& rawData, bool flip) : Image() { load(rawData, flip); }
+    // Constructors
+    Image::Image(const Vector2u& size, Vector4f color, ColorFormat format) : size(size), format(format) {
+        // Create the array to hold the image data. Pixel count is equal to the area of the image per channel.
+        pixelCount = size.x * size.y * color_format_to_bytes(format);
+        dataPtr = new std::byte[pixelCount];
 
-    Image::Image(const FileHandle& handle, bool flip) : Image() { load(handle, flip); }
+        // Values to store into the image data. The color is in a float of 0-1 where the image needs a byte
+        std::byte avgColor = float_to_byte((color.r + color.g + color.b) / 3.f); // Average here if being stored in greyscale
+        std::byte byteValues[] = { float_to_byte(color.r), float_to_byte(color.g), float_to_byte(color.b), float_to_byte(color.a) };
 
-    Image::Image(const Image& other) : size(other.size), colorSpace(other.colorSpace), pixelCount(other.pixelCount) {
-        // Copy data
+        // Fill the image with the color data
+        uint stride = color_format_to_bytes(format);
+
+        for(size_t i = 0; i < pixelCount; i += stride){
+            if(stride == 1){
+                // Set the data to greyscale if there is only one color per pixel
+                dataPtr[i] = avgColor;
+            } else {
+                // Otherwise set the data to RGBA respectively, cutting off when maxxing out the stride.
+                // i.e. if there's only 3 channels, omit the alpha.
+                for(uint k = 0; k < stride; k++){
+                    dataPtr[i + k] = byteValues[k];
+                }
+            }
+        }
+    }
+
+    Image::Image(const Vector2u& size, ColorFormat format, const std::byte* pixelData) : size(size), format(format) {
+        // Create data to hold this data, copy all available
+        pixelCount = size.x * size.y * color_format_to_bytes(format);
+        dataPtr = new std::byte[pixelCount];
+
+        // Save the data from the pointer into this new array
+        for(size_t i = 0; i < pixelCount; i++){
+            dataPtr[i] = pixelData[i];
+        }
+    }
+
+    Image::Image(const std::vector<std::byte>& rawData) : Image() {
+        load(rawData);
+    }
+
+    Image::Image(const FileHandle& handle) : Image() {
+        load(handle);
+    }
+
+    Image::Image(const Image& other) {
         copy_data(other);
     }
 
     Image::Image(Image&& other) noexcept {
-        this->data = other.data;
-        this->size = other.size;
-        this->colorSpace = other.colorSpace;
-        this->pixelCount = other.pixelCount;
+        // Move the data from other to here
+        pixelCount = other.pixelCount;
+        dataPtr = other.dataPtr;
+        size = other.size; 
+        format = other.format;
 
-        other.data = nullptr;
-        other.size = {0, 0};
-        other.colorSpace = ColorFormat::RGBA;
+        // Zero out the previous image
         other.pixelCount = 0;
+        other.dataPtr = nullptr;
+        other.size = {0, 0};
+        other.format = ColorFormat::RGBA;
     }
 
     Image::~Image(){
-        // Null reference check, for sanity
-        if(data)
-            delete[] data;
+        // Check for nullptr, in case of the being moved
+        if(dataPtr)
+            delete[] dataPtr;
     }
 
     // Operators
     Image& Image::operator=(const Image& other){
+        // Copy operator
         if(this != &other){
             copy_data(other);
         }
@@ -127,68 +125,93 @@ namespace Draft {
     }
 
     Image& Image::operator=(Image&& other) noexcept {
+        // Move operator
         if(this != &other){
-            // Delete old data
-            if(data)
-                delete[] data;
+            // Delete old data if it exists
+            if(dataPtr)
+                delete[] dataPtr;
 
-            this->data = other.data;
-            this->size = other.size;
-            this->colorSpace = other.colorSpace;
-            this->pixelCount = other.pixelCount;
+            // Save the other data from the other image
+            pixelCount = other.pixelCount;
+            dataPtr = other.dataPtr;
+            size = other.size;
+            format = other.format;
 
-            other.data = nullptr;
-            other.size = {0, 0};
-            other.colorSpace = ColorFormat::RGBA;
+            // Zero out its data to prevent two things being the same
             other.pixelCount = 0;
+            other.dataPtr = nullptr;
+            other.size = {0, 0};
+            other.format = ColorFormat::RGBA;
         }
 
         return *this;
     }
 
-    // Functions
-    void Image::load(const std::vector<std::byte>& arr, float flip){
+    // State functions
+    void Image::load(const std::vector<std::byte>& arr){
+        // Load the data from a byte array of PNG, JPEG, or similar
+        stbi_set_flip_vertically_on_load(false);
+
         int width, height, channels;
-        stbi_set_flip_vertically_on_load(flip);
         unsigned char* pixelData = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(arr.data()), arr.size(), &width, &height, &channels, 0);
 
-        if(data)
-            delete[] data;
+        // Remove the old data pointer and its assosciated memory if it exists
+        if(dataPtr)
+            delete[] dataPtr;
 
-        size = { width, height };
-        if(channels == 1) colorSpace = ColorFormat::GREYSCALE;
-        else if(channels == 3) colorSpace = ColorFormat::RGB;
-        else if(channels == 4) colorSpace = ColorFormat::RGBA;
-        pixelCount = width * height * color_format_to_bytes(colorSpace);
-        data = new std::byte[pixelCount];
+        // Save new parameters from loaded image
+        switch(channels){
+        case 1:
+            format = GREYSCALE;
+            break;
 
-        for(size_t i = 0; i < pixelCount; i++){
-            unsigned char ch = pixelData[i];
-            data[i] = reinterpret_cast<std::byte&>(ch);
+        case 2:
+            format = RG;
+            break;
+
+        case 3:
+            format = RGB;
+            break;
+
+        case 4:
+            format = RGBA;
+            break;
+
+        default:
+            assert(false && "Unhandled channel count when loading image");
         }
 
+        size = { width, height };
+        pixelCount = width * height * color_format_to_bytes(format);
+        dataPtr = new std::byte[pixelCount];
+
+        // Pixel data here must be copied into the new array
+        for(size_t i = 0; i < pixelCount; i++){
+            unsigned char ch = pixelData[i];
+            dataPtr[i] = reinterpret_cast<std::byte&>(ch);
+        }
+
+        // Remove the old pixel data to prevent memory leaks
         stbi_image_free(pixelData);
     }
 
-    void Image::load(const FileHandle& handle, float flip){
-        load(handle.read_bytes(), flip);
+    void Image::load(const FileHandle& handle){
+        load(handle.read_bytes());
     }
 
     void Image::save(FileHandle handle) const {
+        // Save this image to a text file. STB takes chars instead of bytes so cast it. and save it.
         std::vector<char> out(pixelCount);
 
-        for(size_t i = 0; i < pixelCount; i++){
-            std::byte byte = data[i];
-            out[i] = reinterpret_cast<unsigned char&>(byte);
-        }
+        for(size_t i = 0; i < pixelCount; i++)
+            out[i] = reinterpret_cast<unsigned char&>(dataPtr[i]);
 
-        stbi_write_png(handle.get_path().c_str(), size.x, size.y, color_format_to_bytes(colorSpace), out.data(), 0);
+        stbi_write_png(handle.get_path().c_str(), size.x, size.y, color_format_to_bytes(format), out.data(), 0);
     }
 
-    void Image::reload(){}
-
+    // Manipulation functions
     void Image::mask(const Vector4f& color, float tolerance, std::byte alpha){
-        // Conversion helper
+        // This lambda checks if the area is actually masked by the given color.
         auto is_masked = [color, tolerance](const Vector4f& value){
             auto upperBound = color + color * tolerance;
             auto lowerBound = color - color * tolerance;
@@ -196,69 +219,82 @@ namespace Draft {
                 && value.r <= upperBound.r && value.g <= upperBound.g && value.b <= upperBound.b;
         };
 
-        // Set alpha for everything not matching
-        if(colorSpace == ColorFormat::GREYSCALE){
-            // Greyscale
-            for(size_t i = 0; i < pixelCount; i++){
-                float value = byte_to_float(data[i]);
+        // Run the mask algorithm over the bytes
+        uint stride = color_format_to_bytes(format);
 
-                if(!is_masked({ value, value, value, 1.f }))
-                    data[i] = std::byte{0x0};
-            }
-        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
-            // RGB
-            for(size_t i = 0; i < pixelCount; i += 3){
-                float red = byte_to_float(data[i]);
-                float green = byte_to_float(data[i + 1]);
-                float blue = byte_to_float(data[i + 2]);
+        for(size_t i = 0; i < pixelCount; i += stride){
+            // Get the value of the byte and check if it is masked in order to zero out the data if its not
+            bool masked = false;
 
-                if(!is_masked({ red, green, blue, 1.f })){
-                    data[i] = std::byte{0x0};
-                    data[i + 1] = std::byte{0x0};
-                    data[i + 2] = std::byte{0x0};
+            if(format == GREYSCALE){
+                // Only check one channel, so do it as a greyscale value
+                float value = byte_to_float(dataPtr[i]);
+                masked = is_masked({ value, value, value, 1.f});
+            } else {
+                // Otherwise do RGBA, omitting extras as white
+                float pixelValues[]{1, 1, 1, 1};
+
+                for(uint k = 0; k < stride; k++){
+                    pixelValues[k] = byte_to_float(dataPtr[i + k]);
                 }
-            }
-        } else {
-            // RGBA
-            for(size_t i = 0; i < pixelCount; i += 4){
-                float red = byte_to_float(data[i]);
-                float green = byte_to_float(data[i + 1]);
-                float blue = byte_to_float(data[i + 2]);
-                float alpha = byte_to_float(data[i + 3]);
 
-                if(!is_masked({ red, green, blue, alpha })){
-                    data[i + 3] = std::byte{0x0};
+                masked = is_masked({ pixelValues[0], pixelValues[1], pixelValues[2], pixelValues[3] });
+            }
+
+            // Zero out alpha, if it has alpha, if not masked. If theres no alpha then zero out all color.
+            if(!masked){
+                if(format == RGBA){
+                    dataPtr[i + 3] = std::byte{0x0};
+                } else {
+                    for(uint k = 0; k < stride; k++){
+                        dataPtr[i + k] = std::byte{0x0};
+                    }
                 }
             }
         }
     }
 
-    void Image::copy(const Image& src, Vector2u position, const IntRect& rect, bool applyAlpha){
-        uint srcStride = color_format_to_bytes(src.colorSpace);
-        uint destStride = color_format_to_bytes(this->colorSpace);
-        IntRect dimensions(rect);
+    void Image::copy(const Image& src, const Vector2i& position, IntRect rect, bool applyAlpha){
+        // Copies the source image to this image at position
+        uint srcStride = color_format_to_bytes(src.format);
+        uint destStride = color_format_to_bytes(format);
 
-        if(dimensions.width <= 0 || dimensions.height <= 0){
-            dimensions.width = src.size.x;
-            dimensions.height = src.size.y;
-        }
-        
-        for(size_t y = dimensions.y; y < dimensions.y + dimensions.height; y++){
-            for(size_t x = dimensions.x; x < dimensions.x + dimensions.width; x++){
-                // Set each pixel frm the src to the destination
-                for(int i = 0; i < destStride; i++){
+        // Check if the provided width or height is zero, if not auto-select the whole image. This is for convenience and nothing else
+        if(rect.width <= 0) rect.width = src.size.x;
+        if(rect.height <= 0) rect.height = src.size.y;
+
+        Vector2u start{rect.x, rect.y};
+        Vector2u end{rect.x + rect.width, rect.y + rect.height};
+
+        // Run the algorithm for copying from the src to this data
+        for(int y = start.y; y < end.y; y++){
+            for(int x = start.x; x < end.x; x++){
+                // Skip this pixel if its not on the actual image
+                if(x + position.x >= size.x || x + position.x < 0 || y + position.y >= size.y || y + position.y < 0)
+                    continue;
+
+                // Set each pixel from the src to the destination. Depth stride is used here because its where the data is going to go anyways
+                for(uint i = 0; i < destStride; i++){
+                    // Obtain the indices for each the source and the target.
                     size_t srcIndex = (x + y * src.size.x) * srcStride + i;
-                    size_t targetIndex = ((position.x + x) + (position.y + y) * this->size.x) * destStride + i;
+                    size_t targetIndex = ((position.x + x) + (position.y + y) * size.x) * destStride + i;
 
-                    if(applyAlpha && src.colorSpace == ColorFormat::RGBA && i != 3){
-                        float scalar = byte_to_float(src.data[x + y * src.size.x + 3]);
-                        data[targetIndex] = float_to_byte(byte_to_float(src.data[srcIndex]) * scalar);
-                    } else {
-                        if(i >= srcStride){
-                            data[targetIndex] = std::byte(0xFF);
+                    // Make sure the index doesnt over-extend the bytes
+                    if(i < srcStride){
+                        // Final branch to check if it needs to apply alpha values to it or not. Useful for transparent copying
+                        if(applyAlpha && src.format == RGBA && i != 3){
+                            // Here it qualifies for it all, where it wants alpha, the source has alpha, and we're on the alpha component, meaning
+                            // it should get the alpha value and apply it to the data.
+                            float scalar = byte_to_float(src.dataPtr[x + y * src.size.x + 3]); // Alpha byte to float
+                            dataPtr[targetIndex] = float_to_byte(byte_to_float(src.dataPtr[srcIndex]) * scalar);
                         } else {
-                            data[targetIndex] = src.data[srcIndex];
+                            // Here something has said to not have the alpha affect it, so instead just copy the data over like normal.
+                            dataPtr[targetIndex] = src.dataPtr[srcIndex];
                         }
+                    } else {
+                        // White out the data, best I can do without more complex algorithms to do heuristics on the existing
+                        // colors, which is useless for a small program like this.
+                        dataPtr[targetIndex] = std::byte(0xFF);
                     }
                 }
             }
@@ -266,18 +302,20 @@ namespace Draft {
     }
 
     void Image::flip_horizontally(){
+        // Swaps the pixel from left to right
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
-            int stride = color_format_to_bytes(colorSpace);
+            int stride = color_format_to_bytes(format);
             size_t index1 = (x1 + y1 * size.x) * stride;
             size_t index2 = (x2 + y2 * size.x) * stride;
 
             for(size_t i = 0; i < stride; i++){
-                std::byte temp = data[index1 + i];
-                data[index1 + i] = data[index2 + i];
-                data[index2 + i] = temp;
+                std::byte temp = dataPtr[index1 + i];
+                dataPtr[index1 + i] = dataPtr[index2 + i];
+                dataPtr[index2 + i] = temp;
             }
         };
 
+        // Simple algorithm, no explanation needed
         for(size_t y = 0; y < size.y; y++){
             for(size_t x = 0; x < size.x / 2; x++){
                 swap(x, y, size.x - x - 1, y);
@@ -286,18 +324,20 @@ namespace Draft {
     }
 
     void Image::flip_vertically(){
+        // Swaps the pixel from top to bottom
         auto swap = [this](unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2){
-            int stride = color_format_to_bytes(colorSpace);
+            int stride = color_format_to_bytes(format);
             size_t index1 = (x1 + y1 * size.x) * stride;
             size_t index2 = (x2 + y2 * size.x) * stride;
 
             for(size_t i = 0; i < stride; i++){
-                std::byte temp = data[index1 + i];
-                data[index1 + i] = data[index2 + i];
-                data[index2 + i] = temp;
+                std::byte temp = dataPtr[index1 + i];
+                dataPtr[index1 + i] = dataPtr[index2 + i];
+                dataPtr[index2 + i] = temp;
             }
         };
 
+        // Simple algorithm, no explanation needed
         for(size_t x = 0; x < size.x; x++){
             for(size_t y = 0; y < size.y / 2; y++){
                 swap(x, y, x, size.y - y - 1);
@@ -305,44 +345,54 @@ namespace Draft {
         }
     }
 
-    void Image::set_pixel(Vector2u position, Vector4f color){
-        int stride = color_format_to_bytes(colorSpace);
-        size_t startIndex = (position.x + position.y * size.x) * stride;
-        assert(startIndex < pixelCount && "Out of bounds");
+    void Image::set_pixel(const Vector2u& position, const Vector4f& color){
+        // Sets the pixel to the image to the specified color
+        uint stride = color_format_to_bytes(format);
+        size_t index = (position.x + position.y * size.x) * stride;
 
-        if(colorSpace == ColorFormat::GREYSCALE){
-            data[startIndex] = float_to_byte((color.r + color.g + color.b) / 3.f * color.a);
-        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
-            data[startIndex] = float_to_byte(color.r);
-            data[startIndex + 1] = float_to_byte(color.g);
-            data[startIndex + 2] = float_to_byte(color.b);
+        // If the index is out the pixel range, it cannot be within the texture
+        assert(index < pixelCount && "Out of bounds");
+
+        // Indexable color data
+        float colorData[4]{color.r, color.g, color.b, color.a};
+
+        // Set the data, if its greyscale use an average but if its not just omit any over extending
+        if(format == GREYSCALE){
+            // Avg data
+            dataPtr[index] = float_to_byte((color.r + color.g + color.b) / 3.f * color.a);
         } else {
-            data[startIndex] = float_to_byte(color.r);
-            data[startIndex + 1] = float_to_byte(color.g);
-            data[startIndex + 2] = float_to_byte(color.b);
-            data[startIndex + 3] = float_to_byte(color.a);
+            // Save data
+            for(uint k = 0; k < stride; k++){
+                dataPtr[index + k] = float_to_byte(colorData[k]);
+            }
         }
     }
 
-    Vector4f Image::get_pixel(Vector2u position) const {
-        int stride = color_format_to_bytes(colorSpace);
-        size_t startIndex = (position.x + position.y * size.x) * stride;
-        assert(startIndex < pixelCount && "Out of bounds");
+    Vector4f Image::get_pixel(const Vector2u& position) const {
+        // Gets the pixel's color data
+        uint stride = color_format_to_bytes(format);
+        size_t index = (position.x + position.y * size.x) * stride;
 
-        if(colorSpace == ColorFormat::GREYSCALE){
-            float val = byte_to_float(data[startIndex]);
-            return {val, val, val, 1.f};
-        } else if(colorSpace == ColorFormat::RGB || colorSpace == ColorFormat::DEPTH_COMPONENT){
-            float red = byte_to_float(data[startIndex]);
-            float green = byte_to_float(data[startIndex + 1]);
-            float blue = byte_to_float(data[startIndex + 2]);
-            return {red, green, blue, 1.f};
+        // If the index is out the pixel range, it cannot be within the texture
+        assert(index < pixelCount && "Out of bounds");
+
+        // Indexable color data
+        float colorData[4]{1.f, 1.f, 1.f, 1.f};
+
+        // Get the data, if its greyscale use an average but if its not just omit any over extending
+        if(format == ColorFormat::GREYSCALE){
+            // Average all except alpha channel
+            float val = byte_to_float(dataPtr[index]);
+            colorData[0] = val;
+            colorData[1] = val;
+            colorData[2] = val;
         } else {
-            float red = byte_to_float(data[startIndex]);
-            float green = byte_to_float(data[startIndex + 1]);
-            float blue = byte_to_float(data[startIndex + 2]);
-            float alpha = byte_to_float(data[startIndex + 3]);
-            return {red, green, blue, alpha};
+            // Iterate over the stride, anything thats not within will just be ignored
+            for(uint k = 0; k < stride; k++){
+                colorData[k] = byte_to_float(dataPtr[index + k]);
+            }
         }
+
+        return {colorData[0], colorData[1], colorData[2], colorData[3]};
     }
 };

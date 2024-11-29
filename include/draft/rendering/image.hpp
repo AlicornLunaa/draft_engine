@@ -9,48 +9,69 @@
 #include <vector>
 
 namespace Draft {
+    /**
+     * @brief Image is similar to Texture, however the data lives on the processor and RAM. This allows
+     *  for more control over the data. It has no connection to OpenGL which means it can be loaded before
+     *  the OpenGL context is created.
+     */
     class Image {
     private:
         // Variables
-        Vector2u size;
-        ColorFormat colorSpace;
-        std::byte* data = nullptr;
+        std::byte* dataPtr = nullptr;
         size_t pixelCount = 0;
+
+        ColorFormat format;
+        Vector2u size;
 
         // Private functions
         void copy_data(const Image& other);
 
     public:
         // Constructors
-        Image(unsigned int width = 1, unsigned int height = 1, Vector4f color = {1, 1, 1, 1}, ColorFormat colorSpace = ColorFormat::RGBA);
-        Image(unsigned int width, unsigned int height, ColorFormat colorSpace, const std::byte* pixelData);
-        Image(const std::vector<std::byte>& rawData, bool flip = false);
-        Image(const FileHandle& handle, bool flip = false);
-        Image(const Image& other);
-        Image(Image&& other) noexcept;
-        ~Image();
+        Image(const Vector2u& size = {1, 1}, Vector4f color = {1, 1, 1, 1}, ColorFormat format = ColorFormat::RGBA); // Image constructor from no data
+        Image(const Vector2u& size, ColorFormat format, const std::byte* pixelDataArr); // Raw data constructor for raw pixel data
+        Image(const std::vector<std::byte>& rawData); // Compressed data constructor, stuff like PNG or JPEG
+        Image(const FileHandle& handle); // Load from file
+        Image(const Image& other); // Copy constructor
+        Image(Image&& other) noexcept; // Move constructor
+        ~Image(); // Destructor
 
         // Operators
         Image& operator=(const Image& other);
         Image& operator=(Image&& other) noexcept;
 
-        // Functions
-        void load(const std::vector<std::byte>& arr, float flip = false);
-        void load(const FileHandle& handle, float flip = false);
-        void save(FileHandle handle) const;
-        void reload();
+        // State functions
+        /**
+         * @brief Loads from compressed texture data.
+         * @param arr PNG, JPEG, etc
+         */
+        void load(const std::vector<std::byte>& arr);
 
-        void mask(const Vector4f& color, float tolerance = 0.f, std::byte alpha = std::byte{ 0x0 });
-        void copy(const Image& src, Vector2u position, const IntRect& rect = {0, 0, 0, 0}, bool applyAlpha = false);
+        /**
+         * @brief Load from a file
+         * @param handle 
+         */
+        void load(const FileHandle& handle);
+
+        /**
+         * @brief Save to a file
+         * @param handle 
+         */
+        void save(FileHandle handle) const;
+
+        // Editing functions
+        void mask(const Vector4f& color, float tolerance = 0.f, std::byte alpha = std::byte{ 0x00 });
+        void copy(const Image& src, const Vector2i& position, IntRect rect = {0, 0, 0, 0}, bool applyAlpha = false);
         void flip_horizontally();
         void flip_vertically();
-        void set_pixel(Vector2u position, Vector4f color);
-        Vector4f get_pixel(Vector2u position) const;
+        void set_pixel(const Vector2u& position, const Vector4f& color);
+        Vector4f get_pixel(const Vector2u& position) const;
 
-        inline const std::byte* c_arr() const { return data; }
+        // Getters
+        inline ColorFormat get_format() const { return format; }
         inline const Vector2u& get_size() const { return size; }
-        inline ColorFormat get_color_space() const { return colorSpace; }
         inline size_t get_pixel_count() const { return pixelCount; }
-        inline bool is_transparent() const { return colorSpace == ColorFormat::RGBA; }
+        inline const std::byte* c_arr() const { return dataPtr; }
+        inline bool is_transparent() const { return format == ColorFormat::RGBA; }
     };
 };

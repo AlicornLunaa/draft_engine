@@ -23,7 +23,8 @@ namespace Draft {
     }
 
     void TextureLoader::load_async(){
-        img = std::make_unique<Image>(handle, true);
+        img = std::make_unique<Image>(handle);
+        img->flip_vertically();
     }
 
     AssetPtr TextureLoader::finish_async_gl(){

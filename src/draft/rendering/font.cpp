@@ -57,7 +57,7 @@ namespace Draft {
                 fontSize
             );
 
-            ref.images.emplace_back(2048, 2048, Vector4f{0, 0, 0, 0}, GREYSCALE);
+            ref.images.emplace_back(Vector2u{2048, 2048}, Vector4f{0, 0, 0, 0}, GREYSCALE);
             ref.textures.push_back(std::shared_ptr<Texture>(new Texture(ref.images.back(), FONT_TEXTURE_PROPS)));
         }
 
@@ -96,14 +96,14 @@ namespace Draft {
         if(bounds.y + bounds.height >= baseImage.get_size().y){
             fontType.previousGlyphBounds = {0, 0, 0, 0};
             fontType.rowDepth = 0;
-            fontType.images.emplace_back(2048, 2048, Vector4f{0, 0, 0, 0}, GREYSCALE);
+            fontType.images.emplace_back(Vector2u{2048, 2048}, Vector4f{0, 0, 0, 0}, GREYSCALE);
             fontType.textures.push_back(std::shared_ptr<Texture>(new Texture(fontType.images.back(), FONT_TEXTURE_PROPS)));
             baseImage = fontType.images.back();
             baseTexture = fontType.textures.back();
         }
 
         // Copy the glyph data to the base image
-        Image image(ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows, GREYSCALE, reinterpret_cast<std::byte*>(ptr->fontFace->glyph->bitmap.buffer));
+        Image image({ptr->fontFace->glyph->bitmap.width, ptr->fontFace->glyph->bitmap.rows}, GREYSCALE, reinterpret_cast<std::byte*>(ptr->fontFace->glyph->bitmap.buffer));
         image.flip_vertically();
         baseImage.copy(image, {bounds.x, bounds.y});
         baseTexture->set_image(baseImage);

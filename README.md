@@ -13,7 +13,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Serialization
 - [ ] JSON handling
 - [ ] Update to new physics engine
-- [ ] Better texture class with some sort of TextureProperties struct
+- [x] Better texture class with some sort of TextureProperties struct
 - [ ] Same with framebuffer
 - [ ] Crash logs
 - [ ] Devtools & registry editor

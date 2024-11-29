@@ -14,6 +14,15 @@ namespace Draft {
         }
     };
 
+    // Private functions
+    void TexturePacker::double_size(){
+        currentWidth *= 2;
+        
+        Image srcCopy(src);
+        src = Image({currentWidth, currentWidth}, {0, 0, 0, 0});
+        src.copy(srcCopy, {0, 0});
+    }
+
     // Functions
     TextureRegion TexturePacker::get_region(const std::string& name) const {
         // Returns a new texture region with this rect
@@ -29,8 +38,7 @@ namespace Draft {
     }
 
     void TexturePacker::clear(){
-        currentWidth = WIDTH_PER_ITER;
-        src = Image(currentWidth, currentWidth, {0, 0, 0, 0});
+        src = Image({currentWidth, currentWidth}, {0, 0, 0, 0});
         regions.clear();
         texture.reset();
     }
@@ -45,9 +53,17 @@ namespace Draft {
         if(data.empty())
             return;
 
+        // If the initial texture is larger than the texture it has some weird stuff, could be fixed with math
+        // but its a single edge case
+        auto initialSize = data[0].second.get_size();
+
+        while(std::max(initialSize.x, initialSize.y) >= currentWidth){
+            double_size();
+        }
+
         // Keep track of which image is currently in use
         Vector2u srcSize = src.get_size();
-        Image mask(src.get_size().x, src.get_size().y, {0, 0, 0, 0}, GREYSCALE);
+        Image mask(srcSize, {0, 0, 0, 0}, GREYSCALE);
         uint index = 0;
 
         // Start scanning the image
@@ -64,13 +80,24 @@ namespace Draft {
 
             // If it extends past the bottom layer, its time to double the size
             if(cursor.y >= srcSize.y - imgSize.y){
-                
+                // Reset cursor, double the size
+                double_size();
+        
+                Image maskCopy(mask);
+                mask = Image(srcSize, {0, 0, 0, 0}, GREYSCALE);
+                mask.copy(maskCopy, {0, 0});
+
+                srcSize = src.get_size();
+                cursor = {0, 0};
             }
 
             // Check if this spot is free for this entire section
             bool empty = true;
             for(uint y = cursor.y; y < cursor.y + imgSize.y && empty; y++){
                 for(uint x = cursor.x; x < cursor.x + imgSize.x && empty; x++){
+                    if(x >= srcSize.x || y >= srcSize.y)
+                        continue;
+
                     if(mask.get_pixel({x, y}).r != 0){
                         empty = false;
                         break;
@@ -80,9 +107,8 @@ namespace Draft {
 
             // If its empty place it here and reset the cursor so it can work on the next image
             if(empty){
-
                 // Add to the mask
-                Image maskAddition(imgSize.x, imgSize.y, {1, 1, 1, 1}, GREYSCALE);
+                Image maskAddition(imgSize, {1, 1, 1, 1}, GREYSCALE);
                 mask.copy(maskAddition, cursor);
                 src.copy(img, cursor);
 
