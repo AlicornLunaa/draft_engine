@@ -113,7 +113,7 @@ namespace Draft {
             // Check types, if dynamic use subdata and if static use regular
             switch(buf.type){
             case BufferType::DYNAMIC:
-                buffer_sub_data(buf.glType, offset, std::min(static_cast<unsigned long>(arr.size() * sizeof(T)), buf.maxBytes), (void*)arr.data());
+                buffer_sub_data(buf.glType, offset * sizeof(T), std::min(static_cast<unsigned long>(arr.size() * sizeof(T)), buf.maxBytes), (void*)arr.data());
                 break;
 
             default:
