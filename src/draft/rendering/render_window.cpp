@@ -167,12 +167,12 @@ namespace Draft {
         return false;
     }
 
-    void RenderWindow::clear(){
+    void RenderWindow::clear(const Vector4f& clearColor){
         // Profiler frame start
         TracyGpuZone("window_clear");
 
         // Clear window
-        glClearColor(0.05f, 0.05f, 0.05f, 1.f);
+        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // ImGUI frame

@@ -57,7 +57,7 @@ namespace Draft {
         ~Framebuffer();
 
         // Functions
-        void begin();
+        void begin(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1});
         void end();
         void resize(const Vector2u& size);
         void write_depth_stencil();

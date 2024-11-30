@@ -61,10 +61,10 @@ namespace Draft {
     }
 
     // Functions
-    void Framebuffer::begin(){
+    void Framebuffer::begin(const Vector4f& clearColor){
         // Begin this rendering
         bind();
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 

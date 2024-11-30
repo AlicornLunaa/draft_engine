@@ -78,7 +78,7 @@ namespace Draft {
         /**
          * @brief Clears the screen
          */
-        void clear();
+        void clear(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1});
 
         /**
          * @brief Swaps buffers
