@@ -30,6 +30,7 @@ namespace Draft {
             flush();
 
         this->shader = shader;
+        shader.get().bind();
     }
 
     void Batch::set_proj_matrix(const Matrix4& m){
