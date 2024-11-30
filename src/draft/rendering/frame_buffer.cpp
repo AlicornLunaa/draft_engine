@@ -61,11 +61,32 @@ namespace Draft {
     }
 
     // Functions
+    void Framebuffer::clear(const Vector4f& clearColor){
+        // Clear this buffer
+        bool unbindAfter = (currentFbo != fbo);
+
+        if(unbindAfter)
+            bind();
+
+        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if(unbindAfter)
+            unbind();
+    }
+
     void Framebuffer::begin(const Vector4f& clearColor){
         // Begin this rendering
         bind();
-        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        clear(clearColor);
+    }
+
+    void Framebuffer::begin(bool clear){
+        // Begin this rendering
+        bind();
+
+        if(clear)
+            this->clear();
     }
 
     void Framebuffer::end(){
