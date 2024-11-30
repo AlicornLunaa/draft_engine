@@ -18,6 +18,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Crash logs
 - [ ] Devtools & registry editor
 - [ ] Math utils for lerp, slerp, and other graphs. Map function as well
+- [ ] Color class
 
 ## How the engine works
 ### OpenGL Resources

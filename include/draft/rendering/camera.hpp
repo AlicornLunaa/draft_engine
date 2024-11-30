@@ -117,4 +117,8 @@ namespace Draft {
         inline float get_zoom() const { return zoom; }
         void set_zoom(float z);
     };
+
+    // Aliasing
+    typedef OrthographicCamera OrthoCamera;
+    typedef PerspectiveCamera PerspCamera;
 };

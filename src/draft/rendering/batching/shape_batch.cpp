@@ -5,6 +5,7 @@
 #include "draft/rendering/vertex_array.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
+#include "glm/geometric.hpp"
 #include "tracy/Tracy.hpp"
 
 using namespace std;
@@ -208,6 +209,20 @@ namespace Draft {
             points.push_back({ end + right, currentColor }); // 3
             points.push_back({ end + right, currentColor }); // 3
             points.push_back({ start + right, currentColor }); // 0
+        }
+    }
+
+    void ShapeBatch::draw_dotted_line(Vector2f start, const Vector2f& end, float width, float spacing){
+        // Divide the length into segments
+        uint segmentCount = Math::distance(start, end) / spacing;
+        Vector2f r = (end - start) / (float)segmentCount; // Takes the length of the line and divides it by the spacing in pixels
+        
+        // Draw each segment, ignoring every other
+        for(uint i = 0; i < segmentCount; i++){
+            if(i % 2 == 0)
+                draw_rect_line(start, start + r, width);
+            
+            start += r;
         }
     }
 
