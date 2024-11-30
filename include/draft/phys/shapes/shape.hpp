@@ -10,7 +10,7 @@ namespace Draft {
     class Shape {
     public:
         // Public variables
-        const ShapeType type;
+        ShapeType type;
         bool isConvex = true;
         bool isSensor = false;
         float friction = 0.2f;
