@@ -108,7 +108,7 @@ namespace Draft {
     }
 
     // Constructors
-    PhysicsSystem::PhysicsSystem(Scene& sceneRef, World& worldRef) : appPtr(sceneRef.app), registryRef(sceneRef.get_registry()), worldRef(worldRef) {
+    PhysicsSystem::PhysicsSystem(Scene& sceneRef, World& worldRef) : appPtr(sceneRef.get_app()), registryRef(sceneRef.get_registry()), worldRef(worldRef) {
         // Attach listeners
         registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
         registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);

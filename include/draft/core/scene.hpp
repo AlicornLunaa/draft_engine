@@ -19,8 +19,6 @@ namespace Draft {
         Scene(const Scene& other) = delete;
         virtual ~Scene() = default;
 
-        friend class PhysicsSystem;
-
         Application* get_app();
         Registry& get_registry();
         Entity create_entity();
