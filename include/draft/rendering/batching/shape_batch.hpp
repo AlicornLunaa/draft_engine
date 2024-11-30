@@ -44,6 +44,9 @@ namespace Draft {
         Vector4f currentColor{ 1, 1, 1, 1 };
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
 
+        // Private functions
+        void flush_if_overflowing(uint count);
+
     public:
         // Constructors
         ShapeBatch(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true));

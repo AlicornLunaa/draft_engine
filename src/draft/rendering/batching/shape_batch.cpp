@@ -10,6 +10,15 @@
 using namespace std;
 
 namespace Draft {
+    // Private functions
+    void ShapeBatch::flush_if_overflowing(uint count){
+        // This function will flush the batch if it is about to overflow, i.e. go higher than MAX_POINTS_PER_PASS
+        // This is due to the fact if it reaches the end and cant fit all its vertices in, itll go missing
+        if(points.size() + count >= MAX_POINTS_PER_PASS){
+            flush();
+        }
+    }
+
     // Constructor
     ShapeBatch::ShapeBatch(Resource<Shader> shader) : Batch(shader) {
         // Setup data buffers
@@ -36,6 +45,8 @@ namespace Draft {
         // Profiling
         ZoneScopedN("shape_batch_polygon");
 
+        flush_if_overflowing(polygonVertices.size() * 2);
+
         // Generate and add vertices
         for(size_t i = 0; i < polygonVertices.size(); i++){
             points.push_back({ polygonVertices[i], currentColor });
@@ -50,11 +61,15 @@ namespace Draft {
         // Generate and add vertices
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
+            flush_if_overflowing(QUAD_INDICES.size());
+
             for(int index : QUAD_INDICES){
                 points.push_back({QUAD_VERTICES[index] * size + position, currentColor});
             }
         } else {
             // Lines
+            flush_if_overflowing(QUAD_VERTICES.size() * 2);
+
             for(size_t i = 0; i < QUAD_VERTICES.size(); i++){
                 points.push_back({QUAD_VERTICES[i] * size + position, currentColor});
                 points.push_back({QUAD_VERTICES[(i + 1) % QUAD_VERTICES.size()] * size + position, currentColor});
@@ -68,12 +83,16 @@ namespace Draft {
 
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
-            // Two triangles to fill
+            // One triangles to fill
+            flush_if_overflowing(TRI_VERTICES.size());
+
             for(const Vector2f& v : TRI_VERTICES){
                 points.push_back({Math::rotate(v * size, rotation) + position, currentColor});
             }
         } else {
             // Lines
+            flush_if_overflowing(TRI_VERTICES.size() * 2);
+
             for(size_t i = 0; i < TRI_VERTICES.size(); i++){
                 points.push_back({Math::rotate(TRI_VERTICES[i] * size, rotation) + position, currentColor});
                 points.push_back({Math::rotate(TRI_VERTICES[(i + 1) % TRI_VERTICES.size()] * size, rotation) + position, currentColor});
@@ -88,11 +107,15 @@ namespace Draft {
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
+            flush_if_overflowing(positions.size());
+
             points.push_back({ positions[0], currentColor });
             points.push_back({ positions[1], currentColor });
             points.push_back({ positions[2], currentColor });
         } else {
             // Lines
+            flush_if_overflowing(positions.size() * 2);
+
             for(size_t i = 0; i < positions.size(); i++){
                 points.push_back({ positions[i], currentColor });
                 points.push_back({ positions[(i + 1) % positions.size()], currentColor });
@@ -109,6 +132,8 @@ namespace Draft {
 
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
+            flush_if_overflowing(segments * 3);
+
             for(size_t i = 0; i < segments; i++){
                 float radians1 = i * pointsEveryRadian;
                 float radians2 = (i + 1) % segments * pointsEveryRadian;
@@ -120,6 +145,8 @@ namespace Draft {
             }
         } else {
             // Lines
+            flush_if_overflowing(segments * 2 + 2);
+
             for(size_t i = 0; i < segments; i++){
                 float radians1 = i * pointsEveryRadian;
                 float radians2 = (i + 1) % segments * pointsEveryRadian;
@@ -144,6 +171,8 @@ namespace Draft {
             set_render_type(RenderType::LINE);
         }
 
+        flush_if_overflowing(2);
+
         // Generate and add vertices
         points.push_back({ start, currentColor });
         points.push_back({ end, currentColor });
@@ -158,14 +187,10 @@ namespace Draft {
         Vector2f right = Math::rotate(Vector2f(0, 1), radians);
         right *= 0.02f * width;
 
-        points.push_back({ start + right, currentColor }); // 0
-        points.push_back({ start - right, currentColor }); // 1
-        points.push_back({ end - right, currentColor }); // 2
-        points.push_back({ end + right, currentColor }); // 3
-
         // Connect all indices, depending on filled or lines
         if(currentRenderType == RenderType::FILL){
             // Two triangles to fill
+            flush_if_overflowing(6);
             points.push_back({ start - right, currentColor }); // 1
             points.push_back({ start + right, currentColor }); // 0
             points.push_back({ end + right, currentColor }); // 3
@@ -174,6 +199,7 @@ namespace Draft {
             points.push_back({ end - right, currentColor }); // 2
         } else {
             // Lines
+            flush_if_overflowing(8);
             points.push_back({ start + right, currentColor }); // 0
             points.push_back({ start - right, currentColor }); // 1
             points.push_back({ start - right, currentColor }); // 1
@@ -201,6 +227,7 @@ namespace Draft {
         Vector2f right = Math::rotate(Vector2f(0, 1), radians + 2*3.141592654f/3.f) * 0.08f;
 
         // Generate and add vertices
+        flush_if_overflowing(6);
         points.push_back({ head, currentColor }); // 0
         points.push_back({ head + Vector2f(left.x, left.y), currentColor }); // 1
         points.push_back({ head, currentColor }); // 0
@@ -222,26 +249,19 @@ namespace Draft {
         if(points.empty())
             return;
 
-        // Save the starting points to keep track of the amount of iterations
-        size_t iterations = points.size();
-
         // Render VBO
         Shader* shader = this->shader;
         shader->bind();
         shader->set_uniform("view", get_trans_matrix());
         shader->set_uniform("projection", get_proj_matrix());
-        
-        for(size_t i = 0; i <= iterations / MAX_POINTS_PER_PASS; i++){
-            // Repeat for number of render chunks
-            size_t pointsRendered = std::min(points.size(), MAX_POINTS_PER_PASS);
 
-            vertexArray.bind();
-            vertexArray.set_data(0, points);
+        size_t pointsRendered = std::min(points.size(), MAX_POINTS_PER_PASS);
 
-            glDrawArrays((currentRenderType == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, pointsRendered);
+        vertexArray.bind();
+        vertexArray.set_data(0, points);
+        glDrawArrays((currentRenderType == RenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, pointsRendered);
 
-            points.erase(points.begin(), points.begin() + pointsRendered);
-        }
+        points.erase(points.begin(), points.begin() + pointsRendered);
 
         vertexArray.unbind();
         points.clear();
@@ -250,7 +270,6 @@ namespace Draft {
     void ShapeBatch::end(){
         // Profiling
         ZoneScopedN("shape_batch_end");
-        
         Batch::end();
     }
 };
