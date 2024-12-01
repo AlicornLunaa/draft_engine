@@ -4,7 +4,7 @@
 
 namespace Draft::UI {
     // Constructor
-    Button::Button(float x, float y, float w, float h, bool* value, Type type, Panel* parent) : value(value), type(type) {
+    Button::Button(float x, float y, float w, float h, bool* value, Type type, Panel* parent) : Panel(parent), value(value), type(type) {
         bounds.x = x;
         bounds.y = y;
         bounds.width = w;
