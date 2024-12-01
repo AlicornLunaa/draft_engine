@@ -6,17 +6,17 @@
 namespace Draft {
     class Slider : public Panel {
     private:
+        // Variables
         FloatRect handleBounds; // Bounds of the handle to grab
-        FloatRect barBounds; // Bounds of the bar to grab
         bool grabbing = false; // Used for click & drag
         float* value;
 
-        void update_bar();
-        void update_handle();
-
     public:
-        Slider(float x, float y, float w, float h, float* value);
+        // Constructor
+        Slider(float x, float y, float w, float h, float* value, Panel* parent = nullptr);
 
-        virtual bool handle_event(const Event& event);
+        // Functions
+        virtual bool handle_event(const Event& event) override;
+        virtual void paint(const Time& deltaTime, SpriteBatch& batch) override;
     };
 };

@@ -3,51 +3,47 @@
 #include "draft/core/application.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
+#include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/vertex_buffer.hpp"
 #include "draft/interface/panel.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 
+#include <memory>
 #include <vector>
 
 namespace Draft {
     class UIContainer {
     private:
         // Variables
-        std::vector<Panel*> panels;
-        size_t dynamicBufferLocation = 0;
-        size_t currentBufferSize = 0; // In vertices
-        size_t currentIndicesCount = 0;
-        VertexBuffer* buffer = nullptr;
-
         const Application* app = nullptr;
-        Resource<Shader> uiShader;
-        OrthographicCamera uiCamera;
+        OrthographicCamera camera;
         FloatRect windowBounds;
 
-        // Private functions
-        void resize_buffer(size_t vertexCount);
-        void check_buffer_can_store();
-        void validate_panels();
+        std::vector<std::unique_ptr<Panel>> panels;
+        Resource<Shader> uiShader;
+        TextRenderer textRenderer;
 
     public:
         // Constructors
-        UIContainer(const Application* app, const Vector2f& size, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/interface", true));
+        UIContainer(const Application* app, const Vector2f& size, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default", true));
         UIContainer(const UIContainer& other) = delete;
-        ~UIContainer();
+        ~UIContainer() = default;
 
         // Functions
-        inline OrthographicCamera& get_camera(){ return uiCamera; }
+        inline OrthographicCamera& get_camera(){ return camera; }
 
         template<typename T>
         T* add_panel(T* panel){
-            panels.push_back(panel);
+            panels.push_back(std::unique_ptr<Panel>(panel));
             return panel;
         }
 
+        void remove_panel(Panel* panel);
+
         bool handle_event(const Event& event);
-        void render(const Time& deltaTime);
+        void render(const Time& deltaTime, SpriteBatch& batch);
     };
 };

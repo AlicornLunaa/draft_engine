@@ -13,7 +13,7 @@ namespace Draft {
 
     protected:
         // Variables
-        Texture whiteTexture{Image()};
+        Texture whiteTexture{Image({1, 1}, {1, 1, 1, 1}, RGB)};
 
         Resource<Shader> shader;
         bool blend = true;

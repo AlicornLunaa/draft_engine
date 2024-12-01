@@ -2,24 +2,24 @@
 
 #include "draft/interface/panel.hpp"
 #include "draft/math/rect.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
 
 namespace Draft {
     namespace UI {
         class Joystick : public Panel {
         private:
-            FloatRect blockBounds;
-            FloatRect handleBounds;
+            // Needs an additional bounds because the entire object isnt clickable
             bool grabbing = false; // Used for click & drag
+            FloatRect handleBounds;
             Vector2f* value;
 
-            void update_block();
-            void update_handle();
-
         public:
-            Joystick(float x, float y, float w, float h, Vector2f* value);
+            // Constructor
+            Joystick(float x, float y, float w, float h, Vector2f* value, Panel* parent = nullptr);
 
-            virtual bool handle_event(const Event& event);
-            virtual void update(const Time& deltaTime);
+            // Functions
+            virtual bool handle_event(const Event& event) override;
+            virtual void paint(const Time& deltaTime, SpriteBatch& batch) override;
         };
     }
 };

@@ -21,6 +21,7 @@ set(SOURCES
     src/draft/interface/joystick.cpp
     src/draft/interface/picture.cpp
     src/draft/interface/progress_bar.cpp
+    src/draft/interface/text_input.cpp
     src/draft/interface/widgets/console.cpp
     src/draft/interface/widgets/stats.cpp
     src/draft/math/bounds.cpp
@@ -114,6 +115,7 @@ set(INTERFACES
     include/draft/interface/joystick.hpp
     include/draft/interface/picture.hpp
     include/draft/interface/progress_bar.hpp
+    include/draft/interface/text_input.hpp
     include/draft/interface/widgets/console.hpp
     include/draft/interface/widgets/stats.hpp
     include/draft/math/funcs.hpp
@@ -192,8 +194,6 @@ set(RESOURCES
     assets/shaders/missing_shader/fragment.glsl
     assets/shaders/default/vertex.glsl
     assets/shaders/default/fragment.glsl
-    assets/shaders/interface/vertex.glsl
-    assets/shaders/interface/fragment.glsl
     assets/shaders/mesh/vertex.glsl
     assets/shaders/mesh/fragment.glsl
     assets/shaders/shapes/vertex.glsl

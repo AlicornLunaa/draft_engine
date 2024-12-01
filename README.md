@@ -8,7 +8,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Develop animation class
 - [ ] Localization API
 - [ ] Handle errors gracefully
-- [ ] Overhaul UI
+- [x] Overhaul UI
 - [ ] Load collider data from files
 - [ ] Serialization
 - [ ] JSON handling

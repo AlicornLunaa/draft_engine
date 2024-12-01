@@ -13,7 +13,7 @@ namespace Draft {
     }
 
     // Constructors
-    TextRenderer::TextRenderer(Resource<Shader> shader) : batch(shader) {}
+    TextRenderer::TextRenderer(Resource<Shader> shader) : fontShader(shader) {}
 
     // Functions
     Vector2f TextRenderer::get_text_bounds(const TextProperties& props) const {
@@ -34,7 +34,7 @@ namespace Draft {
         return {currWidth, currHeight};
     }
 
-    void TextRenderer::draw_text(const TextProperties& props){
+    void TextRenderer::draw_text(SpriteBatch& batch, const TextProperties& props){
         // Profiling
         ZoneScopedN("text_renderer_draw");
 
@@ -42,6 +42,8 @@ namespace Draft {
         Vector2f center = size * props.origin;
         const Font& font = get_font(props);
         float currX = props.position.x;
+
+        batch.set_shader(fontShader);
 
         for(char ch : props.str){
             // Get glyph to render
@@ -70,20 +72,7 @@ namespace Draft {
         }
     }
 
-    void TextRenderer::draw_text(const std::string& str, Font* font, const Vector2f& position, float scale, const Vector4f& color){
-        draw_text({ str, font, position, {0, 0}, color, 0.f, scale });
-    }
-
-    void TextRenderer::begin(){
-        batch.begin();
-    }
-
-    void TextRenderer::flush(){
-        // Generate every quad for each character
-        batch.flush();
-    }
-
-    void TextRenderer::end(){
-        batch.end();
+    void TextRenderer::draw_text(SpriteBatch& batch, const std::string& str, Font* font, const Vector2f& position, float scale, const Vector4f& color){
+        draw_text(batch, { str, font, position, {0, 0}, color, 0.f, scale });
     }
 };
