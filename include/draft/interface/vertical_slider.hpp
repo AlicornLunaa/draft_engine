@@ -4,7 +4,7 @@
 #include "draft/math/rect.hpp"
 
 namespace Draft {
-    class Slider : public Panel {
+    class VerticalSlider : public Panel {
     private:
         // Variables
         FloatRect handleBounds; // Bounds of the handle to grab
@@ -13,7 +13,7 @@ namespace Draft {
 
     public:
         // Constructor
-        Slider(float x, float y, float w, float h, float* value, Panel* parent = nullptr);
+        VerticalSlider(float x, float y, float w, float h, float* value, Panel* parent = nullptr);
 
         // Functions
         virtual bool handle_event(const Event& event) override;

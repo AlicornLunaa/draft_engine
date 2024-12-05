@@ -16,7 +16,8 @@ set(SOURCES
     src/draft/interface/panel.cpp
     src/draft/interface/ui_container.cpp
     src/draft/interface/rectangle.cpp
-    src/draft/interface/slider.cpp
+    src/draft/interface/vertical_slider.cpp
+    src/draft/interface/horizontal_slider.cpp
     src/draft/interface/button.cpp
     src/draft/interface/joystick.cpp
     src/draft/interface/picture.cpp
@@ -110,7 +111,8 @@ set(INTERFACES
     include/draft/interface/panel.hpp
     include/draft/interface/ui_container.hpp
     include/draft/interface/rectangle.hpp
-    include/draft/interface/slider.hpp
+    include/draft/interface/vertical_slider.hpp
+    include/draft/interface/horizontal_slider.hpp
     include/draft/interface/button.hpp
     include/draft/interface/joystick.hpp
     include/draft/interface/picture.hpp

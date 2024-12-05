@@ -1,11 +1,11 @@
-#include "draft/interface/slider.hpp"
+#include "draft/interface/horizontal_slider.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "glm/common.hpp"
 
 namespace Draft {
     // Constructor
-    Slider::Slider(float x, float y, float w, float h, float* value, Panel* parent) : Panel(parent), value(value) {
+    HorizontalSlider::HorizontalSlider(float x, float y, float w, float h, float* value, Panel* parent) : Panel(parent), value(value) {
         bounds.x = x;
         bounds.y = y;
         bounds.width = w;
@@ -18,7 +18,7 @@ namespace Draft {
     }
 
     // Functions
-    bool Slider::handle_event(const Event& event){
+    bool HorizontalSlider::handle_event(const Event& event){
         if(event.type == Event::MouseButtonPressed){
             Vector2f clickPos(event.mouseButton.x, event.mouseButton.y);
 
@@ -38,7 +38,7 @@ namespace Draft {
         return false;
     }
 
-    void Slider::paint(const Time& dt, SpriteBatch& batch){
+    void HorizontalSlider::paint(const Time& dt, SpriteBatch& batch){
         handleBounds.x = bounds.x + bounds.width * Math::clamp(*value, 0.f, 1.f) - handleBounds.width / 2;
 
         // Handle
