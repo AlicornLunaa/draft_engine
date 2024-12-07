@@ -128,6 +128,14 @@ namespace Draft {
     void PhysicsSystem::update(){
         ZoneScopedN("physics_system");
 
+        Time prevTimestep = appPtr->timeStep;
+        bool resetTime = false;
+
+        if(physicsTimestep.as_seconds() >= 0.f){
+            appPtr->timeStep = physicsTimestep;
+            resetTime = true;
+        }
+
         worldRef.step(appPtr->timeStep, worldRef.VELOCITY_ITER, worldRef.POSITION_ITER);
 
         auto view = registryRef.view<TransformComponent, RigidBodyComponent>();
@@ -151,6 +159,10 @@ namespace Draft {
             // Reset deltas
             trans.dp = trans.position;
             trans.dr = trans.rotation;
+        }
+        
+        if(resetTime){
+            appPtr->timeStep = prevTimestep;
         }
     }
 };

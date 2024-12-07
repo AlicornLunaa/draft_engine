@@ -20,6 +20,9 @@ namespace Draft {
         void deconstruct_collider_func(Registry& reg, entt::entity rawEnt);
 
     public:
+        // Public variables
+        Time physicsTimestep = Time::seconds(-1); // If -1, use app's timestep.
+
         // Constructors
         PhysicsSystem(Scene& sceneRef, World& worldRef);
         PhysicsSystem(const PhysicsSystem& other) = delete;

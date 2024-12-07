@@ -22,8 +22,8 @@ namespace Draft {
 
     public:
         // Static public vars
-        constexpr static int VELOCITY_ITER = 6;
-        constexpr static int POSITION_ITER = 2;
+        constexpr static int VELOCITY_ITER = 10;
+        constexpr static int POSITION_ITER = 5;
 
         // Constructors
         World(const Vector2f& gravity);

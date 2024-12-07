@@ -9,6 +9,9 @@ namespace Draft {
         Registry& registryRef;
 
     public:
+        // Public vars
+        float dopplerSensitivity = 0.2f;
+
         // Constructors
         AudioSystem(Registry& registryRef);
         ~AudioSystem() = default;

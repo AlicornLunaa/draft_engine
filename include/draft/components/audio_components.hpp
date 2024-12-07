@@ -30,6 +30,7 @@ namespace Draft {
     struct ListenerComponent {
         // Vars
         Listener listener;
+        uint priority = 0; // Higher priority means more precidence. Must be higher than 0 to enable doppler effect
 
         // Constructors
         ListenerComponent(){};
