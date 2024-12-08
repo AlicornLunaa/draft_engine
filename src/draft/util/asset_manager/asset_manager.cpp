@@ -40,6 +40,11 @@ namespace Draft {
         }
 
         while(!loadQueue.empty()){
+            if(loadQueue.front() == nullptr){
+                loadQueue.pop();
+                continue;
+            }
+
             auto& loader = loadQueue.front();
             loader->load_async();
 
