@@ -20,7 +20,7 @@ namespace Draft {
             std::vector<FileHandle> handles;
 
             for(std::filesystem::recursive_directory_iterator i(handle.get_path()), end; i != end; i++){
-                if(!i->is_directory()){
+                if(!i->is_directory() && (i->path().extension() == ".png" || i->path().extension() == ".jpeg" || i->path().extension() == ".jpg")){
                     handles.push_back(i->path());
                 }
             }
@@ -40,7 +40,7 @@ namespace Draft {
         std::vector<FileHandle> handles;
 
         for(std::filesystem::recursive_directory_iterator i(handle.get_path()), end; i != end; i++){
-            if(!i->is_directory()){
+            if(!i->is_directory() && (i->path().extension() == ".png" || i->path().extension() == ".jpeg" || i->path().extension() == ".jpg")){
                 handles.push_back(i->path());
             }
         }

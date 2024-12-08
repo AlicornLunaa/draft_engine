@@ -116,11 +116,12 @@ namespace Draft {
             activeScene->on_detach();
 
         reset_timers(); // Reset dt to avoid large jumps in physics
-        activeScene = scene;
-
-        if(activeScene)
+        
+        if(scene)
             // Attach event on new scene
-            activeScene->on_attach();
+            scene->on_attach();
+
+        activeScene = scene;
     }
 
     Scene* Application::get_scene() const {

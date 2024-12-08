@@ -9,9 +9,11 @@
 #include "draft/rendering/image.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
+#include "imgui.h"
 
 #include <array>
 #include <map>
+#include <utility>
 
 namespace Draft {
     /**
@@ -98,5 +100,10 @@ namespace Draft {
     struct TextureRegion {
         Resource<Texture> texture;
         FloatRect bounds;
+
+        std::pair<ImVec2, ImVec2> get_imgui_uv() const {
+            auto const& size = texture.get().get_properties().size;
+            return {{bounds.x / size.x, bounds.y / size.y}, {(bounds.x + bounds.width) / size.x, (bounds.y + bounds.height) / size.y}};
+        }
     };
 };
