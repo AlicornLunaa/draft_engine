@@ -36,11 +36,11 @@ namespace Draft {
 
     void Serializer::serialize(std::string& obj, nlohmann::json& json){
         // JSON is fine already because it doesn't deal with memory.
-        serialize(obj, json);
+        json = obj;
     }
 
     void Serializer::deserialize(std::string& obj, nlohmann::json& json){
         // JSON is fine already because it doesn't deal with memory.
-        deserialize(obj, json);
+        obj = json.template get<std::string>();
     }
 };

@@ -32,7 +32,7 @@ namespace Draft {
     void Serializer::serialize(Serializable& obj, nlohmann::json& json){
         // Save each type
         for(auto& [key, field] : obj.fieldMap){
-            json[key] = json;
+            json[key] = nlohmann::json();
             field.encodeJSON(json[key]);
         }
     }

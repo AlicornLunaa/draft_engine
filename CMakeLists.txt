@@ -62,6 +62,7 @@ set(SOURCES
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
+    src/draft/util/serialization/serializer.cpp
     src/draft/util/serialization/serializable.cpp
     src/draft/util/serialization/string_serializer.cpp
     src/draft/util/asset_manager/asset_manager.cpp
