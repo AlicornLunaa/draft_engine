@@ -62,7 +62,8 @@ set(SOURCES
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
-    src/draft/util/serialization/serializer.cpp
+    src/draft/util/serialization/serializable.cpp
+    src/draft/util/serialization/string_serializer.cpp
     src/draft/util/asset_manager/asset_manager.cpp
     src/draft/util/asset_manager/particle_loader.cpp
     src/draft/util/asset_manager/json_loader.cpp
@@ -168,6 +169,7 @@ set(INTERFACES
     include/draft/util/circular_buffer.hpp
     include/draft/util/serialization/serializable.hpp
     include/draft/util/serialization/serializer.hpp
+    include/draft/util/serialization/string_serializer.hpp
     include/draft/util/asset_manager/asset_manager.hpp
     include/draft/util/asset_manager/base_loader.hpp
     include/draft/util/asset_manager/generic_loader.hpp

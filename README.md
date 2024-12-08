@@ -10,7 +10,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Handle errors gracefully
 - [x] Overhaul UI
 - [ ] Load collider data from files
-- [ ] Serialization
+- [x] Serialization
 - [ ] JSON handling
 - [ ] Update to new physics engine
 - [x] Better texture class with some sort of TextureProperties struct
