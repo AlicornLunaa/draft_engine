@@ -23,6 +23,7 @@ set(SOURCES
     src/draft/interface/picture.cpp
     src/draft/interface/progress_bar.cpp
     src/draft/interface/text_input.cpp
+    src/draft/interface/scroll_pane.cpp
     src/draft/interface/widgets/console.cpp
     src/draft/interface/widgets/stats.cpp
     src/draft/math/bounds.cpp
@@ -118,6 +119,7 @@ set(INTERFACES
     include/draft/interface/picture.hpp
     include/draft/interface/progress_bar.hpp
     include/draft/interface/text_input.hpp
+    include/draft/interface/scroll_pane.hpp
     include/draft/interface/widgets/console.hpp
     include/draft/interface/widgets/stats.hpp
     include/draft/math/funcs.hpp
