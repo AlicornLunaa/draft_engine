@@ -162,9 +162,8 @@ namespace Draft {
                 // Auto-scroll logs.
                 if(scrollToBottom && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
                     ImGui::SetScrollHereY(1.0f);
-
-                ImGui::EndChild();
             }
+            ImGui::EndChild();
 
             // Input handling
             ImGui::Separator();
