@@ -19,6 +19,7 @@ namespace Draft {
     DRAFT_CREATE_SERIALIZER(Serializable);
 
     // Interface to implement for a class to be serializable. Handles everything with one inheitance and a macro
+    // Every move/copy operator/constructor is empty because fields should be defined for every class that inherits
     class Serializable {
     protected:
         // Types
@@ -51,7 +52,13 @@ namespace Draft {
     public:
         // Constructors
         Serializable() = default;
+        Serializable(const Serializable& other){};
+        Serializable(Serializable&& other){};
         virtual ~Serializable() = default;
+
+        // Operators
+        Serializable& operator=(const Serializable& other){ return *this; };
+        Serializable& operator=(Serializable&& other){ return *this; };
 
         // Friends
         DRAFT_EXPOSE_SERIALIZER(Serializable);
