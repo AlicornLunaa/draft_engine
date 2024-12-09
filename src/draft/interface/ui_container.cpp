@@ -86,8 +86,8 @@ namespace Draft {
         batch.set_trans_matrix(Matrix4(1.f));
         batch.set_shader(uiShader);
 
-        for(auto& ptr : panels){
-            ptr->paint(deltaTime, batch);
+        for(int i = (panels.size() - 1); i >= 0; i--){
+            panels[i]->paint(deltaTime, batch);
         }
     }
 };

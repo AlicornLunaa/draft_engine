@@ -28,7 +28,7 @@ namespace Draft {
             {bounds.x, bounds.y},
             0.f,
             {bounds.width, bounds.height},
-            {bounds.width * 0.5f, bounds.height * 0.5f},
+            {0, 0},
             0.f,
             color,
             false

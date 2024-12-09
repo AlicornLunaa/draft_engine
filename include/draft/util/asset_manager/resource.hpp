@@ -41,6 +41,9 @@ namespace Draft {
             return *this;
         }
 
+        T& operator*(){ return *get_ptr(); }
+        const T& operator*() const { return *get_ptr(); }
+
         operator T*() { return get_ptr(); }
         operator T&() { return get(); }
         operator const T*() const { return get_ptr(); }
