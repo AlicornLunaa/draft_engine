@@ -30,9 +30,14 @@ namespace Draft {
         TexturePacker() = default;
         ~TexturePacker() = default;
 
+        // Operators
+        operator Texture& (){ return *texture; }
+        operator const Texture& () const { return *texture; }
+
         // Functions
         inline const Image& get_image() const { return src; }
         inline const Texture& get_texture() const { return *texture; }
+        inline Texture& get_texture(){ return *texture; }
         TextureRegion get_region(const std::string& name) const;
         void clear();
         void pack(std::vector<std::pair<std::string, Image>> data);

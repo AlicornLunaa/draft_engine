@@ -7,11 +7,10 @@
 namespace Draft {
     namespace UI {
         class Picture : public Panel {
-        private:
-            // Vars
-            Resource<Texture> texture;
-
         public:
+            // Variables
+            TextureRegion region;
+
             // Constructor
             Picture(float x, float y, float w, float h, Resource<Texture> texture, Panel* parent = nullptr);
 

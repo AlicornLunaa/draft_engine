@@ -9,6 +9,7 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Localization API
 - [ ] Handle errors gracefully
 - [x] Overhaul UI
+- [ ] Convert UI to be stateless. Thinking of a lone container with different functions to draw to it
 - [ ] Load collider data from files
 - [x] Serialization
 - [ ] JSON handling

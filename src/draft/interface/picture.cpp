@@ -1,9 +1,8 @@
 #include "draft/interface/picture.hpp"
-#include "draft/rendering/texture.hpp"
 
 namespace Draft::UI {
     // Constructors
-    Picture::Picture(float x, float y, float w, float h, Resource<Texture> texture, Panel* parent) : Panel(parent), texture(texture) {
+    Picture::Picture(float x, float y, float w, float h, Resource<Texture> texture, Panel* parent) : Panel(parent), region({texture, {}}) {
         bounds.x = x;
         bounds.y = y;
         bounds.width = w;
@@ -14,8 +13,8 @@ namespace Draft::UI {
     void Picture::paint(const Time& deltaTime, SpriteBatch& batch){
         // Render image
         batch.draw({
-            texture,
-            {},
+            region.texture,
+            region.bounds,
             {bounds.x, bounds.y},
             0.f,
             {bounds.width, bounds.height},
