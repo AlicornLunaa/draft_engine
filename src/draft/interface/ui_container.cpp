@@ -9,28 +9,28 @@
 #include <cstddef>
 #include <vector>
 
-namespace Draft {
+namespace Draft::UI {
     // Constructors
-    UIContainer::UIContainer(const Application* app, const Vector2f& size, Resource<Shader> uiShader) : uiShader(uiShader), windowBounds({0, 0, size.x, size.y}),
+    Container::Container(const Application* app, const Vector2f& size, Resource<Shader> uiShader) : uiShader(uiShader), windowBounds({0, 0, size.x, size.y}),
         camera({{ 0, 0, 10 }, { 0, 0, -1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), app(app) {}
 
     // Functions
-    void UIContainer::remove_panel(Panel* panel){
-        // Remove panel and and its children
-        for(Panel* p : panel->children){
-            remove_panel(p);
-        }
+    // void Container::remove_panel(Panel* panel){
+    //     // Remove panel and and its children
+    //     for(Panel* p : panel->children){
+    //         remove_panel(p);
+    //     }
 
-        // Linear search, shouldn't matter too much because element count is smallish
-        for(size_t i = 0; i < panels.size(); i++){
-            if(panels[i].get() == panel){
-                panels.erase(panels.begin() + i);
-                break;
-            }
-        }
-    }
+    //     // Linear search, shouldn't matter too much because element count is smallish
+    //     for(size_t i = 0; i < panels.size(); i++){
+    //         if(panels[i].get() == panel){
+    //             panels.erase(panels.begin() + i);
+    //             break;
+    //         }
+    //     }
+    // }
 
-    bool UIContainer::handle_event(const Event& event){
+    bool Container::handle_event(const Event& event){
         // Update event positions for modern stuff
         Vector2f vec;
 
@@ -54,16 +54,16 @@ namespace Draft {
         }
 
         // Handles events for each panel
-        for(auto& p : panels){
-            if(p->handle_event(eventCpy)){
-                return true;
-            }
-        }
+        // for(auto& p : panels){
+        //     if(p->handle_event(eventCpy)){
+        //         return true;
+        //     }
+        // }
 
         return false;
     }
 
-    void UIContainer::render(const Time& deltaTime, SpriteBatch& batch){
+    void Container::render(const Time& deltaTime, SpriteBatch& batch){
         // Check for window resize
         auto size = app->window.get_size();
         windowBounds.width = size.x;
@@ -86,8 +86,8 @@ namespace Draft {
         batch.set_trans_matrix(Matrix4(1.f));
         batch.set_shader(uiShader);
 
-        for(int i = (panels.size() - 1); i >= 0; i--){
-            panels[i]->paint(deltaTime, batch);
-        }
+        // for(int i = (panels.size() - 1); i >= 0; i--){
+        //     panels[i]->paint(deltaTime, batch);
+        // }
     }
 };

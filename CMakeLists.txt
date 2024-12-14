@@ -38,6 +38,7 @@ set(SOURCES
     src/draft/phys/shapes/edge_shape.cpp
     src/draft/phys/shapes/circle_shape.cpp
     src/draft/phys/world.cpp
+    src/draft/rendering/clip.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/shader.cpp
     src/draft/rendering/model.cpp
@@ -143,6 +144,7 @@ set(INTERFACES
     include/draft/phys/shapes/polygon_shape.hpp
     include/draft/phys/shapes/edge_shape.hpp
     include/draft/phys/shapes/circle_shape.hpp
+    include/draft/rendering/clip.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
     include/draft/rendering/model.hpp

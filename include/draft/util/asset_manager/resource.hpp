@@ -17,10 +17,16 @@ namespace Draft {
         // Private constructors because this shouldnt be made by the end-user
         Resource(AssetPtr& ptr) : ptr(&ptr) {};
 
+        // Private functions
+        T* get_dummy_ptr_safe() const {
+            assert(dummyPtr && "Cannot be used as null");
+            return dummyPtr;
+        }
+
     public:
         // Constructors
         Resource(T& ref) : dummyPtr(&ref) {}; // Used for implicit conversions
-        Resource(T* p) : dummyPtr(p) { assert(p && "Cannot be null"); }; // Used for implicit conversions
+        Resource(T* p) : dummyPtr(p) {}; // Used for implicit conversions
         Resource(const Resource<T>& other) : ptr(other.ptr), dummyPtr(other.dummyPtr) {};
         ~Resource() = default;
 
@@ -29,9 +35,9 @@ namespace Draft {
 
         // Functions
         bool is_redirecting() const { return dummyPtr; } // Returns true if the resource was not actually made by the manager, acting as a redirect only
-        T* get_ptr(){ return static_cast<T*>(ptr ? ptr->get() : dummyPtr); }
+        T* get_ptr(){ return static_cast<T*>(ptr ? ptr->get() : get_dummy_ptr_safe()); }
         T& get(){ return *get_ptr(); }
-        const T* get_ptr() const { return static_cast<T*>(ptr ? ptr->get() : dummyPtr); }
+        const T* get_ptr() const { return static_cast<T*>(ptr ? ptr->get() : get_dummy_ptr_safe()); }
         const T& get() const { return *get_ptr(); }
 
         // Operators

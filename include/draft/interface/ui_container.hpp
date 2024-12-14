@@ -11,39 +11,42 @@
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 
-#include <memory>
-#include <vector>
-
 namespace Draft {
-    class UIContainer {
-    private:
-        // Variables
-        const Application* app = nullptr;
-        OrthographicCamera camera;
-        FloatRect windowBounds;
+    namespace UI {
+        struct Style {
+            // Stylesheet
+            Vector4f backgroundColor = { 1, 1, 1, 1 };
+            Vector4f textColor = { 0, 0, 0, 1 };
+        };
 
-        std::vector<std::unique_ptr<Panel>> panels;
-        Resource<Shader> uiShader;
-        TextRenderer textRenderer;
+        class Container {
+        private:
+            // Variables
+            const Application* app = nullptr;
+            OrthographicCamera camera;
+            FloatRect windowBounds;
 
-    public:
-        // Constructors
-        UIContainer(const Application* app, const Vector2f& size, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default", true));
-        UIContainer(const UIContainer& other) = delete;
-        ~UIContainer() = default;
+            Resource<Shader> uiShader;
+            TextRenderer textRenderer;
 
-        // Functions
-        inline OrthographicCamera& get_camera(){ return camera; }
+        public:
+            // Constructors
+            Container(const Application* app, const Vector2f& size, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default", true));
+            Container(const Container& other) = delete;
+            ~Container() = default;
 
-        template<typename T>
-        T* add_panel(T* panel){
-            panels.push_back(std::unique_ptr<Panel>(panel));
-            return panel;
-        }
+            // Functions
+            inline OrthographicCamera& get_camera(){ return camera; }
 
-        void remove_panel(Panel* panel);
+            template<typename T>
+            void draw(){
+                
+            }
 
-        bool handle_event(const Event& event);
-        void render(const Time& deltaTime, SpriteBatch& batch);
+            void remove_panel(Panel* panel);
+
+            bool handle_event(const Event& event);
+            void render(const Time& deltaTime, SpriteBatch& batch);
+        };
     };
 };
