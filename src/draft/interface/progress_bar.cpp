@@ -3,7 +3,7 @@
 #include "draft/math/rect.hpp"
 #include "glm/common.hpp"
 
-namespace Draft {
+namespace Draft::UI {
     // Constructor
     ProgressBar::ProgressBar(float x, float y, float w, float h, float* value, Panel* parent) : Panel(parent), value(value) {
         bounds.x = x;
@@ -17,7 +17,10 @@ namespace Draft {
         progressBounds.y = bounds.y + (progressBounds.height / 2 + h / 2) / 2;
     }
 
-    void ProgressBar::paint(const Time& deltaTime, SpriteBatch& batch){
+    void ProgressBar::paint(Context& ctx){
+        // Render all children
+        Panel::paint(ctx);
+
         // Update props
         progressBounds.x = bounds.x;
         progressBounds.y = bounds.y;
@@ -25,7 +28,7 @@ namespace Draft {
         progressBounds.height = bounds.height;
 
         // Progress bar
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {progressBounds.x, progressBounds.y},
@@ -38,7 +41,7 @@ namespace Draft {
         });
 
         // Background bar
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {bounds.x, bounds.y},

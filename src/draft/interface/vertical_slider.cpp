@@ -1,9 +1,10 @@
 #include "draft/interface/vertical_slider.hpp"
+#include "draft/interface/context.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "glm/common.hpp"
 
-namespace Draft {
+namespace Draft::UI {
     // Constructor
     VerticalSlider::VerticalSlider(float x, float y, float w, float h, float* value, Panel* parent) : Panel(parent), value(value) {
         bounds.x = x;
@@ -38,11 +39,14 @@ namespace Draft {
         return false;
     }
 
-    void VerticalSlider::paint(const Time& dt, SpriteBatch& batch){
+    void VerticalSlider::paint(Context& ctx){
+        // Render all children
+        Panel::paint(ctx);
+
         handleBounds.y = bounds.y + bounds.height * Math::clamp(*value, 0.f, 1.f) - handleBounds.height / 2;
 
         // Handle
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {handleBounds.x, handleBounds.y},
@@ -55,7 +59,7 @@ namespace Draft {
         });
 
         // Background
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {bounds.x, bounds.y},

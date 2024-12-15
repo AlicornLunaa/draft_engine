@@ -4,7 +4,7 @@
 
 namespace Draft {
     // Static data
-    unsigned int Framebuffer::currentFbo = 0;
+    uint Framebuffer::currentFbo = 0;
 
     // Private functions
     void Framebuffer::bind(){

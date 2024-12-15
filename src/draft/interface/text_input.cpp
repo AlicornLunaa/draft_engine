@@ -3,7 +3,7 @@
 #include "draft/input/keyboard.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 
-namespace Draft {
+namespace Draft::UI {
     // Private functions
     void TextInput::cursor_left(){
         // Moves the cursor left
@@ -110,7 +110,10 @@ namespace Draft {
         return false;
     }
     
-    void TextInput::paint(const Time& deltaTime, SpriteBatch& batch){
+    void TextInput::paint(Context& ctx){
+        // Render all children
+        Panel::paint(ctx);
+
         // Get info for rendering correctly. Render from the start of the string
         TextProperties props{
             (*str).substr(stringStart, stringLen),
@@ -125,7 +128,7 @@ namespace Draft {
         // Basic rectangle which changes color based on its value
         if(selected){
             // Cursor
-            animTimer += deltaTime.as_seconds() * 2.f;
+            animTimer += ctx.dt.as_seconds() * 2.f;
 
             if((int)animTimer % 2 == 0){
                 float cursorPixelPos = 0.f;
@@ -133,7 +136,7 @@ namespace Draft {
                 for(uint c = stringStart; c < cursorPos; c++)
                     cursorPixelPos += charWidth[c];
 
-                batch.draw({
+                ctx.batch.draw({
                     nullptr,
                     {},
                     {bounds.x + cursorPixelPos + 10, bounds.y + bounds.height * 0.5f},
@@ -149,7 +152,7 @@ namespace Draft {
             animTimer = 0.f;
         }
 
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {bounds.x, bounds.y},
@@ -161,6 +164,6 @@ namespace Draft {
             false
         });
 
-        textRenderer.draw_text(batch, props);
+        textRenderer.draw_text(ctx.batch, props);
     }
 };

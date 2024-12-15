@@ -10,15 +10,10 @@
 #include "draft/interface/panel.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/asset_manager/resource.hpp"
+#include "draft/util/time.hpp"
 
 namespace Draft {
     namespace UI {
-        struct Style {
-            // Stylesheet
-            Vector4f backgroundColor = { 1, 1, 1, 1 };
-            Vector4f textColor = { 0, 0, 0, 1 };
-        };
-
         class Container {
         private:
             // Variables
@@ -26,6 +21,7 @@ namespace Draft {
             OrthographicCamera camera;
             FloatRect windowBounds;
 
+            std::vector<std::unique_ptr<Panel>> panels;
             Resource<Shader> uiShader;
             TextRenderer textRenderer;
 
@@ -39,8 +35,9 @@ namespace Draft {
             inline OrthographicCamera& get_camera(){ return camera; }
 
             template<typename T>
-            void draw(){
-                
+            T* add_panel(T* panel){
+                panels.push_back(std::unique_ptr<Panel>(panel));
+                return panel;
             }
 
             void remove_panel(Panel* panel);

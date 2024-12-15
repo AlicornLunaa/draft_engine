@@ -5,10 +5,8 @@
 namespace Draft::UI {
     // Constructor
     Button::Button(float x, float y, float w, float h, bool* value, Type type, Panel* parent) : Panel(parent), value(value), type(type) {
-        bounds.x = x;
-        bounds.y = y;
-        bounds.width = w;
-        bounds.height = h;
+        position = {x, y};
+        size = {w, h};
     }
 
     // Functions
@@ -24,9 +22,9 @@ namespace Draft::UI {
         return false;
     }
     
-    void Button::paint(const Time& deltaTime, SpriteBatch& batch){
+    void Button::paint(Context& ctx){
         // Basic rectangle which changes color based on its value
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {bounds.x, bounds.y},
@@ -37,5 +35,8 @@ namespace Draft::UI {
             *value ? Vector4f(0.4, 0.8, 0.4, 1) : Vector4f(0.8, 0.4, 0.4, 1),
             false
         });
+
+        // Render all children
+        Panel::paint(ctx);
     }
 };

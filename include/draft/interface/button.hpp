@@ -20,7 +20,7 @@ namespace Draft {
 
             // Events
             virtual bool handle_event(const Event& event) override;
-            virtual void paint(const Time& deltaTime, SpriteBatch& batch) override;
+            virtual void paint(Context& ctx) override;
         };
     }
 };

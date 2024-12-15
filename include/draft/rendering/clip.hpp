@@ -4,6 +4,16 @@
 
 namespace Draft {
     class Clip {
+    private:
+        // Static data
+        static Clip* currentClip;
+
+        // Variables
+        Clip* previousClip = nullptr;
+
+        // Private functions
+        void cut();
+
     public:
         // Variables
         FloatRect box;

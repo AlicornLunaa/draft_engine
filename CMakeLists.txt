@@ -13,9 +13,10 @@ set(SOURCES
     src/draft/core/entity.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
-    src/draft/interface/panel.cpp
     src/draft/interface/ui_container.cpp
+    src/draft/interface/panel.cpp
     src/draft/interface/rectangle.cpp
+    src/draft/interface/label.cpp
     src/draft/interface/vertical_slider.cpp
     src/draft/interface/horizontal_slider.cpp
     src/draft/interface/button.cpp
@@ -113,9 +114,11 @@ set(INTERFACES
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
-    include/draft/interface/panel.hpp
     include/draft/interface/ui_container.hpp
+    include/draft/interface/context.hpp
+    include/draft/interface/panel.hpp
     include/draft/interface/rectangle.hpp
+    include/draft/interface/label.hpp
     include/draft/interface/vertical_slider.hpp
     include/draft/interface/horizontal_slider.hpp
     include/draft/interface/button.hpp
@@ -201,6 +204,8 @@ set(RESOURCES
     assets/models/missing_model.glb
 
     assets/fonts/missing_font.ttf
+    assets/fonts/default.ttf
+    assets/fonts/arial.ttf
 
     assets/shaders/missing_shader/vertex.glsl
     assets/shaders/missing_shader/fragment.glsl

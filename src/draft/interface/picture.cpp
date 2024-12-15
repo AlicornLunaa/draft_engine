@@ -10,9 +10,12 @@ namespace Draft::UI {
     }
 
     // Functions
-    void Picture::paint(const Time& deltaTime, SpriteBatch& batch){
+    void Picture::paint(Context& ctx){
+        // Render all children
+        Panel::paint(ctx);
+
         // Render image
-        batch.draw({
+        ctx.batch.draw({
             region.texture,
             region.bounds,
             {bounds.x, bounds.y},

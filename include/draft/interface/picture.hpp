@@ -15,7 +15,7 @@ namespace Draft {
             Picture(float x, float y, float w, float h, Resource<Texture> texture, Panel* parent = nullptr);
 
             // Functions
-            virtual void paint(const Time& deltaTime, SpriteBatch& batch) override;
+            virtual void paint(Context& ctx) override;
         };
     }
 };

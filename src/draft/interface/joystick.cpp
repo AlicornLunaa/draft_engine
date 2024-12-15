@@ -36,7 +36,10 @@ namespace Draft::UI {
         return false;
     }
 
-    void Joystick::paint(const Time& deltaTime, SpriteBatch& batch){
+    void Joystick::paint(Context& ctx){
+        // Render all children
+        Panel::paint(ctx);
+
         // Slowly move the value back to zero
         if(!grabbing && (value->x != 0 || value->y != 0)){
             value->x /= 2.2f;
@@ -54,7 +57,7 @@ namespace Draft::UI {
         handleBounds.y = bounds.y + bounds.height/2 * Math::clamp(value->y, -1.f, 1.f) + bounds.height/2;
 
         // Handle rectangle
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {handleBounds.x, handleBounds.y},
@@ -67,7 +70,7 @@ namespace Draft::UI {
         });
 
         // Back rectangle
-        batch.draw({
+        ctx.batch.draw({
             nullptr,
             {},
             {bounds.x, bounds.y},

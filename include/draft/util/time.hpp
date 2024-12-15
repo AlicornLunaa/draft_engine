@@ -54,4 +54,8 @@ namespace Draft {
         // Internal constructor
         explicit Time(Impl time);
     };
+
+    Time operator"" _s(long double x);
+    Time operator"" _ms(unsigned long long x);
+    Time operator"" _mis(unsigned long long x);
 };

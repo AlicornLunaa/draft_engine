@@ -1,25 +1,37 @@
 #pragma once
 
 #include "draft/interface/panel.hpp"
+#include "draft/interface/rectangle.hpp"
 #include "draft/math/glm.hpp"
-#include "draft/math/rect.hpp"
+
 namespace Draft {
-    class ScrollPane : public Panel {
-    private:
-        // Variables
-        Vector2f mousePosition{};
-        FloatRect handleBounds{};
-        bool grabbing = false; // Used for click & drag
+    namespace UI {
+        class ScrollPane : public Panel {
+        private:
+            // Variables
+            Rectangle handle;
+            Vector2f mousePosition{};
+            bool grabbing = false; // Used for click & drag
 
-    public:
-        // Public variables
-        float scroll = 0.f;
+            std::vector<std::unique_ptr<Panel>> items;
 
-        // Constructors
-        ScrollPane(float x, float y, float w, float h, Panel* parent = nullptr);
+        public:
+            // Public variables
+            float scroll = 0.f;
 
-        // Functions
-        virtual bool handle_event(const Event& event) override;
-        virtual void paint(const Time& deltaTime, SpriteBatch& batch) override;
+            // Constructors
+            ScrollPane(float x, float y, float w, float h, Panel* parent = nullptr);
+
+            // Functions
+            virtual bool handle_event(const Event& event) override;
+            virtual void paint(Context& ctx) override;
+            
+            template<typename T>
+            T* add_item(T* panel){
+                items.push_back(std::unique_ptr<Panel>(panel));
+                add_child(panel);
+                return panel;
+            }
+        };
     };
 };

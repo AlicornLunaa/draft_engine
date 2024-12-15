@@ -2,7 +2,6 @@
 
 #include "draft/interface/panel.hpp"
 #include "draft/math/rect.hpp"
-#include "draft/rendering/batching/sprite_batch.hpp"
 
 namespace Draft {
     namespace UI {
@@ -19,7 +18,7 @@ namespace Draft {
 
             // Functions
             virtual bool handle_event(const Event& event) override;
-            virtual void paint(const Time& deltaTime, SpriteBatch& batch) override;
+            virtual void paint(Context& ctx) override;
         };
     }
 };

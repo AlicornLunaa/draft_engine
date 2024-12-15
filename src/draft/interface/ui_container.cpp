@@ -15,20 +15,20 @@ namespace Draft::UI {
         camera({{ 0, 0, 10 }, { 0, 0, -1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), app(app) {}
 
     // Functions
-    // void Container::remove_panel(Panel* panel){
-    //     // Remove panel and and its children
-    //     for(Panel* p : panel->children){
-    //         remove_panel(p);
-    //     }
+    void Container::remove_panel(Panel* panel){
+        // Remove panel and and its children
+        for(Panel* p : panel->children){
+            remove_panel(p);
+        }
 
-    //     // Linear search, shouldn't matter too much because element count is smallish
-    //     for(size_t i = 0; i < panels.size(); i++){
-    //         if(panels[i].get() == panel){
-    //             panels.erase(panels.begin() + i);
-    //             break;
-    //         }
-    //     }
-    // }
+        // Linear search, shouldn't matter too much because element count is smallish
+        for(size_t i = 0; i < panels.size(); i++){
+            if(panels[i].get() == panel){
+                panels.erase(panels.begin() + i);
+                break;
+            }
+        }
+    }
 
     bool Container::handle_event(const Event& event){
         // Update event positions for modern stuff
@@ -53,12 +53,12 @@ namespace Draft::UI {
             break;
         }
 
-        // Handles events for each panel
-        // for(auto& p : panels){
-        //     if(p->handle_event(eventCpy)){
-        //         return true;
-        //     }
-        // }
+        // Handles events for each top-level panel, they'll pass events to their children if needed
+        for(auto& p : panels){
+            if(!p->parent && p->handle_event(eventCpy)){
+                return true;
+            }
+        }
 
         return false;
     }
@@ -86,8 +86,11 @@ namespace Draft::UI {
         batch.set_trans_matrix(Matrix4(1.f));
         batch.set_shader(uiShader);
 
-        // for(int i = (panels.size() - 1); i >= 0; i--){
-        //     panels[i]->paint(deltaTime, batch);
-        // }
+        Context ctx{camera.get_combined(), size, deltaTime, batch, textRenderer, size};
+
+        for(int i = (panels.size() - 1); i >= 0; i--){
+            // Paint top-level widgets. They'll handle rendering their children
+            if(!panels[i]->parent) panels[i]->paint(ctx);
+        }
     }
 };

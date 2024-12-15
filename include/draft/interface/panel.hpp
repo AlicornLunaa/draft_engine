@@ -1,37 +1,47 @@
 #pragma once
 
 #include "draft/input/event.hpp"
+#include "draft/interface/context.hpp"
 #include "draft/math/rect.hpp"
-#include "draft/rendering/batching/sprite_batch.hpp"
-#include "draft/util/time.hpp"
+#include "draft/rendering/clip.hpp"
 
 #include <vector>
 
 namespace Draft {
-    class Panel {
-    private:
-        // Variables
-        std::vector<Panel*> children;
-        Panel* parent = nullptr;
+    namespace UI {
+        class Panel {
+        private:
+            // Variables
+            std::vector<Panel*> children;
+            Panel* parent = nullptr;
+            Clip scissor; // Used to prevent rendering off of the panel
 
-    protected:
-        // Variables to be modified by children
-        FloatRect bounds;
+        protected:
+            // Variables to be modified by children
+            FloatRect bounds;
+            float layer = -10.f;
 
-        // Protected functions
-        const Panel* get_parent() const { return parent; }
+            // Protected functions
+            const Panel* get_parent() const { return parent; }
 
-    public:
-        // Constructors
-        Panel(Panel* parent = nullptr);
-        virtual ~Panel() = default;
+        public:
+            // Variables
+            Vector2f position{};
+            Vector2f size{};
 
-        // Friends
-        friend class UIContainer;
+            // Constructors
+            Panel(Panel* parent = nullptr);
+            virtual ~Panel() = default;
 
-        // Functions
-        virtual bool handle_event(const Event& event){ return false; };
-        virtual void paint(const Time& deltaTime, SpriteBatch& batch);
-        const FloatRect& get_bounds() const { return bounds; }
-    };
+            // Friends
+            friend class Container;
+
+            // Functions
+            virtual bool handle_event(const Event& event);;
+            virtual void paint(Context& ctx);
+            void add_child(Panel* ptr);
+            void remove_child(Panel* ptr);
+            const FloatRect& get_bounds() const { return bounds; }
+        };
+    }
 };

@@ -50,4 +50,9 @@ namespace Draft {
     float Time::operator/ (const Time& right){ return (ptr->time / right.ptr->time); }
     Time Time::operator% (const Time& right){ return Time({ ptr->time % right.ptr->time }); }
     Time& Time::operator%=(const Time& right){ ptr->time %= right.ptr->time; return *this; }
+
+    // Literals
+    Time operator"" _s(long double x){ return Time::seconds(x); }
+    Time operator"" _ms(unsigned long long x){ return Time::milliseconds(x); }
+    Time operator"" _mis(unsigned long long x){ return Time::microseconds(x); }
 };
