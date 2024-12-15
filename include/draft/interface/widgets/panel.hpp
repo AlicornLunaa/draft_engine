@@ -2,6 +2,7 @@
 
 #include "draft/input/event.hpp"
 #include "draft/interface/context.hpp"
+#include "draft/interface/styled_number.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/clip.hpp"
 
@@ -23,11 +24,14 @@ namespace Draft {
 
             // Protected functions
             const Panel* get_parent() const { return parent; }
+            void update_state(Context& ctx);
+            virtual void preprocess_children(Context& ctx){}; // Used for modifying stuff before the children are rendered
 
         public:
             // Variables
-            Vector2f position{};
-            Vector2f size{};
+            Vector2<SNumber> position{0.0_pixels};
+            Vector2<SNumber> size{0.0_pixels};
+            Style* stylesheet = nullptr;
 
             // Constructors
             Panel(Panel* parent = nullptr);

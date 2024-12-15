@@ -1,15 +1,20 @@
-#include "draft/interface/scroll_pane.hpp"
-#include "draft/interface/panel.hpp"
+#include "draft/interface/widgets/scroll_pane.hpp"
 #include "draft/math/glm.hpp"
 #include "glm/common.hpp"
 
 namespace Draft::UI {
+    // Private functions
+    void ScrollPane::preprocess_children(Context& ctx){
+        // Force stylesheet
+        ctx.style = itemStylesheet;
+    }
+
     // Constructors
-    ScrollPane::ScrollPane(float x, float y, float w, float h, Panel* parent) : Panel(parent), handle(-1, 1, 5, 30, this) {
+    ScrollPane::ScrollPane(SNumber x, SNumber y, SNumber w, SNumber h, Panel* parent) : Panel(parent), handle(1, 1, 5, 30, this) {
         position = {x, y};
         size = {w, h};
-
         handle.color = {1, 1, 1, 1};
+        itemStylesheet.margin = Vector4f(3.f, 3.f, 6.f, 3.f);
     }
 
     // Functions
@@ -72,24 +77,25 @@ namespace Draft::UI {
         });
 
         // Reposition layout for items
-        float yAccumulator = 2.f;
+        float yAccumulator = 0.f;
         float yOverflow = 0.f;
 
         for(auto& ptr : items){
-            ptr->position.x = (size.x - handle.size.x) * 0.5f - (ptr->size.x * 0.5f);
+            ptr->position.x = 0.f;
             ptr->position.y = yAccumulator;
-            yAccumulator += ptr->size.y + 2;
+            yAccumulator += ptr->size.y;
         }
 
         yOverflow = Math::max(yAccumulator - bounds.height, 0.f);
 
         for(auto& ptr : items){
-            ptr->position.y -= scroll * yOverflow;
+            ptr->position.y = ptr->position.y - (scroll * yOverflow);
         }
 
         // Position the handle
-        handle.size.y = bounds.height - yOverflow;
-        handle.position.y = (size.y - handle.size.y - 2) * Math::clamp(scroll, 0.f, 1.f) + 1;
+        handle.size.y = bounds.height - yOverflow - 2;
+        handle.position.y = (yOverflow - 2) * Math::clamp(scroll, 0.f, 1.f) + 1;
+        handle.stylesheet = &handleStylesheet;
 
         // Commit all children to the frame
         Panel::paint(ctx);

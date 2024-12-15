@@ -34,6 +34,7 @@ namespace Draft {
         friend class Assets;
 
         // Functions
+        bool is_valid() const { return dummyPtr != nullptr || ptr != nullptr; }
         bool is_redirecting() const { return dummyPtr; } // Returns true if the resource was not actually made by the manager, acting as a redirect only
         T* get_ptr(){ return static_cast<T*>(ptr ? ptr->get() : get_dummy_ptr_safe()); }
         T& get(){ return *get_ptr(); }

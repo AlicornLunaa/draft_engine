@@ -2,17 +2,19 @@
 #include "draft/math/rect.hpp"
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/interface/ui_container.hpp"
-#include "draft/interface/panel.hpp"
+#include "draft/interface/container.hpp"
 
 #include "glad/gl.h"
 #include <cstddef>
 #include <vector>
 
+// Maybe a layout which is just raw data structures that
+// is expanded to a functional interface in the container with generalized parts?
+// unions might help for a generalized all-encompassing data structure
+
 namespace Draft::UI {
     // Constructors
-    Container::Container(const Application* app, const Vector2f& size, Resource<Shader> uiShader) : uiShader(uiShader), windowBounds({0, 0, size.x, size.y}),
-        camera({{ 0, 0, 10 }, { 0, 0, -1 }, 0, size.x, 0, size.y, 0.1f, 100.f}), app(app) {}
+    Container::Container(const Application* app, Resource<Shader> uiShader) : uiShader(uiShader), app(app) {}
 
     // Functions
     void Container::remove_panel(Panel* panel){
@@ -86,11 +88,14 @@ namespace Draft::UI {
         batch.set_trans_matrix(Matrix4(1.f));
         batch.set_shader(uiShader);
 
-        Context ctx{camera.get_combined(), size, deltaTime, batch, textRenderer, size};
+        Context ctx{camera.get_combined(), size, deltaTime, batch, textRenderer, size, stylesheet};
 
         for(int i = (panels.size() - 1); i >= 0; i--){
             // Paint top-level widgets. They'll handle rendering their children
-            if(!panels[i]->parent) panels[i]->paint(ctx);
+            if(!panels[i]->parent){
+                panels[i]->update_state(ctx);
+                panels[i]->paint(ctx);
+            }
         }
     }
 };

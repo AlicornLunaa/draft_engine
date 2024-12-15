@@ -7,10 +7,25 @@
 
 namespace Draft {
     namespace UI {
+        enum Anchor { TOP, MIDDLE, BOTTOM, LEFT, CENTER, RIGHT };
+
         struct Style {
-            // Stylesheet
-            Vector4f backgroundColor = { 1, 1, 1, 1 };
-            Vector4f textColor = { 0, 0, 0, 1 };
+            // Common stylesheet for a ui interface
+            Anchor horizontalAnchor = LEFT;
+            Anchor verticalAnchor = TOP;
+            
+            Vector4f textColor = {1, 1, 1, 1};
+            Font const* font = nullptr;
+
+            Vector4f activeColor = {0.4, 0.8, 0.4, 1};
+            Vector4f inactiveColor = {0.8, 0.4, 0.4, 1};
+            Vector4f disabledColor = {0.4, 0.4, 0.4, 1};
+
+            Vector2f padding{0.f};
+            Vector4f margin{0.f};
+            
+            Vector4f backgroundColor = {0.2, 0.2, 0.2, 1};
+            Texture const* background = nullptr;
         };
 
         struct Context {
@@ -23,9 +38,7 @@ namespace Draft {
             SpriteBatch& batch;
             TextRenderer& text;
             Vector2f parentSize; // Used for relative positioning
+            Style style;
         };
-
-        enum class XAnchor { LEFT, CENTER, RIGHT };
-        enum class YAnchor { TOP, MIDDLE, BOTTOM };
     };
 };

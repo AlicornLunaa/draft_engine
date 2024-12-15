@@ -5,8 +5,8 @@
 #include "draft/input/mouse.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/clock.hpp"
-#include "draft/interface/widgets/console.hpp"
-#include "draft/interface/widgets/stats.hpp"
+#include "draft/interface/imgui/console.hpp"
+#include "draft/interface/imgui/stats.hpp"
 
 namespace Draft {
     /**

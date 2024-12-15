@@ -1,4 +1,4 @@
-#include "draft/interface/widgets/stats.hpp"
+#include "draft/interface/imgui/stats.hpp"
 #include "draft/core/application.hpp"
 #include "draft/input/keyboard.hpp"
 #include "imgui.h"

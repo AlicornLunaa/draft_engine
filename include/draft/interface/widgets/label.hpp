@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/interface/panel.hpp"
+#include "draft/interface/widgets/panel.hpp"
 #include <string>
 
 namespace Draft {
@@ -11,7 +11,7 @@ namespace Draft {
             TextProperties properties;
 
             // Constructors
-            Label(float x, float y, std::string text, Panel* parent = nullptr);
+            Label(SNumber x, SNumber y, std::string text, Panel* parent = nullptr);
 
             // Events
             virtual void paint(Context& ctx) override;

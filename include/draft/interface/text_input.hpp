@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/interface/panel.hpp"
+#include "draft/interface/widgets/panel.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 
 #include <functional>

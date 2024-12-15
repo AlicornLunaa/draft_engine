@@ -1,8 +1,63 @@
-#include "draft/interface/panel.hpp"
-#include "draft/math/bounds.hpp"
+#include "draft/interface/widgets/panel.hpp"
+#include "draft/interface/context.hpp"
 #include "draft/math/glm.hpp"
 
 namespace Draft::UI {
+    // Protected functions
+    void Panel::update_state(Context& ctx){
+        // Update the panel's state
+        Style& style = stylesheet ? *stylesheet : ctx.style;
+
+        Vector2f normPos = {position.x.calculate(ctx.parentSize.x), position.y.calculate(ctx.parentSize.y)};
+        Vector2f normSize = {size.x.calculate(ctx.parentSize.x) + style.padding.x, size.y.calculate(ctx.parentSize.y) + style.padding.y};
+
+        // Margin calculations
+        normPos.x += style.margin.x;
+        normPos.y += style.margin.y;
+        normSize.x -= style.margin.z * 2;
+        normSize.y -= style.margin.w * 2;
+
+        // Anchoring logic and updating bounds
+        switch(style.horizontalAnchor){
+            case LEFT:
+                bounds.x = normPos.x;
+                break;
+
+            case CENTER:
+                bounds.x = normPos.x + ctx.parentSize.x * 0.5f - normSize.x * 0.5f;
+                break;
+
+            case RIGHT:
+                bounds.x = ctx.parentSize.x - normSize.x - normPos.x;
+                break;
+
+            default:
+                assert(false && "Invalid choice of horizontal anchor");
+                break;
+        }
+
+        switch(style.verticalAnchor){
+            case TOP:
+                bounds.y = ctx.parentSize.y - normSize.y - normPos.y;
+                break;
+
+            case MIDDLE:
+                bounds.y = normPos.y + ctx.parentSize.y * 0.5f - normSize.y * 0.5f;
+                break;
+
+            case BOTTOM:
+                bounds.y = normPos.y;
+                break;
+
+            default:
+                assert(false && "Invalid choice of vertical anchor");
+                break;
+        }
+
+        bounds.width = normSize.x;
+        bounds.height = normSize.y;
+    }
+
     // Constructor
     Panel::Panel(Panel* parent) : parent(parent) {
         // Add this panel to the parent's children so we can calculate down the tree too
@@ -56,25 +111,11 @@ namespace Draft::UI {
     }
 
     void Panel::paint(Context& ctx){
-        // Update real position with fake relative pos
-        if(position.x < 0){
-            bounds.x = ctx.parentSize.x - size.x + position.x;
-        } else {
-            bounds.x = position.x;
-        }
-
-        if(position.y < 0){
-            bounds.y = -position.y;
-        } else {
-            bounds.y = ctx.parentSize.y - size.y - position.y;
-        }
-
-        bounds.width = size.x;
-        bounds.height = size.y;
-
         // Handle painting of children
         if(children.empty())
             return;
+
+        update_state(ctx);
 
         // Create scissor clip, first need the window coordinates of this panel
         Vector2f halfWindowSize = static_cast<Vector2f>(ctx.windowSize) * 0.5f;
@@ -90,8 +131,14 @@ namespace Draft::UI {
         }
 
         // Update context for sizes and update state with new real position
+        Style previousStyle = ctx.style;
         Vector2f previousCtxSize = ctx.parentSize;
         ctx.parentSize = {bounds.width, bounds.height};
+
+        if(stylesheet){
+            // Stylesheet override if not a nullptr
+            ctx.style = *stylesheet;
+        }
 
         // Update state so it renders local to this panel
         Batch& batch = ctx.batch;
@@ -99,8 +146,11 @@ namespace Draft::UI {
         batch.set_trans_matrix(Math::translate(previousTransform, {bounds.x, bounds.y, 0}));
         scissor.begin();
 
+        preprocess_children(ctx);
+
         for(auto* ptr : children){
             ptr->layer = layer + 0.1f;
+            ptr->update_state(ctx);
             ptr->paint(ctx);
         }
 
@@ -109,6 +159,7 @@ namespace Draft::UI {
 
         // Reset state
         ctx.parentSize = previousCtxSize;
+        ctx.style = previousStyle;
     }
 
     void Panel::add_child(Panel* ptr){

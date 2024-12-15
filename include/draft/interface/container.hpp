@@ -1,13 +1,13 @@
 #pragma once
 
 #include "draft/core/application.hpp"
-#include "draft/math/glm.hpp"
+#include "draft/interface/context.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/interface/panel.hpp"
+#include "draft/interface/widgets/panel.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/time.hpp"
@@ -18,16 +18,19 @@ namespace Draft {
         private:
             // Variables
             const Application* app = nullptr;
-            OrthographicCamera camera;
-            FloatRect windowBounds;
+            OrthographicCamera camera{{ 0, 0, 10 }, { 0, 0, -1 }, 0, 1, 0, 1, 0.1f, 100.f};
+            FloatRect windowBounds{{0, 0}, app->window.get_size()};
 
             std::vector<std::unique_ptr<Panel>> panels;
             Resource<Shader> uiShader;
             TextRenderer textRenderer;
 
         public:
+            // Variables
+            Style stylesheet; // Global stylesheet to use
+
             // Constructors
-            Container(const Application* app, const Vector2f& size, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default", true));
+            Container(const Application* app, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default", true));
             Container(const Container& other) = delete;
             ~Container() = default;
 

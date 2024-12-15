@@ -1,10 +1,9 @@
-#include "draft/interface/rectangle.hpp"
+#include "draft/interface/widgets/rectangle.hpp"
 #include "draft/math/glm.hpp"
 
 namespace Draft::UI {
     // Constructor
-    Rectangle::Rectangle(float x, float y, float w, float h, Panel* parent) : Panel(parent) {
-        color = Vector4f(0.2, 0.2, 0.2, 1.0);
+    Rectangle::Rectangle(SNumber x, SNumber y, SNumber w, SNumber h, Panel* parent) : Panel(parent) {
         position = {x, y};
         size = {w, h};
     }
@@ -13,7 +12,7 @@ namespace Draft::UI {
     void Rectangle::paint(Context& ctx){
         // Render the background
         ctx.batch.draw({
-            nullptr,
+            ctx.style.background,
             {},
             {bounds.x, bounds.y},
             0.f,

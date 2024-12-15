@@ -1,8 +1,10 @@
 #pragma once
 
-#include "draft/interface/panel.hpp"
-#include "draft/interface/rectangle.hpp"
+#include "draft/interface/widgets/rectangle.hpp"
+#include "draft/interface/widgets/panel.hpp"
+#include "draft/interface/context.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/rendering/clip.hpp"
 
 namespace Draft {
     namespace UI {
@@ -15,12 +17,18 @@ namespace Draft {
 
             std::vector<std::unique_ptr<Panel>> items;
 
+            Clip scissor;
+            Style itemStylesheet{};
+            Style handleStylesheet{RIGHT};
+
+            virtual void preprocess_children(Context& ctx) override;
+
         public:
             // Public variables
             float scroll = 0.f;
 
             // Constructors
-            ScrollPane(float x, float y, float w, float h, Panel* parent = nullptr);
+            ScrollPane(SNumber x, SNumber y, SNumber w, SNumber h, Panel* parent = nullptr);
 
             // Functions
             virtual bool handle_event(const Event& event) override;

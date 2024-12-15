@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/interface/panel.hpp"
+#include "draft/interface/widgets/panel.hpp"
 
 namespace Draft {
     namespace UI {
@@ -15,8 +15,11 @@ namespace Draft {
             bool* value;
 
         public:
+            // Variables
+            bool disabled = false;
+
             // Constructors
-            Button(float x, float y, float w, float h, bool* value, Type type = PRESS, Panel* parent = nullptr);
+            Button(SNumber x, SNumber y, SNumber w, SNumber h, bool* value, Type type = PRESS, Panel* parent = nullptr);
 
             // Events
             virtual bool handle_event(const Event& event) override;

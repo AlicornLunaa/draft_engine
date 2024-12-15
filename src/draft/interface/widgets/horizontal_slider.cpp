@@ -1,4 +1,4 @@
-#include "draft/interface/horizontal_slider.hpp"
+#include "draft/interface/widgets/horizontal_slider.hpp"
 #include "draft/interface/context.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
@@ -6,16 +6,12 @@
 
 namespace Draft::UI {
     // Constructor
-    HorizontalSlider::HorizontalSlider(float x, float y, float w, float h, float* value, Panel* parent) : Panel(parent), value(value) {
+    HorizontalSlider::HorizontalSlider(SNumber x, SNumber y, SNumber w, SNumber h, float* value, Panel* parent) : Panel(parent), value(value), handle(0, 0, 5, 100.0_percent, this) {
         bounds.x = x;
         bounds.y = y;
         bounds.width = w;
         bounds.height = h;
-        
-        handleBounds.width = w * 0.05f;
-        handleBounds.height = h + 3;
-        handleBounds.x = x + w * Math::clamp(*value, 0.f, 1.f);
-        handleBounds.y = y + (handleBounds.height / 2 + h / 2) / 2;
+        handle.color = {1, 1, 1, 1};
     }
 
     // Functions
@@ -23,7 +19,7 @@ namespace Draft::UI {
         if(event.type == Event::MouseButtonPressed){
             Vector2f clickPos(event.mouseButton.x, event.mouseButton.y);
 
-            if(Math::contains(handleBounds, clickPos) || Math::contains(bounds, clickPos)){
+            if(Math::contains(handle.get_bounds(), clickPos) || Math::contains(bounds, clickPos)){
                 // Set value to the cursor pos
                 *value = Math::clamp((event.mouseButton.x - bounds.x) / bounds.width, 0.f, 1.f);
                 grabbing = true;
@@ -40,35 +36,18 @@ namespace Draft::UI {
     }
 
     void HorizontalSlider::paint(Context& ctx){
-        // Render all children
-        Panel::paint(ctx);
-
-        handleBounds.x = bounds.x + bounds.width * Math::clamp(*value, 0.f, 1.f) - handleBounds.width / 2;
-
-        // Handle
         ctx.batch.draw({
-            nullptr,
-            {},
-            {handleBounds.x, handleBounds.y},
-            0.f,
-            {handleBounds.width, handleBounds.height},
-            {0.f, handleBounds.height * 0.5f},
-            0.f,
-            grabbing ? Vector4f{ 0.8, 0.8, 1, 1 } : Vector4f{ 1, 1, 1, 1 },
-            false
-        });
-
-        // Background
-        ctx.batch.draw({
-            nullptr,
+            ctx.style.background,
             {},
             {bounds.x, bounds.y},
             0.f,
             {bounds.width, bounds.height},
             {0, 0},
-            0.f,
-            {0.4, 0.4, 0.4, 1},
+            layer,
+            ctx.style.backgroundColor,
             false
         });
+
+        Panel::paint(ctx);
     }
 };

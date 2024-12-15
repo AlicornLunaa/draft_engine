@@ -12,6 +12,10 @@ namespace Draft {
         T width{};
         T height{};
 
+        // Constructors
+        Rect(T x = 0, T y = 0, T width = 0, T height = 0) : x(x), y(y), width(width), height(height) {}
+        Rect(const Vector2<T>& pos, const Vector2<T>& size) : x(pos.x), y(pos.y), width(size.x), height(size.y) {}
+
         // Operator
         operator Bounds() const {
             return Bounds{{ x, y }, { x + width, y }, { x + width, y + height }, { x, y + height }};

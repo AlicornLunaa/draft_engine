@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draft/interface/panel.hpp"
+#include "draft/interface/widgets/panel.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 

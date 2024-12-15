@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream> // IWYU pragma: keep
 
-#include "draft/interface/widgets/console.hpp"
+#include "draft/interface/imgui/console.hpp"
 #include "draft/core/application.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/util/logger.hpp"
