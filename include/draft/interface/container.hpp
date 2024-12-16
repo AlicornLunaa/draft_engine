@@ -1,7 +1,6 @@
 #pragma once
 
 #include "draft/core/application.hpp"
-#include "draft/interface/context.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
@@ -27,7 +26,7 @@ namespace Draft {
 
         public:
             // Variables
-            Style stylesheet; // Global stylesheet to use
+            Stylesheet stylesheet; // Global stylesheet to use
 
             // Constructors
             Container(const Application* app, Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default", true));

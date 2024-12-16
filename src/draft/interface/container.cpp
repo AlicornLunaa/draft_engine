@@ -88,7 +88,7 @@ namespace Draft::UI {
         batch.set_trans_matrix(Matrix4(1.f));
         batch.set_shader(uiShader);
 
-        Context ctx{camera.get_combined(), size, deltaTime, batch, textRenderer, size, stylesheet};
+        Context ctx{camera.get_combined(), size, deltaTime, batch, textRenderer, size, stylesheet, ""};
 
         for(int i = (panels.size() - 1); i >= 0; i--){
             // Paint top-level widgets. They'll handle rendering their children

@@ -31,7 +31,7 @@ namespace Draft {
             // Variables
             Vector2<SNumber> position{0.0_pixels};
             Vector2<SNumber> size{0.0_pixels};
-            Style* stylesheet = nullptr;
+            std::string styleClass = "";
 
             // Constructors
             Panel(Panel* parent = nullptr);

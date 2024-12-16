@@ -7,10 +7,8 @@
 namespace Draft::UI {
     // Constructor
     HorizontalSlider::HorizontalSlider(SNumber x, SNumber y, SNumber w, SNumber h, float* value, Panel* parent) : Panel(parent), value(value), handle(0, 0, 5, 100.0_percent, this) {
-        bounds.x = x;
-        bounds.y = y;
-        bounds.width = w;
-        bounds.height = h;
+        position = {x, y};
+        size = {w, h};
         handle.color = {1, 1, 1, 1};
     }
 
@@ -47,6 +45,9 @@ namespace Draft::UI {
             ctx.style.backgroundColor,
             false
         });
+
+        handle.position.x = size.x * Math::clamp(*value, 0.f, 1.f) - handle.size.x * 0.5f;
+        handle.stylesheet = &handleStylesheet;
 
         Panel::paint(ctx);
     }

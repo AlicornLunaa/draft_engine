@@ -13,19 +13,20 @@ set(SOURCES
     src/draft/core/entity.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
+    src/draft/interface/style.cpp
     src/draft/interface/styled_number.cpp
     src/draft/interface/container.cpp
     src/draft/interface/widgets/panel.cpp
     src/draft/interface/widgets/rectangle.cpp
-    src/draft/interface/widgets/label.cpp
-    src/draft/interface/widgets/scroll_pane.cpp
-    src/draft/interface/widgets/button.cpp
-    src/draft/interface/vertical_slider.cpp
-    src/draft/interface/widgets/horizontal_slider.cpp
-    src/draft/interface/joystick.cpp
-    src/draft/interface/picture.cpp
-    src/draft/interface/progress_bar.cpp
-    src/draft/interface/text_input.cpp
+    # src/draft/interface/widgets/label.cpp
+    # src/draft/interface/widgets/scroll_pane.cpp
+    # src/draft/interface/widgets/button.cpp
+    # src/draft/interface/vertical_slider.cpp
+    # src/draft/interface/widgets/horizontal_slider.cpp
+    # src/draft/interface/joystick.cpp
+    # src/draft/interface/picture.cpp
+    # src/draft/interface/progress_bar.cpp
+    # src/draft/interface/text_input.cpp
     src/draft/interface/imgui/console.cpp
     src/draft/interface/imgui/stats.cpp
     src/draft/math/bounds.cpp
@@ -116,19 +117,20 @@ set(INTERFACES
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
     include/draft/interface/styled_number.hpp
+    include/draft/interface/style.hpp
     include/draft/interface/container.hpp
     include/draft/interface/context.hpp
     include/draft/interface/widgets/panel.hpp
     include/draft/interface/widgets/rectangle.hpp
-    include/draft/interface/widgets/button.hpp
-    include/draft/interface/widgets/label.hpp
-    include/draft/interface/widgets/scroll_pane.hpp
-    include/draft/interface/vertical_slider.hpp
-    include/draft/interface/widgets/horizontal_slider.hpp
-    include/draft/interface/joystick.hpp
-    include/draft/interface/picture.hpp
-    include/draft/interface/progress_bar.hpp
-    include/draft/interface/text_input.hpp
+    # include/draft/interface/widgets/button.hpp
+    # include/draft/interface/widgets/label.hpp
+    # include/draft/interface/widgets/scroll_pane.hpp
+    # include/draft/interface/vertical_slider.hpp
+    # include/draft/interface/widgets/horizontal_slider.hpp
+    # include/draft/interface/joystick.hpp
+    # include/draft/interface/picture.hpp
+    # include/draft/interface/progress_bar.hpp
+    # include/draft/interface/text_input.hpp
     include/draft/interface/imgui/console.hpp
     include/draft/interface/imgui/stats.hpp
     include/draft/math/funcs.hpp

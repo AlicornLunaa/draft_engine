@@ -11,8 +11,10 @@ namespace Draft::UI {
     // Functions
     void Rectangle::paint(Context& ctx){
         // Render the background
+        Style style = ctx.stylesheet.get_style(ctx.styleStack + " " + styleClass);
+
         ctx.batch.draw({
-            ctx.style.background,
+            style.background.value,
             {},
             {bounds.x, bounds.y},
             0.f,

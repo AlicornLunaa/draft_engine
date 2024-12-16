@@ -6,19 +6,18 @@ namespace Draft::UI {
     // Protected functions
     void Panel::update_state(Context& ctx){
         // Update the panel's state
-        Style& style = stylesheet ? *stylesheet : ctx.style;
-
+        Style style = ctx.stylesheet.get_style(styleClass);
         Vector2f normPos = {position.x.calculate(ctx.parentSize.x), position.y.calculate(ctx.parentSize.y)};
-        Vector2f normSize = {size.x.calculate(ctx.parentSize.x) + style.padding.x, size.y.calculate(ctx.parentSize.y) + style.padding.y};
+        Vector2f normSize = {size.x.calculate(ctx.parentSize.x) + style.padding.value.x, size.y.calculate(ctx.parentSize.y) + style.padding.value.y};
 
         // Margin calculations
-        normPos.x += style.margin.x;
-        normPos.y += style.margin.y;
-        normSize.x -= style.margin.z * 2;
-        normSize.y -= style.margin.w * 2;
+        normPos.x += style.margin.value.x;
+        normPos.y += style.margin.value.y;
+        normSize.x -= style.margin.value.z * 2;
+        normSize.y -= style.margin.value.w * 2;
 
         // Anchoring logic and updating bounds
-        switch(style.horizontalAnchor){
+        switch(style.horizontalAnchor.value){
             case LEFT:
                 bounds.x = normPos.x;
                 break;
@@ -36,7 +35,7 @@ namespace Draft::UI {
                 break;
         }
 
-        switch(style.verticalAnchor){
+        switch(style.verticalAnchor.value){
             case TOP:
                 bounds.y = ctx.parentSize.y - normSize.y - normPos.y;
                 break;
@@ -131,14 +130,10 @@ namespace Draft::UI {
         }
 
         // Update context for sizes and update state with new real position
-        Style previousStyle = ctx.style;
+        std::string previousCtxStyleClass = ctx.styleStack;
         Vector2f previousCtxSize = ctx.parentSize;
         ctx.parentSize = {bounds.width, bounds.height};
-
-        if(stylesheet){
-            // Stylesheet override if not a nullptr
-            ctx.style = *stylesheet;
-        }
+        ctx.styleStack = ctx.styleStack + styleClass + " ";
 
         // Update state so it renders local to this panel
         Batch& batch = ctx.batch;
@@ -159,7 +154,7 @@ namespace Draft::UI {
 
         // Reset state
         ctx.parentSize = previousCtxSize;
-        ctx.style = previousStyle;
+        ctx.styleStack = previousCtxStyleClass;
     }
 
     void Panel::add_child(Panel* ptr){
