@@ -43,10 +43,34 @@ namespace Draft::UI {
         add_style("default", defaultStyle);
         add_style("*", Style());
 
-        Style centerStyle;
-        centerStyle.horizontalAnchor = CENTER;
-        centerStyle.verticalAnchor = MIDDLE;
-        add_style("centered", centerStyle);
+        Style alignmentStyle;
+        alignmentStyle.horizontalAnchor = LEFT;
+        alignmentStyle.verticalAnchor = TOP;
+        add_style("top-left", alignmentStyle);
+        alignmentStyle.horizontalAnchor = CENTER;
+        alignmentStyle.verticalAnchor = TOP;
+        add_style("top-center", alignmentStyle);
+        alignmentStyle.horizontalAnchor = RIGHT;
+        alignmentStyle.verticalAnchor = TOP;
+        add_style("top-right", alignmentStyle);
+        alignmentStyle.horizontalAnchor = LEFT;
+        alignmentStyle.verticalAnchor = MIDDLE;
+        add_style("middle-left", alignmentStyle);
+        alignmentStyle.horizontalAnchor = CENTER;
+        alignmentStyle.verticalAnchor = MIDDLE;
+        add_style("centered", alignmentStyle);
+        alignmentStyle.horizontalAnchor = RIGHT;
+        alignmentStyle.verticalAnchor = MIDDLE;
+        add_style("middle-right", alignmentStyle);
+        alignmentStyle.horizontalAnchor = LEFT;
+        alignmentStyle.verticalAnchor = BOTTOM;
+        add_style("bottom-left", alignmentStyle);
+        alignmentStyle.horizontalAnchor = CENTER;
+        alignmentStyle.verticalAnchor = BOTTOM;
+        add_style("bottom-center", alignmentStyle);
+        alignmentStyle.horizontalAnchor = RIGHT;
+        alignmentStyle.verticalAnchor = BOTTOM;
+        add_style("bottom-right", alignmentStyle);
 
         Style verticalHandle;
         verticalHandle.horizontalAnchor = CENTER;
