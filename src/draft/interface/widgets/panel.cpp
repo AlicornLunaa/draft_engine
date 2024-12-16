@@ -139,9 +139,7 @@ namespace Draft::UI {
         Batch& batch = ctx.batch;
         Matrix4 previousTransform = ctx.batch.get_trans_matrix();
         batch.set_trans_matrix(Math::translate(previousTransform, {bounds.x, bounds.y, 0}));
-        scissor.begin();
-
-        preprocess_children(ctx);
+        if(clippingEnabled) scissor.begin();
 
         for(auto* ptr : children){
             ptr->layer = layer + 0.1f;
@@ -150,7 +148,7 @@ namespace Draft::UI {
         }
 
         batch.set_trans_matrix(previousTransform);
-        scissor.end(); // This works because set_trans_matrix flushes the batch
+        if(clippingEnabled) scissor.end(); // This works because set_trans_matrix flushes the batch
 
         // Reset state
         ctx.parentSize = previousCtxSize;

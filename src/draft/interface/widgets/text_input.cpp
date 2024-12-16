@@ -1,4 +1,4 @@
-#include "draft/interface/text_input.hpp"
+#include "draft/interface/widgets/text_input.hpp"
 #include "draft/input/event.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
@@ -24,12 +24,10 @@ namespace Draft::UI {
     }
 
     // Constructor
-    TextInput::TextInput(float x, float y, float w, float h, std::string* str, Panel* parent) : Panel(parent), str(str) {
-        bounds.x = x;
-        bounds.y = y;
-        bounds.width = w;
-        bounds.height = h;
-
+    TextInput::TextInput(SNumber x, SNumber y, SNumber w, SNumber h, std::string* str, Panel* parent) : Panel(parent), str(str) {
+        position = {x, y};
+        size = {w, h};
+        styleClass = "text-input";
         *str = "";
     }
 
@@ -115,12 +113,13 @@ namespace Draft::UI {
         Panel::paint(ctx);
 
         // Get info for rendering correctly. Render from the start of the string
+        Style style = ctx.stylesheet.get_style(ctx.styleStack + " " + styleClass);
         TextProperties props{
             (*str).substr(stringStart, stringLen),
-            nullptr,
+            style.font.value,
             {bounds.x + 10, bounds.y + bounds.height * 0.5f},
             {0, 0.5f},
-            {1, 1, 1, 1},
+            style.textColor.value,
             0.f,
             1.f
         };

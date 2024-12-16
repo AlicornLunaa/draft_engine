@@ -1,4 +1,5 @@
-#include "draft/interface/joystick.hpp"
+#include "draft/interface/widgets/joystick.hpp"
+#include "draft/interface/styled_number.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
@@ -7,14 +8,12 @@
 
 namespace Draft::UI {
     // Constructor
-    Joystick::Joystick(float x, float y, float w, float h, Vector2f* value, Panel* parent) : Panel(parent), value(value) {
-        bounds.x = x;
-        bounds.y = y;
-        bounds.width = w;
-        bounds.height = h;
-        
-        handleBounds.width = w * 0.085f;
-        handleBounds.height = h * 0.085f;
+    Joystick::Joystick(SNumber x, SNumber y, SNumber w, SNumber h, Vector2f* value, Panel* parent) : Panel(parent), value(value), handle(0, 0, 8.5_percent, 8.5_percent, this) {
+        position = {x, y};
+        size = {w, h};
+        styleClass = "joystick";
+        handle.styleClass = "joystick-handle";
+        handle.color = {1, 1, 1, 1};
     }
 
     // Functions
@@ -51,35 +50,26 @@ namespace Draft::UI {
             if(std::abs(value->y) < 0.01f)
                 value->y = 0.f;
         }
-        
-        // Update handle bounds
-        handleBounds.x = bounds.x + bounds.width/2 * Math::clamp(value->x, -1.f, 1.f) + bounds.width/2;
-        handleBounds.y = bounds.y + bounds.height/2 * Math::clamp(value->y, -1.f, 1.f) + bounds.height/2;
 
-        // Handle rectangle
-        ctx.batch.draw({
-            nullptr,
-            {},
-            {handleBounds.x, handleBounds.y},
-            0.f,
-            {handleBounds.width, handleBounds.height},
-            {handleBounds.width * 0.5f, handleBounds.height * 0.5f},
-            0.f,
-            grabbing ? Vector4f{ 0.8, 0.8, 1, 1 } : Vector4f{ 1, 1, 1, 1 },
-            false
-        });
+        // Rendering
+        Style style = ctx.stylesheet.get_style(ctx.styleStack + " " + styleClass);
 
-        // Back rectangle
         ctx.batch.draw({
-            nullptr,
+            style.background.value,
             {},
             {bounds.x, bounds.y},
             0.f,
             {bounds.width, bounds.height},
             {0, 0},
-            0.f,
-            {0.4, 0.4, 0.4, 1},
+            layer,
+            style.backgroundColor.value,
             false
         });
+        
+        // Update handle bounds
+        handle.position.x = bounds.width/2 * Math::clamp(value->x, -1.f, 1.f);
+        handle.position.y = bounds.height/2 * Math::clamp(value->y, -1.f, 1.f);
+
+        Panel::paint(ctx);
     }
 };

@@ -12,8 +12,6 @@ namespace Draft {
             bool grabbing = false; // Used for click & drag
             float* value;
 
-            Style handleStylesheet{LEFT, MIDDLE};
-
         public:
             // Constructor
             HorizontalSlider(SNumber x, SNumber y, SNumber w, SNumber h, float* value, Panel* parent = nullptr);

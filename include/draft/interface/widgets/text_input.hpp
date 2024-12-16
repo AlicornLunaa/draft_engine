@@ -32,7 +32,7 @@ namespace Draft {
 
         public:
             // Constructor
-            TextInput(float x, float y, float w, float h, std::string* str, Panel* parent = nullptr);
+            TextInput(SNumber x, SNumber y, SNumber w, SNumber h, std::string* str, Panel* parent = nullptr);
 
             // Functions
             inline void set_enter_func(EnterFunc f){ enterFunc = f; }

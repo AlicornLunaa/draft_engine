@@ -1,7 +1,8 @@
 #pragma once
 
+#include "draft/interface/styled_number.hpp"
 #include "draft/interface/widgets/panel.hpp"
-#include "draft/math/rect.hpp"
+#include "draft/interface/widgets/rectangle.hpp"
 
 namespace Draft {
     namespace UI {
@@ -9,12 +10,12 @@ namespace Draft {
         private:
             // Needs an additional bounds because the entire object isnt clickable
             bool grabbing = false; // Used for click & drag
-            FloatRect handleBounds;
+            Rectangle handle;
             Vector2f* value;
 
         public:
             // Constructor
-            Joystick(float x, float y, float w, float h, Vector2f* value, Panel* parent = nullptr);
+            Joystick(SNumber x, SNumber y, SNumber w, SNumber h, Vector2f* value, Panel* parent = nullptr);
 
             // Functions
             virtual bool handle_event(const Event& event) override;

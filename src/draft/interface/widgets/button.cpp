@@ -3,10 +3,12 @@
 #include "draft/math/rect.hpp"
 
 namespace Draft::UI {
+    // Regular button
     // Constructor
     Button::Button(SNumber x, SNumber y, SNumber w, SNumber h, bool* value, Type type, Panel* parent) : Panel(parent), value(value), type(type) {
         position = {x, y};
         size = {w, h};
+        styleClass = "button";
     }
 
     // Functions
@@ -27,19 +29,28 @@ namespace Draft::UI {
     
     void Button::paint(Context& ctx){
         // Basic rectangle which changes color based on its value
+        Style style = ctx.stylesheet.get_style(ctx.styleStack + " " + styleClass);
+
         ctx.batch.draw({
-            ctx.style.background,
+            style.background.value,
             {},
             {bounds.x, bounds.y},
             0.f,
             {bounds.width, bounds.height},
             {0, 0},
             layer,
-            disabled ? ctx.style.disabledColor : (*value ? ctx.style.activeColor : ctx.style.inactiveColor),
+            disabled ? style.disabledColor.value : (*value ? style.activeColor.value : style.inactiveColor.value),
             false
         });
 
         // Render all children
         Panel::paint(ctx);
+    }
+
+    // Text button
+    TextButton::TextButton(SNumber x, SNumber y, SNumber w, SNumber h, const std::string& text, bool* value, Type type, Panel* parent) : Button(x, y, w, h, value, type, parent){
+        label.styleClass = "label centered";
+        label.properties.str = text;
+        label.properties.origin = {0.5, 0.5};
     }
 };

@@ -23,15 +23,15 @@ namespace Draft {
             float layer = -10.f;
 
             // Protected functions
-            const Panel* get_parent() const { return parent; }
+            Panel* get_parent() const { return parent; }
             void update_state(Context& ctx);
-            virtual void preprocess_children(Context& ctx){}; // Used for modifying stuff before the children are rendered
 
         public:
             // Variables
             Vector2<SNumber> position{0.0_pixels};
             Vector2<SNumber> size{0.0_pixels};
             std::string styleClass = "";
+            bool clippingEnabled = true;
 
             // Constructors
             Panel(Panel* parent = nullptr);

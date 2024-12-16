@@ -41,7 +41,7 @@ namespace Draft {
             Property<Anchor> verticalAnchor;
             
             Property<Vector4f> textColor;
-            Property<Font const*> font;
+            Property<Font*> font;
 
             Property<Vector4f> activeColor;
             Property<Vector4f> inactiveColor;

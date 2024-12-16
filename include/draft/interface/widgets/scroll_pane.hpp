@@ -4,7 +4,6 @@
 #include "draft/interface/widgets/panel.hpp"
 #include "draft/interface/context.hpp"
 #include "draft/math/glm.hpp"
-#include "draft/rendering/clip.hpp"
 
 namespace Draft {
     namespace UI {
@@ -16,12 +15,6 @@ namespace Draft {
             bool grabbing = false; // Used for click & drag
 
             std::vector<std::unique_ptr<Panel>> items;
-
-            Clip scissor;
-            Style itemStylesheet{};
-            Style handleStylesheet{RIGHT};
-
-            virtual void preprocess_children(Context& ctx) override;
 
         public:
             // Public variables
@@ -36,6 +29,8 @@ namespace Draft {
             
             template<typename T>
             T* add_item(T* panel){
+                panel->styleClass = panel->styleClass + " scroll-item";
+                panel->clippingEnabled = false;
                 items.push_back(std::unique_ptr<Panel>(panel));
                 add_child(panel);
                 return panel;

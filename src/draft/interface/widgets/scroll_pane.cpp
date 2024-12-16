@@ -3,18 +3,13 @@
 #include "glm/common.hpp"
 
 namespace Draft::UI {
-    // Private functions
-    void ScrollPane::preprocess_children(Context& ctx){
-        // Force stylesheet
-        ctx.style = itemStylesheet;
-    }
-
     // Constructors
     ScrollPane::ScrollPane(SNumber x, SNumber y, SNumber w, SNumber h, Panel* parent) : Panel(parent), handle(1, 1, 5, 30, this) {
         position = {x, y};
         size = {w, h};
         handle.color = {1, 1, 1, 1};
-        itemStylesheet.margin = Vector4f(3.f, 3.f, 6.f, 3.f);
+        styleClass = "scroll-pane";
+        handle.styleClass = "scroll-handle";
     }
 
     // Functions
@@ -64,15 +59,17 @@ namespace Draft::UI {
 
     void ScrollPane::paint(Context& ctx){
         // Draw background
+        Style style = ctx.stylesheet.get_style(ctx.styleStack + " " + styleClass);
+
         ctx.batch.draw({
-            nullptr,
+            style.background.value,
             {},
             {bounds.x, bounds.y},
             0.f,
             {bounds.width, bounds.height},
             {0, 0},
             layer,
-            {0.2, 0.2, 0.2, 1},
+            style.backgroundColor.value,
             false
         });
 
@@ -93,9 +90,8 @@ namespace Draft::UI {
         }
 
         // Position the handle
-        handle.size.y = bounds.height - yOverflow - 2;
+        handle.size.y = bounds.height - yOverflow;
         handle.position.y = (yOverflow - 2) * Math::clamp(scroll, 0.f, 1.f) + 1;
-        handle.stylesheet = &handleStylesheet;
 
         // Commit all children to the frame
         Panel::paint(ctx);

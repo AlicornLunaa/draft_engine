@@ -41,8 +41,36 @@ namespace Draft::UI {
         defaultStyle.backgroundColor = {0.2, 0.2, 0.2, 1};
         defaultStyle.background = nullptr;
         add_style("default", defaultStyle);
-
         add_style("*", Style());
+
+        Style centerStyle;
+        centerStyle.horizontalAnchor = CENTER;
+        centerStyle.verticalAnchor = MIDDLE;
+        add_style("centered", centerStyle);
+
+        Style verticalHandle;
+        verticalHandle.horizontalAnchor = CENTER;
+        verticalHandle.verticalAnchor = BOTTOM;
+        add_style("vertical-handle", verticalHandle);
+
+        Style joystickHandleStyle;
+        joystickHandleStyle.horizontalAnchor = CENTER;
+        joystickHandleStyle.verticalAnchor = MIDDLE;
+        add_style("joystick-handle", joystickHandleStyle);
+
+        Style progressStyle;
+        progressStyle.horizontalAnchor = LEFT;
+        progressStyle.verticalAnchor = MIDDLE;
+        add_style("progress-bar-complete", progressStyle);
+
+        Style scrollHandleStyle;
+        scrollHandleStyle.horizontalAnchor = RIGHT;
+        scrollHandleStyle.verticalAnchor = TOP;
+        add_style("scroll-handle", scrollHandleStyle);
+
+        Style scrollItem;
+        scrollItem.margin = {3, 3, 6, 3};
+        add_style("scroll-item", scrollItem);
     }
 
     void Stylesheet::add_style(const std::string& name, const Style& style){
@@ -66,7 +94,13 @@ namespace Draft::UI {
         style = m_classMap.at("*");
 
         for(auto& id : ids){
-            style = m_classMap.at(id);
+            auto iter = m_classMap.find(id);
+
+            if(iter == m_classMap.end())
+                // Skip if this style wasnt found
+                continue;
+
+            style = iter->second;
         }
 
         // Return the finalized style

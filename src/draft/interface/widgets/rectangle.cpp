@@ -6,6 +6,7 @@ namespace Draft::UI {
     Rectangle::Rectangle(SNumber x, SNumber y, SNumber w, SNumber h, Panel* parent) : Panel(parent) {
         position = {x, y};
         size = {w, h};
+        styleClass = "rectangle";
     }
 
     // Functions
