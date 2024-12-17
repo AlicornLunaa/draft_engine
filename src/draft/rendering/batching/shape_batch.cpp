@@ -42,6 +42,13 @@ namespace Draft {
         currentRenderType = type;
     }
 
+    void ShapeBatch::set_z_layer(float depth){
+        if(zLayer != depth)
+            flush();
+
+        zLayer = depth;
+    }
+
     void ShapeBatch::draw_polygon(const std::vector<Vector2f>& polygonVertices){
         // Profiling
         ZoneScopedN("shape_batch_polygon");
@@ -269,6 +276,7 @@ namespace Draft {
         shader->bind();
         shader->set_uniform("view", get_trans_matrix());
         shader->set_uniform("projection", get_proj_matrix());
+        shader->set_uniform("zLayer", zLayer);
 
         size_t pointsRendered = std::min(points.size(), MAX_POINTS_PER_PASS);
 

@@ -7,8 +7,9 @@ out vec4 vColor;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform float zLayer = 0.f;
 
 void main() {
-    gl_Position = projection * view * vec4(aPos.xy, 0.0, 1.0);
+    gl_Position = projection * view * vec4(aPos.xy, zLayer, 1.0);
     vColor = aColor;
 }

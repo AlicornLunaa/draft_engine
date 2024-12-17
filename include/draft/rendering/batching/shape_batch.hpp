@@ -43,6 +43,7 @@ namespace Draft {
         std::vector<Point> points;
         Vector4f currentColor{ 1, 1, 1, 1 };
         RenderType currentRenderType = ShapeBatch::RenderType::LINE;
+        float zLayer = 0.f;
 
         // Private functions
         void flush_if_overflowing(uint count);
@@ -54,9 +55,11 @@ namespace Draft {
 
         // Functions
         inline void set_color(const Vector4f& color){ currentColor = color; }
+        void set_z_layer(float depth);
         void set_render_type(RenderType type);
 
         inline const Vector4f& get_color() const { return currentColor; }
+        inline float get_z_layer() const { return zLayer; }
         inline const RenderType& get_render_type() const { return currentRenderType; }
         
         void draw_polygon(const std::vector<Vector2f>& polygonVertices);

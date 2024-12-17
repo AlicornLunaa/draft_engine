@@ -142,7 +142,7 @@ namespace Draft::UI {
         if(clippingEnabled) scissor.begin();
 
         for(auto* ptr : children){
-            ptr->layer = layer + 0.1f;
+            ptr->layer = layer + 1;
             ptr->update_state(ctx);
             ptr->paint(ctx);
         }
