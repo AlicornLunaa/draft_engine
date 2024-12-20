@@ -4,15 +4,19 @@ project("draft_engine" VERSION 0.2.0 LANGUAGES CXX)
 
 set(SOURCES
     src/draft/aliasing/format.cpp
+
     src/draft/audio/sound_buffer.cpp
     src/draft/audio/sound.cpp
     src/draft/audio/music.cpp
     src/draft/audio/listener.cpp
+
     src/draft/core/application.cpp
     src/draft/core/scene.cpp
     src/draft/core/entity.cpp
+
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
+
     src/draft/interface/style.cpp
     src/draft/interface/styled_number.cpp
     src/draft/interface/container.cpp
@@ -29,8 +33,14 @@ set(SOURCES
     src/draft/interface/widgets/text_input.cpp
     src/draft/interface/imgui/console.cpp
     src/draft/interface/imgui/stats.cpp
+    src/draft/interface/loader/css_loader.cpp
+    src/draft/interface/v2/container.cpp
+    src/draft/interface/v2/layout.cpp
+    src/draft/interface/v2/unit_value.cpp
+
     src/draft/math/bounds.cpp
     src/draft/math/glm.cpp
+
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp
     src/draft/phys/b2_raycast_proxy.cpp
@@ -41,6 +51,7 @@ set(SOURCES
     src/draft/phys/shapes/edge_shape.cpp
     src/draft/phys/shapes/circle_shape.cpp
     src/draft/phys/world.cpp
+
     src/draft/rendering/clip.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/shader.cpp
@@ -63,6 +74,7 @@ set(SOURCES
     src/draft/rendering/batching/shape_batch.cpp
     src/draft/rendering/batching/sprite_batch.cpp
     src/draft/rendering/batching/text_renderer.cpp
+
     src/draft/util/file_handle.cpp
     src/draft/util/logger.cpp
     src/draft/util/json.cpp
@@ -79,6 +91,7 @@ set(SOURCES
     src/draft/util/asset_manager/packed_texture_loader.cpp
     src/draft/util/time.cpp
     src/draft/util/clock.cpp
+
     src/draft/systems/audio_system.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
@@ -98,10 +111,12 @@ set(INTERFACES
     include/draft/aliasing/parameter.hpp
     include/draft/aliasing/target.hpp
     include/draft/aliasing/wrap.hpp
+
     include/draft/audio/sound_buffer.hpp
     include/draft/audio/sound.hpp
     include/draft/audio/music.hpp
     include/draft/audio/listener.hpp
+
     include/draft/components/audio_components.hpp
     include/draft/components/control_component.hpp
     include/draft/components/empty_component.hpp
@@ -109,9 +124,11 @@ set(INTERFACES
     include/draft/components/sprite_component.hpp
     include/draft/components/transform_component.hpp
     include/draft/components/collider_component.hpp
+
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
     include/draft/core/entity.hpp
+
     include/draft/input/action.hpp
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
@@ -133,10 +150,20 @@ set(INTERFACES
     include/draft/interface/widgets/text_input.hpp
     include/draft/interface/imgui/console.hpp
     include/draft/interface/imgui/stats.hpp
+    include/draft/interface/loader/css_loader.hpp
+    include/draft/interface/v2/container.hpp
+    include/draft/interface/v2/contextv2.hpp
+    include/draft/interface/v2/dom.hpp
+    include/draft/interface/v2/enums.hpp
+    include/draft/interface/v2/layout.hpp
+    include/draft/interface/v2/style.hpp
+    include/draft/interface/v2/unit_value.hpp
+
     include/draft/math/funcs.hpp
     include/draft/math/bounds.hpp
     include/draft/math/rect.hpp
     include/draft/math/glm.hpp
+
     include/draft/phys/body_def.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/filter.hpp
@@ -151,6 +178,7 @@ set(INTERFACES
     include/draft/phys/shapes/polygon_shape.hpp
     include/draft/phys/shapes/edge_shape.hpp
     include/draft/phys/shapes/circle_shape.hpp
+
     include/draft/rendering/clip.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
@@ -171,9 +199,11 @@ set(INTERFACES
     include/draft/rendering/batching/shape_batch.hpp
     include/draft/rendering/batching/sprite_batch.hpp
     include/draft/rendering/batching/text_renderer.hpp
+
     include/draft/systems/physics_system.hpp
     include/draft/systems/render_system.hpp
     include/draft/systems/audio_system.hpp
+
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
@@ -258,6 +288,7 @@ add_subdirectory(vendor/stb)
 add_subdirectory(vendor/entt)
 add_subdirectory(vendor/opensimplexnoise)
 add_subdirectory(vendor/tracy)
+add_subdirectory(vendor/clay)
 find_package(Freetype REQUIRED)
 
 if(WIN32)
@@ -294,7 +325,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt imgui glm::glm nlohmann_json::nlohmann_json simplex_noise tracy)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt clay imgui glm::glm nlohmann_json::nlohmann_json simplex_noise tracy)
 target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
