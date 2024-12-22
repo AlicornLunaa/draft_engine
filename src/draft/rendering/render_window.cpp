@@ -89,6 +89,7 @@ namespace Draft {
             // Setup opengl context
             glViewport(0, 0, w, h);
             glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
 
             // Start gpu profiler
             TracyGpuContext;

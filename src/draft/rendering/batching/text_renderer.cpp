@@ -63,7 +63,7 @@ namespace Draft {
                 props.rotation,
                 {w, h},
                 center - Vector2f(xPos, yPos),
-                1.f,
+                0.f,
                 props.color,
                 true
             });

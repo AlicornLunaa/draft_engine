@@ -19,8 +19,9 @@ namespace Draft {
             }
 
             // Reset keypresses
-            if(action == GLFW_RELEASE)
-                keyboard->set_key_released(key);
+            if(action == GLFW_RELEASE){
+                keyboard->lastPressedKeys[key] = false;
+            }
 
             // Convert to draft actions
             Event event{};
@@ -32,6 +33,7 @@ namespace Draft {
 
             switch(action){
             case GLFW_PRESS:
+                keyboard->lastPressedKeys[key] = true;
                 event.type = Event::KeyPressed;
                 break;
 
@@ -77,11 +79,6 @@ namespace Draft {
     // Static variables
     std::unordered_map<void*, Keyboard*> Keyboard::windowKeyboardMap{};
 
-    // Private functions
-    void Keyboard::set_key_released(int key){
-        lastPressedKeys[key] = false;
-    }
-
     // Constructors
     Keyboard::Keyboard(RenderWindow& window) : window(&window) {
         glfwSetKeyCallback((GLFWwindow*)window.get_raw_window(), GLFWImpl::key_callback);
@@ -115,8 +112,10 @@ namespace Draft {
     bool Keyboard::is_just_pressed(int key) const {
         ImGuiIO& io = ImGui::GetIO();
         bool res = (glfwGetKey((GLFWwindow*)window->get_raw_window(), key) == GLFW_PRESS);
-        bool oldState = lastPressedKeys[key];
-        lastPressedKeys[key] = res;
-        return res && !oldState && !io.WantCaptureKeyboard;;
+        return res && lastPressedKeys[key] && !io.WantCaptureKeyboard;
+    }
+
+    void Keyboard::reset_keyboard_state(){
+        lastPressedKeys.clear();
     }
 };

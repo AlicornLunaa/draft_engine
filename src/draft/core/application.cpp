@@ -15,6 +15,9 @@ namespace Draft {
         // This function polls for all events and sends them to their required locations
         ZoneScopedNCS("event_tick", 0x3333ff, 20);
 
+        mouse.reset_mouse_state();
+        keyboard.reset_keyboard_state();
+
         while(window.poll_events(event)){
             switch(event.type){
             case Event::Closed:

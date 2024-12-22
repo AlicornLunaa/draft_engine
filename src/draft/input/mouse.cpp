@@ -55,7 +55,7 @@ namespace Draft {
             io.AddMouseButtonEvent(button, action == GLFW_PRESS);
 
             if(action == GLFW_RELEASE){
-                mouse->set_button_released(button);
+                mouse->lastPressedKeys[button] = false;
             }
 
             // Skip event if hovered over an IMGUI page
@@ -71,6 +71,7 @@ namespace Draft {
 
             switch(action){
             case GLFW_PRESS:
+                mouse->lastPressedKeys[button] = true;
                 event.type = Event::MouseButtonPressed;
                 break;
 
@@ -95,6 +96,10 @@ namespace Draft {
             
             if(io.WantCaptureMouse)
                 return;
+
+            // Set state
+            mouse->lastScrollDelta.x = xoffset;
+            mouse->lastScrollDelta.y = yoffset;
 
             // Create event
             Event event{};
@@ -129,10 +134,6 @@ namespace Draft {
     }
 
     // Functions
-    void Mouse::set_button_released(int button){
-        lastPressedKeys[button] = false;
-    }
-
     void Mouse::add_callback(EventCallback func){
         callbacks.push_back(func);
     }
@@ -148,16 +149,17 @@ namespace Draft {
     bool Mouse::is_pressed(int button) const {
         ImGuiIO& io = ImGui::GetIO();
         bool res = (glfwGetMouseButton((GLFWwindow*)window->get_raw_window(), button) == GLFW_PRESS);
-        lastPressedKeys[button] = res;
         return res && !io.WantCaptureMouse;
     }
 
     bool Mouse::is_just_pressed(int button) const {
         ImGuiIO& io = ImGui::GetIO();
         bool res = (glfwGetMouseButton((GLFWwindow*)window->get_raw_window(), button) == GLFW_PRESS);
-        bool oldState = lastPressedKeys[button];
-        lastPressedKeys[button] = res;
-        return res && !oldState && !io.WantCaptureMouse;
+        return res && lastPressedKeys[button] && !io.WantCaptureMouse;
+    }
+
+    const Vector2d& Mouse::get_scroll() const {
+        return lastScrollDelta;
     }
 
     const Vector2d& Mouse::get_position() const {
@@ -172,5 +174,10 @@ namespace Draft {
     void Mouse::set_position(const Vector2f& pos){
         glfwSetCursorPos((GLFWwindow*)window->get_raw_window(), pos.x, pos.y);
         position = { pos.x, pos.y };
+    }
+
+    void Mouse::reset_mouse_state(){
+        lastScrollDelta = {};
+        lastPressedKeys.clear();
     }
 };

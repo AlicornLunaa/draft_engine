@@ -10,6 +10,7 @@
 #include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <queue>
+#include <stack>
 #include <vector>
 
 namespace Draft {
@@ -61,7 +62,7 @@ namespace Draft {
         
         // Queues
         std::priority_queue<SpriteProps, std::vector<SpriteProps>, SpriteProps> transparentQuads;
-        std::queue<SpriteProps> opaqueQuads;
+        std::stack<SpriteProps> opaqueQuads;
 
         // Private functions
         void internal_flush_opaque();

@@ -32,6 +32,7 @@ namespace Draft {
         // Variables
         static std::unordered_map<void*, Mouse*> windowMouseMap;
         mutable std::unordered_map<int, bool> lastPressedKeys;
+        mutable Vector2d lastScrollDelta{};
         mutable Vector2d position;
         std::vector<EventCallback> callbacks;
         RenderWindow* window;
@@ -81,6 +82,12 @@ namespace Draft {
         bool is_just_pressed(int key) const;
 
         /**
+         * @brief Get the scroll delta of the mouse
+         * @return const Vector2d& 
+         */
+        const Vector2d& get_scroll() const;
+
+        /**
          * @brief Get the position of the mouse relative to the window
          * @return const Vector2d& 
          */
@@ -97,5 +104,10 @@ namespace Draft {
          * @param pos 
          */
         void set_position(const Vector2f& pos);
+
+        /**
+         * @brief Resets all the last key presses
+         */
+        void reset_mouse_state();
     };
 };

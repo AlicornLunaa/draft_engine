@@ -152,17 +152,11 @@ namespace Draft {
         std::vector<EventCallback> callbacks;
         RenderWindow* window = nullptr;
 
-        // Private functions
-        void set_key_released(int key);
-
     public:
         // Constructors
         Keyboard(RenderWindow& window);
         Keyboard(const Keyboard& other) = delete;
         ~Keyboard();
-
-        // Friends
-        friend class GLFWImpl;
 
         // Functions
         /**
@@ -191,5 +185,10 @@ namespace Draft {
          * @return false 
          */
         bool is_just_pressed(int key) const;
+
+        /**
+         * @brief Resets all the last key presses
+         */
+        void reset_keyboard_state();
     };
 };

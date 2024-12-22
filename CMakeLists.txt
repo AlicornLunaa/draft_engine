@@ -37,6 +37,7 @@ set(SOURCES
     src/draft/interface/v2/container.cpp
     src/draft/interface/v2/layout.cpp
     src/draft/interface/v2/unit_value.cpp
+    src/draft/interface/clay/clay_interface.cpp
 
     src/draft/math/bounds.cpp
     src/draft/math/glm.cpp
@@ -158,6 +159,7 @@ set(INTERFACES
     include/draft/interface/v2/layout.hpp
     include/draft/interface/v2/style.hpp
     include/draft/interface/v2/unit_value.hpp
+    include/draft/interface/clay/clay_interface.hpp
 
     include/draft/math/funcs.hpp
     include/draft/math/bounds.hpp
