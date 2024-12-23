@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/rendering/batching/shape_batch.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/camera.hpp"
@@ -60,4 +61,5 @@ public:
 
     void build_dom();
     void render(Draft::SpriteBatch& batch);
+    void debug(Draft::ShapeBatch& batch);
 };

@@ -117,9 +117,11 @@ void Container::recursive_build_dom(Layout* ptr, Element* dom){
 
     // Build its children
     for(Layout* child : ptr->children){
+        // Add a layout positioning function for each layout type which places each child
         dom->children.push_back({});
         dom->children.back().parent = dom;
         recursive_build_dom(child, &dom->children.back());
+        ptr->place_child(ctx, *child, *dom);
     }
 }
 
@@ -163,4 +165,25 @@ void Container::render(SpriteBatch& batch){
     // Render each layer
     batch.set_proj_matrix(camera.get_combined());
     recursive_render(batch, textBatch, dom.get());
+}
+
+void recursive_debug(ShapeBatch& batch, Element* ptr){
+    // Render its children then render the current element
+    if(!ptr) return;
+    if(!ptr->visibility) return;
+
+    for(Element& child : ptr->children){
+        recursive_debug(batch, &child);
+    }
+
+    for(auto& sprite : ptr->sprites){
+        batch.draw_rect(sprite.position - Vector2f{0, sprite.size.y}, sprite.size, 0.f);
+    }
+}
+
+void Container::debug(ShapeBatch& batch){
+    // Render each layer
+    batch.set_proj_matrix(camera.get_combined());
+    batch.set_color(Color::LIME);
+    recursive_debug(batch, dom.get());
 }

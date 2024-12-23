@@ -25,4 +25,5 @@ struct Layout {
 
     // Functions
     virtual void build_dom_element(Context& ctx, Element& element) const;
+    virtual void place_child(Context& ctx, Layout& child, Element& element) const;
 };

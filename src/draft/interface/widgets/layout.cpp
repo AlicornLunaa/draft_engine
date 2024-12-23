@@ -20,3 +20,6 @@ void Layout::build_dom_element(Context& ctx, Element& element) const {
         element.backgroundColor
     });
 }
+
+void Layout::place_child(Context& ctx, Layout& child, Element& element) const {
+}
