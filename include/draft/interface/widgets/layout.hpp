@@ -24,6 +24,7 @@ struct Layout {
     virtual ~Layout() = default;
 
     // Functions
+    virtual std::string get_element_class() const { return elementClass; }
     virtual void build_dom_element(Context& ctx, Element& element) const;
-    virtual void place_child(Context& ctx, Layout& child, Element& element) const;
+    virtual void place_child(Context& ctx, Element& parent, Layout& child, Element& element) const;
 };

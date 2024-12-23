@@ -21,5 +21,5 @@ void Layout::build_dom_element(Context& ctx, Element& element) const {
     });
 }
 
-void Layout::place_child(Context& ctx, Layout& child, Element& element) const {
+void Layout::place_child(Context& ctx, Element& parent, Layout& child, Element& element) const {
 }

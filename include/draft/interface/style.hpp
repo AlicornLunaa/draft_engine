@@ -48,7 +48,7 @@ public:
         // Calculate all classes and parent classes to get the correct property
         std::vector<std::string> allClasses;
         allClasses.push_back("*");
-        allClasses.push_back(layout.elementClass);
+        allClasses.push_back(layout.get_element_class());
         recursive_class_concat(allClasses, &layout);
 
         std::any const* currentValuePtr = nullptr;

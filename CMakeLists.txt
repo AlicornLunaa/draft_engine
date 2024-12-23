@@ -20,6 +20,7 @@ set(SOURCES
     src/draft/interface/container.cpp
     src/draft/interface/unit_value.cpp
     src/draft/interface/widgets/layout.cpp
+    src/draft/interface/widgets/scroll.cpp
     # src/draft/interface/widgets/panel.cpp
     # src/draft/interface/widgets/rectangle.cpp
     # src/draft/interface/widgets/label.cpp
@@ -140,6 +141,7 @@ set(INTERFACES
     include/draft/interface/style.hpp
     include/draft/interface/unit_value.hpp
     include/draft/interface/widgets/layout.hpp
+    include/draft/interface/widgets/scroll.hpp
     # include/draft/interface/widgets/panel.hpp
     # include/draft/interface/widgets/rectangle.hpp
     # include/draft/interface/widgets/button.hpp

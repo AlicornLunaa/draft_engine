@@ -112,17 +112,19 @@ void Container::recursive_build_dom(Layout* ptr, Element* dom){
         dom->size.x, dom->size.y,
     };
 
-    // Build sprites n stuff per layout type
-    ptr->build_dom_element(ctx, *dom);
-
     // Build its children
     for(Layout* child : ptr->children){
         // Add a layout positioning function for each layout type which places each child
         dom->children.push_back({});
         dom->children.back().parent = dom;
         recursive_build_dom(child, &dom->children.back());
-        ptr->place_child(ctx, *child, *dom);
     }
+
+    // Build sprites n stuff per layout type
+    if(ptr->parent){
+        ptr->parent->place_child(ctx, *dom->parent, *ptr, *dom);
+    }
+    ptr->build_dom_element(ctx, *dom);
 }
 
 void Container::recursive_layout_add(Layout* parent, const LayoutSkeleton& skel){
@@ -133,7 +135,7 @@ void Container::recursive_layout_add(Layout* parent, const LayoutSkeleton& skel)
     parent->children.push_back(skel.layout);
 
     for(auto& child : skel.children){
-        recursive_layout_add(parent, child);
+        recursive_layout_add(skel.layout, child);
     }
 }
 
