@@ -1,7 +1,7 @@
 #pragma once
 
-#include "draft/interface/v2/contextv2.hpp"
-#include "draft/interface/v2/dom.hpp"
+#include "draft/interface/context.hpp"
+#include "draft/interface/dom.hpp"
 #include <string>
 #include <vector>
 
@@ -21,6 +21,7 @@ struct Layout {
     Layout() = default;
     Layout(const std::vector<std::string>& classes);
     Layout(Layout* parent, const std::vector<std::string>& classes);
+    virtual ~Layout() = default;
 
     // Functions
     virtual void build_dom_element(Context& ctx, Element& element) const;

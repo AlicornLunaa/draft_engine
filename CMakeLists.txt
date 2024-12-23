@@ -17,26 +17,23 @@ set(SOURCES
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
 
-    src/draft/interface/style.cpp
-    src/draft/interface/styled_number.cpp
     src/draft/interface/container.cpp
-    src/draft/interface/widgets/panel.cpp
-    src/draft/interface/widgets/rectangle.cpp
-    src/draft/interface/widgets/label.cpp
-    src/draft/interface/widgets/scroll_pane.cpp
-    src/draft/interface/widgets/button.cpp
-    src/draft/interface/widgets/vertical_slider.cpp
-    src/draft/interface/widgets/horizontal_slider.cpp
-    src/draft/interface/widgets/joystick.cpp
-    src/draft/interface/widgets/picture.cpp
-    src/draft/interface/widgets/progress_bar.cpp
-    src/draft/interface/widgets/text_input.cpp
+    src/draft/interface/unit_value.cpp
+    src/draft/interface/widgets/layout.cpp
+    # src/draft/interface/widgets/panel.cpp
+    # src/draft/interface/widgets/rectangle.cpp
+    # src/draft/interface/widgets/label.cpp
+    # src/draft/interface/widgets/scroll_pane.cpp
+    # src/draft/interface/widgets/button.cpp
+    # src/draft/interface/widgets/vertical_slider.cpp
+    # src/draft/interface/widgets/horizontal_slider.cpp
+    # src/draft/interface/widgets/joystick.cpp
+    # src/draft/interface/widgets/picture.cpp
+    # src/draft/interface/widgets/progress_bar.cpp
+    # src/draft/interface/widgets/text_input.cpp
     src/draft/interface/imgui/console.cpp
     src/draft/interface/imgui/stats.cpp
     src/draft/interface/loader/css_loader.cpp
-    src/draft/interface/v2/container.cpp
-    src/draft/interface/v2/layout.cpp
-    src/draft/interface/v2/unit_value.cpp
     src/draft/interface/clay/clay_interface.cpp
 
     src/draft/math/bounds.cpp
@@ -91,6 +88,7 @@ set(SOURCES
     src/draft/util/asset_manager/texture_loader.cpp
     src/draft/util/asset_manager/packed_texture_loader.cpp
     src/draft/util/time.cpp
+    src/draft/util/color.cpp
     src/draft/util/clock.cpp
 
     src/draft/systems/audio_system.cpp
@@ -134,31 +132,28 @@ set(INTERFACES
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
-    include/draft/interface/styled_number.hpp
-    include/draft/interface/style.hpp
+    
     include/draft/interface/container.hpp
     include/draft/interface/context.hpp
-    include/draft/interface/widgets/panel.hpp
-    include/draft/interface/widgets/rectangle.hpp
-    include/draft/interface/widgets/button.hpp
-    include/draft/interface/widgets/label.hpp
-    include/draft/interface/widgets/scroll_pane.hpp
-    include/draft/interface/widgets/vertical_slider.hpp
-    include/draft/interface/widgets/horizontal_slider.hpp
-    include/draft/interface/widgets/joystick.hpp
-    include/draft/interface/widgets/picture.hpp
-    include/draft/interface/widgets/progress_bar.hpp
-    include/draft/interface/widgets/text_input.hpp
+    include/draft/interface/dom.hpp
+    include/draft/interface/enums.hpp
+    include/draft/interface/style.hpp
+    include/draft/interface/unit_value.hpp
+    include/draft/interface/widgets/layout.hpp
+    # include/draft/interface/widgets/panel.hpp
+    # include/draft/interface/widgets/rectangle.hpp
+    # include/draft/interface/widgets/button.hpp
+    # include/draft/interface/widgets/label.hpp
+    # include/draft/interface/widgets/scroll_pane.hpp
+    # include/draft/interface/widgets/vertical_slider.hpp
+    # include/draft/interface/widgets/horizontal_slider.hpp
+    # include/draft/interface/widgets/joystick.hpp
+    # include/draft/interface/widgets/picture.hpp
+    # include/draft/interface/widgets/progress_bar.hpp
+    # include/draft/interface/widgets/text_input.hpp
     include/draft/interface/imgui/console.hpp
     include/draft/interface/imgui/stats.hpp
     include/draft/interface/loader/css_loader.hpp
-    include/draft/interface/v2/container.hpp
-    include/draft/interface/v2/contextv2.hpp
-    include/draft/interface/v2/dom.hpp
-    include/draft/interface/v2/enums.hpp
-    include/draft/interface/v2/layout.hpp
-    include/draft/interface/v2/style.hpp
-    include/draft/interface/v2/unit_value.hpp
     include/draft/interface/clay/clay_interface.hpp
 
     include/draft/math/funcs.hpp
@@ -227,6 +222,7 @@ set(INTERFACES
     include/draft/util/logger.hpp
     include/draft/util/json.hpp
     include/draft/util/time.hpp
+    include/draft/util/color.hpp
     include/draft/util/clock.hpp
     include/draft/util/types.hpp
 )

@@ -1,9 +1,9 @@
 #include "draft/util/file_handle.hpp"
 #include "draft/util/color.hpp"
 
-#include "draft/interface/v2/enums.hpp"
-#include "draft/interface/v2/style.hpp"
-#include "draft/interface/v2/unit_value.hpp"
+#include "draft/interface/enums.hpp"
+#include "draft/interface/style.hpp"
+#include "draft/interface/unit_value.hpp"
 
 #include <utility>
 #include <string>

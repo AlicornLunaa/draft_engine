@@ -1,4 +1,4 @@
-#include "draft/interface/v2/layout.hpp"
+#include "draft/interface/widgets/layout.hpp"
 
 // Constructors
 Layout::Layout(const std::vector<std::string>& classes) : classes(classes) {}
