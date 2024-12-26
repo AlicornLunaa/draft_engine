@@ -17,6 +17,7 @@ set(SOURCES
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
 
+    src/draft/interface/interface.cpp
     src/draft/interface/container.cpp
     src/draft/interface/unit_value.cpp
     src/draft/interface/widgets/layout.cpp
@@ -134,6 +135,7 @@ set(INTERFACES
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
     
+    include/draft/interface/interface.hpp
     include/draft/interface/container.hpp
     include/draft/interface/context.hpp
     include/draft/interface/dom.hpp

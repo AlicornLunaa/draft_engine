@@ -65,6 +65,8 @@ Color::Color(std::string hex){
     w = a / 255.f;
 }
 
+Color::Color(const char* hex) : Color(std::string(hex)) {}
+
 // Functions
 std::string Color::to_hex(bool alpha) const {
     // Converts the RGBA float to hex

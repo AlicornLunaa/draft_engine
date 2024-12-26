@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+class Stylesheet;
+
 /**
  * @brief A layout is a renderable element which renders all its children.
  * There is a 'root' layout which everything else is attached to.
@@ -16,6 +18,7 @@ struct Layout {
 
     Layout* parent = nullptr;
     std::vector<Layout*> children;
+    Element dom; // Generic element to hold all render information
 
     // Constructors
     Layout() = default;
@@ -25,6 +28,6 @@ struct Layout {
 
     // Functions
     virtual std::string get_element_class() const { return elementClass; }
-    virtual void build_dom_element(Context& ctx, Element& element) const;
-    virtual void place_child(Context& ctx, Element& parent, Layout& child, Element& element) const;
+    virtual void generate_render_commands();
+    virtual void generate_dom(Context ctx, Stylesheet& stylesheet);
 };

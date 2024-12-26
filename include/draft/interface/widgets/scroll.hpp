@@ -12,6 +12,5 @@ struct Scroll : public Layout {
 
     // Functions
     virtual std::string get_element_class() const override { return elementClass; }
-    virtual void build_dom_element(Context& ctx, Element& element) const override;
-    virtual void place_child(Context& ctx, Element& parent, Layout& child, Element& element) const override;
+    virtual void generate_render_commands() override;
 };

@@ -1,9 +1,8 @@
 #pragma once
 
+#include "draft/interface/render_command.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
-#include "draft/rendering/batching/sprite_batch.hpp"
-#include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/util/color.hpp"
@@ -27,9 +26,6 @@ struct Element {
 
     bool visibility;
     Draft::FloatRect bounds;
-    Element* parent = nullptr;
-    std::vector<Element> children;
 
-    std::vector<Draft::SpriteProps> sprites;
-    std::vector<Draft::TextProperties> text;
+    std::vector<RenderCommand> renderCommands;
 };

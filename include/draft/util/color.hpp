@@ -25,6 +25,7 @@ public:
     // Constructors
     using Draft::Vector4f::Vector4f;
     Color(std::string hex);
+    Color(const char* hex);
 
     // Functions
     std::string to_hex(bool alpha = false) const;
