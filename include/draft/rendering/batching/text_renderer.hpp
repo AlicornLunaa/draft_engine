@@ -12,6 +12,7 @@ namespace Draft {
     struct TextProperties {
         std::string str = "Hello World!";
         Font* font = nullptr;
+        uint fontSize = 20;
         Vector2f position = {0, 0};
         Vector2f origin = {0, 0};
         Vector4f color = {1, 1, 1, 1};

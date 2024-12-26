@@ -3,7 +3,7 @@
 
 namespace Draft::UI {
     // Constructors
-    Interface::Interface(Scene* scene) : scene(scene), masterCtx(batch, {}) {}
+    Interface::Interface(Scene* scene) : scene(scene), masterCtx(batch, textBatch, {}) {}
 
     // Functions
     void Interface::begin(){
@@ -37,11 +37,19 @@ namespace Draft::UI {
                         {cmd.x, cmd.y}, 0.f,
                         {cmd.sprite.width, cmd.sprite.height},
                         {0.f, 0.f}, 0.f,
-                        cmd.sprite.color
+                        cmd.color
                     });
                     break;
 
                 case Command::TEXT:
+                    textBatch.draw_text(batch, {
+                        std::string(cmd.text.str),
+                        cmd.text.font,
+                        cmd.text.fontSize,
+                        {cmd.x, cmd.y},
+                        {},
+                        cmd.color
+                    });
                     break;
             }
         }

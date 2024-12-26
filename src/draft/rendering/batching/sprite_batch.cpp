@@ -34,7 +34,7 @@ namespace Draft {
             texturePtr = nullptr;
 
             for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !opaqueQuads.empty(); i++){
-                auto& props = opaqueQuads.top();
+                auto& props = opaqueQuads.front();
 
                 if(!texturePtr){
                     // No texture previously, bind it

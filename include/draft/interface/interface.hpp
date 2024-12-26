@@ -3,11 +3,14 @@
 #include "draft/core/scene.hpp"
 #include "draft/interface/unit_value.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/math/rect.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/camera.hpp"
 #include "draft/util/color.hpp"
+#include "glm/common.hpp"
 
+#include <cmath>
 #include <vector>
 
 namespace Draft {
@@ -32,7 +35,7 @@ namespace Draft {
 
         struct GlobalStyle {
             Vector2<UnitValue> position = {UnitValue::Auto, UnitValue::Auto};
-            Vector2<UnitValue> size = {UnitValue::Auto, UnitValue::Auto};
+            Size size;
             Edges margins = {0_pixels, 0_pixels, 0_pixels, 0_pixels};
             Edges padding = {0_pixels, 0_pixels, 0_pixels, 0_pixels};
             Color foregroundColor = Color::WHITE;
@@ -46,42 +49,51 @@ namespace Draft {
 
             float x;
             float y;
+            Color color;
 
             union {
                 struct {
                     const Texture* texture;
                     float width;
                     float height;
-                    Color color;
                 } sprite;
 
                 struct {
                     const char* str;
                     Font* font;
-                    int fontSize;
+                    uint fontSize;
                 } text;
             };
         };
 
         struct Context {
             SpriteBatch& batch;
+            TextRenderer& textBatch;
             FloatRect bounds; // The container size
         };
 
         // Widgets
         struct Layout {
             GlobalStyle style;
-            virtual void render(Context ctx, std::vector<Command>& commands) const = 0;
-        };
 
-        struct Panel : public Layout {
-            std::vector<Layout*> children;
+            FloatRect get_content_box(const Context& ctx) const {
+                // Sizes the element to get the position and size to hold it
+                FloatRect box;
 
-            virtual void render(Context ctx, std::vector<Command>& commands) const override {
                 // Handle different states, such as automatic sizing or automatic positioning
                 Vector2f size = {
-                    style.size.x.is_auto() ? 0 : style.size.x.get(ctx.bounds.width),
-                    style.size.y.is_auto() ? 0 : style.size.y.get(ctx.bounds.height)
+                    style.size.width.is_auto() ? 0 : style.size.width.get(ctx.bounds.width),
+                    style.size.height.is_auto() ? 0 : style.size.height.get(ctx.bounds.height)
+                };
+
+                Vector2f minSize = {
+                    style.size.minWidth.is_auto() ? 0 : style.size.minWidth.get(ctx.bounds.width),
+                    style.size.minHeight.is_auto() ? 0 : style.size.minHeight.get(ctx.bounds.height)
+                };
+
+                Vector2f maxSize = {
+                    style.size.maxWidth.is_auto() ? INFINITY : style.size.maxWidth.get(ctx.bounds.width),
+                    style.size.maxHeight.is_auto() ? INFINITY : style.size.maxHeight.get(ctx.bounds.height)
                 };
 
                 Vector2f position = {
@@ -104,69 +116,121 @@ namespace Draft {
                     style.padding.bottom.get(ctx.bounds.width)
                 };
 
-                ctx.bounds.x = position.x + marginsCalc.x;
-                ctx.bounds.y = position.y + marginsCalc.y;
-                ctx.bounds.width = style.size.x.get(ctx.bounds.width) - (marginsCalc.x - marginsCalc.z) + (paddingCalc.x + paddingCalc.z);
-                ctx.bounds.height = style.size.y.get(ctx.bounds.height) - (marginsCalc.y - marginsCalc.w) + (paddingCalc.y + paddingCalc.w);
+                box.x = position.x + marginsCalc.x;
+                box.y = position.y + marginsCalc.y;
+                box.width = size.x - (marginsCalc.x - marginsCalc.z) + (paddingCalc.x + paddingCalc.z);
+                box.height = size.y - (marginsCalc.y - marginsCalc.w) + (paddingCalc.y + paddingCalc.w);
+
+                box.width = Math::clamp(box.width, minSize.x, maxSize.x);
+                box.height = Math::clamp(box.height, minSize.y, maxSize.y);
+
+                return box;
+            }
+
+            virtual void render(Context ctx, std::vector<Command>& commands) const = 0;
+        };
+
+        struct Panel : public Layout {
+            // Lays children out absolutely
+            std::vector<Layout*> children;
+
+            virtual void render(Context ctx, std::vector<Command>& commands) const override {
+                // Get the size and position of the inner box
+                FloatRect content = get_content_box(ctx);
 
                 Command cmd;
                 cmd.type = Command::SPRITE;
-                cmd.x = ctx.bounds.x;
-                cmd.y = ctx.bounds.y;
-                cmd.sprite.width = ctx.bounds.width;
-                cmd.sprite.height = ctx.bounds.height;
+                cmd.x = content.x;
+                cmd.y = content.y;
+                cmd.color = style.backgroundColor;
+                cmd.sprite.width = content.width;
+                cmd.sprite.height = content.height;
                 cmd.sprite.texture = nullptr;
-                cmd.sprite.color = style.backgroundColor;
                 commands.push_back(cmd);
                 uint thisCmdIndex = commands.size() - 1;
 
                 // Calculate children render commands
                 size_t startCount = commands.size();
+                Context newCtx(ctx.batch, ctx.textBatch, {0, 0, content.width, content.height});
 
                 for(Layout* ptr : children){
                     // Obtain render commands for children
-                    ptr->render(ctx, commands);
+                    ptr->render(newCtx, commands);
                 }
 
                 size_t count = commands.size() - startCount;
 
                 // With the count of objects which are the children commands, move the child to be relative to this layout object
+                Vector2f topLeftPadding(style.padding.left.get(ctx.bounds.width), style.padding.top.get(ctx.bounds.width));
+
                 for(size_t i = 0; i < count; i++){
                     Command& cmd = commands[i + startCount];
-                    cmd.x += ctx.bounds.x + paddingCalc.x;
-                    cmd.y += ctx.bounds.y + paddingCalc.y;
+                    cmd.x += content.x + topLeftPadding.x; // Padding is needed here to push it off the side
+                    cmd.y += content.y + topLeftPadding.y;
                 }
 
                 // With the children now positioned, calculate the size for auto-sizing
+                Vector4f childDimensions(0, 0, INFINITY, INFINITY);
+
                 for(size_t i = 0; i < count; i++){
                     Command& cmd = commands[i + startCount];
-                    
-                    ctx.bounds.width += (cmd.x - ctx.bounds.x - paddingCalc.x);
-                    ctx.bounds.height += (cmd.y - ctx.bounds.y - paddingCalc.y);
+                    Vector2f elementDimensions;
 
                     if(cmd.type == Command::SPRITE){
-                        ctx.bounds.width += cmd.sprite.width;
-                        ctx.bounds.height += cmd.sprite.height;
+                        elementDimensions.x = cmd.sprite.width;
+                        elementDimensions.y = cmd.sprite.height;
+                    } else if(cmd.type == Command::TEXT){
+                        elementDimensions = ctx.textBatch.get_text_bounds({ std::string(cmd.text.str), cmd.text.font, cmd.text.fontSize });
                     }
+
+                    childDimensions.x = Math::max(cmd.x + elementDimensions.x, childDimensions.x);
+                    childDimensions.y = Math::max(cmd.y + elementDimensions.y, childDimensions.y);
+                    childDimensions.z = Math::min(cmd.x, childDimensions.z);
+                    childDimensions.w = Math::min(cmd.y, childDimensions.w);
                 }
+
+                // Keep constraints
+                Vector2f minSize = {
+                    style.size.minWidth.is_auto() ? 0 : style.size.minWidth.get(ctx.bounds.width),
+                    style.size.minHeight.is_auto() ? 0 : style.size.minHeight.get(ctx.bounds.height)
+                };
+
+                Vector2f maxSize = {
+                    style.size.maxWidth.is_auto() ? INFINITY : style.size.maxWidth.get(ctx.bounds.width),
+                    style.size.maxHeight.is_auto() ? INFINITY : style.size.maxHeight.get(ctx.bounds.height)
+                };
+
+                ctx.bounds.width = Math::clamp(ctx.bounds.width, minSize.x, maxSize.x);
+                ctx.bounds.height = Math::clamp(ctx.bounds.height, minSize.y, maxSize.y);
 
                 // Update auto sizing if enabled to fit contents of children
                 Command& thisCmd = commands[thisCmdIndex];
-                if(style.size.x.is_auto()){
-                    thisCmd.x = ctx.bounds.x;
-                    thisCmd.sprite.width = ctx.bounds.width;
+                if(style.size.width.is_auto() && !Math::isinf(childDimensions.z)){
+                    thisCmd.sprite.width += childDimensions.x - childDimensions.z;
                 }
 
-                if(style.size.y.is_auto()){
-                    thisCmd.y = ctx.bounds.y;
-                    thisCmd.sprite.height = ctx.bounds.height;
+                if(style.size.height.is_auto() && !Math::isinf(childDimensions.z)){
+                    thisCmd.sprite.height += childDimensions.y - childDimensions.w;
                 }
             };
         };
 
         struct Label : public Layout {
+            std::string str = "Hello World!";
+            Font* font = nullptr;
+            uint fontSize = 22;
+
             virtual void render(Context ctx, std::vector<Command>& commands) const override {
-                
+                // Render text in the center if the given box
+                Command cmd;
+                cmd.type = Command::TEXT;
+                cmd.x = 0;
+                cmd.y = 0;
+                cmd.color = style.foregroundColor;
+                cmd.text.str = str.c_str();
+                cmd.text.font = font;
+                cmd.text.fontSize = fontSize;
+                commands.push_back(cmd);
             };
         };
 

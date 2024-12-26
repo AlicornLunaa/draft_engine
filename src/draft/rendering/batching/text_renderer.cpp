@@ -21,6 +21,8 @@ namespace Draft {
         ZoneScopedN("text_renderer_get_bounds");
 
         const Font& font = get_font(props);
+        font.set_font_size(props.fontSize);
+
         float currWidth = 0.f;
         float currHeight = 0.f;
 
@@ -41,8 +43,9 @@ namespace Draft {
         Vector2f size = get_text_bounds(props);
         Vector2f center = size * props.origin;
         const Font& font = get_font(props);
-        float currX = props.position.x;
+        font.set_font_size(props.fontSize);
 
+        float currX = props.position.x;
         batch.set_shader(fontShader);
 
         for(char ch : props.str){
@@ -59,10 +62,10 @@ namespace Draft {
             batch.draw(SpriteProps{
                 glyph.region.texture,
                 glyph.region.bounds,
-                Vector2f{0, 0},
+                Vector2f{xPos, yPos},
                 props.rotation,
                 {w, h},
-                center - Vector2f(xPos, yPos),
+                center,
                 0.f,
                 props.color,
                 true
@@ -73,6 +76,6 @@ namespace Draft {
     }
 
     void TextRenderer::draw_text(SpriteBatch& batch, const std::string& str, Font* font, const Vector2f& position, float scale, const Vector4f& color){
-        draw_text(batch, { str, font, position, {0, 0}, color, 0.f, scale });
+        draw_text(batch, { str, font, 22, position, {0, 0}, color, 0.f, scale });
     }
 };

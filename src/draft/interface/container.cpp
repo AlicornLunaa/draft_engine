@@ -43,10 +43,10 @@ void Container::recursive_render(Layout* ptr){
             break;
 
         case RenderCommand::DRAW_TEXT:
-            cmd.text.font->set_font_size(cmd.text.fontSize);
             textBatch.draw_text(batch, {
                 std::string(cmd.text.string, cmd.text.stringLength),
                 cmd.text.font,
+                (uint)cmd.text.fontSize,
                 {cmd.text.positionX, cmd.text.positionY},
                 {cmd.text.originX, cmd.text.originY},
                 {cmd.text.colorR, cmd.text.colorG, cmd.text.colorB, cmd.text.colorA},
