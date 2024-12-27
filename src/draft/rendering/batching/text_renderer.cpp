@@ -54,7 +54,7 @@ namespace Draft {
             Vector2f glyphTextureSize = glyph.region.texture.get().get_properties().size;
             
             float xPos = currX + glyph.bearing.x * props.scale;
-            float yPos = props.position.y - (glyph.size.y - glyph.bearing.y) * props.scale;
+            float yPos = (props.position.y - glyph.bearing.y) * props.scale + size.y;
             float w = glyph.size.x * props.scale;
             float h = glyph.size.y * props.scale;
 

@@ -7,6 +7,9 @@
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/camera.hpp"
+#include "draft/rendering/shader.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/color.hpp"
 #include "glm/common.hpp"
 
@@ -248,6 +251,7 @@ namespace Draft {
             Scene* scene = nullptr;
             SpriteBatch batch;
             TextRenderer textBatch;
+            Resource<Shader> defaultShader = Assets::manager.get<Shader>("assets/shaders/default");
 
             OrthoCamera camera = {{0, 0, 10}, {0, 0, -1}, 0, 1280, 720, 0};
             Context masterCtx;

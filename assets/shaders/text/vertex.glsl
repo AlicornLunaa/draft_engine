@@ -19,7 +19,7 @@ out vec4 vColor;
 uniform mat4 view;
 uniform mat4 projection;
 
-vec2 aTexCoords[4] = vec2[4](aTexCoord1, aTexCoord2, aTexCoord3, aTexCoord4);
+vec2 aTexCoords[4] = vec2[4](aTexCoord4, aTexCoord3, aTexCoord2, aTexCoord1);
 
 void main(){
     gl_Position = projection * view * modelMatrices[gl_InstanceID] * vec4(aPos.xy, 0.0, 1.0);

@@ -32,6 +32,10 @@ namespace Draft::UI {
 
             switch(cmd.type){
                 case Command::SPRITE:
+                    if(&batch.get_shader() != defaultShader.get_ptr()){
+                        batch.set_shader(defaultShader);
+                    }
+
                     batch.draw({
                         cmd.sprite.texture, {},
                         {cmd.x, cmd.y}, 0.f,
