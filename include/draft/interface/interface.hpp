@@ -4,6 +4,7 @@
 #include "draft/interface/unit_value.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
+#include "draft/rendering/batching/shape_batch.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/camera.hpp"
@@ -11,7 +12,6 @@
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/color.hpp"
-#include "glm/common.hpp"
 
 #include <cmath>
 #include <vector>
@@ -29,11 +29,11 @@ namespace Draft {
         struct Size {
             UnitValue width = UnitValue::Auto;
             UnitValue minWidth = 0_pixels;
-            UnitValue maxWidth = UnitValue::Auto;
+            UnitValue maxWidth = 100_percent;
 
             UnitValue height = UnitValue::Auto;
             UnitValue minHeight = 0_pixels;
-            UnitValue maxHeight = UnitValue::Auto;
+            UnitValue maxHeight = 100_percent;
         };
 
         struct GlobalStyle {
@@ -47,8 +47,10 @@ namespace Draft {
         };
 
         // Render information
+        typedef Rect<UnitValue> UnitRect;
+
         struct Command {
-            enum Type { SPRITE, TEXT } type;
+            enum Type { SPRITE, TEXT, SHAPE } type;
 
             float x;
             float y;
@@ -66,70 +68,43 @@ namespace Draft {
                     Font* font;
                     uint fontSize;
                 } text;
+
+                struct {
+                    Vector2f pos;
+                    Vector2f size;
+                } shape;
             };
         };
 
         struct Context {
             SpriteBatch& batch;
             TextRenderer& textBatch;
-            FloatRect bounds; // The container size
+            FloatRect bounds; // The inner container size
+        };
+
+        struct Metrics {
+            struct {
+                // Concrete phase consists of measuring in percentages and pixels.
+                // Fluid phase resizes parents to fit concrete children if needed
+                UnitRect outer = UnitRect(true, true, true, true);
+                UnitRect inner = UnitRect(true, true, true, true);
+            } fluid;
+
+            struct {
+                // Constraint phase resizes elements to fit strict min/max sizes
+                // Render phase is the final output
+                FloatRect outer{};
+                FloatRect inner{};
+                Vector4f padding{};
+            } constraint;
         };
 
         // Widgets
         struct Layout {
             GlobalStyle style;
 
-            FloatRect get_content_box(const Context& ctx) const {
-                // Sizes the element to get the position and size to hold it
-                FloatRect box;
-
-                // Handle different states, such as automatic sizing or automatic positioning
-                Vector2f size = {
-                    style.size.width.is_auto() ? 0 : style.size.width.get(ctx.bounds.width),
-                    style.size.height.is_auto() ? 0 : style.size.height.get(ctx.bounds.height)
-                };
-
-                Vector2f minSize = {
-                    style.size.minWidth.is_auto() ? 0 : style.size.minWidth.get(ctx.bounds.width),
-                    style.size.minHeight.is_auto() ? 0 : style.size.minHeight.get(ctx.bounds.height)
-                };
-
-                Vector2f maxSize = {
-                    style.size.maxWidth.is_auto() ? INFINITY : style.size.maxWidth.get(ctx.bounds.width),
-                    style.size.maxHeight.is_auto() ? INFINITY : style.size.maxHeight.get(ctx.bounds.height)
-                };
-
-                Vector2f position = {
-                    style.position.x.is_auto() ? 0 : style.position.x.get(ctx.bounds.width),
-                    style.position.y.is_auto() ? 0 : style.position.y.get(ctx.bounds.height)
-                };
-
-                // Render this panel
-                Vector4f marginsCalc = {
-                    style.margins.left.get(ctx.bounds.width),
-                    style.margins.top.get(ctx.bounds.width),
-                    style.margins.right.get(ctx.bounds.width),
-                    style.margins.bottom.get(ctx.bounds.width)
-                };
-
-                Vector4f paddingCalc = {
-                    style.padding.left.get(ctx.bounds.width),
-                    style.padding.top.get(ctx.bounds.width),
-                    style.padding.right.get(ctx.bounds.width),
-                    style.padding.bottom.get(ctx.bounds.width)
-                };
-
-                box.x = position.x + marginsCalc.x;
-                box.y = position.y + marginsCalc.y;
-                box.width = size.x - (marginsCalc.x - marginsCalc.z) + (paddingCalc.x + paddingCalc.z);
-                box.height = size.y - (marginsCalc.y - marginsCalc.w) + (paddingCalc.y + paddingCalc.w);
-
-                box.width = Math::clamp(box.width, minSize.x, maxSize.x);
-                box.height = Math::clamp(box.height, minSize.y, maxSize.y);
-
-                return box;
-            }
-
+            virtual const std::vector<Layout*> get_children() const { return {}; }
+            virtual const Vector2<UnitValue> get_preferred_size(const Context& ctx) const { return { style.size.width, style.size.height }; }
             virtual void render(Context ctx, std::vector<Command>& commands) const = 0;
         };
 
@@ -137,84 +112,76 @@ namespace Draft {
             // Lays children out absolutely
             std::vector<Layout*> children;
 
-            virtual void render(Context ctx, std::vector<Command>& commands) const override {
-                // Get the size and position of the inner box
-                FloatRect content = get_content_box(ctx);
+            virtual const std::vector<Layout*> get_children() const override { return children; }
 
+            virtual void render(Context ctx, std::vector<Command>& commands) const override {
                 Command cmd;
                 cmd.type = Command::SPRITE;
-                cmd.x = content.x;
-                cmd.y = content.y;
+                cmd.x = ctx.bounds.x;
+                cmd.y = ctx.bounds.y;
                 cmd.color = style.backgroundColor;
-                cmd.sprite.width = content.width;
-                cmd.sprite.height = content.height;
+                cmd.sprite.width = ctx.bounds.width;
+                cmd.sprite.height = ctx.bounds.height;
                 cmd.sprite.texture = nullptr;
                 commands.push_back(cmd);
-                uint thisCmdIndex = commands.size() - 1;
+            };
+        };
 
-                // Calculate children render commands
-                size_t startCount = commands.size();
-                Context newCtx(ctx.batch, ctx.textBatch, {0, 0, content.width, content.height});
+        struct Grid : public Layout {
+            // Data structures
+            struct Item {
+                Layout* child = nullptr;
+                uint columnSpan = 1;
+            };
 
-                for(Layout* ptr : children){
-                    // Obtain render commands for children
-                    ptr->render(newCtx, commands);
-                }
+            // Lays children out in rows and columns, autosizing is not supported
+            std::vector<Item> items;
+            uint columns = 12;
 
-                size_t count = commands.size() - startCount;
+            virtual void render(Context ctx, std::vector<Command>& commands) const override {
+                // Get the size and position of the inner box
+                // auto [content, outer] = get_content_box(ctx);
 
-                // With the count of objects which are the children commands, move the child to be relative to this layout object
-                Vector2f topLeftPadding(style.padding.left.get(ctx.bounds.width), style.padding.top.get(ctx.bounds.width));
+                // Command cmd;
+                // cmd.type = Command::SPRITE;
+                // cmd.x = content.x;
+                // cmd.y = content.y;
+                // cmd.color = style.backgroundColor;
+                // cmd.sprite.width = content.width;
+                // cmd.sprite.height = content.height;
+                // cmd.sprite.texture = nullptr;
+                // commands.push_back(cmd);
 
-                for(size_t i = 0; i < count; i++){
-                    Command& cmd = commands[i + startCount];
-                    cmd.x += content.x + topLeftPadding.x; // Padding is needed here to push it off the side
-                    cmd.y += content.y + topLeftPadding.y;
-                }
+                // // Calculate children render commands
+                // size_t startCount = commands.size();
+                // float cellWidth = content.width / ((float)columns);
+                // uint currentColumn = 0;
 
-                // With the children now positioned, calculate the size for auto-sizing
-                Vector4f childDimensions(0, 0, INFINITY, INFINITY);
+                // for(const Item& item : items){
+                //     // Prevent rendering off the grid
+                //     if(currentColumn > columns) break;
 
-                for(size_t i = 0; i < count; i++){
-                    Command& cmd = commands[i + startCount];
-                    Vector2f elementDimensions;
+                //     // Calculate content size
+                //     float width = cellWidth * item.columnSpan;
+                //     currentColumn += item.columnSpan;
 
-                    if(cmd.type == Command::SPRITE){
-                        elementDimensions.x = cmd.sprite.width;
-                        elementDimensions.y = cmd.sprite.height;
-                    } else if(cmd.type == Command::TEXT){
-                        elementDimensions = ctx.textBatch.get_text_bounds({ std::string(cmd.text.str), cmd.text.font, cmd.text.fontSize });
-                    }
+                //     // Create context for this element
+                //     Context newCtx(ctx.batch, ctx.textBatch, {0, 0, content.width, content.height});
 
-                    childDimensions.x = Math::max(cmd.x + elementDimensions.x, childDimensions.x);
-                    childDimensions.y = Math::max(cmd.y + elementDimensions.y, childDimensions.y);
-                    childDimensions.z = Math::min(cmd.x, childDimensions.z);
-                    childDimensions.w = Math::min(cmd.y, childDimensions.w);
-                }
+                //     // Obtain render commands for children
+                //     item.child->render(newCtx, commands);
+                // }
 
-                // Keep constraints
-                Vector2f minSize = {
-                    style.size.minWidth.is_auto() ? 0 : style.size.minWidth.get(ctx.bounds.width),
-                    style.size.minHeight.is_auto() ? 0 : style.size.minHeight.get(ctx.bounds.height)
-                };
+                // size_t count = commands.size() - startCount;
 
-                Vector2f maxSize = {
-                    style.size.maxWidth.is_auto() ? INFINITY : style.size.maxWidth.get(ctx.bounds.width),
-                    style.size.maxHeight.is_auto() ? INFINITY : style.size.maxHeight.get(ctx.bounds.height)
-                };
+                // // With the count of objects which are the children commands, move the child to be relative to this layout object
+                // Vector2f topLeftPadding(style.padding.left.get(ctx.bounds.width), style.padding.top.get(ctx.bounds.width));
 
-                ctx.bounds.width = Math::clamp(ctx.bounds.width, minSize.x, maxSize.x);
-                ctx.bounds.height = Math::clamp(ctx.bounds.height, minSize.y, maxSize.y);
-
-                // Update auto sizing if enabled to fit contents of children
-                Command& thisCmd = commands[thisCmdIndex];
-                if(style.size.width.is_auto() && !Math::isinf(childDimensions.z)){
-                    thisCmd.sprite.width += childDimensions.x - childDimensions.z;
-                }
-
-                if(style.size.height.is_auto() && !Math::isinf(childDimensions.z)){
-                    thisCmd.sprite.height += childDimensions.y - childDimensions.w;
-                }
+                // for(size_t i = 0; i < count; i++){
+                //     Command& cmd = commands[i + startCount];
+                //     cmd.x += content.x + topLeftPadding.x; // Padding is needed here to push it off the side
+                //     cmd.y += content.y + topLeftPadding.y;
+                // }
             };
         };
 
@@ -223,12 +190,17 @@ namespace Draft {
             Font* font = nullptr;
             uint fontSize = 22;
 
+            virtual const Vector2<UnitValue> get_preferred_size(const Context& ctx) const override {
+                Vector2f size = ctx.textBatch.get_text_bounds({ str, font, fontSize });
+                return { size.x, size.y };
+            }
+
             virtual void render(Context ctx, std::vector<Command>& commands) const override {
                 // Render text in the center if the given box
                 Command cmd;
                 cmd.type = Command::TEXT;
-                cmd.x = 0;
-                cmd.y = 0;
+                cmd.x = ctx.bounds.x;
+                cmd.y = ctx.bounds.y;
                 cmd.color = style.foregroundColor;
                 cmd.text.str = str.c_str();
                 cmd.text.font = font;
@@ -241,20 +213,36 @@ namespace Draft {
             Label btnLabel;
 
             virtual void render(Context ctx, std::vector<Command>& commands) const override {
+                Command cmd;
+                cmd.type = Command::SPRITE;
+                cmd.x = ctx.bounds.x;
+                cmd.y = ctx.bounds.y;
+                cmd.color = style.backgroundColor;
+                cmd.sprite.width = ctx.bounds.width;
+                cmd.sprite.height = ctx.bounds.height;
+                cmd.sprite.texture = nullptr;
+                commands.push_back(cmd);
+
+                btnLabel.render(ctx, commands);
             };
         };
 
         // Main control panel for rendering
+        struct DomTree;
+
         class Interface {
         private:
             // Variables
             Scene* scene = nullptr;
             SpriteBatch batch;
+            ShapeBatch shapes;
             TextRenderer textBatch;
             Resource<Shader> defaultShader = Assets::manager.get<Shader>("assets/shaders/default");
 
             OrthoCamera camera = {{0, 0, 10}, {0, 0, -1}, 0, 1280, 720, 0};
             Context masterCtx;
+
+            void concrete_phase(DomTree* parent, DomTree* node, const Vector2f& winSize);
 
         public:
             // Constructors

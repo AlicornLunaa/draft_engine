@@ -22,10 +22,10 @@ public:
     UnitValue& operator+();
     UnitValue& operator-();
 
-    UnitValue operator+(const UnitValue& other);
-    UnitValue operator-(const UnitValue& other);
-    UnitValue operator*(const UnitValue& other);
-    UnitValue operator/(const UnitValue& other);
+    UnitValue operator+(const UnitValue& other) const;
+    UnitValue operator-(const UnitValue& other) const;
+    UnitValue operator*(const UnitValue& other) const;
+    UnitValue operator/(const UnitValue& other) const;
 
     UnitValue& operator+=(const UnitValue& other);
     UnitValue& operator-=(const UnitValue& other);
@@ -35,6 +35,8 @@ public:
     // Functions
     float get(float max) const;
     bool is_auto() const;
+    bool is_pixel() const;
+    bool is_percent() const;
 };
 
 typedef std::optional<UnitValue> OptUnitValue;
