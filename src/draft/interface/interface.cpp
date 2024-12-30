@@ -241,6 +241,18 @@ namespace Draft::UI {
                     shapes.end();
                     batch.begin();
                     break;
+
+                case Command::START_SCISSOR:
+                    scissor.box.x = cmd.x;
+                    scissor.box.y = cmd.y;
+                    scissor.box.width = cmd.scissor.width;
+                    scissor.box.height = cmd.scissor.height;
+                    scissor.begin();
+                    break;
+
+                case Command::END_SCISSOR:
+                    scissor.end();
+                    break;
             }
         }
     }

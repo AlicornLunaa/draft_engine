@@ -8,6 +8,7 @@
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/camera.hpp"
+#include "draft/rendering/clip.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/asset_manager/resource.hpp"
@@ -50,7 +51,7 @@ namespace Draft {
         typedef Rect<UnitValue> UnitRect;
 
         struct Command {
-            enum Type { SPRITE, TEXT, SHAPE } type;
+            enum Type { SPRITE, TEXT, SHAPE, START_SCISSOR, END_SCISSOR } type;
 
             float x;
             float y;
@@ -73,6 +74,11 @@ namespace Draft {
                     Vector2f pos;
                     Vector2f size;
                 } shape;
+
+                struct {
+                    float width;
+                    float height;
+                } scissor;
             };
         };
 
@@ -103,8 +109,23 @@ namespace Draft {
         struct Layout {
             GlobalStyle style;
 
-            virtual const std::vector<Layout*> get_children() const { return {}; }
-            virtual const Vector2<UnitValue> get_preferred_size(const Context& ctx) const { return { style.size.width, style.size.height }; }
+            virtual const std::vector<Layout*> get_children() const {
+                return {};
+            }
+
+            virtual const Vector2<UnitValue> get_preferred_size(const Context& ctx) const {
+                float baseWidth = style.size.width.get(0.f);
+                float baseHeight = style.size.height.get(0.f);
+
+                for(Layout* child : get_children()){
+                    auto s = child->get_preferred_size(ctx);
+                    baseWidth = std::max(s.x.get(0.f), baseWidth);
+                    baseHeight = std::max(s.y.get(0.f), baseHeight);
+                }
+
+                return { baseWidth, baseHeight };
+            }
+
             virtual void render(Context ctx, std::vector<Command>& commands) const = 0;
         };
 
@@ -238,6 +259,7 @@ namespace Draft {
             ShapeBatch shapes;
             TextRenderer textBatch;
             Resource<Shader> defaultShader = Assets::manager.get<Shader>("assets/shaders/default");
+            Clip scissor;
 
             OrthoCamera camera = {{0, 0, 10}, {0, 0, -1}, 0, 1280, 720, 0};
             Context masterCtx;
