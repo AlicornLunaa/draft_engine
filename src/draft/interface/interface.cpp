@@ -111,12 +111,14 @@ namespace Draft::UI {
         }
 
         // Convert all to pixel units
-        Vector2f parentPadding = {0, 0};
+        Vector4f parentPadding = {0, 0, 0, 0};
+        Vector2f pos = {0, 0};
         Vector2f size = winSize;
 
         if(parent){
-            parentPadding.x = (parent->metrics.constraint.padding.x + parent->metrics.constraint.padding.z);
-            parentPadding.y = (parent->metrics.constraint.padding.y + parent->metrics.constraint.padding.w);
+            parentPadding = parent->metrics.constraint.padding;
+            pos.x = parent->metrics.constraint.inner.x;
+            pos.y = parent->metrics.constraint.inner.y;
             size.x = parent->metrics.constraint.inner.width;
             size.y = parent->metrics.constraint.inner.height;
         }
@@ -142,16 +144,18 @@ namespace Draft::UI {
         node->metrics.constraint.outer.width = node->metrics.fluid.outer.width.get(size.x);
         node->metrics.constraint.outer.height = node->metrics.fluid.outer.height.get(size.y);
 
-        node->metrics.constraint.outer.width = Math::clamp(node->metrics.constraint.outer.width, style.size.minWidth.get(size.x), style.size.maxWidth.get(size.x) - parentPadding.x);
-        node->metrics.constraint.outer.height = Math::clamp(node->metrics.constraint.outer.height, style.size.minHeight.get(size.y), style.size.maxHeight.get(size.y) - parentPadding.y);
+        node->metrics.constraint.outer.width = Math::clamp(node->metrics.constraint.outer.width, style.size.minWidth.get(size.x), std::max(style.size.maxWidth.get(size.x) - parentPadding.x - parentPadding.w, 0.f));
+        node->metrics.constraint.outer.height = Math::clamp(node->metrics.constraint.outer.height, style.size.minHeight.get(size.y), std::max(style.size.maxHeight.get(size.y) - parentPadding.y - parentPadding.z, 0.f));
+        node->metrics.constraint.outer.x = Math::clamp(node->metrics.constraint.outer.x, style.size.minWidth.get(size.x) + pos.x + parentPadding.x, style.size.maxWidth.get(size.x) + pos.x - (node->metrics.constraint.outer.width + parentPadding.z));
+        node->metrics.constraint.outer.y = Math::clamp(node->metrics.constraint.outer.y, style.size.minHeight.get(size.y) + pos.y + parentPadding.y, style.size.maxHeight.get(size.y) + pos.y - (node->metrics.constraint.outer.height + parentPadding.w));
 
         node->metrics.constraint.inner.x = node->metrics.constraint.outer.x + marginsCalc.x;
         node->metrics.constraint.inner.y = node->metrics.constraint.outer.y + marginsCalc.y;
         node->metrics.constraint.inner.width = node->metrics.constraint.outer.width - (marginsCalc.x + marginsCalc.z);
         node->metrics.constraint.inner.height = node->metrics.constraint.outer.height - (marginsCalc.y + marginsCalc.w);
 
-        node->metrics.constraint.inner.width = Math::clamp(node->metrics.constraint.inner.width, style.size.minWidth.get(size.x), style.size.maxWidth.get(size.x) - parentPadding.x);
-        node->metrics.constraint.inner.height = Math::clamp(node->metrics.constraint.inner.height, style.size.minHeight.get(size.y), style.size.maxHeight.get(size.y) - parentPadding.y);
+        node->metrics.constraint.inner.width = Math::clamp(node->metrics.constraint.inner.width, style.size.minWidth.get(size.x), std::max(style.size.maxWidth.get(size.x), 0.f));
+        node->metrics.constraint.inner.height = Math::clamp(node->metrics.constraint.inner.height, style.size.minHeight.get(size.y), std::max(style.size.maxHeight.get(size.y), 0.f));
 
         // Size children and move them relative to this
         for(DomTree& leaf : node->leafs){
