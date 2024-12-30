@@ -1,7 +1,9 @@
 #pragma once
 
+#include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 #include "draft/interface/unit_value.hpp"
+#include "draft/math/bounds.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
 #include "draft/rendering/batching/shape_batch.hpp"
@@ -15,6 +17,7 @@
 #include "draft/util/color.hpp"
 
 #include <cmath>
+#include <functional>
 #include <vector>
 
 namespace Draft {
@@ -83,6 +86,7 @@ namespace Draft {
         };
 
         struct Context {
+            Application* app;
             SpriteBatch& batch;
             TextRenderer& textBatch;
             FloatRect bounds; // The inner container size
@@ -109,7 +113,7 @@ namespace Draft {
         struct Layout {
             GlobalStyle style;
 
-            virtual const std::vector<Layout*> get_children() const {
+            virtual const std::vector<const Layout*> get_children() const {
                 return {};
             }
 
@@ -117,7 +121,7 @@ namespace Draft {
                 float baseWidth = style.size.width.get(0.f);
                 float baseHeight = style.size.height.get(0.f);
 
-                for(Layout* child : get_children()){
+                for(const Layout* child : get_children()){
                     auto s = child->get_preferred_size(ctx);
                     baseWidth = std::max(s.x.get(0.f), baseWidth);
                     baseHeight = std::max(s.y.get(0.f), baseHeight);
@@ -131,9 +135,9 @@ namespace Draft {
 
         struct Panel : public Layout {
             // Lays children out absolutely
-            std::vector<Layout*> children;
+            std::vector<const Layout*> children;
 
-            virtual const std::vector<Layout*> get_children() const override { return children; }
+            virtual const std::vector<const Layout*> get_children() const override { return children; }
 
             virtual void render(Context ctx, std::vector<Command>& commands) const override {
                 Command cmd;
@@ -231,23 +235,40 @@ namespace Draft {
         };
 
         struct Button : public Layout {
-            Label btnLabel;
+            mutable bool* value = nullptr;
+            std::function<void(void)> onClick;
+
+            Label label;
+            Color hoverColor = Color::LIGHT_GRAY;
+            Color clickColor = Color::GREEN;
+            mutable bool hovered = false;
+
+            virtual const std::vector<const Layout*> get_children() const override { return { &label }; }
 
             virtual void render(Context ctx, std::vector<Command>& commands) const override {
+                hovered = Math::contains(ctx.bounds, ctx.app->mouse.get_position());
+                if(value) *value = hovered && ctx.app->mouse.is_pressed(Mouse::LEFT_BUTTON);
+
+                if(onClick && hovered && ctx.app->mouse.is_just_pressed(Mouse::LEFT_BUTTON)){
+                    onClick();
+                }
+
+                Color color = style.backgroundColor;
+                if(hovered) color = hoverColor;
+                if(value && *value) color = clickColor;
+
                 Command cmd;
                 cmd.type = Command::SPRITE;
                 cmd.x = ctx.bounds.x;
                 cmd.y = ctx.bounds.y;
-                cmd.color = style.backgroundColor;
+                cmd.color = color;
                 cmd.sprite.width = ctx.bounds.width;
                 cmd.sprite.height = ctx.bounds.height;
                 cmd.sprite.texture = nullptr;
                 commands.push_back(cmd);
-
-                btnLabel.render(ctx, commands);
             };
         };
-
+        
         // Main control panel for rendering
         struct DomTree;
 

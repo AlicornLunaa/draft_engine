@@ -11,7 +11,7 @@ namespace Draft::UI {
     };
 
     // Constructors
-    Interface::Interface(Scene* scene) : scene(scene), masterCtx(batch, textBatch, {}) {}
+    Interface::Interface(Scene* scene) : scene(scene), masterCtx(scene->get_app(), batch, textBatch, {}) {}
 
     // Functions
     void Interface::begin(){
@@ -170,17 +170,17 @@ namespace Draft::UI {
     void render_phase(const Context& masterCtx, std::vector<Command>& commands, DomTree* node){
         if(!node) return;
 
-        Command cmd;
-        cmd.type = Command::SHAPE;
-        cmd.color = Color::LIME;
-        cmd.shape.pos = {node->metrics.constraint.outer.x, node->metrics.constraint.outer.y};
-        cmd.shape.size = {node->metrics.constraint.outer.width, node->metrics.constraint.outer.height};
-        commands.push_back(cmd);
+        // Command cmd;
+        // cmd.type = Command::SHAPE;
+        // cmd.color = Color::LIME;
+        // cmd.shape.pos = {node->metrics.constraint.outer.x, node->metrics.constraint.outer.y};
+        // cmd.shape.size = {node->metrics.constraint.outer.width, node->metrics.constraint.outer.height};
+        // commands.push_back(cmd);
 
-        cmd.color = Color::CYAN;
-        cmd.shape.pos = {node->metrics.constraint.inner.x, node->metrics.constraint.inner.y};
-        cmd.shape.size = {node->metrics.constraint.inner.width, node->metrics.constraint.inner.height};
-        commands.push_back(cmd);
+        // cmd.color = Color::CYAN;
+        // cmd.shape.pos = {node->metrics.constraint.inner.x, node->metrics.constraint.inner.y};
+        // cmd.shape.size = {node->metrics.constraint.inner.width, node->metrics.constraint.inner.height};
+        // commands.push_back(cmd);
 
         Context ctx = masterCtx;
         ctx.bounds = node->metrics.constraint.inner;
