@@ -18,21 +18,12 @@ set(SOURCES
     src/draft/input/mouse.cpp
 
     src/draft/interface/interface.cpp
-    src/draft/interface/container.cpp
     src/draft/interface/unit_value.cpp
     src/draft/interface/widgets/layout.cpp
-    src/draft/interface/widgets/scroll.cpp
-    # src/draft/interface/widgets/panel.cpp
-    # src/draft/interface/widgets/rectangle.cpp
-    # src/draft/interface/widgets/label.cpp
-    # src/draft/interface/widgets/scroll_pane.cpp
-    # src/draft/interface/widgets/button.cpp
-    # src/draft/interface/widgets/vertical_slider.cpp
-    # src/draft/interface/widgets/horizontal_slider.cpp
-    # src/draft/interface/widgets/joystick.cpp
-    # src/draft/interface/widgets/picture.cpp
-    # src/draft/interface/widgets/progress_bar.cpp
-    # src/draft/interface/widgets/text_input.cpp
+    src/draft/interface/widgets/panel.cpp
+    src/draft/interface/widgets/button.cpp
+    src/draft/interface/widgets/label.cpp
+    src/draft/interface/widgets/grid.cpp
     src/draft/interface/imgui/console.cpp
     src/draft/interface/imgui/stats.cpp
     src/draft/interface/loader/css_loader.cpp
@@ -135,19 +126,22 @@ set(INTERFACES
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
     
-    include/draft/interface/interface.hpp
-    include/draft/interface/container.hpp
+    include/draft/interface/command.hpp
     include/draft/interface/context.hpp
-    include/draft/interface/dom.hpp
-    include/draft/interface/enums.hpp
-    include/draft/interface/style.hpp
+    include/draft/interface/dom_tree.hpp
+    include/draft/interface/edges.hpp
+    include/draft/interface/global_style.hpp
+    include/draft/interface/interface.hpp
+    include/draft/interface/metrics.hpp
+    include/draft/interface/size.hpp
     include/draft/interface/unit_value.hpp
     include/draft/interface/widgets/layout.hpp
+    include/draft/interface/widgets/grid.hpp
+    include/draft/interface/widgets/panel.hpp
     include/draft/interface/widgets/scroll.hpp
-    # include/draft/interface/widgets/panel.hpp
+    include/draft/interface/widgets/label.hpp
+    include/draft/interface/widgets/button.hpp
     # include/draft/interface/widgets/rectangle.hpp
-    # include/draft/interface/widgets/button.hpp
-    # include/draft/interface/widgets/label.hpp
     # include/draft/interface/widgets/scroll_pane.hpp
     # include/draft/interface/widgets/vertical_slider.hpp
     # include/draft/interface/widgets/horizontal_slider.hpp
@@ -158,6 +152,7 @@ set(INTERFACES
     include/draft/interface/imgui/console.hpp
     include/draft/interface/imgui/stats.hpp
     include/draft/interface/loader/css_loader.hpp
+    include/draft/interface/loader/css_style.hpp
     include/draft/interface/clay/clay_interface.hpp
 
     include/draft/math/funcs.hpp

@@ -1,7 +1,16 @@
 #pragma once
 
-#include "draft/math/rect.hpp"
+#include "draft/core/application.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
+#include "draft/rendering/batching/text_renderer.hpp"
 
-struct Context {
-    Draft::FloatRect parentBounds; // Area which children can render to
+namespace Draft {
+    namespace UI {
+        struct Context {
+            Application* app;
+            SpriteBatch& batch;
+            TextRenderer& textBatch;
+            FloatRect bounds; // The inner container size
+        };
+    };
 };

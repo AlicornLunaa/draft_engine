@@ -1,15 +1,10 @@
 #include "draft/interface/interface.hpp"
 #include "draft/core/application.hpp"
+#include "draft/interface/metrics.hpp"
 #include "glm/common.hpp"
 #include <vector>
 
 namespace Draft::UI {
-    struct DomTree {
-        const Layout* layout = nullptr;
-        std::vector<DomTree> leafs;
-        Metrics metrics{};
-    };
-
     // Constructors
     Interface::Interface(Scene* scene) : scene(scene), masterCtx(scene->get_app(), batch, textBatch, {}) {}
 
