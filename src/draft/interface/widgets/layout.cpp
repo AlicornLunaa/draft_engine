@@ -17,4 +17,7 @@ namespace Draft::UI {
 
         return { baseWidth, baseHeight };
     }
+
+    void Layout::layout(){
+    }
 };

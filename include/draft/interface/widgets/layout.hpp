@@ -14,6 +14,7 @@ namespace Draft {
             virtual const std::vector<const Layout*> get_children() const;
             virtual const Vector2<UnitValue> get_preferred_size(const Context& ctx) const;
             virtual void render(Context ctx, std::vector<Command>& commands) const = 0;
+            virtual void layout(); // Ran for pre-processing if the parent needs to position the elements
         };
     };
 };

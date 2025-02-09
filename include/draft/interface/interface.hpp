@@ -41,7 +41,7 @@ namespace Draft {
 
             // Functions
             void begin();
-            void draw(const Layout& layout);
+            void draw(Layout& layout);
             void end();
         };
     };

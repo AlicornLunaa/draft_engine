@@ -273,11 +273,13 @@ FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TA
 FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TAG 2.6.x)
 FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG v2.4.1)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
+FetchContent_Declare(rmlui GIT_REPOSITORY https://github.com/mikke89/RmlUi.git GIT_TAG 6.0)
 FetchContent_MakeAvailable(glfw)
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(nlohmann_json)
+FetchContent_MakeAvailable(rmlui)
 
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
@@ -322,7 +324,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt clay imgui glm::glm nlohmann_json::nlohmann_json simplex_noise tracy)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt clay imgui glm::glm nlohmann_json::nlohmann_json simplex_noise tracy RmlUi::RmlUi)
 target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

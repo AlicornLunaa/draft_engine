@@ -1,49 +1,54 @@
 #include "draft/interface/widgets/grid.hpp"
+#include "glm/common.hpp"
 
 namespace Draft::UI {
+    const std::vector<const Layout*> Grid::get_children() const {
+        std::vector<const Layout*> children;
+
+        for(const Item& item : items){
+            children.push_back(item.child);
+        }
+
+        return children;
+    }
+
     void Grid::render(Context ctx, std::vector<Command>& commands) const {
-        // Get the size and position of the inner box
-        // auto [content, outer] = get_content_box(ctx);
+        // Render background
+        Command cmd;
+        cmd.type = Command::SPRITE;
+        cmd.x = ctx.bounds.x;
+        cmd.y = ctx.bounds.y;
+        cmd.color = style.backgroundColor;
+        cmd.sprite.width = ctx.bounds.width;
+        cmd.sprite.height = ctx.bounds.height;
+        cmd.sprite.texture = nullptr;
+        commands.push_back(cmd);
+    }
 
-        // Command cmd;
-        // cmd.type = Command::SPRITE;
-        // cmd.x = content.x;
-        // cmd.y = content.y;
-        // cmd.color = style.backgroundColor;
-        // cmd.sprite.width = content.width;
-        // cmd.sprite.height = content.height;
-        // cmd.sprite.texture = nullptr;
-        // commands.push_back(cmd);
+    void Grid::layout(){
+        // Place each child element
+        const auto cellWidth = style.size.width / static_cast<float>(columns);
+        uint activeColumn = 0;
+        float totalHeight = 0.f; // This is used to 'follow' the heights since columns only affect width
+        float maxCurrentHeight = 0.f;
 
-        // // Calculate children render commands
-        // size_t startCount = commands.size();
-        // float cellWidth = content.width / ((float)columns);
-        // uint currentColumn = 0;
+        for(Item& item : items){
+            const auto width = cellWidth * static_cast<float>(columns);
+            Layout& child = *item.child;
 
-        // for(const Item& item : items){
-        //     // Prevent rendering off the grid
-        //     if(currentColumn > columns) break;
+            child.style.position.x = cellWidth * static_cast<float>(activeColumn);
+            child.style.position.y = totalHeight;
+            child.style.size.width = width;
 
-        //     // Calculate content size
-        //     float width = cellWidth * item.columnSpan;
-        //     currentColumn += item.columnSpan;
+            maxCurrentHeight = Math::max(maxCurrentHeight, child.style.size.height.get(0.f));
+            activeColumn += item.columnSpan;
 
-        //     // Create context for this element
-        //     Context newCtx(ctx.batch, ctx.textBatch, {0, 0, content.width, content.height});
-
-        //     // Obtain render commands for children
-        //     item.child->render(newCtx, commands);
-        // }
-
-        // size_t count = commands.size() - startCount;
-
-        // // With the count of objects which are the children commands, move the child to be relative to this layout object
-        // Vector2f topLeftPadding(style.padding.left.get(ctx.bounds.width), style.padding.top.get(ctx.bounds.width));
-
-        // for(size_t i = 0; i < count; i++){
-        //     Command& cmd = commands[i + startCount];
-        //     cmd.x += content.x + topLeftPadding.x; // Padding is needed here to push it off the side
-        //     cmd.y += content.y + topLeftPadding.y;
-        // }
-    };
+            if(activeColumn > columns){
+                // Over the edge, append new row
+                activeColumn = 0;
+                totalHeight += maxCurrentHeight;
+                maxCurrentHeight = 0.f;
+            }
+        }
+    }
 };

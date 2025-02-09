@@ -165,30 +165,31 @@ namespace Draft::UI {
     void render_phase(const Context& masterCtx, std::vector<Command>& commands, DomTree* node){
         if(!node) return;
 
-        // Command cmd;
-        // cmd.type = Command::SHAPE;
-        // cmd.color = Color::LIME;
-        // cmd.shape.pos = {node->metrics.constraint.outer.x, node->metrics.constraint.outer.y};
-        // cmd.shape.size = {node->metrics.constraint.outer.width, node->metrics.constraint.outer.height};
-        // commands.push_back(cmd);
+        Command cmd;
+        cmd.type = Command::SHAPE;
+        cmd.color = Color::LIME;
+        cmd.shape.pos = {node->metrics.constraint.outer.x, node->metrics.constraint.outer.y};
+        cmd.shape.size = {node->metrics.constraint.outer.width, node->metrics.constraint.outer.height};
+        commands.push_back(cmd);
 
-        // cmd.color = Color::CYAN;
-        // cmd.shape.pos = {node->metrics.constraint.inner.x, node->metrics.constraint.inner.y};
-        // cmd.shape.size = {node->metrics.constraint.inner.width, node->metrics.constraint.inner.height};
-        // commands.push_back(cmd);
+        cmd.color = Color::CYAN;
+        cmd.shape.pos = {node->metrics.constraint.inner.x, node->metrics.constraint.inner.y};
+        cmd.shape.size = {node->metrics.constraint.inner.width, node->metrics.constraint.inner.height};
+        commands.push_back(cmd);
 
         Context ctx = masterCtx;
         ctx.bounds = node->metrics.constraint.inner;
-        node->layout->render(ctx, commands);
+        // node->layout->render(ctx, commands);
 
         for(DomTree& leaf : node->leafs){
             render_phase(masterCtx, commands, &leaf);
         }
     }
-    void Interface::draw(const Layout& layout){
+    void Interface::draw(Layout& layout){
         // Tree construction
         DomTree tree;
         build_tree(layout, &tree);
+        layout.layout();
 
         // Concrete phase
         concrete_phase(nullptr, &tree, scene->get_app()->window.get_size());
