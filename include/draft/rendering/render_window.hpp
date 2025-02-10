@@ -2,6 +2,7 @@
 
 #include "draft/input/event.hpp"
 #include "draft/input/keyboard.hpp"
+#include "draft/interface/rmlui/rml_backend.hpp"
 #include "draft/math/glm.hpp"
 
 #include <memory>
@@ -16,6 +17,7 @@ namespace Draft {
     private:
         // Variables
         std::queue<Event> eventQueue{};
+        std::unique_ptr<UI::RMLBackend> m_rmlBackend;
 
         // Functions
         void init_callbacks();

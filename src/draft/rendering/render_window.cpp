@@ -1,3 +1,5 @@
+#include "draft/interface/rmlui/rml_backend.hpp"
+#include <memory>
 #define GLFW_INCLUDE_NONE
 
 #include <string>
@@ -131,6 +133,7 @@ namespace Draft {
     RenderWindow::RenderWindow(unsigned int width, unsigned int height, const string& title) : ptr(std::make_unique<Impl>(width, height, title)){
         // Save active window
         RenderWindow::glfwToRenderMap[ptr->window] = this;
+        m_rmlBackend = std::make_unique<UI::RMLBackend>(*this);
     }
     RenderWindow::~RenderWindow(){
         // Remove active window
