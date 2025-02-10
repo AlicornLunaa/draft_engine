@@ -48,6 +48,7 @@ set(SOURCES
     src/draft/phys/world.cpp
 
     src/draft/rendering/clip.cpp
+    src/draft/rendering/window.cpp
     src/draft/rendering/render_window.cpp
     src/draft/rendering/shader.cpp
     src/draft/rendering/model.cpp
@@ -188,6 +189,7 @@ set(INTERFACES
     include/draft/rendering/camera.hpp
     include/draft/rendering/mesh.hpp
     include/draft/rendering/model.hpp
+    include/draft/rendering/window.hpp
     include/draft/rendering/render_window.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/material.hpp

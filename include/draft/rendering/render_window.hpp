@@ -16,7 +16,7 @@ namespace Draft {
     class RenderWindow {
     private:
         // Variables
-        std::queue<Event> eventQueue{};
+        std::queue<Event> eventQueue{}; //! Removable, switch to callback system
         std::unique_ptr<UI::RMLBackend> m_rmlBackend;
 
         // Functions
