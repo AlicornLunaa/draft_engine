@@ -76,14 +76,11 @@ namespace Draft {
         }
     };
 
-    // Static variables
-    std::unordered_map<void*, Keyboard*> Keyboard::windowKeyboardMap{};
-
     // Constructors
     Keyboard::Keyboard(RenderWindow& window) : window(&window) {
-        glfwSetKeyCallback((GLFWwindow*)window.get_raw_window(), GLFWImpl::key_callback);
-        glfwSetCharCallback((GLFWwindow*)window.get_raw_window(), GLFWImpl::text_callback);
-        window.init_callbacks();
+        glfwSetKeyCallback(window.get_glfw_handle(), GLFWImpl::key_callback);
+        glfwSetCharCallback(window.get_glfw_handle(), GLFWImpl::text_callback);
+        window.init_callbacks(); //! HERE IS WHERE IMGUI GLFW CALLBACKS NEED TO BE INSTALLED
         Keyboard::windowKeyboardMap[window.get_raw_window()] = this;
     }
 

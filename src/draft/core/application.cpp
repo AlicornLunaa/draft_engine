@@ -1,35 +1,43 @@
 #include <algorithm>
+#include <functional>
 #include <string>
 
 #include "draft/core/application.hpp"
+#include "draft/input/event.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/core/scene.hpp"
 
 #include "tracy/Tracy.hpp"
 
-#define GLFW_INCLUDE_NONE
-
 namespace Draft {
     // Private functions
+    void Application::framebuffer_resized(uint width, uint height){
+        event.type = Event::Resized;
+        event.size.width = width;
+        event.size.height = height;
+
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::window_focus(bool focused){
+        event.type = focused ? Event::GainedFocus : Event::LostFocus;
+
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::window_closed(){
+        event.type = Event::Closed;
+
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
     void Application::handle_events(){
         // This function polls for all events and sends them to their required locations
-        ZoneScopedNCS("event_tick", 0x3333ff, 20);
-
         mouse.reset_mouse_state();
         keyboard.reset_keyboard_state();
-
-        while(window.poll_events(event)){
-            switch(event.type){
-            case Event::Closed:
-                window.close();
-                break;
-
-            default:
-                if(activeScene)
-                    activeScene->handle_event(event);
-                break;
-            }
-        }
     }
 
     void Application::tick(){
@@ -69,8 +77,11 @@ namespace Draft {
         ZoneScopedN("app_creation");
 
         // Register callback
-        keyboard.add_callback([this](Event e){ window.queue_event(e); });
-        mouse.add_callback([this](Event e){ window.queue_event(e); });
+        // keyboard.add_callback([this](Event e){ window.queue_event(e); });
+        // mouse.add_callback([this](Event e){ window.queue_event(e); });
+        window.frameSizeCallback = std::bind(&Application::framebuffer_resized, this, std::placeholders::_1, std::placeholders::_2);
+        window.focusCallback = std::bind(&Application::window_focus, this, std::placeholders::_1);
+        window.closeCallback = std::bind(&Application::window_closed, this);
 
         // Register basic commands
         console.register_cmd("cl_vsync", [this](ConsoleArgs args){

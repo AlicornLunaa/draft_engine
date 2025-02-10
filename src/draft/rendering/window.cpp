@@ -43,6 +43,11 @@ namespace Draft {
         }
     }
 
+    // Protected functions
+    GLFWwindow* Window::get_glfw_handle() const {
+        return m_window;
+    }
+
     // Constructors
     Window::Window(unsigned int width, unsigned int height, const std::string& title, const GLFWProperties& props){
         // Startup GLFW

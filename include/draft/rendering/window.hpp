@@ -1,7 +1,7 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/rendering/image.hpp"
+
 #include <functional>
 #include <string>
 #include <utility>
@@ -12,6 +12,9 @@ class GLFWwindow;
 
 // API
 namespace Draft {
+    // Forward decl
+    class Image;
+
     /// Holds properties for GLFW settings
     typedef std::vector<std::pair<int, int>> GLFWProperties;
 
@@ -38,6 +41,10 @@ namespace Draft {
         static void window_focus_callback(GLFWwindow* window, int focused);
         static void window_close_callback(GLFWwindow* window);
 
+    protected:
+        // Protected functions
+        GLFWwindow* get_glfw_handle() const;
+
     public:
         // Public variables
         SizeCallback sizeCallback = nullptr;
@@ -54,6 +61,10 @@ namespace Draft {
         // Operators
         Window& operator=(const Window& other) = delete;
         Window& operator=(Window&& other) noexcept;
+
+        // Friends
+        friend class Mouse;
+        friend class Keyboard;
 
         // Functions
         void poll_events() const;

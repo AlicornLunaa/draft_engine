@@ -143,11 +143,7 @@ namespace Draft {
         };
 
     private:
-        // Impl for defining friends
-        struct GLFWImpl;
-
         // Variables
-        static std::unordered_map<void*, Keyboard*> windowKeyboardMap;
         mutable std::unordered_map<int, bool> lastPressedKeys;
         std::vector<EventCallback> callbacks;
         RenderWindow* window = nullptr;
@@ -159,36 +155,10 @@ namespace Draft {
         ~Keyboard();
 
         // Functions
-        /**
-         * @brief Adds a callback to be executed when GLFW has a callback
-         * @param func 
-         */
         void add_callback(EventCallback func);
-
-        /**
-         * @brief Removes all the callbacks from the keyboard
-         */
         void clear_callbacks();
-
-        /**
-         * @brief Checks if a key is currently pressed
-         * @param key 
-         * @return true 
-         * @return false 
-         */
         bool is_pressed(int key) const;
-
-        /**
-         * @brief Checks if a key has just been pressed last frame
-         * @param key 
-         * @return true 
-         * @return false 
-         */
         bool is_just_pressed(int key) const;
-
-        /**
-         * @brief Resets all the last key presses
-         */
         void reset_keyboard_state();
     };
 };

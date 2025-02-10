@@ -23,6 +23,10 @@ namespace Draft {
         double accumulator = 0.0; // Used for fixed timestep
 
         // Private functions
+        void framebuffer_resized(uint width, uint height);
+        void window_focus(bool focused);
+        void window_closed();
+
         void handle_events();
         void tick();
         void frame();
