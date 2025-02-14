@@ -3,8 +3,9 @@
 #include "draft/core/scene.hpp"
 #include "draft/input/event.hpp"
 #include "draft/input/mouse.hpp"
-#include "draft/rendering/render_window.hpp"
+#include "draft/input/keyboard.hpp"
 #include "draft/util/clock.hpp"
+#include "draft/rendering/render_window.hpp"
 #include "draft/interface/imgui/console.hpp"
 #include "draft/interface/imgui/stats.hpp"
 
@@ -26,15 +27,21 @@ namespace Draft {
         void framebuffer_resized(uint width, uint height);
         void window_focus(bool focused);
         void window_closed();
+        void key_callback(int key, int action, int modifier);
+        void text_callback(unsigned int codepoint);
+        void mouse_button_callback(int button, int action, int modifier);
+        void mouse_position_callback(const Vector2d& position);
+        void mouse_scroll_callback(const Vector2d& delta);
+        void mouse_enter_callback();
+        void mouse_leave_callback();
 
-        void handle_events();
         void tick();
         void frame();
 
     public:
         RenderWindow window;
-        Mouse mouse;
         Keyboard keyboard;
+        Mouse mouse;
         Time deltaTime;
         Time timeStep = Time::seconds(1.0/66.0);
         Time maxAccumulator = Time::seconds(1.0/5.0);

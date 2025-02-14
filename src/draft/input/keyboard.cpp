@@ -1,118 +1,99 @@
 #include "draft/input/keyboard.hpp"
-#include "draft/input/event.hpp"
-#include "GLFW/glfw3.h"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/logger.hpp"
+
+#include "GLFW/glfw3.h"
+
 #include "imgui.h"
 
+#include <cassert>
+
 namespace Draft {
-    // Forward declared class
-    struct Keyboard::GLFWImpl {
-        static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-            // Key current keyboard instance being affected
-            Keyboard* keyboard = Keyboard::windowKeyboardMap[(void*)window];
+    // Static functions
+    void Keyboard::cleanup_callbacks(GLFWwindow* window){
+        glfwSetKeyCallback(window, nullptr);
+        glfwSetCharCallback(window, nullptr);
+    }
 
-            // Check for null
-            if(keyboard == nullptr){
-                Logger::println(Level::CRITICAL, "Keyboard", "Something is wrong!");
-                exit(0);
-            }
+    void Keyboard::key_press(GLFWwindow* window, int key, int scancode, int action, int mods){
+        // Get current keyboard instance being affected
+        Window* d_window = static_cast<Window*>(glfwGetWindowUserPointer(window));
+        Keyboard* keyboard = d_window->m_keyboard;
 
-            // Reset keypresses
-            if(action == GLFW_RELEASE){
-                keyboard->lastPressedKeys[key] = false;
-            }
-
-            // Convert to draft actions
-            Event event{};
-            event.key.code = key;
-            event.key.alt = (mods & static_cast<int>(Modifier::ALT));
-            event.key.control = (mods & static_cast<int>(Modifier::CTRL));
-            event.key.shift = (mods & static_cast<int>(Modifier::SHIFT));
-            event.key.system = (mods & static_cast<int>(Modifier::SUPER));
-
-            switch(action){
-            case GLFW_PRESS:
-                keyboard->lastPressedKeys[key] = true;
-                event.type = Event::KeyPressed;
-                break;
-
-            case GLFW_RELEASE:
-                event.type = Event::KeyReleased;
-                break;
-
-            case GLFW_REPEAT:
-                event.type = Event::KeyHold;
-                break;
-
-            default:
-                break;
-            }
-
-            for(auto func : keyboard->callbacks){
-                func(event);
-            }
+        // Check for null
+        if(keyboard == nullptr){
+            // Somehow theres a keyboard event for a window with no keyboard? Attempt recovery and cleanup
+            Logger::println(Level::CRITICAL, "Keyboard", "Something is wrong!");
+            cleanup_callbacks(d_window->get_glfw_handle());
+            return;
         }
 
-        static void text_callback(GLFWwindow* window, unsigned int codepoint){
-            // Key current keyboard instance being affected
-            Keyboard* keyboard = Keyboard::windowKeyboardMap[(void*)window];
-
-            // Check for null
-            if(keyboard == nullptr){
-                Logger::println(Level::CRITICAL, "Keyboard", "Something is wrong!");
-                exit(0);
-            }
-
-            // Create event
-            Event event{};
-            event.type = Event::TextEntered;
-            event.text.unicode = codepoint;
-            
-            // Run event listeners
-            for(auto func : keyboard->callbacks){
-                func(event);
-            }
+        // Reset keypresses
+        if(action == GLFW_RELEASE){
+            keyboard->m_lastPressedKeys[key] = false;
         }
-    };
+
+        // Execute the callback if it has been set
+        if(keyboard->keyCallback){
+            keyboard->keyCallback(key, scancode, action);
+        }
+    }
+
+    void Keyboard::text_entered(GLFWwindow* window, unsigned int codepoint){
+        // Get current keyboard instance being affected
+        Window* d_window = static_cast<Window*>(glfwGetWindowUserPointer(window));
+        Keyboard* keyboard = d_window->m_keyboard;
+
+        // Check for null
+        if(keyboard == nullptr){
+            // Somehow theres a keyboard event for a window with no keyboard? Attempt recovery and cleanup
+            Logger::println(Level::CRITICAL, "Keyboard", "Something is wrong!");
+            cleanup_callbacks(d_window->get_glfw_handle());
+            return;
+        }
+
+        // Execute the callback if it has been set
+        if(keyboard->textCallback){
+            keyboard->textCallback(codepoint);
+        }
+    }
 
     // Constructors
-    Keyboard::Keyboard(RenderWindow& window) : window(&window) {
-        glfwSetKeyCallback(window.get_glfw_handle(), GLFWImpl::key_callback);
-        glfwSetCharCallback(window.get_glfw_handle(), GLFWImpl::text_callback);
-        window.init_callbacks(); //! HERE IS WHERE IMGUI GLFW CALLBACKS NEED TO BE INSTALLED
-        Keyboard::windowKeyboardMap[window.get_raw_window()] = this;
+    Keyboard::Keyboard(RenderWindow& window) : m_window(&window) {
+        // Install the object into the window if it doesn't already have a keyboard
+        assert(m_window->m_keyboard == nullptr && "Window already has a keyboard, only one is supported");
+        m_window->m_keyboard = this;
+
+        // Install GLFW callbacks for handles
+        glfwSetKeyCallback(window.get_glfw_handle(), Keyboard::key_press);
+        glfwSetCharCallback(window.get_glfw_handle(), Keyboard::text_entered);
+        // window.init_callbacks(); //! HERE IS WHERE IMGUI GLFW CALLBACKS NEED TO BE INSTALLED
     }
 
     Keyboard::~Keyboard(){
-        glfwSetKeyCallback((GLFWwindow*)window->get_raw_window(), nullptr);
-        glfwSetCharCallback((GLFWwindow*)window->get_raw_window(), nullptr);
-        Keyboard::windowKeyboardMap[window->get_raw_window()] = nullptr;
+        // Uninstall GLFW callbacks and then remove from the window
+        cleanup_callbacks(m_window->get_glfw_handle());
+
+        if(m_window){
+            m_window->m_keyboard = nullptr;
+        }
     }
 
     // Functions
-    void Keyboard::add_callback(EventCallback func){
-        callbacks.push_back(func);
-    }
-
-    void Keyboard::clear_callbacks(){
-        callbacks.clear();
-    }
-
     bool Keyboard::is_pressed(int key) const {
         ImGuiIO& io = ImGui::GetIO();
-        bool res = (glfwGetKey((GLFWwindow*)window->get_raw_window(), key) == GLFW_PRESS);
-        lastPressedKeys[key] = res;
+        bool res = (glfwGetKey(m_window->get_glfw_handle(), key) == GLFW_PRESS);
         return res && !io.WantCaptureKeyboard;
     }
 
     bool Keyboard::is_just_pressed(int key) const {
-        ImGuiIO& io = ImGui::GetIO();
-        bool res = (glfwGetKey((GLFWwindow*)window->get_raw_window(), key) == GLFW_PRESS);
-        return res && lastPressedKeys[key] && !io.WantCaptureKeyboard;
+        bool result = is_pressed(key);
+        bool state = m_lastPressedKeys[key];
+        m_lastPressedKeys[key] = result;
+        return result && !state;
     }
 
-    void Keyboard::reset_keyboard_state(){
-        lastPressedKeys.clear();
+    bool Keyboard::is_valid() const {
+        return m_window != nullptr;
     }
 };

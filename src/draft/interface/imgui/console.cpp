@@ -47,12 +47,12 @@ namespace Draft {
             inputBuffer[i] = '\0';
 
         // Redirect cout to console
-        oldOutBuf = std::cout.rdbuf(get_stream().rdbuf());
+        // oldOutBuf = std::cout.rdbuf(get_stream().rdbuf());
     }
 
     Console::~Console(){
         // Restore cout to stdout
-        std::cout.rdbuf(oldOutBuf);
+        // std::cout.rdbuf(oldOutBuf);
     }
 
     // Functions

@@ -25,7 +25,7 @@ namespace Draft::UI {
 
         // Initialize interfaces
         auto size = window.get_size();
-        s_systemInterface->SetWindow(static_cast<GLFWwindow*>(window.get_raw_window()));
+        s_systemInterface->SetWindow(window.get_glfw_handle());
         s_renderInterface->SetViewport(size.x, size.y);
 
         s_backendCount++;

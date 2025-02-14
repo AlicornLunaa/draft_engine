@@ -8,10 +8,10 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "tracy/TracyOpenGL.hpp"
-
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
+
+#include "tracy/TracyOpenGL.hpp"
 
 #include <memory>
 #include <string>

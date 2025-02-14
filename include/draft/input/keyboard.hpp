@@ -1,13 +1,18 @@
 #pragma once
 
-#include "draft/input/event.hpp"
+#include "draft/rendering/render_window.hpp"
 
 #include <unordered_map>
-#include <vector>
+
+// Forward decl
+class GLFWwindow;
 
 namespace Draft {
-    class RenderWindow;
+    /// Callback types
+    typedef std::function<void(int key, int action, int modifier)> KeyCallback;
+    typedef std::function<void(unsigned int codepoint)> TextCallback;
 
+    /// Installs callbacks for a GLFW window for handling keyboard and mouse
     class Keyboard {
     public:
         // Enums
@@ -142,23 +147,38 @@ namespace Draft {
             NUM_LOCK = 0x0020
         };
 
+        enum Action {
+            PRESS = 1,
+            RELEASE = 0,
+            REPEAT = 2
+        };
+
     private:
         // Variables
-        mutable std::unordered_map<int, bool> lastPressedKeys;
-        std::vector<EventCallback> callbacks;
-        RenderWindow* window = nullptr;
+        mutable std::unordered_map<int, bool> m_lastPressedKeys;
+        RenderWindow* m_window = nullptr;
+
+        // Static functions
+        static void cleanup_callbacks(GLFWwindow* window);
+        static void key_press(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void text_entered(GLFWwindow* window, unsigned int codepoint);
 
     public:
+        // Public variables
+        KeyCallback keyCallback = nullptr;
+        TextCallback textCallback = nullptr;
+        
         // Constructors
         Keyboard(RenderWindow& window);
         Keyboard(const Keyboard& other) = delete;
         ~Keyboard();
 
+        // Friends
+        friend class Window;
+
         // Functions
-        void add_callback(EventCallback func);
-        void clear_callbacks();
         bool is_pressed(int key) const;
         bool is_just_pressed(int key) const;
-        void reset_keyboard_state();
+        bool is_valid() const; // Returns false if the window was closed and the keyboard exists
     };
 };

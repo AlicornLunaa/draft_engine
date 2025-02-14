@@ -3,10 +3,9 @@
 #include <string>
 
 #include "draft/core/application.hpp"
-#include "draft/input/event.hpp"
-#include "draft/input/keyboard.hpp"
 #include "draft/core/scene.hpp"
 
+#include "draft/input/keyboard.hpp"
 #include "tracy/Tracy.hpp"
 
 namespace Draft {
@@ -34,10 +33,86 @@ namespace Draft {
             activeScene->handle_event(event);
     }
 
-    void Application::handle_events(){
-        // This function polls for all events and sends them to their required locations
-        mouse.reset_mouse_state();
-        keyboard.reset_keyboard_state();
+    void Application::key_callback(int key, int action, int modifier){
+        // Set event type
+        if(action == Keyboard::Action::PRESS) event.type = Event::KeyPressed;
+        else if(action == Keyboard::Action::RELEASE) event.type = Event::KeyReleased;
+        else if(action == Keyboard::Action::REPEAT) event.type = Event::KeyHold;
+
+        // Set key data
+        event.key.code = key;
+        event.key.alt = modifier & static_cast<int>(Keyboard::Modifier::ALT);
+        event.key.control = modifier & static_cast<int>(Keyboard::Modifier::CTRL);
+        event.key.shift = modifier & static_cast<int>(Keyboard::Modifier::SHIFT);
+        event.key.system = modifier & static_cast<int>(Keyboard::Modifier::SUPER);
+
+        // Send event along
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::text_callback(unsigned int codepoint){
+        // Set event type
+        event.type = Event::TextEntered;
+        event.text.unicode = codepoint;
+
+        // Send event along
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::mouse_button_callback(int button, int action, int modifier){
+        // Set event type
+        if(action == Keyboard::Action::PRESS) event.type = Event::MouseButtonPressed;
+        else if(action == Keyboard::Action::RELEASE) event.type = Event::MouseButtonReleased;
+
+        // Get data for event
+        const Vector2d& v = mouse.get_position();
+
+        // Set key data
+        event.mouseButton.button = button;
+        event.mouseButton.x = v.x;
+        event.mouseButton.y = v.y;
+
+        // Send event along
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::mouse_position_callback(const Vector2d& position){
+        // Set event type
+        event.type = Event::MouseMoved;
+        event.mouseMove.x = position.x;
+        event.mouseMove.y = position.y;
+
+        // Send event along
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::mouse_scroll_callback(const Vector2d& delta){
+        // Set event type
+        event.type = Event::MouseWheelScrolled;
+        event.mouseWheelScroll.x = delta.x;
+        event.mouseWheelScroll.y = delta.y;
+
+        // Send event along
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::mouse_enter_callback(){
+        event.type = Event::MouseEntered;
+
+        if(activeScene)
+            activeScene->handle_event(event);
+    }
+
+    void Application::mouse_leave_callback(){
+        event.type = Event::MouseLeft;
+
+        if(activeScene)
+            activeScene->handle_event(event);
     }
 
     void Application::tick(){
@@ -76,12 +151,17 @@ namespace Draft {
         // Start the profiler
         ZoneScopedN("app_creation");
 
-        // Register callback
-        // keyboard.add_callback([this](Event e){ window.queue_event(e); });
-        // mouse.add_callback([this](Event e){ window.queue_event(e); });
+        // Register callbacks
         window.frameSizeCallback = std::bind(&Application::framebuffer_resized, this, std::placeholders::_1, std::placeholders::_2);
         window.focusCallback = std::bind(&Application::window_focus, this, std::placeholders::_1);
         window.closeCallback = std::bind(&Application::window_closed, this);
+        keyboard.keyCallback = std::bind(&Application::key_callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        keyboard.textCallback = std::bind(&Application::text_callback, this, std::placeholders::_1);
+        mouse.mouseButtonCallback = std::bind(&Application::mouse_button_callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        mouse.mousePosCallback = std::bind(&Application::mouse_position_callback, this, std::placeholders::_1);
+        mouse.mouseScrollCallback = std::bind(&Application::mouse_scroll_callback, this, std::placeholders::_1);
+        mouse.mouseEnterCallback = std::bind(&Application::mouse_enter_callback, this);
+        mouse.mouseLeaveCallback = std::bind(&Application::mouse_leave_callback, this);
 
         // Register basic commands
         console.register_cmd("cl_vsync", [this](ConsoleArgs args){
@@ -102,7 +182,7 @@ namespace Draft {
             deltaTime = deltaClock.restart();
 
             // Handle control events
-            handle_events();
+            window.poll_events();
 
             // Fixed physics time-step scope
             tick();

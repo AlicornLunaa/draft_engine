@@ -12,8 +12,11 @@ class GLFWwindow;
 
 // API
 namespace Draft {
-    // Forward decl
+    // Forward decls
+    namespace UI { class RMLBackend; };
     class Image;
+    class Keyboard;
+    class Mouse;
 
     /// Holds properties for GLFW settings
     typedef std::vector<std::pair<int, int>> GLFWProperties;
@@ -33,6 +36,8 @@ namespace Draft {
 
         // Variables
         GLFWwindow* m_window = nullptr;
+        Keyboard* m_keyboard = nullptr;
+        Mouse* m_mouse = nullptr;
         bool m_vsyncEnabled = true;
 
         // Private callback handlers
@@ -63,8 +68,9 @@ namespace Draft {
         Window& operator=(Window&& other) noexcept;
 
         // Friends
-        friend class Mouse;
         friend class Keyboard;
+        friend class Mouse;
+        friend class UI::RMLBackend;
 
         // Functions
         void poll_events() const;

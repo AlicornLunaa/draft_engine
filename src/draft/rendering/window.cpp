@@ -1,4 +1,6 @@
 #include "draft/rendering/window.hpp"
+#include "draft/input/keyboard.hpp"
+#include "draft/input/mouse.hpp"
 #include "draft/util/logger.hpp"
 
 #include "GLFW/glfw3.h"
@@ -107,12 +109,23 @@ namespace Draft {
         s_glfwCount++;
     }
 
-    Window::Window(Window&& other) noexcept : m_window(other.m_window), m_vsyncEnabled(other.m_vsyncEnabled) {
+    Window::Window(Window&& other) noexcept : m_window(other.m_window), m_keyboard(other.m_keyboard), m_mouse(other.m_mouse), m_vsyncEnabled(other.m_vsyncEnabled) {
         other.m_window = nullptr;
+        other.m_keyboard = nullptr;
+        other.m_mouse = nullptr;
         other.m_vsyncEnabled = false;
     }
 
     Window::~Window(){
+        // Cleanup keyboard and mouse
+        if(m_keyboard){
+            m_keyboard->m_window = nullptr;
+        }
+
+        if(m_mouse){
+            m_mouse->m_window = nullptr;
+        }
+
         // Close window
         glfwDestroyWindow(m_window);
         s_glfwCount--;
@@ -127,8 +140,12 @@ namespace Draft {
     Window& Window::operator=(Window&& other) noexcept {
         if(&other != this){
             this->m_window = other.m_window;
+            this->m_keyboard = other.m_keyboard;
+            this->m_mouse = other.m_mouse;
             this->m_vsyncEnabled = other.m_vsyncEnabled;
             other.m_window = nullptr;
+            other.m_keyboard = nullptr;
+            other.m_mouse = nullptr;
             other.m_vsyncEnabled = false;
         }
 
@@ -218,7 +235,7 @@ namespace Draft {
     }
 
     // Static functions
-    static GLFWProperties get_default_properties(){
+    GLFWProperties Window::get_default_properties(){
         GLFWProperties props = {
             {GLFW_CONTEXT_VERSION_MAJOR, 4},
             {GLFW_CONTEXT_VERSION_MINOR, 5},

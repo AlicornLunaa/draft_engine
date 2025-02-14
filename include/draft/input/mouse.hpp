@@ -1,13 +1,22 @@
 #pragma once
 
-#include "draft/input/event.hpp"
+#include "draft/rendering/render_window.hpp"
 #include "draft/math/glm.hpp"
 
 #include <unordered_map>
 
-namespace Draft {
-    class RenderWindow;
+// Forward decl
+class GLFWwindow;
 
+namespace Draft {
+    /// Callback types
+    typedef std::function<void(int button, int action, int modifier)> MouseButtonCallback;
+    typedef std::function<void(const Vector2d& position)> MousePosCallback;
+    typedef std::function<void(const Vector2d& delta)> MouseScrollCallback;
+    typedef std::function<void(void)> MouseEnterCallback;
+    typedef std::function<void(void)> MouseLeaveCallback;
+
+    /// Handles GLFW callbacks for mouse data
     class Mouse {
     public:
         // Enums
@@ -26,88 +35,44 @@ namespace Draft {
         };
 
     private:
-        // Impl for defining friends
-        struct GLFWImpl;
-
         // Variables
-        static std::unordered_map<void*, Mouse*> windowMouseMap;
-        mutable std::unordered_map<int, bool> lastPressedKeys;
-        mutable Vector2d lastScrollDelta{};
-        mutable Vector2d position;
-        std::vector<EventCallback> callbacks;
-        RenderWindow* window;
+        mutable std::unordered_map<int, bool> m_lastPressedKeys;
+        mutable Vector2d m_lastScrollDelta{};
+        mutable Vector2d m_position{};
+        RenderWindow* m_window = nullptr;
 
-        // Private functions
-        void set_button_released(int key);
+        // Static functions
+        static void cleanup_callbacks(GLFWwindow* window);
+        static void button_pressed(GLFWwindow* window, int button, int action, int mods);
+        static void mouse_scrolled(GLFWwindow* window, double xoffset, double yoffset);
+        static void position_changed(GLFWwindow* window, double xpos, double ypos);
+        static void mouse_entered(GLFWwindow* window, int entered);
 
     public:
+        // Public variables
+        MouseButtonCallback mouseButtonCallback = nullptr;
+        MousePosCallback mousePosCallback = nullptr;
+        MouseScrollCallback mouseScrollCallback = nullptr;
+        MouseEnterCallback mouseEnterCallback = nullptr;
+        MouseLeaveCallback mouseLeaveCallback = nullptr;
+
         // Constructors
         Mouse(RenderWindow& window);
-        Mouse(const Mouse& other) = delete; // Shouldnt have instances
+        Mouse(const Mouse& other) = delete;
         ~Mouse();
 
+        // Friends
+        friend class Window;
+
         // Functions
-        /**
-         * @brief Adds a callback to be executed when GLFW has a callback
-         * @param func 
-         */
-        void add_callback(EventCallback func);
-
-        /**
-         * @brief Removes all the callbacks from the keyboard
-         */
-        void clear_callbacks();
-
-        /**
-         * @brief Checks if the mouse is currently over the window
-         * @return true 
-         * @return false 
-         */
-        bool is_hovered() const;
-
-        /**
-         * @brief Checks if a button is currently pressed
-         * @param key 
-         * @return true 
-         * @return false 
-         */
-        bool is_pressed(int key) const;
-
-        /**
-         * @brief Checks if a button has just been pressed
-         * @param key 
-         * @return true 
-         * @return false 
-         */
-        bool is_just_pressed(int key) const;
-
-        /**
-         * @brief Get the scroll delta of the mouse
-         * @return const Vector2d& 
-         */
-        const Vector2d& get_scroll() const;
-
-        /**
-         * @brief Get the position of the mouse relative to the window
-         * @return const Vector2d& 
-         */
-        const Vector2d& get_position() const;
-
-        /**
-         * @brief Get the position of the mouse relative to the window with OpenGL coordinates
-         * @return const Vector2d& 
-         */
-        const Vector2d get_normalized_position() const;
-
-        /**
-         * @brief Set the mouse position relative to the window. Doesnt work on every machine
-         * @param pos 
-         */
         void set_position(const Vector2f& pos);
 
-        /**
-         * @brief Resets all the last key presses
-         */
-        void reset_mouse_state();
+        bool is_hovered() const;
+        bool is_pressed(int key) const;
+        bool is_just_pressed(int key) const;
+        const Vector2d& get_scroll() const;
+        const Vector2d& get_position() const;
+        const Vector2d get_normalized_position() const;
+        bool is_valid() const; // Returns false if the window was closed and the keyboard exists
     };
 };
