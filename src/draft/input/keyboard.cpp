@@ -69,6 +69,16 @@ namespace Draft {
         glfwSetCharCallback(window.get_glfw_handle(), Keyboard::text_entered);
     }
 
+    Keyboard::Keyboard(Keyboard&& other) : m_lastPressedKeys(other.m_lastPressedKeys), m_window(other.m_window) {
+        keyCallback = other.keyCallback;
+        textCallback = other.textCallback;
+
+        other.m_lastPressedKeys = {};
+        other.m_window = nullptr;
+        other.keyCallback = nullptr;
+        other.textCallback = nullptr;
+    }
+
     Keyboard::~Keyboard(){
         // Uninstall GLFW callbacks and then remove from the window
         cleanup_callbacks(m_window->get_glfw_handle());
@@ -76,6 +86,23 @@ namespace Draft {
         if(m_window){
             m_window->m_keyboard = nullptr;
         }
+    }
+
+    // Operators
+    Keyboard& Keyboard::operator=(Keyboard&& other){
+        if(this == &other){
+            m_lastPressedKeys = other.m_lastPressedKeys;
+            m_window = other.m_window;
+            keyCallback = other.keyCallback;
+            textCallback = other.textCallback;
+
+            other.m_lastPressedKeys = {};
+            other.m_window = nullptr;
+            other.keyCallback = nullptr;
+            other.textCallback = nullptr;
+        }
+
+        return *this;
     }
 
     // Functions

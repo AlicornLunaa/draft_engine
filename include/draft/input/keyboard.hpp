@@ -165,7 +165,12 @@ namespace Draft {
         // Constructors
         Keyboard(RenderWindow& window);
         Keyboard(const Keyboard& other) = delete;
+        Keyboard(Keyboard&& other);
         ~Keyboard();
+
+        // Operators
+        Keyboard& operator=(const Keyboard& other) = delete;
+        Keyboard& operator=(Keyboard&& other);
 
         // Friends
         friend class Window;

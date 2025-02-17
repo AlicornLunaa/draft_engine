@@ -59,7 +59,12 @@ namespace Draft {
         // Constructors
         Mouse(RenderWindow& window);
         Mouse(const Mouse& other) = delete;
+        Mouse(Mouse&& other);
         ~Mouse();
+
+        // Operators
+        Mouse& operator=(const Mouse& other) = delete;
+        Mouse& operator=(Mouse&& other);
 
         // Friends
         friend class Window;

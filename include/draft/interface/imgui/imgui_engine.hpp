@@ -7,6 +7,8 @@ namespace Draft {
     class RenderWindow;
 
     /// Handles setting up ImGUI and related callbacks, its a class for automatic destruction
+    /// This class should be called AFTER the keyboard/mouse have been constructed, as it will
+    /// create pass-through overrides for glfw callbacks.
     class ImguiEngine {
     private:
         // Variables

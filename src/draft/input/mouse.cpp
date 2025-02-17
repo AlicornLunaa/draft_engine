@@ -143,6 +143,25 @@ namespace Draft {
         glfwSetCursorEnterCallback(window.get_glfw_handle(), Mouse::mouse_entered);
     }
 
+    Mouse::Mouse(Mouse&& other) : m_lastPressedKeys(other.m_lastPressedKeys), m_lastScrollDelta(other.m_lastScrollDelta), m_position(other.m_position), m_window(other.m_window) {
+        // Transfer callbacks
+        mouseButtonCallback = other.mouseButtonCallback;
+        mousePosCallback = other.mousePosCallback;
+        mouseScrollCallback = other.mouseScrollCallback;
+        mouseEnterCallback = other.mouseEnterCallback;
+        mouseLeaveCallback = other.mouseLeaveCallback;
+
+        other.m_lastPressedKeys = {};
+        other.m_lastScrollDelta = {};
+        other.m_position = {};
+        other.m_window = nullptr;
+        other.mouseButtonCallback = nullptr;
+        other.mousePosCallback = nullptr;
+        other.mouseScrollCallback = nullptr;
+        other.mouseEnterCallback = nullptr;
+        other.mouseLeaveCallback = nullptr;
+    }
+
     Mouse::~Mouse(){
         // Uninstall GLFW callbacks and then remove from the window
         cleanup_callbacks(m_window->get_glfw_handle());
@@ -152,6 +171,33 @@ namespace Draft {
         }
     }
 
+    // Operators
+    Mouse& Mouse::operator=(Mouse&& other){
+        if(this == &other){
+            m_lastPressedKeys = other.m_lastPressedKeys;
+            m_lastScrollDelta = other.m_lastScrollDelta;
+            m_position = other.m_position;
+            m_window = other.m_window;
+            mouseButtonCallback = other.mouseButtonCallback;
+            mousePosCallback = other.mousePosCallback;
+            mouseScrollCallback = other.mouseScrollCallback;
+            mouseEnterCallback = other.mouseEnterCallback;
+            mouseLeaveCallback = other.mouseLeaveCallback;
+
+            other.m_lastPressedKeys = {};
+            other.m_lastScrollDelta = {};
+            other.m_position = {};
+            other.m_window = nullptr;
+            other.mouseButtonCallback = nullptr;
+            other.mousePosCallback = nullptr;
+            other.mouseScrollCallback = nullptr;
+            other.mouseEnterCallback = nullptr;
+            other.mouseLeaveCallback = nullptr;
+        }
+
+        return *this;
+    }
+    
     // Functions
     void Mouse::set_position(const Vector2f& pos){
         glfwSetCursorPos(m_window->get_glfw_handle(), pos.x, pos.y);
