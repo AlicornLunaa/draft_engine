@@ -46,6 +46,8 @@ namespace Draft {
         Time timeStep = Time::seconds(1.0/66.0);
         Time maxAccumulator = Time::seconds(1.0/5.0);
 
+        ImguiEngine imgui{window}; // Created here because it will override keyboard and mouse callbacks
+
         Console console{this};
         Stats stats;
         bool debug = true;

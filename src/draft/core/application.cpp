@@ -5,7 +5,7 @@
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 
-#include "draft/input/keyboard.hpp"
+#include "draft/input/action.hpp"
 #include "tracy/Tracy.hpp"
 
 namespace Draft {
@@ -35,9 +35,9 @@ namespace Draft {
 
     void Application::key_callback(int key, int action, int modifier){
         // Set event type
-        if(action == Keyboard::Action::PRESS) event.type = Event::KeyPressed;
-        else if(action == Keyboard::Action::RELEASE) event.type = Event::KeyReleased;
-        else if(action == Keyboard::Action::REPEAT) event.type = Event::KeyHold;
+        if(action == Action::PRESS) event.type = Event::KeyPressed;
+        else if(action == Action::RELEASE) event.type = Event::KeyReleased;
+        else if(action == Action::HOLD) event.type = Event::KeyHold;
 
         // Set key data
         event.key.code = key;
@@ -63,8 +63,8 @@ namespace Draft {
 
     void Application::mouse_button_callback(int button, int action, int modifier){
         // Set event type
-        if(action == Keyboard::Action::PRESS) event.type = Event::MouseButtonPressed;
-        else if(action == Keyboard::Action::RELEASE) event.type = Event::MouseButtonReleased;
+        if(action == Action::PRESS) event.type = Event::MouseButtonPressed;
+        else if(action == Action::RELEASE) event.type = Event::MouseButtonReleased;
 
         // Get data for event
         const Vector2d& v = mouse.get_position();
@@ -135,6 +135,7 @@ namespace Draft {
         ZoneScopedNCS("frame_tick", 0x33ff00, 20);
         
         window.clear();
+        imgui.start_frame();
 
         if(activeScene)
             activeScene->render(deltaTime);
@@ -143,6 +144,7 @@ namespace Draft {
         stats.draw(*this);
         console.draw();
         
+        imgui.end_frame();
         window.display();
     }
 

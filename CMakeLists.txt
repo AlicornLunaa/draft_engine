@@ -24,6 +24,7 @@ set(SOURCES
     src/draft/interface/widgets/button.cpp
     src/draft/interface/widgets/label.cpp
     src/draft/interface/widgets/grid.cpp
+    src/draft/interface/imgui/imgui_engine.cpp
     src/draft/interface/imgui/console.cpp
     src/draft/interface/imgui/stats.cpp
     src/draft/interface/loader/css_loader.cpp
@@ -154,6 +155,7 @@ set(INTERFACES
     # include/draft/interface/widgets/picture.hpp
     # include/draft/interface/widgets/progress_bar.hpp
     # include/draft/interface/widgets/text_input.hpp
+    include/draft/interface/imgui/imgui_engine.hpp
     include/draft/interface/imgui/console.hpp
     include/draft/interface/imgui/stats.hpp
     include/draft/interface/loader/css_loader.hpp

@@ -1,9 +1,9 @@
 #pragma once
 
 namespace Draft {
-    enum class Action {
-        PRESS,
-        RELEASE,
-        HOLD
+    enum Action {
+        PRESS = 1,
+        RELEASE = 0,
+        HOLD = 2
     };
 };

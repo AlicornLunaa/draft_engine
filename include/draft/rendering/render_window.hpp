@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/interface/imgui/imgui_engine.hpp"
 #include "draft/interface/rmlui/rml_backend.hpp"
 #include "draft/rendering/window.hpp"
 #include "draft/math/glm.hpp"

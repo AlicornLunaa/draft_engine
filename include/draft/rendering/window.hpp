@@ -70,6 +70,7 @@ namespace Draft {
         // Friends
         friend class Keyboard;
         friend class Mouse;
+        friend class ImguiEngine;
         friend class UI::RMLBackend;
 
         // Functions

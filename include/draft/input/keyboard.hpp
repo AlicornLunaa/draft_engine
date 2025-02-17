@@ -147,12 +147,6 @@ namespace Draft {
             NUM_LOCK = 0x0020
         };
 
-        enum Action {
-            PRESS = 1,
-            RELEASE = 0,
-            REPEAT = 2
-        };
-
     private:
         // Variables
         mutable std::unordered_map<int, bool> m_lastPressedKeys;

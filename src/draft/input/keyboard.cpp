@@ -67,7 +67,6 @@ namespace Draft {
         // Install GLFW callbacks for handles
         glfwSetKeyCallback(window.get_glfw_handle(), Keyboard::key_press);
         glfwSetCharCallback(window.get_glfw_handle(), Keyboard::text_entered);
-        // window.init_callbacks(); //! HERE IS WHERE IMGUI GLFW CALLBACKS NEED TO BE INSTALLED
     }
 
     Keyboard::~Keyboard(){
