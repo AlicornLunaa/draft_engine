@@ -31,6 +31,7 @@ set(SOURCES
     src/draft/interface/clay/clay_interface.cpp
     src/draft/interface/rmlui/rml_engine.cpp
     src/draft/interface/rmlui/rml_context.cpp
+    src/draft/interface/rmlui/rml_debugger.cpp
     src/draft/interface/rmlui/RmlUi_Platform_GLFW.cpp
     src/draft/interface/rmlui/RmlUi_Renderer_GL3.cpp
 
@@ -163,6 +164,7 @@ set(INTERFACES
     include/draft/interface/clay/clay_interface.hpp
     include/draft/interface/rmlui/rml_engine.hpp
     include/draft/interface/rmlui/rml_context.hpp
+    include/draft/interface/rmlui/rml_debugger.hpp
     include/draft/interface/rmlui/RmlUi_Include_GL3.h
     include/draft/interface/rmlui/RmlUi_Platform_GLFW.h
     include/draft/interface/rmlui/RmlUi_Renderer_GL3.h

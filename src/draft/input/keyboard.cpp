@@ -35,7 +35,7 @@ namespace Draft {
 
         // Execute the callback if it has been set
         if(keyboard->keyCallback){
-            keyboard->keyCallback(key, scancode, action);
+            keyboard->keyCallback(key, action, mods);
         }
     }
 
