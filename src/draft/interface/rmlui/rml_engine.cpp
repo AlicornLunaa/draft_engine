@@ -1,18 +1,20 @@
-#include "draft/interface/rmlui/rml_backend.hpp"
+#include "draft/interface/rmlui/rml_engine.hpp"
 #include "draft/interface/rmlui/RmlUi_Platform_GLFW.h"
 #include "draft/interface/rmlui/RmlUi_Renderer_GL3.h"
 #include "draft/rendering/render_window.hpp"
+
 #include "RmlUi/Core/Core.h"
+
 #include <cstdlib>
 
-namespace Draft::UI {
+namespace Draft {
     // Statics
-    int RMLBackend::s_backendCount = 0;
-    SystemInterface_GLFW* RMLBackend::s_systemInterface = nullptr;
-    RenderInterface_GL3* RMLBackend::s_renderInterface = nullptr;
+    int RmlEngine::s_backendCount = 0;
+    SystemInterface_GLFW* RmlEngine::s_systemInterface = nullptr;
+    RenderInterface_GL3* RmlEngine::s_renderInterface = nullptr;
 
     // Constructors
-    RMLBackend::RMLBackend(RenderWindow& window) : m_windowRef(window) {
+    RmlEngine::RmlEngine(RenderWindow& window) : m_windowRef(window) {
         // Initialize RML if this is the first object
         if(s_backendCount <= 0){
             s_renderInterface = new RenderInterface_GL3();
@@ -31,7 +33,10 @@ namespace Draft::UI {
         s_backendCount++;
     }
 
-    RMLBackend::~RMLBackend(){
+    RmlEngine::RmlEngine(RmlEngine&& other) : m_windowRef(other.m_windowRef) {
+    }
+
+    RmlEngine::~RmlEngine(){
         s_backendCount--;
 
         if(s_backendCount <= 0){
@@ -40,5 +45,14 @@ namespace Draft::UI {
             delete s_renderInterface;
             delete s_systemInterface;
         }
+    }
+
+    // Functions
+    void RmlEngine::start_frame() const {
+        s_renderInterface->BeginFrame();
+    }
+
+    void RmlEngine::end_frame() const {
+        s_renderInterface->EndFrame();
     }
 }

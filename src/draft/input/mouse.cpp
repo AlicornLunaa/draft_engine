@@ -173,7 +173,7 @@ namespace Draft {
 
     // Operators
     Mouse& Mouse::operator=(Mouse&& other){
-        if(this == &other){
+        if(this != &other){
             m_lastPressedKeys = other.m_lastPressedKeys;
             m_lastScrollDelta = other.m_lastScrollDelta;
             m_position = other.m_position;

@@ -45,6 +45,7 @@ namespace Draft {
         event.key.control = modifier & static_cast<int>(Keyboard::Modifier::CTRL);
         event.key.shift = modifier & static_cast<int>(Keyboard::Modifier::SHIFT);
         event.key.system = modifier & static_cast<int>(Keyboard::Modifier::SUPER);
+        event.key.mods = modifier;
 
         // Send event along
         if(activeScene)
@@ -73,6 +74,7 @@ namespace Draft {
         event.mouseButton.button = button;
         event.mouseButton.x = v.x;
         event.mouseButton.y = v.y;
+        event.mouseButton.mods = modifier;
 
         // Send event along
         if(activeScene)

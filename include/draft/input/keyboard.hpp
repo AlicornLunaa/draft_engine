@@ -178,6 +178,7 @@ namespace Draft {
         // Functions
         bool is_pressed(int key) const;
         bool is_just_pressed(int key) const;
+        int get_modifiers() const;
         bool is_valid() const; // Returns false if the window was closed and the keyboard exists
     };
 };

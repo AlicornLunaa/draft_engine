@@ -1,6 +1,5 @@
 #define GLFW_INCLUDE_NONE
 
-#include "draft/interface/rmlui/rml_backend.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/util/logger.hpp"
 
@@ -9,7 +8,6 @@
 
 #include "tracy/TracyOpenGL.hpp"
 
-#include <memory>
 #include <string>
 
 using namespace std;
@@ -30,12 +28,6 @@ namespace Draft {
 
         // Start gpu profiler
         TracyGpuContext;
-
-        // Save active window for RMLUI
-        m_rmlBackend = std::make_unique<UI::RMLBackend>(*this);
-    }
-
-    RenderWindow::~RenderWindow(){
     }
 
     // Functions

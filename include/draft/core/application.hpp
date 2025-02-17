@@ -4,10 +4,11 @@
 #include "draft/input/event.hpp"
 #include "draft/input/mouse.hpp"
 #include "draft/input/keyboard.hpp"
-#include "draft/util/clock.hpp"
 #include "draft/rendering/render_window.hpp"
+#include "draft/interface/rmlui/rml_engine.hpp"
 #include "draft/interface/imgui/console.hpp"
 #include "draft/interface/imgui/stats.hpp"
+#include "draft/util/clock.hpp"
 
 namespace Draft {
     /**
@@ -47,6 +48,7 @@ namespace Draft {
         Time maxAccumulator = Time::seconds(1.0/5.0);
 
         ImguiEngine imgui{window}; // Created here because it will override keyboard and mouse callbacks
+        RmlEngine rml{window};
 
         Console console{this};
         Stats stats;

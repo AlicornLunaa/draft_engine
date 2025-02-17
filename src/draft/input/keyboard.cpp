@@ -65,6 +65,7 @@ namespace Draft {
         m_window->m_keyboard = this;
 
         // Install GLFW callbacks for handles
+        glfwSetInputMode(window.get_glfw_handle(), GLFW_LOCK_KEY_MODS, GLFW_TRUE);
         glfwSetKeyCallback(window.get_glfw_handle(), Keyboard::key_press);
         glfwSetCharCallback(window.get_glfw_handle(), Keyboard::text_entered);
     }
@@ -90,7 +91,7 @@ namespace Draft {
 
     // Operators
     Keyboard& Keyboard::operator=(Keyboard&& other){
-        if(this == &other){
+        if(this != &other){
             m_lastPressedKeys = other.m_lastPressedKeys;
             m_window = other.m_window;
             keyCallback = other.keyCallback;
@@ -117,6 +118,16 @@ namespace Draft {
         bool state = m_lastPressedKeys[key];
         m_lastPressedKeys[key] = result;
         return result && !state;
+    }
+
+    int Keyboard::get_modifiers() const {
+        // Get state and return it 
+        int state = 0;
+        state |= ((is_pressed(Keyboard::LEFT_SHIFT) | is_pressed(Keyboard::RIGHT_SHIFT)) ? static_cast<int>(Modifier::SHIFT) : 0);
+        state |= ((is_pressed(Keyboard::LEFT_CONTROL) | is_pressed(Keyboard::RIGHT_CONTROL)) ? static_cast<int>(Modifier::CTRL) : 0);
+        state |= ((is_pressed(Keyboard::LEFT_ALT) | is_pressed(Keyboard::RIGHT_ALT)) ? static_cast<int>(Modifier::ALT) : 0);
+        state |= ((is_pressed(Keyboard::LEFT_SUPER) | is_pressed(Keyboard::RIGHT_SUPER)) ? static_cast<int>(Modifier::SUPER) : 0);
+        return state;
     }
 
     bool Keyboard::is_valid() const {

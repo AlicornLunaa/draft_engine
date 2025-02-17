@@ -71,7 +71,7 @@ namespace Draft {
         friend class Keyboard;
         friend class Mouse;
         friend class ImguiEngine;
-        friend class UI::RMLBackend;
+        friend class RmlEngine;
 
         // Functions
         void poll_events() const;

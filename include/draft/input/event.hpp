@@ -17,6 +17,7 @@ namespace Draft {
 			bool control;
 			bool shift;
 			bool system;
+			int mods;
 		};
 
 		struct TextEvent {
@@ -32,6 +33,7 @@ namespace Draft {
 			int button;
 			int x;
 			int y;
+			int mods;
 		};
 
 		struct MouseWheelScrollEvent {
