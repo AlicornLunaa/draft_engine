@@ -17,7 +17,7 @@ namespace Draft {
         ~RmlDebugger();
 
         // Functions
-        void handle_event(const Event& event);
+        bool handle_event(const Event& event) override;
 
         void set_visible(bool visible);
         bool is_visible() const;

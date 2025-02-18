@@ -12,32 +12,30 @@
 #include "draft/util/asset_manager/resource.hpp"
 
 namespace Draft {
-    namespace UI {
-        class Clay {
-        private:
-            // Variables
-            Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default");
-            std::vector<Resource<Font>> fonts;
-            TextRenderer textBatch;
-            OrthoCamera camera;
-            Application& appRef;
-            Clip scissor;
+    class Clay {
+    private:
+        // Variables
+        Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default");
+        std::vector<Resource<Font>> fonts;
+        TextRenderer textBatch;
+        OrthoCamera camera;
+        Application& appRef;
+        Clip scissor;
 
-            uint64_t totalMemorySize;
-            Clay_Arena arena;
+        uint64_t totalMemorySize;
+        Clay_Arena arena;
 
-            // Private functions
-            static Clay_Dimensions measure_text(Clay_String* text, Clay_TextElementConfig* config);
+        // Private functions
+        static Clay_Dimensions measure_text(Clay_String* text, Clay_TextElementConfig* config);
 
-        public:
-            // Constructors
-            Clay(Application& app);
-            ~Clay();
-            
-            // Functions
-            uint load_font(const Resource<Font>& font);
-            void begin(SpriteBatch& batch, const Time& deltaTime);
-            void end();
-        };
+    public:
+        // Constructors
+        Clay(Application& app);
+        ~Clay();
+        
+        // Functions
+        uint load_font(const Resource<Font>& font);
+        void begin(SpriteBatch& batch, const Time& deltaTime);
+        void end();
     };
 };

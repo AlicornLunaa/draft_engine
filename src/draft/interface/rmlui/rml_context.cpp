@@ -147,42 +147,35 @@ namespace Draft {
         return document;
     }
 
-    void RmlContext::handle_event(const Event& event){
+    bool RmlContext::handle_event(const Event& event){
         // Dispatch events to the context
         switch(event.type){
             case Event::MouseButtonPressed:
-                m_context->ProcessMouseButtonDown(event.mouseButton.button, get_modifiers(event.mouseButton.mods));
-                break;
-
+                return !m_context->ProcessMouseButtonDown(event.mouseButton.button, get_modifiers(event.mouseButton.mods));
+                
             case Event::MouseButtonReleased:
-                m_context->ProcessMouseButtonUp(event.mouseButton.button, get_modifiers(event.mouseButton.mods));
-                break;
-
+                return !m_context->ProcessMouseButtonUp(event.mouseButton.button, get_modifiers(event.mouseButton.mods));
+                
             case Event::MouseMoved:
-                m_context->ProcessMouseMove(event.mouseMove.x, event.mouseMove.y, 0);
-                break;
-
+                return !m_context->ProcessMouseMove(event.mouseMove.x, event.mouseMove.y, 0);
+                
             case Event::MouseWheelScrolled:
-                m_context->ProcessMouseWheel({(float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y}, 0);
-                break;
-
+                return !m_context->ProcessMouseWheel({(float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y}, 0);
+                
             case Event::MouseLeft:
-                m_context->ProcessMouseLeave();
-                break;
-
+                return !m_context->ProcessMouseLeave();
+                
             case Event::KeyPressed:
-                m_context->ProcessKeyDown(get_key(event.key.code), get_modifiers(event.key.mods));
-                break;
-
+                return !m_context->ProcessKeyDown(get_key(event.key.code), get_modifiers(event.key.mods));
+                
             case Event::KeyReleased:
-                m_context->ProcessKeyUp(get_key(event.key.code), get_modifiers(event.key.mods));
-                break;
-
+                return !m_context->ProcessKeyUp(get_key(event.key.code), get_modifiers(event.key.mods));
+                
             case Event::TextEntered:
-                m_context->ProcessTextInput(Rml::Character(event.key.code));
+                return !m_context->ProcessTextInput(Rml::Character(event.key.code));
                 
             default:
-                break;
+                return false;
         }
     }
 

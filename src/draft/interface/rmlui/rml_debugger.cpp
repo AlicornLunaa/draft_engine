@@ -28,13 +28,13 @@ namespace Draft {
     }
     
     // Functions
-    void RmlDebugger::handle_event(const Event& event){
+    bool RmlDebugger::handle_event(const Event& event){
         if(event.type == Event::KeyPressed && event.key.code == Keyboard::F4){
             set_visible(!is_visible());
-            return;
+            return true;
         }
 
-        RmlContext::handle_event(event);
+        return RmlContext::handle_event(event);
     }
     
     void RmlDebugger::set_visible(bool visible){
