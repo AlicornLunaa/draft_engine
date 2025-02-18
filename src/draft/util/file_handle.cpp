@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <ios>
+#include <iostream>
 #include <string>
 
 #include "cmrc/cmrc.hpp"
@@ -83,7 +84,7 @@ namespace Draft {
         // Returns time the file was last modified
         if(m_path == "null") return Time::microseconds(0);
         auto lastModified = std::filesystem::last_write_time(m_path);
-        auto us = std::chrono::duration_cast<std::chrono::microseconds>(lastModified.time_since_epoch()).count();
+        unsigned long us = std::chrono::duration_cast<std::chrono::microseconds>(lastModified.time_since_epoch()).count();
         return Time::microseconds(us);
     }
 

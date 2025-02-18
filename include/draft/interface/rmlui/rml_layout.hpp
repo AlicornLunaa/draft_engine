@@ -10,7 +10,7 @@ namespace Draft {
     class IRmlLayout {
     public:
         virtual bool handle_event(const Event& event) = 0;
-        virtual void render() const = 0;
-        virtual RmlContext* get_ctx() const { return nullptr; };
+        virtual void render() = 0;
+        virtual RmlContext* get_ctx() { return nullptr; };
     };
 }
