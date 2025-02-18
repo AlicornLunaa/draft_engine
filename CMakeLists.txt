@@ -336,5 +336,5 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt clay imgui glm::glm nlohmann_json::nlohmann_json simplex_noise tracy RmlUi::RmlUi)
 target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
-target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
+target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE> $<$<CONFIG:Debug>:DEBUG>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

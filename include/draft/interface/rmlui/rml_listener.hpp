@@ -10,13 +10,15 @@ namespace Draft {
     class RmlListener : public Rml::EventListener {
     private:
         // Variables
-        RmlEvent eventFunc;
+        RmlEvent m_eventFunc = nullptr;
 
     public:
         // Constructors
-        RmlListener(RmlEvent& eventFunc);
+        RmlListener() = default;
+        RmlListener(const RmlEvent& eventFunc);
 
         // Functions
+        void set_function(const RmlEvent& eventFunc);
 	    void ProcessEvent(Rml::Event& event);
     };
 };

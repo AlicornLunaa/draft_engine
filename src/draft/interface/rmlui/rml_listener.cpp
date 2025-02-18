@@ -3,12 +3,16 @@
 
 namespace Draft {
     // Constructor
-    RmlListener::RmlListener(RmlEvent& eventFunc) : eventFunc(eventFunc) {
+    RmlListener::RmlListener(const RmlEvent& eventFunc) : m_eventFunc(eventFunc) {
     }
     
     // Functions
+    void RmlListener::set_function(const RmlEvent& eventFunc){
+        m_eventFunc = eventFunc;
+    }
+    
     void RmlListener::ProcessEvent(Rml::Event& event){
-        if(!eventFunc) return;
-        eventFunc(event);
+        if(!m_eventFunc) return;
+        m_eventFunc(event);
     }
 }
