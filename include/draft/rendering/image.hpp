@@ -65,9 +65,10 @@ namespace Draft {
         void flip_horizontally();
         void flip_vertically();
         void set_pixel(const Vector2u& position, const Vector4f& color);
-        Vector4f get_pixel(const Vector2u& position) const;
-
+        void convert(ColorFormat format);
+        
         // Getters
+        Vector4f get_pixel(const Vector2u& position) const;
         inline ColorFormat get_format() const { return format; }
         inline const Vector2u& get_size() const { return size; }
         inline size_t get_pixel_count() const { return pixelCount; }

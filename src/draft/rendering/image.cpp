@@ -210,6 +210,13 @@ namespace Draft {
     }
 
     // Manipulation functions
+    void Image::convert(ColorFormat format){
+        // Converts to the specified format, if data is missing just fill it in with 255
+        Image target(get_size(), {1, 1, 1, 1}, format);
+        target.copy(*this, {0, 0});
+        *this = target;
+    }
+
     void Image::mask(const Vector4f& color, float tolerance, std::byte alpha){
         // This lambda checks if the area is actually masked by the given color.
         auto is_masked = [color, tolerance](const Vector4f& value){

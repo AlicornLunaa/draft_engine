@@ -27,6 +27,9 @@
  */
 
 #include "draft/interface/rmlui/RmlUi_Renderer_GL3.h"
+#include "draft/aliasing/format.hpp"
+#include "draft/rendering/image.hpp"
+#include "draft/util/file_handle.hpp"
 #include <RmlUi/Core/Core.h>
 #include <RmlUi/Core/DecorationTypes.h>
 #include <RmlUi/Core/FileInterface.h>
@@ -1194,6 +1197,26 @@ struct TGAHeader {
 
 Rml::TextureHandle RenderInterface_GL3::LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String& source)
 {
+	// Check for PNG first,
+	{
+		Draft::FileHandle handle(source);
+
+		if(handle.extension() == ".png"){
+			Draft::Image img(handle);
+			img.convert(Draft::RGBA);
+			
+			size_t imageSize = img.get_pixel_count();
+			const Rml::byte* image_src = reinterpret_cast<const unsigned char*>(img.c_arr());
+
+			auto size = img.get_size();
+			texture_dimensions.x = size.x;
+			texture_dimensions.y = size.y;
+
+			return GenerateTexture({image_src, imageSize}, texture_dimensions);
+		}
+	}
+
+	// Load as normal
 	Rml::FileInterface* file_interface = Rml::GetFileInterface();
 	Rml::FileHandle file_handle = file_interface->Open(source);
 	if (!file_handle)
