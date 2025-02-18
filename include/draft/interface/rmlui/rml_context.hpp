@@ -34,7 +34,7 @@ namespace Draft {
         // Functions
         Rml::ElementDocument* create_document(const std::string& name) const;
         Rml::ElementDocument* load_document(const std::string& path) const;
-        virtual void handle_event(const Event& event);
+        virtual bool handle_event(const Event& event); // Returns true if this context used an event, false if it should continue to others
         void render() const;
         bool is_valid() const;
         inline Rml::Context* get_context() const { return m_context; }

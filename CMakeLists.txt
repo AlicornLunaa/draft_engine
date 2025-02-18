@@ -148,20 +148,13 @@ set(INTERFACES
     include/draft/interface/widgets/scroll.hpp
     include/draft/interface/widgets/label.hpp
     include/draft/interface/widgets/button.hpp
-    # include/draft/interface/widgets/rectangle.hpp
-    # include/draft/interface/widgets/scroll_pane.hpp
-    # include/draft/interface/widgets/vertical_slider.hpp
-    # include/draft/interface/widgets/horizontal_slider.hpp
-    # include/draft/interface/widgets/joystick.hpp
-    # include/draft/interface/widgets/picture.hpp
-    # include/draft/interface/widgets/progress_bar.hpp
-    # include/draft/interface/widgets/text_input.hpp
     include/draft/interface/imgui/imgui_engine.hpp
     include/draft/interface/imgui/console.hpp
     include/draft/interface/imgui/stats.hpp
     include/draft/interface/loader/css_loader.hpp
     include/draft/interface/loader/css_style.hpp
     include/draft/interface/clay/clay_interface.hpp
+    include/draft/interface/rmlui/rml_layout.hpp
     include/draft/interface/rmlui/rml_engine.hpp
     include/draft/interface/rmlui/rml_context.hpp
     include/draft/interface/rmlui/rml_debugger.hpp
