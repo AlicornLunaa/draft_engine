@@ -13,50 +13,50 @@ namespace fs = std::filesystem;
 
 namespace Draft {
     // Constructors
-    FileHandle::FileHandle(const fs::path& path, Access access) : path(path), access(access) {}
+    FileHandle::FileHandle(const fs::path& path, Access access) : m_path(path), m_access(access) {}
     FileHandle::FileHandle(const char* path) : FileHandle(path, std::filesystem::exists(path) ? LOCAL : INTERNAL) {}
-    FileHandle::FileHandle() : path("null"), access(INTERNAL) {}
+    FileHandle::FileHandle() : m_path("null"), m_access(INTERNAL) {}
 
     // Functions
     bool FileHandle::remove(){
-        if(access == INTERNAL) return false;
-        if(path == "null") return false;
-        return fs::remove(path);
+        if(m_access == INTERNAL) return false;
+        if(m_path == "null") return false;
+        return fs::remove(m_path);
     }
 
     bool FileHandle::exists() const {
-        if(path == "null") return false;
+        if(m_path == "null") return false;
 
-        switch(access){
+        switch(m_access){
         case LOCAL:
-            return fs::exists(path);
+            return fs::exists(m_path);
 
         case INTERNAL:
             const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-            return interalFiles.exists(path.string());
+            return interalFiles.exists(m_path.string());
         }
 
         return false;
     }
 
     bool FileHandle::is_directory() const {
-        if(access == INTERNAL) return false;
-        if(path == "null") return false;
-        return fs::is_directory(path);
+        if(m_access == INTERNAL) return false;
+        if(m_path == "null") return false;
+        return fs::is_directory(m_path);
     }
 
     long FileHandle::length() const {
-        if(path == "null") return 0;
+        if(m_path == "null") return 0;
 
-        switch(access){
+        switch(m_access){
         case LOCAL: {
-            std::ifstream in(path, std::ifstream::ate | std::ifstream::binary);
+            std::ifstream in(m_path, std::ifstream::ate | std::ifstream::binary);
             return in.tellg();
         }
 
         case INTERNAL:
             const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-            const auto& data = interalFiles.open(path.string());
+            const auto& data = interalFiles.open(m_path.string());
             return data.size();
         }
 
@@ -64,33 +64,41 @@ namespace Draft {
     }
 
     std::string FileHandle::filename() const {
-        if(path == "null") return "";
-        return path.filename().string();
+        if(m_path == "null") return "";
+        return m_path.filename().string();
     }
 
     std::string FileHandle::extension() const {
-        if(path == "null") return "";
-        fs::path p(path);
+        if(m_path == "null") return "";
+        fs::path p(m_path);
         return p.extension().string();
     }
 
     std::string FileHandle::get_path() const {
-        if(path == "null") return "";
-        return path.relative_path().string();
+        if(m_path == "null") return "";
+        return m_path.relative_path().string();
+    }
+
+    Time FileHandle::last_modified() const {
+        // Returns time the file was last modified
+        if(m_path == "null") return Time::microseconds(0);
+        auto lastModified = std::filesystem::last_write_time(m_path);
+        auto us = std::chrono::duration_cast<std::chrono::microseconds>(lastModified.time_since_epoch()).count();
+        return Time::microseconds(us);
     }
 
     FileHandle::Access FileHandle::get_access() const {
-        return access;
+        return m_access;
     }
 
     std::string FileHandle::read_string() const {
-        if(path == "null") return "";
+        if(m_path == "null") return "";
 
         std::string out{};
 
-        switch(access){
+        switch(m_access){
             case LOCAL: {
-                std::ifstream in(path);
+                std::ifstream in(m_path);
                 std::string line;
 
                 while(std::getline(in, line)){
@@ -102,7 +110,7 @@ namespace Draft {
 
             case INTERNAL:
                 const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-                const auto& data = interalFiles.open(path.string());
+                const auto& data = interalFiles.open(m_path.string());
 
                 for(auto iter = data.begin(); iter != data.end(); iter++){
                     out += *iter;
@@ -115,23 +123,23 @@ namespace Draft {
     }
 
     void FileHandle::write_string(const std::string& str){
-        if(access == INTERNAL) return;
-        if(path == "null") return;
+        if(m_access == INTERNAL) return;
+        if(m_path == "null") return;
         
-        std::ofstream out(path);
+        std::ofstream out(m_path);
         out << str;
     }
 
     std::vector<std::byte> FileHandle::read_bytes(long offset) const {
-        if(path == "null") return {};
+        if(m_path == "null") return {};
 
         std::vector<std::byte> out;
         std::streampos len;
         char* array;
 
-        switch(access){
+        switch(m_access){
             case LOCAL: {
-                std::ifstream in(path, std::ios::binary);
+                std::ifstream in(m_path, std::ios::binary);
 
                 len = in.tellg();
                 in.seekg(0, std::ios::end);
@@ -146,7 +154,7 @@ namespace Draft {
 
             case INTERNAL:
                 const auto& interalFiles = cmrc::draft_engine::get_filesystem();
-                const auto& data = interalFiles.open(path.string());
+                const auto& data = interalFiles.open(m_path.string());
                 len = data.end() - data.begin();
                 array = new char[len];
 
@@ -169,21 +177,21 @@ namespace Draft {
     }
 
     void FileHandle::write_bytes(const std::vector<std::byte>& array){
-        if(access == INTERNAL) return;
-        if(path == "null") return;
+        if(m_access == INTERNAL) return;
+        if(m_path == "null") return;
         
-        std::ofstream out(path, std::ios::binary);
+        std::ofstream out(m_path, std::ios::binary);
         out.write(reinterpret_cast<const char*>(array.data()), array.size());
     }
 
     // Operators
     FileHandle FileHandle::operator+ (const std::string& right) const {
-        std::string p = this->path.string();
-        return { p + right, access };
+        std::string p = this->m_path.string();
+        return { p + right, m_access };
     }
 
     FileHandle& FileHandle::operator+= (const std::string& right){
-        path += right;
+        m_path += right;
         return *this;
     }
 

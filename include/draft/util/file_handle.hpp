@@ -1,5 +1,7 @@
 #pragma once
 
+#include "draft/util/time.hpp"
+
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -12,8 +14,8 @@ namespace Draft {
         
     private:
         // Variables
-        std::filesystem::path path;
-        Access access;
+        std::filesystem::path m_path;
+        Access m_access;
 
     public:
         // Constructors
@@ -29,6 +31,7 @@ namespace Draft {
         std::string extension() const;
         std::string filename() const;
         std::string get_path() const;
+        Time last_modified() const;
         Access get_access() const;
 
         std::string read_string() const;
@@ -42,7 +45,7 @@ namespace Draft {
         FileHandle& operator+= (const std::string& right);
 
         friend std::ostream& operator<< (std::ostream& stream, const FileHandle& v){
-            stream << v.path;
+            stream << v.m_path;
             return stream;
         }
 
