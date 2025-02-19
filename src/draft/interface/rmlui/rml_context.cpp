@@ -173,6 +173,10 @@ namespace Draft {
                 
             case Event::TextEntered:
                 return !m_context->ProcessTextInput(Rml::Character(event.key.code));
+
+            case Event::Resized:
+                m_context->SetDimensions({static_cast<int>(event.size.width), static_cast<int>(event.size.height)});
+                return false;
                 
             default:
                 return false;

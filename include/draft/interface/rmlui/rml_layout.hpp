@@ -1,6 +1,13 @@
 #pragma once
 
 namespace Draft {
+    /// Macros for easy safety
+    #define ATTACH_LISTENER(element, event, listener) { \
+        if(element){                                    \
+            element->AddEventListener(event, listener); \
+        }                                               \
+    }
+
     /// Forward decls
     class Event;
     class RmlContext;
