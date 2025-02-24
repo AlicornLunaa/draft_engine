@@ -160,7 +160,7 @@ namespace Draft {
                 return !m_context->ProcessMouseMove(event.mouseMove.x, event.mouseMove.y, 0);
                 
             case Event::MouseWheelScrolled:
-                return !m_context->ProcessMouseWheel({(float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y}, 0);
+                return !m_context->ProcessMouseWheel({(float)event.mouseWheelScroll.x * -1.f, (float)event.mouseWheelScroll.y * -1.f}, 0);
                 
             case Event::MouseLeft:
                 return !m_context->ProcessMouseLeave();
