@@ -1,5 +1,6 @@
 #pragma once
 
+#include "nlohmann/json.hpp"
 #include <string>
 
 namespace Draft {
@@ -18,4 +19,7 @@ namespace Draft {
     // Functions
     std::string encode_json(const JSONInterface& data);
     void* decode_json(const std::string& data);
+
+    // Types
+    typedef nlohmann::json JSON;
 };
