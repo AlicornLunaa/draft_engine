@@ -13,6 +13,11 @@ namespace Draft {
     public:
         // Constructors
         EdgeShape() : Shape(ShapeType::EDGE) {}
+        
+        EdgeShape(const Vector2f& start, const Vector2f& end) : EdgeShape() {
+            this->start = start;
+            this->end = end;
+        }
 
         // Functions
         std::unique_ptr<Shape> clone() const;
