@@ -75,7 +75,7 @@ namespace Draft {
     void PhysicsDebugRender::DrawPoint(const b2Vec2& p, float size, const b2Color& color){
         batch.set_render_type(ShapeBatch::RenderType::FILL);
         batch.set_color({ color.r, color.g, color.b, color.a });
-        batch.draw_circle({ p.x, p.y }, size * 0.01f, 0.f, 40);
+        batch.draw_circle({ p.x, p.y }, size * 0.003f, 0.f, 40);
         batch.set_render_type(ShapeBatch::RenderType::LINE);
     }
 };
