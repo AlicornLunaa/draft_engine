@@ -15,6 +15,8 @@ namespace Draft {
         event.size.width = width;
         event.size.height = height;
 
+        window.set_viewport({event.size.width, event.size.height});
+
         if(activeScene)
             activeScene->handle_event(event);
     }
