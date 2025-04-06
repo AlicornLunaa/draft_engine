@@ -34,6 +34,8 @@ namespace Draft {
         Collider& operator=(const Collider& other);
 
         // Functions
+        inline const uint get_shape_count() const { return shapes.size(); };
+        inline const auto& get_shapes() const { return shapes; };
         Shape* add_shape(const Shape& shape);
         void del_shape(const Shape* shapePtr);
         void clear();
