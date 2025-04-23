@@ -95,6 +95,7 @@ set(SOURCES
     src/draft/systems/audio_system.cpp
     src/draft/systems/render_system.cpp
     src/draft/systems/physics_system.cpp
+    src/draft/systems/relationship_system.cpp
 )
 
 set(HEADERS
@@ -124,6 +125,7 @@ set(INTERFACES
     include/draft/components/sprite_component.hpp
     include/draft/components/transform_component.hpp
     include/draft/components/collider_component.hpp
+    include/draft/components/relationship_components.hpp
 
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
@@ -209,6 +211,7 @@ set(INTERFACES
     include/draft/systems/physics_system.hpp
     include/draft/systems/render_system.hpp
     include/draft/systems/audio_system.hpp
+    include/draft/systems/relationship_system.hpp
 
     include/draft/util/file_handle.hpp
     include/draft/util/ansi_colors.hpp

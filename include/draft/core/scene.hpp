@@ -2,6 +2,7 @@
 
 #include "draft/core/registry.hpp"
 #include "draft/input/event.hpp"
+#include "draft/systems/relationship_system.hpp"
 #include "draft/util/time.hpp"
 
 namespace Draft {
@@ -13,6 +14,9 @@ namespace Draft {
     protected:
         Application* app;
         Registry registry;
+
+    private:
+        RelationshipSystem relationshipSystem{*this};
 
     public:
         Scene(Application* app);
