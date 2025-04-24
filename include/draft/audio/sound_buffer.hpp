@@ -11,7 +11,7 @@ namespace Draft {
     class SoundBuffer {
     private:
         // Variables
-        FileHandle handle;
+        FileHandle m_handle;
 
         // Private functions
         const void* get_buffer_ptr() const;

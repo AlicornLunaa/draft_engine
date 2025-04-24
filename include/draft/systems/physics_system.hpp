@@ -15,8 +15,8 @@ namespace Draft {
 
         // Private functions
         void construct_body_func(Registry& reg, entt::entity rawEnt);
-        void deconstruct_body_func(Registry& reg, entt::entity rawEnt);
         void construct_collider_func(Registry& reg, entt::entity rawEnt);
+        void deconstruct_body_func(Registry& reg, entt::entity rawEnt);
         void deconstruct_collider_func(Registry& reg, entt::entity rawEnt);
 
     public:
@@ -25,10 +25,12 @@ namespace Draft {
 
         // Constructors
         PhysicsSystem(Scene& sceneRef, World& worldRef);
+        PhysicsSystem(PhysicsSystem&& other) = delete;
         PhysicsSystem(const PhysicsSystem& other) = delete;
         ~PhysicsSystem();
 
         // Operators
+        PhysicsSystem& operator=(PhysicsSystem&& other) = delete;
         PhysicsSystem& operator=(const PhysicsSystem& other) = delete;
 
         // Functions

@@ -5,10 +5,10 @@ namespace Draft {
     class Listener {
     private:
         // Variables
-        Vector3f position{ 0, 0, 0 };
-        Vector3f forward{ 0, 0, 1 };
-        Vector3f up{ 0, 1, 0 };
-        float volume = 1.f;
+        Vector3f m_position{ 0, 0, 0 };
+        Vector3f m_forward{ 0, 0, 1 };
+        Vector3f m_up{ 0, 1, 0 };
+        float m_volume = 1.f;
 
     public:
         // Constructors

@@ -47,7 +47,7 @@ namespace Draft {
     Time SoundBuffer::get_duration() const { return Time::microseconds(ptr->buffer.getDuration().asMicroseconds()); }
 
     void SoundBuffer::reload() {
-        auto bytes = handle.read_bytes();
+        auto bytes = m_handle.read_bytes();
         ptr->buffer.loadFromMemory(bytes.data(), bytes.size());
     }
 };

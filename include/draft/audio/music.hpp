@@ -14,7 +14,7 @@ namespace Draft {
         typedef std::pair<Time, Time> TimeSpan;
 
         // Variables
-        std::string path;
+        std::string m_path;
 
     public:
         // Constructors

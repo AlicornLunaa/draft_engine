@@ -10,7 +10,7 @@ namespace Draft {
     };
 
     // Constructors
-    Sound::Sound() : ptr(std::make_unique<Impl>()), bufferPtr() {}
+    Sound::Sound() : ptr(std::make_unique<Impl>()), m_bufferPtr() {}
 
     Sound::Sound(const SoundBuffer& buffer) : Sound() { set_buffer(buffer); }
 
@@ -33,7 +33,7 @@ namespace Draft {
     void Sound::reset_buffer(){ ptr->sound.resetBuffer(); }
 
     void Sound::set_buffer(const SoundBuffer& buffer){
-        bufferPtr = &buffer;
+        m_bufferPtr = &buffer;
         ptr->sound.setBuffer(*((const sf::SoundBuffer*)buffer.get_buffer_ptr()));
     }
 
@@ -46,7 +46,7 @@ namespace Draft {
     void Sound::set_attenuation(float attenuation){ ptr->sound.setAttenuation(attenuation); }
     void Sound::set_relative(bool relative){ ptr->sound.setRelativeToListener(relative); }
 
-    const SoundBuffer* Sound::get_buffer() const { return bufferPtr; }
+    const SoundBuffer* Sound::get_buffer() const { return m_bufferPtr; }
     bool Sound::get_loop() const { return ptr->sound.getLoop(); }
     Time Sound::get_playing_offset() const { return Time::microseconds(ptr->sound.getPlayingOffset().asMicroseconds()); }
     float Sound::get_pitch() const { return ptr->sound.getPitch(); }

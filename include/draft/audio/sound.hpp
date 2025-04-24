@@ -8,7 +8,7 @@ namespace Draft {
     class Sound {
     private:
         // Variables
-        SoundBuffer const* bufferPtr = nullptr;
+        SoundBuffer const* m_bufferPtr = nullptr;
 
     public:
         // Constructors

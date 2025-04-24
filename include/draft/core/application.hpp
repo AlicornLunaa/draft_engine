@@ -19,10 +19,10 @@ namespace Draft {
     class Application {
     private:
         // Private vars
-        Scene* activeScene = nullptr;
-        Clock deltaClock;
-        Event event;
-        double accumulator = 0.0; // Used for fixed timestep
+        Scene* m_activeScene = nullptr;
+        Clock m_deltaClock;
+        Event m_event;
+        double m_accumulator = 0.0; // Used for fixed timestep
 
         // Private functions
         void framebuffer_resized(uint width, uint height);

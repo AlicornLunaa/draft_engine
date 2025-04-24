@@ -13,6 +13,7 @@ namespace Draft {
         ColliderComponent(const Shape& shape){ collider.add_shape(shape); }
 
         // Operators
+        Collider* operator->(){ return &collider; }
         operator Collider& () { return collider; }
         operator const Collider& () const { return collider; }
     };

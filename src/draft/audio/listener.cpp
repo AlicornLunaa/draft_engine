@@ -3,23 +3,23 @@
 
 namespace Draft {
     // Constructors
-    Listener::Listener(const Vector3f& position, float volume) : position(position), volume(volume) {}
+    Listener::Listener(const Vector3f& position, float volume) : m_position(position), m_volume(volume) {}
 
     // Functions
-    void Listener::set_position(const Vector3f& position){ this->position = position; }
-    void Listener::set_direction(const Vector3f& direction){ this->forward = direction; }
-    void Listener::set_up(const Vector3f& up){ this->up = up; }
-    void Listener::set_volume(float volume){ this->volume = volume; }
+    void Listener::set_position(const Vector3f& position){ m_position = position; }
+    void Listener::set_direction(const Vector3f& direction){ m_forward = direction; }
+    void Listener::set_up(const Vector3f& up){ m_up = up; }
+    void Listener::set_volume(float volume){ m_volume = volume; }
 
-    const Vector3f& Listener::get_position(){ return position; }
-    const Vector3f& Listener::get_direction(){ return forward; }
-    const Vector3f& Listener::get_up(){ return up; }
-    float Listener::get_volume(){ return volume; }
+    const Vector3f& Listener::get_position(){ return m_position; }
+    const Vector3f& Listener::get_direction(){ return m_forward; }
+    const Vector3f& Listener::get_up(){ return m_up; }
+    float Listener::get_volume(){ return m_volume; }
 
     void Listener::apply(){
-        sf::Listener::setPosition(position.x, position.y, position.z);
-        sf::Listener::setDirection(forward.x, forward.y, forward.z);
-        sf::Listener::setUpVector(up.x, up.y, up.z);
-        sf::Listener::setGlobalVolume(volume);
+        sf::Listener::setPosition(m_position.x, m_position.y, m_position.z);
+        sf::Listener::setDirection(m_forward.x, m_forward.y, m_forward.z);
+        sf::Listener::setUpVector(m_up.x, m_up.y, m_up.z);
+        sf::Listener::setGlobalVolume(m_volume);
     }
 };

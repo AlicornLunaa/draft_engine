@@ -11,126 +11,126 @@
 namespace Draft {
     // Private functions
     void Application::framebuffer_resized(uint width, uint height){
-        event.type = Event::Resized;
-        event.size.width = width;
-        event.size.height = height;
+        m_event.type = Event::Resized;
+        m_event.size.width = width;
+        m_event.size.height = height;
 
-        window.set_viewport({event.size.width, event.size.height});
+        window.set_viewport({m_event.size.width, m_event.size.height});
 
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::window_focus(bool focused){
-        event.type = focused ? Event::GainedFocus : Event::LostFocus;
+        m_event.type = focused ? Event::GainedFocus : Event::LostFocus;
 
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::window_closed(){
-        event.type = Event::Closed;
+        m_event.type = Event::Closed;
 
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::key_callback(int key, int action, int modifier){
         // Set event type
-        if(action == Action::PRESS) event.type = Event::KeyPressed;
-        else if(action == Action::RELEASE) event.type = Event::KeyReleased;
-        else if(action == Action::HOLD) event.type = Event::KeyHold;
+        if(action == Action::PRESS) m_event.type = Event::KeyPressed;
+        else if(action == Action::RELEASE) m_event.type = Event::KeyReleased;
+        else if(action == Action::HOLD) m_event.type = Event::KeyHold;
 
         // Set key data
-        event.key.code = key;
-        event.key.alt = modifier & static_cast<int>(Keyboard::Modifier::ALT);
-        event.key.control = modifier & static_cast<int>(Keyboard::Modifier::CTRL);
-        event.key.shift = modifier & static_cast<int>(Keyboard::Modifier::SHIFT);
-        event.key.system = modifier & static_cast<int>(Keyboard::Modifier::SUPER);
-        event.key.mods = modifier;
+        m_event.key.code = key;
+        m_event.key.alt = modifier & static_cast<int>(Keyboard::Modifier::ALT);
+        m_event.key.control = modifier & static_cast<int>(Keyboard::Modifier::CTRL);
+        m_event.key.shift = modifier & static_cast<int>(Keyboard::Modifier::SHIFT);
+        m_event.key.system = modifier & static_cast<int>(Keyboard::Modifier::SUPER);
+        m_event.key.mods = modifier;
 
         // Send event along
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::text_callback(unsigned int codepoint){
         // Set event type
-        event.type = Event::TextEntered;
-        event.text.unicode = codepoint;
+        m_event.type = Event::TextEntered;
+        m_event.text.unicode = codepoint;
 
         // Send event along
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::mouse_button_callback(int button, int action, int modifier){
         // Set event type
-        if(action == Action::PRESS) event.type = Event::MouseButtonPressed;
-        else if(action == Action::RELEASE) event.type = Event::MouseButtonReleased;
+        if(action == Action::PRESS) m_event.type = Event::MouseButtonPressed;
+        else if(action == Action::RELEASE) m_event.type = Event::MouseButtonReleased;
 
         // Get data for event
         const Vector2d& v = mouse.get_position();
 
         // Set key data
-        event.mouseButton.button = button;
-        event.mouseButton.x = v.x;
-        event.mouseButton.y = v.y;
-        event.mouseButton.mods = modifier;
+        m_event.mouseButton.button = button;
+        m_event.mouseButton.x = v.x;
+        m_event.mouseButton.y = v.y;
+        m_event.mouseButton.mods = modifier;
 
         // Send event along
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::mouse_position_callback(const Vector2d& position){
         // Set event type
-        event.type = Event::MouseMoved;
-        event.mouseMove.x = position.x;
-        event.mouseMove.y = position.y;
+        m_event.type = Event::MouseMoved;
+        m_event.mouseMove.x = position.x;
+        m_event.mouseMove.y = position.y;
 
         // Send event along
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::mouse_scroll_callback(const Vector2d& delta){
         // Set event type
-        event.type = Event::MouseWheelScrolled;
-        event.mouseWheelScroll.x = delta.x;
-        event.mouseWheelScroll.y = delta.y;
+        m_event.type = Event::MouseWheelScrolled;
+        m_event.mouseWheelScroll.x = delta.x;
+        m_event.mouseWheelScroll.y = delta.y;
 
         // Send event along
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::mouse_enter_callback(){
-        event.type = Event::MouseEntered;
+        m_event.type = Event::MouseEntered;
 
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::mouse_leave_callback(){
-        event.type = Event::MouseLeft;
+        m_event.type = Event::MouseLeft;
 
-        if(activeScene)
-            activeScene->handle_event(event);
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
     }
 
     void Application::tick(){
         // This function does a fixed time-step update
         ZoneScopedNCS("fixed_tick", 0xff3333, 20);
 
-        accumulator += deltaTime.as_seconds();
-        accumulator = std::min(accumulator, (double)maxAccumulator.as_seconds()); // Needed to prevent accumulator spiral
+        m_accumulator += deltaTime.as_seconds();
+        m_accumulator = std::min(m_accumulator, (double)maxAccumulator.as_seconds()); // Needed to prevent accumulator spiral
 
-        while(accumulator >= timeStep.as_seconds()){
-            if(activeScene)
-                activeScene->update(timeStep);
+        while(m_accumulator >= timeStep.as_seconds()){
+            if(m_activeScene)
+                m_activeScene->update(timeStep);
 
-            accumulator -= timeStep.as_seconds();
+            m_accumulator -= timeStep.as_seconds();
         }
     }
 
@@ -141,8 +141,8 @@ namespace Draft {
         window.clear();
         imgui.start_frame();
 
-        if(activeScene)
-            activeScene->render(deltaTime);
+        if(m_activeScene)
+            m_activeScene->render(deltaTime);
 
         // Draw debug stuff
         stats.draw(*this);
@@ -185,7 +185,7 @@ namespace Draft {
         // Start application loop
         while(window.is_open()){
             // Clock reset
-            deltaTime = deltaClock.restart();
+            deltaTime = m_deltaClock.restart();
 
             // Handle control events
             window.poll_events();
@@ -203,17 +203,17 @@ namespace Draft {
     }
 
     void Application::reset_timers(){
-        accumulator = 0.f;
-        deltaClock.restart();
+        m_accumulator = 0.f;
+        m_deltaClock.restart();
         deltaTime = Time();
     }
 
     void Application::set_scene(Scene* scene){
         ZoneScopedN("scene_change");
 
-        if(activeScene)
+        if(m_activeScene)
             // Detach event on previous scene
-            activeScene->on_detach();
+            m_activeScene->on_detach();
 
         reset_timers(); // Reset dt to avoid large jumps in physics
         
@@ -221,10 +221,10 @@ namespace Draft {
             // Attach event on new scene
             scene->on_attach();
 
-        activeScene = scene;
+        m_activeScene = scene;
     }
 
     Scene* Application::get_scene() const {
-        return activeScene;
+        return m_activeScene;
     }
 }

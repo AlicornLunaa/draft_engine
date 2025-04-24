@@ -35,11 +35,11 @@ namespace Draft {
             listener.set_up(Math::rotate(Vector3f(0, 1, 0), transform.rotation, Vector3f(0, 0, 1)));
             listener.apply();
 
-            if(listenerComp.priority >= maxPriority && registryRef.all_of<RigidBodyComponent>(ent)){
+            if(listenerComp.priority >= maxPriority && registryRef.all_of<NativeBodyComponent>(ent)){
                 maxPriority = listenerComp.priority;
                 dopplerListener = &listener;
 
-                RigidBody& observer = registryRef.get<RigidBodyComponent>(ent);
+                RigidBody& observer = registryRef.get<NativeBodyComponent>(ent);
                 observerPosition = observer.get_world_center();
                 observerVelocity = observer.get_linear_velocity();
             }
@@ -52,8 +52,8 @@ namespace Draft {
             sound.set_position(Vector3f(transform.position, sound.get_position().z));
 
             // Set sound if doppler exists
-            if(dopplerListener && registryRef.all_of<RigidBodyComponent>(ent)){
-                RigidBody& source = registryRef.get<RigidBodyComponent>(ent);
+            if(dopplerListener && registryRef.all_of<NativeBodyComponent>(ent)){
+                RigidBody& source = registryRef.get<NativeBodyComponent>(ent);
                 Vector2f relativeVel = source.get_linear_velocity() - observerVelocity;
                 Vector2f direction = source.get_world_center() - observerPosition;
                 float dot = Math::dot(relativeVel, direction);
@@ -71,8 +71,8 @@ namespace Draft {
             music->set_position(Vector3f(transform.position, music->get_position().z));
 
             // Set sound if doppler exists
-            if(dopplerListener && registryRef.all_of<RigidBodyComponent>(ent)){
-                RigidBody& source = registryRef.get<RigidBodyComponent>(ent);
+            if(dopplerListener && registryRef.all_of<NativeBodyComponent>(ent)){
+                RigidBody& source = registryRef.get<NativeBodyComponent>(ent);
                 Vector2f relativeVel = source.get_linear_velocity() - observerVelocity;
                 Vector2f direction = source.get_world_center() - observerPosition;
                 float dot = Math::dot(relativeVel, direction);

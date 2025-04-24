@@ -9,8 +9,8 @@ namespace Draft {
      */
     class Entity {
     private:
-        entt::entity entityID = entt::null;
-        Scene* context = nullptr;
+        entt::entity m_entityID = entt::null;
+        Scene* m_context = nullptr;
 
     public:
         Entity() = default;
@@ -34,7 +34,7 @@ namespace Draft {
          */
         template <typename T, typename... Args>
         T& add_component(Args&&... args){
-            T& component = context->get_registry().emplace<T>(entityID, std::forward<Args>(args)...);
+            T& component = m_context->get_registry().emplace<T>(m_entityID, std::forward<Args>(args)...);
             return component;
         }
 
@@ -45,7 +45,7 @@ namespace Draft {
          */
         template <typename T>
         T& get_component(){
-            return context->get_registry().get<T>(entityID);
+            return m_context->get_registry().get<T>(m_entityID);
         }
 
         /**
@@ -56,7 +56,7 @@ namespace Draft {
          */
         template <typename T>
         bool has_component(){
-            return context->get_registry().all_of<T>(entityID);
+            return m_context->get_registry().all_of<T>(m_entityID);
         }
 
         /**
@@ -65,10 +65,10 @@ namespace Draft {
          */
         template <typename T>
         void remove_component(){
-            context->get_registry().remove<T>(entityID);
+            m_context->get_registry().remove<T>(m_entityID);
         }
 
-        operator entt::entity() const { return entityID; }
-        bool operator==(const Entity& other) const { return (entityID == other.entityID); }
+        operator entt::entity() const { return m_entityID; }
+        bool operator==(const Entity& other) const { return (m_entityID == other.m_entityID); }
     };
 }

@@ -2,20 +2,20 @@
 
 namespace Draft {
     Entity::Entity(Scene* context, entt::entity entityID)
-        : context(context), entityID(entityID) {}
+        : m_context(context), m_entityID(entityID) {}
 
 
     bool Entity::is_valid() const {
-        return !(entityID == entt::null || !context);
+        return !(m_entityID == entt::null || !m_context);
     }
 
     bool Entity::destroy(){
-        if(entityID == entt::null || !context)
+        if(m_entityID == entt::null || !m_context)
             return false;
 
-        context->get_registry().destroy(entityID);
-        entityID = entt::null;
-        context = nullptr;
+        m_context->get_registry().destroy(m_entityID);
+        m_entityID = entt::null;
+        m_context = nullptr;
         
         return true;
     }
