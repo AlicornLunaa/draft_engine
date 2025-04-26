@@ -12,7 +12,7 @@ namespace Draft {
     // Data structs
     struct GenericJointData {
         virtual ~GenericJointData() = default;
-        bool collideConnected = true;
+        bool collideConnected = false;
     };
 
     struct DistanceJointData : virtual public GenericJointData {
