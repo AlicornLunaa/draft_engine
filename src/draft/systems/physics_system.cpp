@@ -45,7 +45,7 @@ namespace Draft {
         definition.enabled = bodyComponent.enabled;
         definition.gravityScale = bodyComponent.gravityScale;
 
-        RigidBody* body = worldRef.create_rigid_body(definition);
+        RigidBody* body = world.create_rigid_body(definition);
         assert(body && "Something went wrong with body");
 
         // Add a handle to the entity so it can be referenced later
@@ -107,7 +107,7 @@ namespace Draft {
             definition.maxLength = ptr->maxLength;
             definition.stiffness = ptr->stiffness;
             definition.damping = ptr->damping;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<RevoluteJointData*>(data)){
             RevoluteJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.localAnchorA = ptr->localAnchorA;
@@ -119,7 +119,7 @@ namespace Draft {
             definition.motorSpeed = ptr->motorSpeed;
             definition.enableLimit = ptr->enableLimit;
             definition.enableMotor = ptr->enableMotor;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<PrismaticJointData*>(data)){
             PrismaticJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.anchorA = ptr->anchorA;
@@ -132,7 +132,7 @@ namespace Draft {
             definition.motorSpeed = ptr->motorSpeed;
             definition.enableLimit = ptr->enableLimit;
             definition.enableMotor = ptr->enableMotor;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<PulleyJointData*>(data)){
             PulleyJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.groundAnchorA = ptr->groundAnchorA;
@@ -142,20 +142,20 @@ namespace Draft {
             definition.lengthA = ptr->lengthA;
             definition.lengthB = ptr->lengthB;
             definition.ratio = ptr->ratio;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<GearJointData*>(data)){
             GearJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.joint1 = ptr->joint1;
             definition.joint2 = ptr->joint2;
             definition.ratio = ptr->ratio;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<MouseJointData*>(data)){
             MouseJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.target = ptr->target;
             definition.maxForce = ptr->maxForce;
             definition.stiffness = ptr->stiffness;
             definition.damping = ptr->damping;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<WheelJointData*>(data)){
             WheelJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.anchorA = ptr->anchorA;
@@ -169,7 +169,7 @@ namespace Draft {
             definition.damping = ptr->damping;
             definition.enableLimit = ptr->enableLimit;
             definition.enableMotor = ptr->enableMotor;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<WeldJointData*>(data)){
             WeldJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.anchorA = ptr->anchorA;
@@ -177,14 +177,14 @@ namespace Draft {
             definition.referenceAngle = ptr->referenceAngle;
             definition.stiffness = ptr->stiffness;
             definition.damping = ptr->damping;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<FrictionJointData*>(data)){
             FrictionJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.anchorA = ptr->anchorA;
             definition.anchorB = ptr->anchorB;
             definition.maxForce = ptr->maxForce;
             definition.maxTorque = ptr->maxTorque;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         } else if(auto* ptr = dynamic_cast<MotorJointData*>(data)){
             MotorJointDef definition(bodyA, bodyB, data->collideConnected);
             definition.linearOffset = ptr->linearOffset;
@@ -192,7 +192,7 @@ namespace Draft {
             definition.maxForce = ptr->maxForce;
             definition.maxTorque = ptr->maxTorque;
             definition.correctionFactor = ptr->correctionFactor;
-            joint = worldRef.create_joint(definition);
+            joint = world.create_joint(definition);
         }
 
         assert(joint && "Something went wrong with a joint");
@@ -279,7 +279,7 @@ namespace Draft {
 
     void PhysicsSystem::handle_bodies(){
         // Iterate over entities and update each component, starting with transforms
-        auto view1 = registryRef.view<TransformComponent, NativeBodyComponent>();
+        auto view1 = m_registryRef.view<TransformComponent, NativeBodyComponent>();
 
         for(auto entity : view1){
             TransformComponent& transform = view1.get<TransformComponent>(entity);
@@ -304,7 +304,7 @@ namespace Draft {
         }
 
         // Sync rigidbody state
-        auto view2 = registryRef.view<RigidBodyComponent, NativeBodyComponent>();
+        auto view2 = m_registryRef.view<RigidBodyComponent, NativeBodyComponent>();
 
         for(auto entity : view2){
             RigidBodyComponent& bodyComponent = view2.get<RigidBodyComponent>(entity);
@@ -325,38 +325,38 @@ namespace Draft {
     void PhysicsSystem::handle_forces(){
         // Handle forces
         // Torques
-        auto view3 = registryRef.view<TorqueComponent, NativeBodyComponent>();
+        auto view3 = m_registryRef.view<TorqueComponent, NativeBodyComponent>();
 
         for(auto entity : view3){
             TorqueComponent& physComponent = view3.get<TorqueComponent>(entity);
             RigidBody* body = view3.get<NativeBodyComponent>(entity);
             body->apply_torque(physComponent.torque, physComponent.wake);
-            registryRef.remove<TorqueComponent>(entity);
+            m_registryRef.remove<TorqueComponent>(entity);
         }
 
         // Forces
-        auto view4 = registryRef.view<ForceComponent, NativeBodyComponent>();
+        auto view4 = m_registryRef.view<ForceComponent, NativeBodyComponent>();
 
         for(auto entity : view4){
             ForceComponent& physComponent = view4.get<ForceComponent>(entity);
             RigidBody* body = view4.get<NativeBodyComponent>(entity);
             body->apply_force(physComponent.force, physComponent.point, physComponent.wake);
-            registryRef.remove<ForceComponent>(entity);
+            m_registryRef.remove<ForceComponent>(entity);
         }
 
         // Impulses
-        auto view5 = registryRef.view<ImpulseComponent, NativeBodyComponent>();
+        auto view5 = m_registryRef.view<ImpulseComponent, NativeBodyComponent>();
 
         for(auto entity : view5){
             ImpulseComponent& physComponent = view5.get<ImpulseComponent>(entity);
             RigidBody* body = view5.get<NativeBodyComponent>(entity);
             body->apply_linear_impulse(physComponent.force, physComponent.point, physComponent.wake);
             body->apply_angular_impulse(physComponent.angular, physComponent.wake);
-            registryRef.remove<ImpulseComponent>(entity);
+            m_registryRef.remove<ImpulseComponent>(entity);
         }
 
         // Continuous torque
-        auto view6 = registryRef.view<ContinuousTorqueComponent, NativeBodyComponent>();
+        auto view6 = m_registryRef.view<ContinuousTorqueComponent, NativeBodyComponent>();
 
         for(auto entity : view6){
             ContinuousTorqueComponent& physComponent = view6.get<ContinuousTorqueComponent>(entity);
@@ -367,7 +367,7 @@ namespace Draft {
         }
 
         // Continuous force
-        auto view7 = registryRef.view<ContinuousForceComponent, NativeBodyComponent>();
+        auto view7 = m_registryRef.view<ContinuousForceComponent, NativeBodyComponent>();
 
         for(auto entity : view7){
             ContinuousForceComponent& physComponent = view7.get<ContinuousForceComponent>(entity);
@@ -378,7 +378,7 @@ namespace Draft {
         }
 
         // Continuous impulse
-        auto view8 = registryRef.view<ContinuousImpulseComponent, NativeBodyComponent>();
+        auto view8 = m_registryRef.view<ContinuousImpulseComponent, NativeBodyComponent>();
 
         for(auto entity : view8){
             ContinuousImpulseComponent& physComponent = view8.get<ContinuousImpulseComponent>(entity);
@@ -392,26 +392,26 @@ namespace Draft {
     }
 
     // Constructors
-    PhysicsSystem::PhysicsSystem(Scene& sceneRef, World& worldRef) : appPtr(sceneRef.get_app()), registryRef(sceneRef.get_registry()), worldRef(worldRef) {
+    PhysicsSystem::PhysicsSystem(Scene& sceneRef) : m_appPtr(sceneRef.get_app()), m_registryRef(sceneRef.get_registry()) {
         // Attach listeners
-        registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
-        registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
-        registryRef.on_construct<JointComponent>().connect<&PhysicsSystem::construct_joint_func>(this);
-        registryRef.on_destroy<RigidBodyComponent>().connect<&PhysicsSystem::deconstruct_body_func>(this);
-        registryRef.on_destroy<ColliderComponent>().connect<&PhysicsSystem::deconstruct_collider_func>(this);
-        registryRef.on_destroy<JointComponent>().connect<&PhysicsSystem::deconstruct_joint_func>(this);
-        registryRef.on_destroy<NativeJointComponent>().connect<&PhysicsSystem::deconstruct_native_joint_func>(this);
+        m_registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
+        m_registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
+        m_registryRef.on_construct<JointComponent>().connect<&PhysicsSystem::construct_joint_func>(this);
+        m_registryRef.on_destroy<RigidBodyComponent>().connect<&PhysicsSystem::deconstruct_body_func>(this);
+        m_registryRef.on_destroy<ColliderComponent>().connect<&PhysicsSystem::deconstruct_collider_func>(this);
+        m_registryRef.on_destroy<JointComponent>().connect<&PhysicsSystem::deconstruct_joint_func>(this);
+        m_registryRef.on_destroy<NativeJointComponent>().connect<&PhysicsSystem::deconstruct_native_joint_func>(this);
     }
 
     PhysicsSystem::~PhysicsSystem(){
         // Remove listeners
-        registryRef.on_construct<RigidBodyComponent>().disconnect<&PhysicsSystem::construct_body_func>(this);
-        registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
-        registryRef.on_construct<JointComponent>().disconnect<&PhysicsSystem::construct_joint_func>(this);
-        registryRef.on_destroy<RigidBodyComponent>().disconnect<&PhysicsSystem::deconstruct_body_func>(this);
-        registryRef.on_destroy<ColliderComponent>().disconnect<&PhysicsSystem::deconstruct_collider_func>(this);
-        registryRef.on_destroy<JointComponent>().disconnect<&PhysicsSystem::deconstruct_joint_func>(this);
-        registryRef.on_destroy<NativeJointComponent>().disconnect<&PhysicsSystem::deconstruct_native_joint_func>(this);
+        m_registryRef.on_construct<RigidBodyComponent>().disconnect<&PhysicsSystem::construct_body_func>(this);
+        m_registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
+        m_registryRef.on_construct<JointComponent>().disconnect<&PhysicsSystem::construct_joint_func>(this);
+        m_registryRef.on_destroy<RigidBodyComponent>().disconnect<&PhysicsSystem::deconstruct_body_func>(this);
+        m_registryRef.on_destroy<ColliderComponent>().disconnect<&PhysicsSystem::deconstruct_collider_func>(this);
+        m_registryRef.on_destroy<JointComponent>().disconnect<&PhysicsSystem::deconstruct_joint_func>(this);
+        m_registryRef.on_destroy<NativeJointComponent>().disconnect<&PhysicsSystem::deconstruct_native_joint_func>(this);
     }
 
     // Functions
@@ -419,15 +419,15 @@ namespace Draft {
         // Update physics world
         ZoneScopedN("physics_system");
 
-        Time prevTimestep = appPtr->timeStep;
+        Time prevTimestep = m_appPtr->timeStep;
         bool resetTime = false;
 
         if(physicsTimestep.as_seconds() >= 0.f){
-            appPtr->timeStep = physicsTimestep;
+            m_appPtr->timeStep = physicsTimestep;
             resetTime = true;
         }
 
-        worldRef.step(appPtr->timeStep, worldRef.VELOCITY_ITER, worldRef.POSITION_ITER);
+        world.step(m_appPtr->timeStep, world.VELOCITY_ITER, world.POSITION_ITER);
 
         // Views
         handle_forces();
@@ -435,7 +435,7 @@ namespace Draft {
         
         // Reset accumulator
         if(resetTime){
-            appPtr->timeStep = prevTimestep;
+            m_appPtr->timeStep = prevTimestep;
         }
     }
 };

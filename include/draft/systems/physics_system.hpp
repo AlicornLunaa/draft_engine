@@ -9,9 +9,8 @@ namespace Draft {
     class PhysicsSystem {
     private:
         // Variables
-        Application* appPtr = nullptr;
-        Registry& registryRef;
-        World& worldRef;
+        Application* m_appPtr = nullptr;
+        Registry& m_registryRef;
 
         // Private functions
         void construct_body_func(Registry& reg, entt::entity rawEnt);
@@ -28,9 +27,10 @@ namespace Draft {
     public:
         // Public variables
         Time physicsTimestep = Time::seconds(-1); // If -1, use app's timestep.
+        World world{{0.f, 0.f}};
 
         // Constructors
-        PhysicsSystem(Scene& sceneRef, World& worldRef);
+        PhysicsSystem(Scene& sceneRef);
         PhysicsSystem(PhysicsSystem&& other) = delete;
         PhysicsSystem(const PhysicsSystem& other) = delete;
         ~PhysicsSystem();

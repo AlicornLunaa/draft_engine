@@ -171,6 +171,10 @@ namespace Draft {
         }
     }
 
+    void World::set_gravity(const Vector2f& v){
+        ptr->world.SetGravity(vector_to_b2(v));
+    }
+
     void World::set_debug_renderer(Resource<Shader> shader, void* renderer){
         if(!renderer){
             ptr->physRenderer.reset();

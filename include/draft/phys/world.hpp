@@ -44,6 +44,8 @@ namespace Draft {
         Joint* create_joint(const JointDef& def);
         void destroy_joint(Joint* jointPtr);
 
+        void set_gravity(const Vector2f& v);
+
         void set_debug_renderer(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(Time timeStep, int32_t velocityIterations, int32_t positionIterations);
