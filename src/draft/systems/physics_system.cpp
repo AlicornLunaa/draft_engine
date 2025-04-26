@@ -2,9 +2,12 @@
 #include "draft/components/transform_component.hpp"
 #include "draft/components/rigid_body_component.hpp"
 #include "draft/components/collider_component.hpp"
+#include "draft/components/joint_component.hpp"
 #include "draft/systems/physics_system.hpp"
 #include "draft/phys/body_def.hpp"
 #include "draft/phys/fixture.hpp"
+#include "draft/phys/joint.hpp"
+#include "draft/phys/joint_def.hpp"
 #include "tracy/Tracy.hpp"
 #include <cassert>
 
@@ -71,6 +74,133 @@ namespace Draft {
         colliderRef.attach(rigidBodyPtr);
     }
 
+    void PhysicsSystem::construct_joint_func(Registry& reg, entt::entity rawEnt){
+        // A JointComponent was added, add a new native handle
+        JointComponent& jointComponent = reg.get<JointComponent>(rawEnt);
+
+        // Make sure the joint has a definition since its a pointer
+        assert(jointComponent.definition && "Joint definition must not be null");
+
+        // Make sure the entity doesn't already have a native handle somehow
+        if(reg.all_of<NativeJointComponent>(rawEnt))
+            return;
+
+        // Make sure the two target entities have bodies to attach to
+        if(!jointComponent.entityA.is_valid() || !jointComponent.entityA.has_component<NativeBodyComponent>())
+            return;
+
+        if(!jointComponent.entityB.is_valid() || !jointComponent.entityB.has_component<NativeBodyComponent>())
+            return;
+        
+        // Construct actual joint
+        RigidBody* bodyA = jointComponent.entityA.get_component<NativeBodyComponent>();
+        RigidBody* bodyB = jointComponent.entityB.get_component<NativeBodyComponent>();
+        GenericJointData* data = jointComponent.definition.get();
+        Joint* joint = nullptr;
+
+        if(auto* ptr = dynamic_cast<DistanceJointData*>(data)){
+            DistanceJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.anchorA = ptr->anchorA;
+            definition.anchorB = ptr->anchorB;
+            definition.length = ptr->length;
+            definition.minLength = ptr->minLength;
+            definition.maxLength = ptr->maxLength;
+            definition.stiffness = ptr->stiffness;
+            definition.damping = ptr->damping;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<RevoluteJointData*>(data)){
+            RevoluteJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.localAnchorA = ptr->localAnchorA;
+            definition.localAnchorB = ptr->localAnchorB;
+            definition.referenceAngle = ptr->referenceAngle;
+            definition.lowerAngle = ptr->lowerAngle;
+            definition.upperAngle = ptr->upperAngle;
+            definition.maxMotorTorque = ptr->maxMotorTorque;
+            definition.motorSpeed = ptr->motorSpeed;
+            definition.enableLimit = ptr->enableLimit;
+            definition.enableMotor = ptr->enableMotor;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<PrismaticJointData*>(data)){
+            PrismaticJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.anchorA = ptr->anchorA;
+            definition.anchorB = ptr->anchorB;
+            definition.localAxisA = ptr->localAxisA;
+            definition.referenceAngle = ptr->referenceAngle;
+            definition.lowerTranslation = ptr->lowerTranslation;
+            definition.upperTranslation = ptr->upperTranslation;
+            definition.maxMotorForce = ptr->maxMotorForce;
+            definition.motorSpeed = ptr->motorSpeed;
+            definition.enableLimit = ptr->enableLimit;
+            definition.enableMotor = ptr->enableMotor;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<PulleyJointData*>(data)){
+            PulleyJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.groundAnchorA = ptr->groundAnchorA;
+            definition.groundAnchorB = ptr->groundAnchorB;
+            definition.localAnchorA = ptr->localAnchorA;
+            definition.localAnchorB = ptr->localAnchorB;
+            definition.lengthA = ptr->lengthA;
+            definition.lengthB = ptr->lengthB;
+            definition.ratio = ptr->ratio;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<GearJointData*>(data)){
+            GearJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.joint1 = ptr->joint1;
+            definition.joint2 = ptr->joint2;
+            definition.ratio = ptr->ratio;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<MouseJointData*>(data)){
+            MouseJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.target = ptr->target;
+            definition.maxForce = ptr->maxForce;
+            definition.stiffness = ptr->stiffness;
+            definition.damping = ptr->damping;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<WheelJointData*>(data)){
+            WheelJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.anchorA = ptr->anchorA;
+            definition.anchorB = ptr->anchorB;
+            definition.localAxis = ptr->localAxis;
+            definition.lowerTranslation = ptr->lowerTranslation;
+            definition.upperTranslation = ptr->upperTranslation;
+            definition.maxMotorTorque = ptr->maxMotorTorque;
+            definition.motorSpeed = ptr->motorSpeed;
+            definition.stiffness = ptr->stiffness;
+            definition.damping = ptr->damping;
+            definition.enableLimit = ptr->enableLimit;
+            definition.enableMotor = ptr->enableMotor;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<WeldJointData*>(data)){
+            WeldJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.anchorA = ptr->anchorA;
+            definition.anchorB = ptr->anchorB;
+            definition.referenceAngle = ptr->referenceAngle;
+            definition.stiffness = ptr->stiffness;
+            definition.damping = ptr->damping;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<FrictionJointData*>(data)){
+            FrictionJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.anchorA = ptr->anchorA;
+            definition.anchorB = ptr->anchorB;
+            definition.maxForce = ptr->maxForce;
+            definition.maxTorque = ptr->maxTorque;
+            joint = worldRef.create_joint(definition);
+        } else if(auto* ptr = dynamic_cast<MotorJointData*>(data)){
+            MotorJointDef definition(bodyA, bodyB, data->collideConnected);
+            definition.linearOffset = ptr->linearOffset;
+            definition.angularOffset = ptr->angularOffset;
+            definition.maxForce = ptr->maxForce;
+            definition.maxTorque = ptr->maxTorque;
+            definition.correctionFactor = ptr->correctionFactor;
+            joint = worldRef.create_joint(definition);
+        }
+
+        assert(joint && "Something went wrong with a joint");
+
+        // Add a handle to the entity so it can be referenced later
+        reg.emplace<NativeJointComponent>(rawEnt, joint);
+    }
+
     void PhysicsSystem::deconstruct_body_func(Registry& reg, entt::entity rawEnt){
         // Body was removed from an entity
         ZoneScopedN("body_destruction");
@@ -126,38 +256,28 @@ namespace Draft {
         colliderRef.detach();
     }
 
-    // Constructors
-    PhysicsSystem::PhysicsSystem(Scene& sceneRef, World& worldRef) : appPtr(sceneRef.get_app()), registryRef(sceneRef.get_registry()), worldRef(worldRef) {
-        // Attach listeners
-        registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
-        registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
-        registryRef.on_destroy<RigidBodyComponent>().connect<&PhysicsSystem::deconstruct_body_func>(this);
-        registryRef.on_destroy<ColliderComponent>().connect<&PhysicsSystem::deconstruct_collider_func>(this);
+    void PhysicsSystem::deconstruct_joint_func(Registry& reg, entt::entity rawEnt){
+        // Make sure it has a native handle
+        if(!reg.all_of<NativeJointComponent>(rawEnt))
+            return;
+
+        // Destroy it
+        reg.remove<NativeJointComponent>(rawEnt);
     }
 
-    PhysicsSystem::~PhysicsSystem(){
-        // Remove listeners
-        registryRef.on_construct<RigidBodyComponent>().disconnect<&PhysicsSystem::construct_body_func>(this);
-        registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
-        registryRef.on_destroy<RigidBodyComponent>().disconnect<&PhysicsSystem::deconstruct_body_func>(this);
-        registryRef.on_destroy<ColliderComponent>().disconnect<&PhysicsSystem::deconstruct_collider_func>(this);
+    void PhysicsSystem::deconstruct_native_joint_func(Registry& reg, entt::entity rawEnt){
+        // A joint component was removed, delete the world joint
+        NativeJointComponent& jointComponent = reg.get<NativeJointComponent>(rawEnt);
+
+        // Make sure the joint is valid since its a pointer
+        if(!jointComponent.joint)
+            return;
+
+        // Destroy it
+        jointComponent->destroy();
     }
 
-    // Functions
-    void PhysicsSystem::update(){
-        // Update physics world
-        ZoneScopedN("physics_system");
-
-        Time prevTimestep = appPtr->timeStep;
-        bool resetTime = false;
-
-        if(physicsTimestep.as_seconds() >= 0.f){
-            appPtr->timeStep = physicsTimestep;
-            resetTime = true;
-        }
-
-        worldRef.step(appPtr->timeStep, worldRef.VELOCITY_ITER, worldRef.POSITION_ITER);
-
+    void PhysicsSystem::handle_bodies(){
         // Iterate over entities and update each component, starting with transforms
         auto view1 = registryRef.view<TransformComponent, NativeBodyComponent>();
 
@@ -200,7 +320,9 @@ namespace Draft {
             bodyComponent.enabled = body->is_enabled();
             bodyComponent.gravityScale = body->get_gravity_scale();
         }
+    }
 
+    void PhysicsSystem::handle_forces(){
         // Handle forces
         // Torques
         auto view3 = registryRef.view<TorqueComponent, NativeBodyComponent>();
@@ -267,6 +389,49 @@ namespace Draft {
                 body->apply_angular_impulse(physComponent.angular, physComponent.wake);
             }
         }
+    }
+
+    // Constructors
+    PhysicsSystem::PhysicsSystem(Scene& sceneRef, World& worldRef) : appPtr(sceneRef.get_app()), registryRef(sceneRef.get_registry()), worldRef(worldRef) {
+        // Attach listeners
+        registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
+        registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
+        registryRef.on_construct<JointComponent>().connect<&PhysicsSystem::construct_joint_func>(this);
+        registryRef.on_destroy<RigidBodyComponent>().connect<&PhysicsSystem::deconstruct_body_func>(this);
+        registryRef.on_destroy<ColliderComponent>().connect<&PhysicsSystem::deconstruct_collider_func>(this);
+        registryRef.on_destroy<JointComponent>().connect<&PhysicsSystem::deconstruct_joint_func>(this);
+        registryRef.on_destroy<NativeJointComponent>().connect<&PhysicsSystem::deconstruct_native_joint_func>(this);
+    }
+
+    PhysicsSystem::~PhysicsSystem(){
+        // Remove listeners
+        registryRef.on_construct<RigidBodyComponent>().disconnect<&PhysicsSystem::construct_body_func>(this);
+        registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
+        registryRef.on_construct<JointComponent>().disconnect<&PhysicsSystem::construct_joint_func>(this);
+        registryRef.on_destroy<RigidBodyComponent>().disconnect<&PhysicsSystem::deconstruct_body_func>(this);
+        registryRef.on_destroy<ColliderComponent>().disconnect<&PhysicsSystem::deconstruct_collider_func>(this);
+        registryRef.on_destroy<JointComponent>().disconnect<&PhysicsSystem::deconstruct_joint_func>(this);
+        registryRef.on_destroy<NativeJointComponent>().disconnect<&PhysicsSystem::deconstruct_native_joint_func>(this);
+    }
+
+    // Functions
+    void PhysicsSystem::update(){
+        // Update physics world
+        ZoneScopedN("physics_system");
+
+        Time prevTimestep = appPtr->timeStep;
+        bool resetTime = false;
+
+        if(physicsTimestep.as_seconds() >= 0.f){
+            appPtr->timeStep = physicsTimestep;
+            resetTime = true;
+        }
+
+        worldRef.step(appPtr->timeStep, worldRef.VELOCITY_ITER, worldRef.POSITION_ITER);
+
+        // Views
+        handle_forces();
+        handle_bodies();
         
         // Reset accumulator
         if(resetTime){

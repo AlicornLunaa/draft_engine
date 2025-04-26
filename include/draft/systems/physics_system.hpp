@@ -16,8 +16,14 @@ namespace Draft {
         // Private functions
         void construct_body_func(Registry& reg, entt::entity rawEnt);
         void construct_collider_func(Registry& reg, entt::entity rawEnt);
+        void construct_joint_func(Registry& reg, entt::entity rawEnt);
         void deconstruct_body_func(Registry& reg, entt::entity rawEnt);
         void deconstruct_collider_func(Registry& reg, entt::entity rawEnt);
+        void deconstruct_joint_func(Registry& reg, entt::entity rawEnt);
+        void deconstruct_native_joint_func(Registry& reg, entt::entity rawEnt);
+
+        void handle_bodies();
+        void handle_forces();
 
     public:
         // Public variables

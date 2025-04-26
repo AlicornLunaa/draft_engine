@@ -66,67 +66,85 @@ namespace Draft {
         }
     }
 
-    template<typename T>
-    Joint* World::create_joint(const T& def){
-        auto tmp = jointdef_to_b2(def);
-        b2Joint* jointPtr = ptr->world.CreateJoint(&tmp);
-
+    Joint* World::create_joint(const JointDef& def){
+        b2Joint* jointPtr = nullptr;
         Joint* joint = nullptr;
-        Joint* target1 = nullptr;
-        Joint* target2 = nullptr;
-
-        if(def.type == Joint::Type::GEAR){
-            // Gross thing here :(
-            GearJointDef* tmp = (GearJointDef*)(&def);
-            target1 = tmp->joint1;
-            target2 = tmp->joint2;
-        }
 
         switch(def.type){
-            case Joint::Type::DISTANCE:
+            case Joint::Type::DISTANCE: {
+                auto tmp = jointdef_to_b2(static_cast<const DistanceJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new DistanceJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::REVOLUTE:
+            case Joint::Type::REVOLUTE: {
+                auto tmp = jointdef_to_b2(static_cast<const RevoluteJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new RevoluteJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::PRISMATIC:
+            case Joint::Type::PRISMATIC: {
+                auto tmp = jointdef_to_b2(static_cast<const PrismaticJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new PrismaticJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::PULLEY:
+            case Joint::Type::PULLEY: {
+                auto tmp = jointdef_to_b2(static_cast<const PulleyJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new PulleyJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::GEAR:
+            case Joint::Type::GEAR: {
+                const GearJointDef& gearDefinitionRef = static_cast<const GearJointDef&>(def);
+                auto tmp = jointdef_to_b2(gearDefinitionRef);
+                Joint* target1 = gearDefinitionRef.joint1;
+                Joint* target2 = gearDefinitionRef.joint2;
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new GearJoint(this, def.bodyA, def.bodyB, target1, target2, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::MOUSE:
+            case Joint::Type::MOUSE: {
+                auto tmp = jointdef_to_b2(static_cast<const MouseJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new MouseJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::WHEEL:
+            case Joint::Type::WHEEL: {
+                auto tmp = jointdef_to_b2(static_cast<const WheelJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new WheelJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::WELD:
+            case Joint::Type::WELD: {
+                auto tmp = jointdef_to_b2(static_cast<const WeldJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new WeldJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::ROPE:
-                exit(0);
-                break;
-
-            case Joint::Type::FRICTION:
+            case Joint::Type::FRICTION: {
+                auto tmp = jointdef_to_b2(static_cast<const FrictionJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new FrictionJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
-            case Joint::Type::MOTOR:
+            case Joint::Type::MOTOR: {
+                auto tmp = jointdef_to_b2(static_cast<const MotorJointDef&>(def));
+                jointPtr = ptr->world.CreateJoint(&tmp);
                 joint = new MotorJoint(this, def.bodyA, def.bodyB, (void*)jointPtr);
                 break;
+            }
 
+            case Joint::Type::ROPE:
             case Joint::Type::UNKNOWN:
             default:
                 exit(0);
@@ -136,16 +154,6 @@ namespace Draft {
         joints.push_back(std::unique_ptr<Joint>(joint));
         return joint;
     }
-    template Joint* World::create_joint(const DistanceJointDef& def);
-    template Joint* World::create_joint(const FrictionJointDef& def);
-    template Joint* World::create_joint(const GearJointDef& def);
-    template Joint* World::create_joint(const MotorJointDef& def);
-    template Joint* World::create_joint(const MouseJointDef& def);
-    template Joint* World::create_joint(const PrismaticJointDef& def);
-    template Joint* World::create_joint(const PulleyJointDef& def);
-    template Joint* World::create_joint(const RevoluteJointDef& def);
-    template Joint* World::create_joint(const WeldJointDef& def);
-    template Joint* World::create_joint(const WheelJointDef& def);
 
     void World::destroy_joint(Joint* jointPtr){
         assert(jointPtr && "jointPtr cannot be null");
