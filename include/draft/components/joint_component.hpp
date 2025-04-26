@@ -19,9 +19,9 @@ namespace Draft {
 
     // Factory
     template<typename T>
-    Entity create_joint_entity(Scene& scene, const T& joint){
+    Entity create_joint_entity(Scene& scene, Entity a, Entity b, const T& data){
         Entity entity = scene.create_entity();
-        entity.add_component<T>(joint);
+        entity.add_component<JointComponent>(a, b, std::make_unique<T>(data));
         return entity;
     }
 };
