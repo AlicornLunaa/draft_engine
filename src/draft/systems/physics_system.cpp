@@ -83,6 +83,13 @@ namespace Draft {
         }
 
         // Add joints to the body if they exist
+        if(reg.all_of<ConstrainedComponent>(rawEnt)){
+            auto& constraints = reg.get<ConstrainedComponent>(rawEnt).constraints;
+
+            for(Entity jointEntity : constraints){
+                jointEntity.add_component<NativeJointComponent>();
+            }
+        }
     }
 
     void PhysicsSystem::construct_collider_func(Registry& reg, entt::entity rawEnt){
@@ -109,7 +116,7 @@ namespace Draft {
 
         // Make sure the entity doesn't already have a native handle somehow
         if(reg.all_of<NativeJointComponent>(rawEnt))
-            return;
+            reg.remove<NativeJointComponent>(rawEnt);
 
         // Make sure the two target entities have bodies to attach to
         if(!jointComponent.entityA.is_valid() || !jointComponent.entityA.has_component<NativeBodyComponent>())
@@ -117,6 +124,55 @@ namespace Draft {
 
         if(!jointComponent.entityB.is_valid() || !jointComponent.entityB.has_component<NativeBodyComponent>())
             return;
+        
+        // Construct actual joint
+        reg.emplace<NativeJointComponent>(rawEnt);
+
+        // Add constraint references to the targets
+        // Entity A
+        ConstrainedComponent* constraintComponent = nullptr;
+        
+        if(!jointComponent.entityA.has_component<ConstrainedComponent>()){
+            constraintComponent = &jointComponent.entityA.add_component<ConstrainedComponent>();
+        } else {
+            constraintComponent = &jointComponent.entityA.get_component<ConstrainedComponent>();
+        }
+
+        constraintComponent->constraints.push_back(Entity(&m_sceneRef, rawEnt));
+
+        // Entity B
+        if(!jointComponent.entityB.has_component<ConstrainedComponent>()){
+            constraintComponent = &jointComponent.entityB.add_component<ConstrainedComponent>();
+        } else {
+            constraintComponent = &jointComponent.entityB.get_component<ConstrainedComponent>();
+        }
+
+        constraintComponent->constraints.push_back(Entity(&m_sceneRef, rawEnt));
+    }
+
+    void PhysicsSystem::construct_native_joint_func(Registry& reg, entt::entity rawEnt){
+        // Make sure the entity has a joint component, otherwise a native joint cant be constructed
+        if(!reg.all_of<JointComponent>(rawEnt)){
+            reg.remove<NativeJointComponent>(rawEnt);
+            return;
+        }
+
+        // A NativeJointComponent was added, add a new native handle
+        JointComponent& jointComponent = reg.get<JointComponent>(rawEnt);
+
+        // Make sure the joint has a definition since its a pointer
+        assert(jointComponent.definition && "Joint definition must not be null");
+
+        // Make sure the two target entities have bodies to attach to
+        if(!jointComponent.entityA.is_valid() || !jointComponent.entityA.has_component<NativeBodyComponent>()){
+            reg.remove<NativeJointComponent>(rawEnt);
+            return;
+        }
+
+        if(!jointComponent.entityB.is_valid() || !jointComponent.entityB.has_component<NativeBodyComponent>()){
+            reg.remove<NativeJointComponent>(rawEnt);
+            return;
+        }
         
         // Construct actual joint
         RigidBody* bodyA = jointComponent.entityA.get_component<NativeBodyComponent>();
@@ -224,7 +280,8 @@ namespace Draft {
         assert(joint && "Something went wrong with a joint");
 
         // Add a handle to the entity so it can be referenced later
-        reg.emplace<NativeJointComponent>(rawEnt, joint);
+        NativeJointComponent& nativeHandle = reg.get<NativeJointComponent>(rawEnt);
+        nativeHandle.joint = joint;
     }
 
     void PhysicsSystem::deconstruct_body_func(Registry& reg, entt::entity rawEnt){
@@ -277,6 +334,19 @@ namespace Draft {
             bodyComponent.gravityScale = body->get_gravity_scale();
         }
 
+        // Remove joints
+        if(reg.all_of<ConstrainedComponent>(rawEnt)){
+            auto& constraints = reg.get<ConstrainedComponent>(rawEnt).constraints;
+
+            for(Entity jointEntity : constraints){
+                // Check for the native joint and remove it
+                if(jointEntity.has_component<NativeJointComponent>()){
+                    // Remove handle
+                    jointEntity.remove_component<NativeJointComponent>();
+                }
+            }
+        }
+
         // Remove the physics handle
         body->destroy();
     }
@@ -295,12 +365,45 @@ namespace Draft {
     }
 
     void PhysicsSystem::deconstruct_joint_func(Registry& reg, entt::entity rawEnt){
-        // Make sure it has a native handle
-        if(!reg.all_of<NativeJointComponent>(rawEnt))
-            return;
+        // Make sure it has a native handle and remove it
+        if(reg.all_of<NativeJointComponent>(rawEnt))
+            reg.remove<NativeJointComponent>(rawEnt);
 
-        // Destroy it
-        reg.remove<NativeJointComponent>(rawEnt);
+        // Remove the constraints for other entities
+        JointComponent& joint = reg.get<JointComponent>(rawEnt);
+        Entity currentEntity = Entity(&m_sceneRef, rawEnt);
+
+        // Entity A
+        if(joint.entityA.is_valid() && joint.entityA.has_component<ConstrainedComponent>()){
+            auto& constraints = joint.entityA.get_component<ConstrainedComponent>().constraints;
+
+            // Find and remove entity reference
+            auto iter = std::find(constraints.begin(), constraints.end(), currentEntity);
+            if(iter != constraints.end()){
+                constraints.erase(iter);
+            }
+
+            // If the constraints are empty, remove the component too
+            if(constraints.empty()){
+                joint.entityA.remove_component<ConstrainedComponent>();
+            }
+        }
+
+        // Entity B
+        if(joint.entityB.is_valid() && joint.entityB.has_component<ConstrainedComponent>()){
+            auto& constraints = joint.entityB.get_component<ConstrainedComponent>().constraints;
+
+            // Find and remove entity reference
+            auto iter = std::find(constraints.begin(), constraints.end(), currentEntity);
+            if(iter != constraints.end()){
+                constraints.erase(iter);
+            }
+
+            // If the constraints are empty, remove the component too
+            if(constraints.empty()){
+                joint.entityB.remove_component<ConstrainedComponent>();
+            }
+        }
     }
 
     void PhysicsSystem::deconstruct_native_joint_func(Registry& reg, entt::entity rawEnt){
@@ -308,11 +411,9 @@ namespace Draft {
         NativeJointComponent& jointComponent = reg.get<NativeJointComponent>(rawEnt);
 
         // Make sure the joint is valid since its a pointer
-        if(!jointComponent.joint)
-            return;
-
-        // Destroy it
-        jointComponent->destroy();
+        if(jointComponent.joint)
+            // Destroy it
+            jointComponent->destroy();
     }
 
     void PhysicsSystem::handle_bodies(){
@@ -347,6 +448,12 @@ namespace Draft {
         for(auto entity : view2){
             RigidBodyComponent& bodyComponent = view2.get<RigidBodyComponent>(entity);
             NativeBodyComponent& handle = view2.get<NativeBodyComponent>(entity);
+
+            if(handle.deltaType != bodyComponent.type){
+                handle->set_type(bodyComponent.type);
+            }
+            bodyComponent.type = handle->get_type();
+            handle.deltaType = bodyComponent.type;
             
             handle.deltaLinearVelocity = bodyComponent.linearVelocity - handle.deltaLinearVelocity;
             if(Math::abs(handle.deltaLinearVelocity.x) >= 0.f || Math::abs(handle.deltaLinearVelocity.y) >= 0.f)
@@ -476,12 +583,13 @@ namespace Draft {
     }
 
     // Constructors
-    PhysicsSystem::PhysicsSystem(Scene& sceneRef) : m_appPtr(sceneRef.get_app()), m_registryRef(sceneRef.get_registry()) {
+    PhysicsSystem::PhysicsSystem(Scene& sceneRef) : m_appPtr(sceneRef.get_app()), m_registryRef(sceneRef.get_registry()), m_sceneRef(sceneRef) {
         // Attach listeners
         m_registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
         m_registryRef.on_construct<NativeBodyComponent>().connect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
         m_registryRef.on_construct<JointComponent>().connect<&PhysicsSystem::construct_joint_func>(this);
+        m_registryRef.on_construct<NativeJointComponent>().connect<&PhysicsSystem::construct_native_joint_func>(this);
 
         m_registryRef.on_destroy<RigidBodyComponent>().connect<&PhysicsSystem::deconstruct_body_func>(this);
         m_registryRef.on_destroy<NativeBodyComponent>().connect<&PhysicsSystem::deconstruct_native_body_func>(this);
@@ -496,6 +604,7 @@ namespace Draft {
         m_registryRef.on_construct<NativeBodyComponent>().disconnect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
         m_registryRef.on_construct<JointComponent>().disconnect<&PhysicsSystem::construct_joint_func>(this);
+        m_registryRef.on_construct<NativeJointComponent>().disconnect<&PhysicsSystem::construct_native_joint_func>(this);
         
         m_registryRef.on_destroy<RigidBodyComponent>().disconnect<&PhysicsSystem::deconstruct_body_func>(this);
         m_registryRef.on_destroy<NativeBodyComponent>().disconnect<&PhysicsSystem::deconstruct_native_body_func>(this);

@@ -91,6 +91,7 @@ set(SOURCES
     src/draft/util/time.cpp
     src/draft/util/color.cpp
     src/draft/util/clock.cpp
+    src/draft/util/tool_box.cpp
 
     src/draft/systems/audio_system.cpp
     src/draft/systems/render_system.cpp
@@ -126,6 +127,8 @@ set(INTERFACES
     include/draft/components/transform_component.hpp
     include/draft/components/collider_component.hpp
     include/draft/components/relationship_components.hpp
+    include/draft/components/rigid_body_component.hpp
+    include/draft/components/joint_component.hpp
 
     include/draft/core/application.hpp
     include/draft/core/scene.hpp
@@ -237,6 +240,7 @@ set(INTERFACES
     include/draft/util/color.hpp
     include/draft/util/clock.hpp
     include/draft/util/types.hpp
+    include/draft/util/tool_box.hpp
 )
 
 set(RESOURCES

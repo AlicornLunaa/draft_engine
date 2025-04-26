@@ -12,6 +12,7 @@ namespace Draft {
         Vector2f deltaP = {};
         float deltaR = 0.f;
 
+        RigidBody::BodyType deltaType = RigidBody::STATIC;
         Vector2f deltaLinearVelocity = {};
         float deltaAngularVelocity = 0.f;
         float deltaLinearDamping = 0.f;

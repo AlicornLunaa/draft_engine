@@ -149,8 +149,6 @@ namespace Draft {
     }
 
     void RigidBody::destroy(){
-        ptr->body = nullptr;
-        ptr->b2ToFixturePtrs.clear();
         currentWorld->destroy_body(this);
     }
 

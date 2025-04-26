@@ -11,12 +11,15 @@ namespace Draft {
         // Variables
         Application* m_appPtr = nullptr;
         Registry& m_registryRef;
+        Scene& m_sceneRef;
 
         // Private functions
         void construct_body_func(Registry& reg, entt::entity rawEnt);
         void construct_native_body_func(Registry& reg, entt::entity rawEnt);
         void construct_collider_func(Registry& reg, entt::entity rawEnt);
         void construct_joint_func(Registry& reg, entt::entity rawEnt);
+        void construct_native_joint_func(Registry& reg, entt::entity rawEnt);
+        
         void deconstruct_body_func(Registry& reg, entt::entity rawEnt);
         void deconstruct_native_body_func(Registry& reg, entt::entity rawEnt);
         void deconstruct_collider_func(Registry& reg, entt::entity rawEnt);

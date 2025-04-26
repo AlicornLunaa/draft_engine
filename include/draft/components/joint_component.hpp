@@ -3,6 +3,7 @@
 #include "draft/core/entity.hpp"
 #include "draft/phys/joint_def.hpp"
 #include <memory>
+#include <vector>
 
 namespace Draft {
     // Components
@@ -15,6 +16,11 @@ namespace Draft {
     struct NativeJointComponent {
         Joint* joint = nullptr;
         Joint* operator->(){ return joint; }
+    };
+
+    struct ConstrainedComponent {
+        // Holds a list of all the joint components which constraint the entitiy to another entitiy
+        std::vector<Entity> constraints;
     };
 
     // Factory
