@@ -8,6 +8,7 @@
 #include "draft/phys/fixture.hpp"
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
+#include "glm/common.hpp"
 #include "tracy/Tracy.hpp"
 #include <cassert>
 
@@ -19,11 +20,29 @@ namespace Draft {
         
         // Get component and construct it in the world
         RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
-        BodyDef definition;
 
-        // Make sure the entity doesn't already have a native handle somehow
+        // Make sure the entity doesn't already have a native handle somehow, if it does remove it.
         if(reg.all_of<NativeBodyComponent>(rawEnt))
+            reg.remove<NativeBodyComponent>(rawEnt);
+
+        // Add a handle to the entity so it can be referenced later
+        reg.emplace<NativeBodyComponent>(rawEnt);
+    }
+
+    void PhysicsSystem::construct_native_body_func(Registry& reg, entt::entity rawEnt){
+        // A NativeBodyComponent was attached to something
+        ZoneScopedN("body_construction");
+
+        // Cant construct a native body without an actual body blueprint
+        if(!reg.all_of<RigidBodyComponent>(rawEnt)){
+            reg.remove<NativeBodyComponent>(rawEnt);
             return;
+        }
+        
+        // Get component and construct it in the world
+        NativeBodyComponent& nativeComponent = reg.get<NativeBodyComponent>(rawEnt);
+        RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
+        BodyDef definition;
 
         // A rigidbody can only be constructed if there's a transform, otherwise the body can't move
         if(reg.all_of<TransformComponent>(rawEnt)){
@@ -49,7 +68,12 @@ namespace Draft {
         assert(body && "Something went wrong with body");
 
         // Add a handle to the entity so it can be referenced later
-        reg.emplace<NativeBodyComponent>(rawEnt, body, body->get_position(), body->get_angle());
+        nativeComponent.deltaP = definition.position;
+        nativeComponent.deltaR = definition.angle;
+        nativeComponent.deltaLinearVelocity = definition.linearVelocity;
+        nativeComponent.deltaAngularVelocity = definition.angularVelocity;
+        nativeComponent.bodyPtr = body;
+        bodyComponent.m_nativeHandlePtr = body; // Let the bodycomponent also know about the body, albiet very strictly
 
         // Add colliders to the body if they exist
         if(reg.all_of<ColliderComponent>(rawEnt)){
@@ -57,6 +81,8 @@ namespace Draft {
             Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
             colliderRef.attach(body);
         }
+
+        // Add joints to the body if they exist
     }
 
     void PhysicsSystem::construct_collider_func(Registry& reg, entt::entity rawEnt){
@@ -65,13 +91,13 @@ namespace Draft {
 
         // Add colliders to new body in the simulation, first check if it has any body components
         if(!reg.all_of<NativeBodyComponent>(rawEnt))
-            // No collider or rigidbody, dont attach
+            // Cannot attach colliders without a rigidbody
             return;
 
         // Add the collider component to the rigidbody
-        RigidBody* rigidBodyPtr = reg.get<NativeBodyComponent>(rawEnt);
+        RigidBody* handle = reg.get<NativeBodyComponent>(rawEnt);
         Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
-        colliderRef.attach(rigidBodyPtr);
+        colliderRef.attach(handle);
     }
 
     void PhysicsSystem::construct_joint_func(Registry& reg, entt::entity rawEnt){
@@ -202,23 +228,21 @@ namespace Draft {
     }
 
     void PhysicsSystem::deconstruct_body_func(Registry& reg, entt::entity rawEnt){
-        // Body was removed from an entity
+        // BodyComponent was removed from an entity
         ZoneScopedN("body_destruction");
 
-        // Make sure the body is actually physically active
-        if(!reg.all_of<NativeBodyComponent>(rawEnt))
-            return;
+        // Remove the native handle from the body
+        if(reg.all_of<NativeBodyComponent>(rawEnt))
+            reg.remove<NativeBodyComponent>(rawEnt);
+    }
 
-        // Destroy old body in the simulation
-        RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
+    void PhysicsSystem::deconstruct_native_body_func(Registry& reg, entt::entity rawEnt){
+        // NativeBodyComponent was removed from an entity
         RigidBody* body = reg.get<NativeBodyComponent>(rawEnt);
 
-        // Remove the collider if its on the body
-        if(reg.all_of<ColliderComponent>(rawEnt)){
-            // No colliders, nothing to update
-            Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
-            colliderRef.detach();
-        }
+        // Skip cleanup if the body handle isnt valid
+        if(!body->is_valid())
+            return;
 
         // Check if it has a transform component, if it does save final transform
         if(reg.all_of<TransformComponent>(rawEnt)){
@@ -227,20 +251,34 @@ namespace Draft {
             trans.rotation = body->get_angle();
         }
 
-        // Save state to the component definition
-        bodyComponent.linearVelocity = body->get_linear_velocity();
-        bodyComponent.angularVelocity = body->get_angular_velocity();
-        bodyComponent.linearDamping = body->get_linear_damping();
-        bodyComponent.angularDamping = body->get_angular_damping();
-        bodyComponent.awake = body->is_awake();
-        bodyComponent.fixedRotation = body->is_fixed_rotation();
-        bodyComponent.bullet = body->is_bullet();
-        bodyComponent.enabled = body->is_enabled();
-        bodyComponent.gravityScale = body->get_gravity_scale();
+        // Remove the collider if its on the body
+        if(reg.all_of<ColliderComponent>(rawEnt)){
+            // No colliders, nothing to update
+            Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
+            colliderRef.detach();
+        }
 
-        // Remove it
+        // Sync RigidBodyComponent data
+        if(reg.all_of<RigidBodyComponent>(rawEnt)){
+            RigidBodyComponent& bodyComponent = reg.get<RigidBodyComponent>(rawEnt);
+
+            // Remove soon-to-be dangling pointer
+            bodyComponent.m_nativeHandlePtr = nullptr;
+        
+            // Save state to the component definition
+            bodyComponent.linearVelocity = body->get_linear_velocity();
+            bodyComponent.angularVelocity = body->get_angular_velocity();
+            bodyComponent.linearDamping = body->get_linear_damping();
+            bodyComponent.angularDamping = body->get_angular_damping();
+            bodyComponent.awake = body->is_awake();
+            bodyComponent.fixedRotation = body->is_fixed_rotation();
+            bodyComponent.bullet = body->is_bullet();
+            bodyComponent.enabled = body->is_enabled();
+            bodyComponent.gravityScale = body->get_gravity_scale();
+        }
+
+        // Remove the physics handle
         body->destroy();
-        reg.remove<NativeBodyComponent>(rawEnt);
     }
 
     void PhysicsSystem::deconstruct_collider_func(Registry& reg, entt::entity rawEnt){
@@ -308,17 +346,63 @@ namespace Draft {
 
         for(auto entity : view2){
             RigidBodyComponent& bodyComponent = view2.get<RigidBodyComponent>(entity);
-            RigidBody* body = view2.get<NativeBodyComponent>(entity);
+            NativeBodyComponent& handle = view2.get<NativeBodyComponent>(entity);
             
-            bodyComponent.linearVelocity = body->get_linear_velocity();
-            bodyComponent.angularVelocity = body->get_angular_velocity();
-            bodyComponent.linearDamping = body->get_linear_damping();
-            bodyComponent.angularDamping = body->get_angular_damping();
-            bodyComponent.awake = body->is_awake();
-            bodyComponent.fixedRotation = body->is_fixed_rotation();
-            bodyComponent.bullet = body->is_bullet();
-            bodyComponent.enabled = body->is_enabled();
-            bodyComponent.gravityScale = body->get_gravity_scale();
+            handle.deltaLinearVelocity = bodyComponent.linearVelocity - handle.deltaLinearVelocity;
+            if(Math::abs(handle.deltaLinearVelocity.x) >= 0.f || Math::abs(handle.deltaLinearVelocity.y) >= 0.f)
+                handle->set_linear_velocity(handle->get_linear_velocity() + handle.deltaLinearVelocity);
+            bodyComponent.linearVelocity = handle->get_linear_velocity();
+            handle.deltaLinearVelocity = bodyComponent.linearVelocity;
+
+            handle.deltaAngularVelocity = bodyComponent.angularVelocity - handle.deltaAngularVelocity;
+            if(Math::abs(handle.deltaAngularVelocity) >= 0.f)
+                handle->set_angular_velocity(handle->get_angular_velocity() + handle.deltaAngularVelocity);
+            bodyComponent.angularVelocity = handle->get_angular_velocity();
+            handle.deltaAngularVelocity = bodyComponent.angularVelocity;
+
+            handle.deltaLinearDamping = bodyComponent.linearDamping - handle.deltaLinearDamping;
+            if(Math::abs(handle.deltaLinearDamping) >= 0.f)
+                handle->set_linear_damping(handle->get_linear_damping() + handle.deltaLinearDamping);
+            bodyComponent.linearDamping = handle->get_linear_damping();
+            handle.deltaLinearDamping = bodyComponent.linearDamping;
+
+            handle.deltaAngularDamping = bodyComponent.angularDamping - handle.deltaAngularDamping;
+            if(Math::abs(handle.deltaAngularDamping) >= 0.f)
+                handle->set_angular_damping(handle->get_angular_damping() + handle.deltaAngularDamping);
+            bodyComponent.angularDamping = handle->get_angular_damping();
+            handle.deltaAngularDamping = bodyComponent.angularDamping;
+
+            if(handle.deltaAwake != bodyComponent.awake){
+                if(bodyComponent.awake){
+                    handle->set_awake();
+                } else {
+                    handle->set_sleep();
+                }
+            }
+            bodyComponent.awake = handle->is_awake();
+            handle.deltaAwake = bodyComponent.awake;
+
+            if(handle.deltaFixedRotation != bodyComponent.fixedRotation)
+                handle->set_fixed_rotation(bodyComponent.fixedRotation);
+            bodyComponent.fixedRotation = handle->is_fixed_rotation();
+            handle.deltaFixedRotation = bodyComponent.fixedRotation;
+
+            if(handle.deltaBullet != bodyComponent.bullet)
+                handle->set_bullet(bodyComponent.bullet);
+            bodyComponent.bullet = handle->is_bullet();
+            handle.deltaBullet = bodyComponent.bullet;
+
+            if(handle.deltaEnabled != bodyComponent.enabled)
+                handle->set_enabled(bodyComponent.enabled);
+            bodyComponent.enabled = handle->is_enabled();
+            handle.deltaEnabled = bodyComponent.enabled;
+
+            handle.deltaGravityScale = bodyComponent.gravityScale - handle.deltaGravityScale;
+            if(Math::abs(handle.deltaGravityScale) >= 0.f)
+                handle->set_gravity_scale(handle->get_gravity_scale() + handle.deltaGravityScale);
+            bodyComponent.gravityScale = handle->get_gravity_scale();
+            handle.deltaGravityScale = bodyComponent.gravityScale;
+
         }
     }
 
@@ -395,9 +479,12 @@ namespace Draft {
     PhysicsSystem::PhysicsSystem(Scene& sceneRef) : m_appPtr(sceneRef.get_app()), m_registryRef(sceneRef.get_registry()) {
         // Attach listeners
         m_registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
+        m_registryRef.on_construct<NativeBodyComponent>().connect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
         m_registryRef.on_construct<JointComponent>().connect<&PhysicsSystem::construct_joint_func>(this);
+
         m_registryRef.on_destroy<RigidBodyComponent>().connect<&PhysicsSystem::deconstruct_body_func>(this);
+        m_registryRef.on_destroy<NativeBodyComponent>().connect<&PhysicsSystem::deconstruct_native_body_func>(this);
         m_registryRef.on_destroy<ColliderComponent>().connect<&PhysicsSystem::deconstruct_collider_func>(this);
         m_registryRef.on_destroy<JointComponent>().connect<&PhysicsSystem::deconstruct_joint_func>(this);
         m_registryRef.on_destroy<NativeJointComponent>().connect<&PhysicsSystem::deconstruct_native_joint_func>(this);
@@ -406,9 +493,12 @@ namespace Draft {
     PhysicsSystem::~PhysicsSystem(){
         // Remove listeners
         m_registryRef.on_construct<RigidBodyComponent>().disconnect<&PhysicsSystem::construct_body_func>(this);
+        m_registryRef.on_construct<NativeBodyComponent>().disconnect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
         m_registryRef.on_construct<JointComponent>().disconnect<&PhysicsSystem::construct_joint_func>(this);
+        
         m_registryRef.on_destroy<RigidBodyComponent>().disconnect<&PhysicsSystem::deconstruct_body_func>(this);
+        m_registryRef.on_destroy<NativeBodyComponent>().disconnect<&PhysicsSystem::deconstruct_native_body_func>(this);
         m_registryRef.on_destroy<ColliderComponent>().disconnect<&PhysicsSystem::deconstruct_collider_func>(this);
         m_registryRef.on_destroy<JointComponent>().disconnect<&PhysicsSystem::deconstruct_joint_func>(this);
         m_registryRef.on_destroy<NativeJointComponent>().disconnect<&PhysicsSystem::deconstruct_native_joint_func>(this);
