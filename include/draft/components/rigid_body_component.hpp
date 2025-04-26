@@ -54,7 +54,8 @@ namespace Draft {
         // Functions
         inline Vector2f get_world_center() const { if(m_nativeHandlePtr) return m_nativeHandlePtr->get_world_center(); else return {}; }
         inline Vector2f get_local_center() const { if(m_nativeHandlePtr) return m_nativeHandlePtr->get_local_center(); else return {}; }
-        inline float get_inertia() const { if(m_nativeHandlePtr) return m_nativeHandlePtr->get_inertia(); else return 0.f; };
+        inline float get_inertia() const { if(m_nativeHandlePtr) return m_nativeHandlePtr->get_inertia(); else return 0.f; }
+        inline float get_mass() const { if(m_nativeHandlePtr) return m_nativeHandlePtr->get_mass(); else return 0.f; }
 
         inline Vector2f get_world_point(const Vector2f& localPoint) const { if(m_nativeHandlePtr) return m_nativeHandlePtr->get_world_point(localPoint); else return {}; }
         inline Vector2f get_world_vector(const Vector2f& localVector) const { if(m_nativeHandlePtr) return m_nativeHandlePtr->get_world_vector(localVector); else return {}; }
