@@ -131,6 +131,10 @@ namespace Draft {
         return this->ptr->b2ToFixturePtrs[ptr];
     }
 
+    std::vector<std::unique_ptr<Fixture>>& RigidBody::get_fixture_list(){
+        return fixtures;
+    }
+
     void RigidBody::destroy_fixture(Fixture* fixturePtr){
         assert(fixturePtr && "rigidBodyPtr cannot be null");
         ptr->body->DestroyFixture((b2Fixture*)fixturePtr->get_fixture_ptr());

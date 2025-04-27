@@ -1,5 +1,6 @@
 #include "draft/phys/fixture.hpp"
 #include "box2d/b2_collision.h"
+#include "draft/math/vector2_p.hpp"
 #include "draft/phys/conversions_p.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "box2d/b2_fixture.h"
@@ -61,5 +62,9 @@ namespace Draft {
         output = b2_to_raycast_result(out);
         
         return res;
+    }
+
+    bool Fixture::test_point(const Vector2f& position) const {
+        return ptr->fixture->TestPoint(vector_to_b2(position));
     }
 };

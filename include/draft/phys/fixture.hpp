@@ -57,6 +57,7 @@ namespace Draft {
         bool is_sensor() const;
 
 	    bool raycast(RaycastResult& output, const RaycastProps& input, int32_t childIndex = 0) const;
+        bool test_point(const Vector2f& position) const;
 
     private:
         // pImpl
