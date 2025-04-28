@@ -118,6 +118,7 @@ namespace Draft {
             }
 
             // A NativeJointComponent was added, add a new native handle
+            typename T::NativeType& nativeHandle = reg.get<typename T::NativeType>(rawEnt);
             T& jointComponent = reg.get<T>(rawEnt);
 
             // Make sure the two target entities have bodies to attach to
@@ -134,8 +135,11 @@ namespace Draft {
             // Construct actual joint
             RigidBody* bodyA = jointComponent.entityA.template get_component<NativeBodyComponent>();
             RigidBody* bodyB = jointComponent.entityB.template get_component<NativeBodyComponent>();
-            GenericJointData* data = &jointComponent;
+            typename T::JointDataType* data = &jointComponent;
             Joint* joint = nullptr;
+
+            // Copy common data to the delta at the native handler
+            static_cast<typename T::JointDataType&>(nativeHandle.delta) = *data;
 
             // TODO: Flatten this into static polymorphism using overloading, now that its templated
             if(auto* ptr = dynamic_cast<DistanceJointData*>(data)){
@@ -238,8 +242,8 @@ namespace Draft {
             assert(joint && "Something went wrong with a joint");
 
             // Add a handle to the entity so it can be referenced later
-            typename T::NativeType& nativeHandle = reg.get<typename T::NativeType>(rawEnt);
             nativeHandle.jointPtr = joint;
+            jointComponent.m_nativeHandlePtr = joint;
         }
         
         void deconstruct_body_func(Registry& reg, entt::entity rawEnt);
@@ -292,16 +296,23 @@ namespace Draft {
         template<typename T>
         void deconstruct_native_joint_func(Registry& reg, entt::entity rawEnt){
             // A joint component was removed, delete the world joint
-            typename T::NativeType& jointComponent = reg.get<typename T::NativeType>(rawEnt);
+            typename T::NativeType& nativeComponent = reg.get<typename T::NativeType>(rawEnt);
 
             // Make sure the joint is valid since its a pointer
-            if(jointComponent.jointPtr)
+            if(nativeComponent.jointPtr)
                 // Destroy it
-                jointComponent->destroy();
+                nativeComponent->destroy();
+
+            // Remove dangling pointer from the data component
+            if(reg.all_of<T>(rawEnt)){
+                auto& jointComponent = reg.get<T>(rawEnt);
+                jointComponent.m_nativeHandlePtr = nullptr;
+            }
         }
 
         void handle_bodies();
         void handle_forces();
+        void handle_joints();
 
     public:
         // Public variables

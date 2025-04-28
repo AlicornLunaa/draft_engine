@@ -29,6 +29,12 @@ namespace Draft {
         operator bool () const { return is_valid(); }
 
         bool is_valid() const { return jointPtr != nullptr; }
+
+        template<typename K>
+        K* get_as() {
+            static_assert(std::is_base_of<Joint, K>::value, "Cannot obtain a joint as anything other than a descendant of joint");
+            return static_cast<K*>(jointPtr);
+        }
     };
 
     template<typename T>
@@ -78,9 +84,12 @@ namespace Draft {
     };
 
     struct PrismaticJointComponent : public JointComponent<PrismaticJointData> {
+        inline float get_joint_translation() const { DRAFT_MAYBE_OR_ELSE(static_cast<PrismaticJoint*>(m_nativeHandlePtr), get_joint_translation(), 0.f); }
     };
 
     struct PulleyJointComponent : public JointComponent<PulleyJointData> {
+        inline float get_current_length_a() const { DRAFT_MAYBE_OR_ELSE(static_cast<PulleyJoint*>(m_nativeHandlePtr), get_current_length_a(), 0.f); }
+        inline float get_current_length_b() const { DRAFT_MAYBE_OR_ELSE(static_cast<PulleyJoint*>(m_nativeHandlePtr), get_current_length_b(), 0.f); }
     };
 
     struct RevoluteJointComponent : public JointComponent<RevoluteJointData> {

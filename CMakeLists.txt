@@ -241,6 +241,7 @@ set(INTERFACES
     include/draft/util/clock.hpp
     include/draft/util/types.hpp
     include/draft/util/tool_box.hpp
+    include/draft/util/reflectable.hpp
 )
 
 set(RESOURCES
