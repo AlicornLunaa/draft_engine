@@ -13,6 +13,31 @@
 #include <cassert>
 
 namespace Draft {
+    // Helper functions
+    template<typename ComponentType>
+    void add_for_component(Entity entity){
+        if(entity.has_component<ComponentType>()){
+            entity.add_component<typename ComponentType::NativeType>();
+        }
+    }
+    
+    template<typename... ComponentTypes>
+    void add_for_each_component(Entity entity){
+        (add_for_component<ComponentTypes>(entity), ...);
+    }
+
+    template<typename ComponentType>
+    void remove_for_component(Entity entity){
+        if(entity.has_component<typename ComponentType::NativeType>()){
+            entity.remove_component<typename ComponentType::NativeType>();
+        }
+    }
+    
+    template<typename... ComponentTypes>
+    void remove_for_each_component(Entity entity){
+        (remove_for_component<ComponentTypes>(entity), ...);
+    }
+
     // Private functions
     void PhysicsSystem::construct_body_func(Registry& reg, entt::entity rawEnt){
         // A RigidBodyComponent was attached to something
@@ -87,7 +112,7 @@ namespace Draft {
             auto& constraints = reg.get<ConstrainedComponent>(rawEnt).constraints;
 
             for(Entity jointEntity : constraints){
-                jointEntity.add_component<NativeJointComponent>();
+                add_for_each_component<DRAFT_ALL_JOINT_TYPES>(jointEntity);
             }
         }
     }
@@ -105,183 +130,6 @@ namespace Draft {
         RigidBody* handle = reg.get<NativeBodyComponent>(rawEnt);
         Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
         colliderRef.attach(handle);
-    }
-
-    void PhysicsSystem::construct_joint_func(Registry& reg, entt::entity rawEnt){
-        // A JointComponent was added, add a new native handle
-        JointComponent& jointComponent = reg.get<JointComponent>(rawEnt);
-
-        // Make sure the joint has a definition since its a pointer
-        assert(jointComponent.definition && "Joint definition must not be null");
-
-        // Make sure the entity doesn't already have a native handle somehow
-        if(reg.all_of<NativeJointComponent>(rawEnt))
-            reg.remove<NativeJointComponent>(rawEnt);
-
-        // Make sure the two target entities have bodies to attach to
-        if(!jointComponent.entityA.is_valid() || !jointComponent.entityA.has_component<NativeBodyComponent>())
-            return;
-
-        if(!jointComponent.entityB.is_valid() || !jointComponent.entityB.has_component<NativeBodyComponent>())
-            return;
-        
-        // Construct actual joint
-        reg.emplace<NativeJointComponent>(rawEnt);
-
-        // Add constraint references to the targets
-        // Entity A
-        ConstrainedComponent* constraintComponent = nullptr;
-        
-        if(!jointComponent.entityA.has_component<ConstrainedComponent>()){
-            constraintComponent = &jointComponent.entityA.add_component<ConstrainedComponent>();
-        } else {
-            constraintComponent = &jointComponent.entityA.get_component<ConstrainedComponent>();
-        }
-
-        constraintComponent->constraints.push_back(Entity(&m_sceneRef, rawEnt));
-
-        // Entity B
-        if(!jointComponent.entityB.has_component<ConstrainedComponent>()){
-            constraintComponent = &jointComponent.entityB.add_component<ConstrainedComponent>();
-        } else {
-            constraintComponent = &jointComponent.entityB.get_component<ConstrainedComponent>();
-        }
-
-        constraintComponent->constraints.push_back(Entity(&m_sceneRef, rawEnt));
-    }
-
-    void PhysicsSystem::construct_native_joint_func(Registry& reg, entt::entity rawEnt){
-        // Make sure the entity has a joint component, otherwise a native joint cant be constructed
-        if(!reg.all_of<JointComponent>(rawEnt)){
-            reg.remove<NativeJointComponent>(rawEnt);
-            return;
-        }
-
-        // A NativeJointComponent was added, add a new native handle
-        JointComponent& jointComponent = reg.get<JointComponent>(rawEnt);
-
-        // Make sure the joint has a definition since its a pointer
-        assert(jointComponent.definition && "Joint definition must not be null");
-
-        // Make sure the two target entities have bodies to attach to
-        if(!jointComponent.entityA.is_valid() || !jointComponent.entityA.has_component<NativeBodyComponent>()){
-            reg.remove<NativeJointComponent>(rawEnt);
-            return;
-        }
-
-        if(!jointComponent.entityB.is_valid() || !jointComponent.entityB.has_component<NativeBodyComponent>()){
-            reg.remove<NativeJointComponent>(rawEnt);
-            return;
-        }
-        
-        // Construct actual joint
-        RigidBody* bodyA = jointComponent.entityA.get_component<NativeBodyComponent>();
-        RigidBody* bodyB = jointComponent.entityB.get_component<NativeBodyComponent>();
-        GenericJointData* data = jointComponent.definition.get();
-        Joint* joint = nullptr;
-
-        if(auto* ptr = dynamic_cast<DistanceJointData*>(data)){
-            DistanceJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.anchorA = ptr->anchorA;
-            definition.anchorB = ptr->anchorB;
-            definition.length = ptr->length;
-            definition.minLength = ptr->minLength;
-            definition.maxLength = ptr->maxLength;
-            definition.stiffness = ptr->stiffness;
-            definition.damping = ptr->damping;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<RevoluteJointData*>(data)){
-            RevoluteJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.localAnchorA = ptr->localAnchorA;
-            definition.localAnchorB = ptr->localAnchorB;
-            definition.referenceAngle = ptr->referenceAngle;
-            definition.lowerAngle = ptr->lowerAngle;
-            definition.upperAngle = ptr->upperAngle;
-            definition.maxMotorTorque = ptr->maxMotorTorque;
-            definition.motorSpeed = ptr->motorSpeed;
-            definition.enableLimit = ptr->enableLimit;
-            definition.enableMotor = ptr->enableMotor;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<PrismaticJointData*>(data)){
-            PrismaticJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.anchorA = ptr->anchorA;
-            definition.anchorB = ptr->anchorB;
-            definition.localAxisA = ptr->localAxisA;
-            definition.referenceAngle = ptr->referenceAngle;
-            definition.lowerTranslation = ptr->lowerTranslation;
-            definition.upperTranslation = ptr->upperTranslation;
-            definition.maxMotorForce = ptr->maxMotorForce;
-            definition.motorSpeed = ptr->motorSpeed;
-            definition.enableLimit = ptr->enableLimit;
-            definition.enableMotor = ptr->enableMotor;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<PulleyJointData*>(data)){
-            PulleyJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.groundAnchorA = ptr->groundAnchorA;
-            definition.groundAnchorB = ptr->groundAnchorB;
-            definition.localAnchorA = ptr->localAnchorA;
-            definition.localAnchorB = ptr->localAnchorB;
-            definition.lengthA = ptr->lengthA;
-            definition.lengthB = ptr->lengthB;
-            definition.ratio = ptr->ratio;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<GearJointData*>(data)){
-            GearJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.joint1 = ptr->joint1;
-            definition.joint2 = ptr->joint2;
-            definition.ratio = ptr->ratio;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<MouseJointData*>(data)){
-            MouseJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.target = ptr->target;
-            definition.maxForce = ptr->maxForce;
-            definition.stiffness = ptr->stiffness;
-            definition.damping = ptr->damping;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<WheelJointData*>(data)){
-            WheelJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.anchorA = ptr->anchorA;
-            definition.anchorB = ptr->anchorB;
-            definition.localAxis = ptr->localAxis;
-            definition.lowerTranslation = ptr->lowerTranslation;
-            definition.upperTranslation = ptr->upperTranslation;
-            definition.maxMotorTorque = ptr->maxMotorTorque;
-            definition.motorSpeed = ptr->motorSpeed;
-            definition.stiffness = ptr->stiffness;
-            definition.damping = ptr->damping;
-            definition.enableLimit = ptr->enableLimit;
-            definition.enableMotor = ptr->enableMotor;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<WeldJointData*>(data)){
-            WeldJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.anchorA = ptr->anchorA;
-            definition.anchorB = ptr->anchorB;
-            definition.referenceAngle = ptr->referenceAngle;
-            definition.stiffness = ptr->stiffness;
-            definition.damping = ptr->damping;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<FrictionJointData*>(data)){
-            FrictionJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.anchorA = ptr->anchorA;
-            definition.anchorB = ptr->anchorB;
-            definition.maxForce = ptr->maxForce;
-            definition.maxTorque = ptr->maxTorque;
-            joint = world.create_joint(definition);
-        } else if(auto* ptr = dynamic_cast<MotorJointData*>(data)){
-            MotorJointDef definition(bodyA, bodyB, data->collideConnected);
-            definition.linearOffset = ptr->linearOffset;
-            definition.angularOffset = ptr->angularOffset;
-            definition.maxForce = ptr->maxForce;
-            definition.maxTorque = ptr->maxTorque;
-            definition.correctionFactor = ptr->correctionFactor;
-            joint = world.create_joint(definition);
-        }
-
-        assert(joint && "Something went wrong with a joint");
-
-        // Add a handle to the entity so it can be referenced later
-        NativeJointComponent& nativeHandle = reg.get<NativeJointComponent>(rawEnt);
-        nativeHandle.joint = joint;
     }
 
     void PhysicsSystem::deconstruct_body_func(Registry& reg, entt::entity rawEnt){
@@ -340,10 +188,7 @@ namespace Draft {
 
             for(Entity jointEntity : constraints){
                 // Check for the native joint and remove it
-                if(jointEntity.has_component<NativeJointComponent>()){
-                    // Remove handle
-                    jointEntity.remove_component<NativeJointComponent>();
-                }
+                remove_for_each_component<DRAFT_ALL_JOINT_TYPES>(jointEntity);
             }
         }
 
@@ -362,58 +207,6 @@ namespace Draft {
         // Detach collider
         Collider& colliderRef = reg.get<ColliderComponent>(rawEnt);
         colliderRef.detach();
-    }
-
-    void PhysicsSystem::deconstruct_joint_func(Registry& reg, entt::entity rawEnt){
-        // Make sure it has a native handle and remove it
-        if(reg.all_of<NativeJointComponent>(rawEnt))
-            reg.remove<NativeJointComponent>(rawEnt);
-
-        // Remove the constraints for other entities
-        JointComponent& joint = reg.get<JointComponent>(rawEnt);
-        Entity currentEntity = Entity(&m_sceneRef, rawEnt);
-
-        // Entity A
-        if(joint.entityA.is_valid() && joint.entityA.has_component<ConstrainedComponent>()){
-            auto& constraints = joint.entityA.get_component<ConstrainedComponent>().constraints;
-
-            // Find and remove entity reference
-            auto iter = std::find(constraints.begin(), constraints.end(), currentEntity);
-            if(iter != constraints.end()){
-                constraints.erase(iter);
-            }
-
-            // If the constraints are empty, remove the component too
-            if(constraints.empty()){
-                joint.entityA.remove_component<ConstrainedComponent>();
-            }
-        }
-
-        // Entity B
-        if(joint.entityB.is_valid() && joint.entityB.has_component<ConstrainedComponent>()){
-            auto& constraints = joint.entityB.get_component<ConstrainedComponent>().constraints;
-
-            // Find and remove entity reference
-            auto iter = std::find(constraints.begin(), constraints.end(), currentEntity);
-            if(iter != constraints.end()){
-                constraints.erase(iter);
-            }
-
-            // If the constraints are empty, remove the component too
-            if(constraints.empty()){
-                joint.entityB.remove_component<ConstrainedComponent>();
-            }
-        }
-    }
-
-    void PhysicsSystem::deconstruct_native_joint_func(Registry& reg, entt::entity rawEnt){
-        // A joint component was removed, delete the world joint
-        NativeJointComponent& jointComponent = reg.get<NativeJointComponent>(rawEnt);
-
-        // Make sure the joint is valid since its a pointer
-        if(jointComponent.joint)
-            // Destroy it
-            jointComponent->destroy();
     }
 
     void PhysicsSystem::handle_bodies(){
@@ -588,14 +381,12 @@ namespace Draft {
         m_registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
         m_registryRef.on_construct<NativeBodyComponent>().connect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
-        m_registryRef.on_construct<JointComponent>().connect<&PhysicsSystem::construct_joint_func>(this);
-        m_registryRef.on_construct<NativeJointComponent>().connect<&PhysicsSystem::construct_native_joint_func>(this);
 
         m_registryRef.on_destroy<RigidBodyComponent>().connect<&PhysicsSystem::deconstruct_body_func>(this);
         m_registryRef.on_destroy<NativeBodyComponent>().connect<&PhysicsSystem::deconstruct_native_body_func>(this);
         m_registryRef.on_destroy<ColliderComponent>().connect<&PhysicsSystem::deconstruct_collider_func>(this);
-        m_registryRef.on_destroy<JointComponent>().connect<&PhysicsSystem::deconstruct_joint_func>(this);
-        m_registryRef.on_destroy<NativeJointComponent>().connect<&PhysicsSystem::deconstruct_native_joint_func>(this);
+
+        attach_listeners_for_all<DRAFT_ALL_JOINT_TYPES>(m_registryRef, this);
     }
 
     PhysicsSystem::~PhysicsSystem(){
@@ -603,14 +394,12 @@ namespace Draft {
         m_registryRef.on_construct<RigidBodyComponent>().disconnect<&PhysicsSystem::construct_body_func>(this);
         m_registryRef.on_construct<NativeBodyComponent>().disconnect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
-        m_registryRef.on_construct<JointComponent>().disconnect<&PhysicsSystem::construct_joint_func>(this);
-        m_registryRef.on_construct<NativeJointComponent>().disconnect<&PhysicsSystem::construct_native_joint_func>(this);
         
         m_registryRef.on_destroy<RigidBodyComponent>().disconnect<&PhysicsSystem::deconstruct_body_func>(this);
         m_registryRef.on_destroy<NativeBodyComponent>().disconnect<&PhysicsSystem::deconstruct_native_body_func>(this);
         m_registryRef.on_destroy<ColliderComponent>().disconnect<&PhysicsSystem::deconstruct_collider_func>(this);
-        m_registryRef.on_destroy<JointComponent>().disconnect<&PhysicsSystem::deconstruct_joint_func>(this);
-        m_registryRef.on_destroy<NativeJointComponent>().disconnect<&PhysicsSystem::deconstruct_native_joint_func>(this);
+
+        detach_listeners_for_all<DRAFT_ALL_JOINT_TYPES>(m_registryRef, this);
     }
 
     // Functions
