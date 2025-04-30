@@ -83,15 +83,13 @@ namespace Draft {
     }
 
     void RelationshipSystem::deconstruct_parent_func(Registry& reg, entt::entity rawEnt){
-        // A parent component was detached, remove all its children
+        // A parent component was detached, destroy all its children
         ParentComponent& component = reg.get<ParentComponent>(rawEnt);
         auto& vec = component.children;
 
         // Remove entities which are parented to this
         for(auto& entity : vec){
-            if(entity.has_component<ChildComponent>()){
-                entity.remove_component<ChildComponent>();
-            }
+            entity.destroy();
         }
         
         vec.clear();

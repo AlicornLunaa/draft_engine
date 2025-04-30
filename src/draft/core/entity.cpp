@@ -9,6 +9,10 @@ namespace Draft {
         return !(m_entityID == entt::null || !m_context);
     }
 
+    Scene* Entity::get_scene(){
+        return m_context;
+    }
+
     bool Entity::destroy(){
         if(m_entityID == entt::null || !m_context)
             return false;

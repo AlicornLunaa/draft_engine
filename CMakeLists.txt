@@ -129,6 +129,7 @@ set(INTERFACES
     include/draft/components/relationship_components.hpp
     include/draft/components/rigid_body_component.hpp
     include/draft/components/joint_component.hpp
+    include/draft/components/tag_component.hpp
 
     include/draft/core/application.hpp
     include/draft/core/scene.hpp

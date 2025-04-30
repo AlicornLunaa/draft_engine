@@ -18,6 +18,7 @@ namespace Draft {
         Entity(const Entity& other) = default;
 
         bool is_valid() const;
+        Scene* get_scene();
 
         /**
          * @brief Removes the entity from the scene, nullifying it
