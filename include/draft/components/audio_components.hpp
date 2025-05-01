@@ -3,6 +3,7 @@
 #include "draft/audio/listener.hpp"
 #include "draft/audio/music.hpp"
 #include "draft/audio/sound.hpp"
+#include <memory>
 
 namespace Draft {
     struct SoundComponent {
@@ -14,6 +15,10 @@ namespace Draft {
 
         // Ops
         operator Sound&(){ return sound; }
+    };
+
+    struct MusicStorage {
+        std::unique_ptr<Music> track;
     };
 
     struct MusicComponent {
