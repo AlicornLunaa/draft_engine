@@ -50,6 +50,16 @@ namespace Draft {
         }
 
         /**
+         * @brief Get the component object as a pointer, nullptr if none
+         * @tparam T
+         * @return T*
+         */
+        template <typename T>
+        T* try_get_component(){
+            return m_context->get_registry().try_get<T>(m_entityID);
+        }
+
+        /**
          * @brief Checks if the component is a part of the entity
          * @tparam T 
          * @return true 
