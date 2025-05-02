@@ -52,6 +52,7 @@ namespace Draft {
         void debug_draw(const Matrix4& m = Matrix4(1.f));
 
         void raycast(RaycastCallback callback, const Vector2f& point1, const Vector2f& point2) const;
+        RigidBody* test_point(const Vector2f& position) const;
         
     private:
         // pImpl

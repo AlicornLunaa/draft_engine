@@ -56,6 +56,8 @@ namespace Draft {
          */
         template <typename T>
         T* try_get_component(){
+            if(!m_context) return nullptr;
+            if(m_entityID == entt::null) return nullptr;
             return m_context->get_registry().try_get<T>(m_entityID);
         }
 
@@ -79,7 +81,10 @@ namespace Draft {
             m_context->get_registry().remove<T>(m_entityID);
         }
 
+        operator bool() const { return is_valid(); }
         operator entt::entity() const { return m_entityID; }
         bool operator==(const Entity& other) const { return (m_entityID == other.m_entityID); }
     };
+
+    const Entity NULL_ENTITY = Entity(nullptr, entt::null);
 }

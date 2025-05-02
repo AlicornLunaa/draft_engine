@@ -214,4 +214,16 @@ namespace Draft {
             vector_to_b2(point2)
         );
     }
+
+    RigidBody* World::test_point(const Vector2f& position) const {
+        for(const auto& body : rigidBodies){
+            for(const auto& fixture : body->get_fixture_list()){
+                if(fixture->test_point(position)){
+                    return body.get();
+                }
+            }
+        }
+        
+        return nullptr;
+    }
 };
