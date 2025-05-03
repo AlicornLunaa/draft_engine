@@ -8,6 +8,7 @@
 #include "draft/phys/fixture.hpp"
 #include "draft/phys/joint.hpp"
 #include "draft/phys/joint_def.hpp"
+#include "draft/util/logger.hpp"
 #include "glm/common.hpp"
 #include "tracy/Tracy.hpp"
 #include <cassert>
@@ -85,6 +86,9 @@ namespace Draft {
             TransformComponent& trans = reg.get<TransformComponent>(rawEnt);
             definition.position = trans.position;
             definition.angle = trans.rotation;
+        } else {
+            // Give the user a warning, it caused a bug for me that took be a while to figure out :(
+            Logger::println(Level::WARNING, "Physics", "A rigid body is being constructed without a transform beforehand. Be sure you know what you're doing,");
         }
         
         // Construct actual body
