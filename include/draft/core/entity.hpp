@@ -2,6 +2,7 @@
 
 #include "entt/entt.hpp"
 #include "scene.hpp"
+#include <functional>
 
 namespace Draft {
     /**
@@ -44,7 +45,7 @@ namespace Draft {
          * @tparam T 
          * @return T& 
          */
-        template <typename T>
+        template<typename T>
         T& get_component(){
             return m_context->get_registry().get<T>(m_entityID);
         }
@@ -54,11 +55,21 @@ namespace Draft {
          * @tparam T
          * @return T*
          */
-        template <typename T>
+        template<typename T>
         T* try_get_component(){
             if(!m_context) return nullptr;
             if(m_entityID == entt::null) return nullptr;
             return m_context->get_registry().try_get<T>(m_entityID);
+        }
+
+        /**
+         * @brief Modifies the component and triggers on_update
+         * @tparam T 
+         * @param patchFunc 
+         */
+        template<typename T>
+        void modify_component(std::function<void(T& component)> patchFunc){
+            m_context->get_registry().patch<T>(m_entityID, patchFunc);
         }
 
         /**
@@ -67,7 +78,7 @@ namespace Draft {
          * @return true 
          * @return false 
          */
-        template <typename T>
+        template<typename T>
         bool has_component(){
             return m_context->get_registry().all_of<T>(m_entityID);
         }
@@ -76,7 +87,7 @@ namespace Draft {
          * @brief Removes a component from the entity
          * @tparam T 
          */
-        template <typename T>
+        template<typename T>
         void remove_component(){
             m_context->get_registry().remove<T>(m_entityID);
         }

@@ -64,6 +64,8 @@ namespace Draft {
         }
 
         // Private functions
+        void update_transform(Registry& reg, entt::entity rawEnt);
+        
         void construct_body_func(Registry& reg, entt::entity rawEnt);
         void construct_native_body_func(Registry& reg, entt::entity rawEnt);
         void construct_collider_func(Registry& reg, entt::entity rawEnt);

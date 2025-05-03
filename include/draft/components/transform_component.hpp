@@ -1,6 +1,9 @@
 #pragma once
 
+#include "draft/components/rigid_body_component.hpp"
+#include "draft/core/entity.hpp"
 #include "draft/math/glm.hpp"
+#include <cassert>
 
 namespace Draft {
     struct TransformComponent {
@@ -26,6 +29,18 @@ namespace Draft {
         // Operators
         operator Matrix4 () {
             return get_matrix();
+        }
+
+        // Functions
+        void force_sync(Draft::Entity entity){
+            // Forces the rigidbody to sync
+            assert(entity.try_get_component<TransformComponent>() == this && "This entity is not the owner of this transform");
+
+            if(auto* ptr = entity.try_get_component<NativeBodyComponent>()){
+                ptr->bodyPtr->set_transform(position, rotation);
+                ptr->deltaP = position;
+                ptr->deltaR = rotation;
+            }
         }
     };
 

@@ -45,6 +45,11 @@ namespace Draft {
     }
 
     // Private functions
+    void PhysicsSystem::update_transform(Registry& reg, entt::entity rawEnt){
+        TransformComponent& transform = reg.get<TransformComponent>(rawEnt);
+        transform.force_sync(Entity(&m_sceneRef, rawEnt));
+    }
+
     void PhysicsSystem::construct_body_func(Registry& reg, entt::entity rawEnt){
         // A RigidBodyComponent was attached to something
         ZoneScopedN("body_construction");
@@ -601,6 +606,8 @@ namespace Draft {
     // Constructors
     PhysicsSystem::PhysicsSystem(Scene& sceneRef) : m_appPtr(sceneRef.get_app()), m_registryRef(sceneRef.get_registry()), m_sceneRef(sceneRef) {
         // Attach listeners
+        m_registryRef.on_update<TransformComponent>().connect<&PhysicsSystem::update_transform>(this);
+
         m_registryRef.on_construct<RigidBodyComponent>().connect<&PhysicsSystem::construct_body_func>(this);
         m_registryRef.on_construct<NativeBodyComponent>().connect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().connect<&PhysicsSystem::construct_collider_func>(this);
@@ -614,6 +621,8 @@ namespace Draft {
 
     PhysicsSystem::~PhysicsSystem(){
         // Remove listeners
+        m_registryRef.on_update<TransformComponent>().disconnect<&PhysicsSystem::update_transform>(this);
+
         m_registryRef.on_construct<RigidBodyComponent>().disconnect<&PhysicsSystem::construct_body_func>(this);
         m_registryRef.on_construct<NativeBodyComponent>().disconnect<&PhysicsSystem::construct_native_body_func>(this);
         m_registryRef.on_construct<ColliderComponent>().disconnect<&PhysicsSystem::construct_collider_func>(this);
