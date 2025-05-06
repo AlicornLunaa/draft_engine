@@ -11,7 +11,7 @@ namespace Draft {
      */
     struct SpriteComponent {
         // Variables
-        Resource<Texture> texture;
+        TextureRegion texture;
         Vector2f size = { 64, 64 };
         Vector2f origin = { 0, 0 };
         float zIndex = 0.f;
@@ -19,5 +19,6 @@ namespace Draft {
         // Constructors
         SpriteComponent(const SpriteComponent& transform) = default;
         SpriteComponent(Resource<Texture> texture, const Vector2f& size, const Vector2f& origin = {}) : texture(texture), size(size), origin(origin) {}
+        SpriteComponent(TextureRegion texture, const Vector2f& size, const Vector2f& origin = {}) : texture(texture), size(size), origin(origin) {}
     };
 }
