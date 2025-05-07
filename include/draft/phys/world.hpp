@@ -7,7 +7,7 @@
 #include "draft/phys/raycast_props.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/time.hpp"
 
 #include <memory>
@@ -17,6 +17,7 @@ namespace Draft {
     class World {
     private:
         // Variables
+        static StaticResource<Shader> defaultShader;
         std::vector<std::unique_ptr<RigidBody>> rigidBodies;
         std::vector<std::unique_ptr<Joint>> joints;
 
@@ -46,7 +47,7 @@ namespace Draft {
 
         void set_gravity(const Vector2f& v);
 
-        void set_debug_renderer(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true), void* renderer = nullptr);
+        void set_debug_renderer(Resource<Shader> shader = defaultShader, void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
         void step(Time timeStep, int32_t velocityIterations, int32_t positionIterations);
         void debug_draw(const Matrix4& m = Matrix4(1.f));

@@ -5,7 +5,6 @@
 #include "draft/rendering/vertex_array.hpp"
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/vertex_array.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <array>
 #include <cstddef>
@@ -30,13 +29,17 @@ namespace Draft {
             Vector2f(1, 0), // Bottom-right
             Vector2f(0, 1) // Bottom-left
         };
+
         const std::vector<Vector2f> QUAD_VERTICES = {
             Vector2f(0, 0), // Top-left
             Vector2f(1, 0), // Top-right
             Vector2f(1, 1), // Bottom-right
             Vector2f(0, 1) // Bottom-left
         };
+
         const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
+
+        static StaticResource<Shader> defaultShader;
 
         // Variables
         VertexArray vertexArray;
@@ -50,7 +53,7 @@ namespace Draft {
 
     public:
         // Constructors
-        ShapeBatch(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/shapes", true));
+        ShapeBatch(Resource<Shader> shader = defaultShader);
         virtual ~ShapeBatch() = default;
 
         // Functions

@@ -15,7 +15,10 @@ namespace Draft {
     class Clay {
     private:
         // Variables
-        Resource<Shader> uiShader = Assets::manager.get<Shader>("assets/shaders/default");
+        static StaticResource<Shader> defaultShader;
+        static StaticResource<Font> defaultFont;
+
+        Resource<Shader> uiShader = defaultShader;
         std::vector<Resource<Font>> fonts;
         TextRenderer textBatch;
         OrthoCamera camera;

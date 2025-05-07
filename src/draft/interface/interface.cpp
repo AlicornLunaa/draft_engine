@@ -5,6 +5,9 @@
 #include <vector>
 
 namespace Draft::UI {
+    // Static data
+    StaticResource<Shader> Interface::defaultShader = {FileHandle("assets/shaders/default")};
+
     // Constructors
     Interface::Interface(Scene* scene) : scene(scene), masterCtx(scene->get_app(), batch, textBatch, {}) {}
 

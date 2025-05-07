@@ -3,7 +3,7 @@
 #include "draft/math/glm.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/texture.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/time.hpp"
 
 #include <cstddef>
@@ -11,6 +11,8 @@
 
 namespace Draft {
     struct ParticleProps {
+        static StaticResource<Texture> defaultTexture;
+
         Vector2f position{0, 0};
         Vector2f velocity{0, 0};
         Vector2f velocityVariation{1, 1};
@@ -20,7 +22,7 @@ namespace Draft {
         float sizeEnd = 0.1f;
         float sizeVariation = 0.f;
         float lifeTime = 1.f;
-        Resource<Texture> texture = Assets::manager.get<Texture>("assets/textures/particles/circle.png", true);
+        Resource<Texture> texture = defaultTexture;
     };
 
     class ParticleSystem {

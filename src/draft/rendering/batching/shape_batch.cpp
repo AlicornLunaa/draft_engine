@@ -3,6 +3,8 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_array.hpp"
+#include "draft/util/asset_manager/resource.hpp"
+#include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 #include "glm/geometric.hpp"
@@ -11,6 +13,9 @@
 using namespace std;
 
 namespace Draft {
+    // Static data
+    StaticResource<Shader> ShapeBatch::defaultShader = {FileHandle("assets/shaders/shapes")};
+
     // Private functions
     void ShapeBatch::flush_if_overflowing(uint count){
         // This function will flush the batch if it is about to overflow, i.e. go higher than MAX_POINTS_PER_PASS

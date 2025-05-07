@@ -11,7 +11,7 @@
 namespace Draft {
     SoundBufferLoader::SoundBufferLoader() : BaseLoader(typeid(SoundBufferLoader)) {}
 
-    AssetPtr SoundBufferLoader::load_sync() const {
+    AssetPtr SoundBufferLoader::load_sync(Assets& assets) const {
         // Default to basic call of default filehandle constructor
         try {
             return make_asset_ptr(new SoundBuffer(handle));
@@ -26,7 +26,7 @@ namespace Draft {
         rawData = handle.read_bytes();
     }
 
-    AssetPtr SoundBufferLoader::finish_async_gl(){
+    AssetPtr SoundBufferLoader::finish_async_gl(Assets& assets){
         return make_asset_ptr(new SoundBuffer(rawData));
     }
 

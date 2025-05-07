@@ -4,6 +4,9 @@
 #include "tracy/Tracy.hpp"
 
 namespace Draft {
+    // Static data
+    StaticResource<Texture> ParticleProps::defaultTexture = {FileHandle("assets/textures/particles/circle.png")};
+
     // Constructors
     ParticleSystem::ParticleSystem(const size_t maxParticles) {
         ZoneScopedN("particle_system_construction");

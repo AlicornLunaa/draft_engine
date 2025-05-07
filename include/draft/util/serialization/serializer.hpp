@@ -1,22 +1,21 @@
 #pragma once
-
-#include "nlohmann/json.hpp" // IWYU pragma: keep
+#include "draft/util/json.hpp"
 
 // This is used to create the function declarations for specialized serializations
 #define DRAFT_CREATE_SERIALIZER(type)                                   \
     namespace Serializer {                                              \
         size_t serialize(type& obj, std::vector<std::byte>& byteArray); \
         size_t deserialize(type& obj, std::byte* bytePtr);              \
-        void serialize(type& obj, nlohmann::json& json);                \
-        void deserialize(type& obj, nlohmann::json& json);              \
+        void serialize(type& obj, JSON& json);                \
+        void deserialize(type& obj, JSON& json);              \
     };
 
 // This is used to expose private data for special serializations of custom classes
 #define DRAFT_EXPOSE_SERIALIZER(type)                                                   \
     friend size_t Draft::Serializer::serialize(type& obj, std::vector<std::byte>& byteArray);  \
     friend size_t Draft::Serializer::deserialize(type& obj, std::byte* bytePtr);               \
-    friend void Draft::Serializer::serialize(type& obj, nlohmann::json& json);                 \
-    friend void Draft::Serializer::deserialize(type& obj, nlohmann::json& json);
+    friend void Draft::Serializer::serialize(type& obj, JSON& json);                 \
+    friend void Draft::Serializer::deserialize(type& obj, JSON& json);
 
 // Generic serializer macro for quickly adding normal types. This will only work on simple types with no pointers, virtuals, etc
 #define DRAFT_GENERIC_SERIALIZER(type)                                                  \
@@ -38,11 +37,11 @@
         return byteCount;                                                               \
     }                                                                                   \
                                                                                         \
-    void Draft::Serializer::serialize(type& obj, nlohmann::json& json){                 \
+    void Draft::Serializer::serialize(type& obj, JSON& json){                 \
         json = obj;                                                                     \
     }                                                                                   \
                                                                                         \
-    void Draft::Serializer::deserialize(type& obj, nlohmann::json& json){               \
+    void Draft::Serializer::deserialize(type& obj, JSON& json){               \
         obj = json.template get<type>();                                                \
     }
 
@@ -73,13 +72,13 @@ namespace Draft {
         // }
 
         // template<typename T>
-        // void serialize(T& obj, nlohmann::json& json){
+        // void serialize(T& obj, JSON& json){
         //     // Save this object to json
         //     json = obj;
         // }
 
         // template<typename T>
-        // void deserialize(T& obj, nlohmann::json& json){
+        // void deserialize(T& obj, JSON& json){
         //     // Load this from json type
         //     obj = json.template get<T>();
         // }

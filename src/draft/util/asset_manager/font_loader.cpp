@@ -11,7 +11,7 @@
 namespace Draft {
     FontLoader::FontLoader() : BaseLoader(typeid(Font)) {}
 
-    AssetPtr FontLoader::load_sync() const {
+    AssetPtr FontLoader::load_sync(Assets& assets) const {
         // Default to basic call of default filehandle constructor
         try {
             return make_asset_ptr(new Font(handle));
@@ -26,7 +26,7 @@ namespace Draft {
         rawData = handle.read_bytes();
     }
 
-    AssetPtr FontLoader::finish_async_gl(){
+    AssetPtr FontLoader::finish_async_gl(Assets& assets){
         return make_asset_ptr(new Font(rawData));
     }
 

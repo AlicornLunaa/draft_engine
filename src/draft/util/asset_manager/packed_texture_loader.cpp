@@ -13,7 +13,7 @@
 namespace Draft {
     PackedTextureLoader::PackedTextureLoader() : BaseLoader(typeid(TexturePacker)) {}
 
-    AssetPtr PackedTextureLoader::load_sync() const {
+    AssetPtr PackedTextureLoader::load_sync(Assets& assets) const {
         // Default to basic call of default filehandle constructor
         try {
             TexturePacker* packer = new TexturePacker();
@@ -48,7 +48,7 @@ namespace Draft {
         packer->pack(handles);
     }
 
-    AssetPtr PackedTextureLoader::finish_async_gl(){
+    AssetPtr PackedTextureLoader::finish_async_gl(Assets& assets){
         packer->create();
         return make_asset_ptr(packer);
     }

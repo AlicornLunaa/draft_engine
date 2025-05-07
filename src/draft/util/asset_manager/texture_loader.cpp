@@ -11,7 +11,7 @@
 namespace Draft {
     TextureLoader::TextureLoader() : BaseLoader(typeid(Texture)) {}
 
-    AssetPtr TextureLoader::load_sync() const {
+    AssetPtr TextureLoader::load_sync(Assets& assets) const {
         // Default to basic call of default filehandle constructor
         try {
             return make_asset_ptr(new Texture(handle));
@@ -27,7 +27,7 @@ namespace Draft {
         img->flip_vertically();
     }
 
-    AssetPtr TextureLoader::finish_async_gl(){
+    AssetPtr TextureLoader::finish_async_gl(Assets& assets){
         Texture* tex = new Texture(*img);
         tex->set_reloadable(handle);
         return make_asset_ptr(tex);

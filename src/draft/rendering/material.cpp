@@ -1,10 +1,13 @@
 #include "draft/rendering/material.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
 
 namespace Draft {
+    // Create static data
+    StaticResource<Texture> s_debugWhite{Image({1, 1}, {1, 1, 1, 1})};
+    StaticResource<Texture> s_debugBlack{Image({1, 1}, {0, 0, 0, 1})};
+    StaticResource<Texture> s_emptyNormal{Image({1, 1}, {128.0/255.0, 128.0/255.0, 1, 1})};
+
     // Constructors
-    Material::Material(const std::string& name) : name(name), debugWhite(Assets::manager.get<Texture>("assets/textures/debug_white.png", true)),
-        debugBlack(Assets::manager.get<Texture>("assets/textures/debug_black.png", true)), emptyNormalMap(Assets::manager.get<Texture>("assets/textures/empty_normal_map.png", true)) {}
+    Material::Material(const std::string& name) : name(name), debugWhite(s_debugWhite.get()), debugBlack(s_debugBlack.get()), emptyNormalMap(s_emptyNormal.get()) {}
 
     // Functions
     void Material::apply(const Shader& shader) const {

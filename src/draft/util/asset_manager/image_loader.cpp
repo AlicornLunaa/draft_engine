@@ -10,7 +10,7 @@
 namespace Draft {
     ImageLoader::ImageLoader() : BaseLoader(typeid(Image)) {}
 
-    AssetPtr ImageLoader::load_sync() const {
+    AssetPtr ImageLoader::load_sync(Assets& assets) const {
         // Default to basic call of default filehandle constructor
         try {
             return make_asset_ptr(new Image(handle));
@@ -25,7 +25,7 @@ namespace Draft {
         imgPtr = new Image(handle);
     }
 
-    AssetPtr ImageLoader::finish_async_gl(){
+    AssetPtr ImageLoader::finish_async_gl(Assets& assets){
         return make_asset_ptr(imgPtr);
     }
 

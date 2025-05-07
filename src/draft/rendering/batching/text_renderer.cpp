@@ -4,6 +4,10 @@
 #include <algorithm>
 
 namespace Draft {
+    // Static data
+    StaticResource<Font> TextRenderer::defaultFont = {FileHandle("assets/fonts/default.ttf")};
+    StaticResource<Shader> TextRenderer::defaultShader = {FileHandle("assets/shaders/text")};
+
     // Private functions
     const Font& TextRenderer::get_font(const TextProperties& props) const {
         if(props.font)

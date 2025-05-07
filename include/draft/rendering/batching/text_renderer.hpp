@@ -4,7 +4,6 @@
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <string>
 
@@ -23,7 +22,8 @@ namespace Draft {
     class TextRenderer {
     private:
         // Variables
-        const Resource<Font> defaultFont = Assets::manager.get<Font>("assets/fonts/default.ttf", true);
+        static StaticResource<Font> defaultFont;
+        static StaticResource<Shader> defaultShader;
         Resource<Shader> fontShader;
 
         // Functions
@@ -31,7 +31,7 @@ namespace Draft {
 
     public:
         // Constructors
-        TextRenderer(Resource<Shader> shader = Assets::manager.get<Shader>("assets/shaders/text", true));
+        TextRenderer(Resource<Shader> shader = defaultShader);
         ~TextRenderer() = default;
 
         // Functions

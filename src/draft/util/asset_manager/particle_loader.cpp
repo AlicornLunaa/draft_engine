@@ -1,24 +1,20 @@
 #include "draft/util/asset_manager/particle_loader.hpp"
+#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/texture.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
-#include "draft/util/asset_manager/asset_ptr.hpp"
-#include "draft/util/asset_manager/base_loader.hpp"
+#include "draft/util/json.hpp"
 #include "draft/util/logger.hpp"
 #include "draft/util/file_handle.hpp"
-#include "nlohmann/json.hpp"
 #include <memory>
-
-using json = nlohmann::json;
 
 namespace Draft {
     ParticleLoader::ParticleLoader() : BaseLoader(typeid(ParticleProps)) {}
 
-    AssetPtr ParticleLoader::load_sync() const {
+    AssetPtr ParticleLoader::load_sync(Assets& assets) const {
         // Default to basic call of default filehandle constructor
         try {
             auto ptr = new ParticleProps();
-            json json = json::parse(handle.read_string());
+            JSON json = JSON::parse(handle.read_string());
 
             ptr->velocity.x = json["velocity"]["x"];
             ptr->velocity.y = json["velocity"]["y"];
@@ -36,7 +32,7 @@ namespace Draft {
             ptr->sizeEnd = json["size_end"];
             ptr->sizeVariation = json["size_variation"];
             ptr->lifeTime = json["lifetime"];
-            ptr->texture = Assets::manager.get<Texture>(json["texture"], true);
+            ptr->texture = assets.get<Texture>(json["texture"], true);
 
             return make_asset_ptr(ptr);
         } catch(int e){
@@ -48,7 +44,7 @@ namespace Draft {
 
     void ParticleLoader::load_async(){
         auto ptr = new ParticleProps();
-        json data = json::parse(handle.read_string());
+        JSON data = JSON::parse(handle.read_string());
 
         ptr->velocity.x = data["velocity"]["x"];
         ptr->velocity.y = data["velocity"]["y"];
@@ -71,8 +67,8 @@ namespace Draft {
         propPtr = ptr;
     }
 
-    AssetPtr ParticleLoader::finish_async_gl(){
-        propPtr->texture = Assets::manager.get<Texture>(texture, true);
+    AssetPtr ParticleLoader::finish_async_gl(Assets& assets){
+        propPtr->texture = assets.get<Texture>(texture, true);
         return make_asset_ptr(propPtr);
     }
 

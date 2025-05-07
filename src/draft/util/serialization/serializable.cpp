@@ -29,18 +29,20 @@ namespace Draft {
         return byteCount;
     }
     
-    void Serializer::serialize(Serializable& obj, nlohmann::json& json){
+    void Serializer::serialize(Serializable& obj, JSON& json){
         // Save each type
         for(auto& [key, field] : obj.fieldMap){
-            json[key] = nlohmann::json();
-            field.encodeJSON(json[key]);
+            JSON temp;
+            field.encodeJSON(temp);
+            json[key] = temp;
         }
     }
 
-    void Serializer::deserialize(Serializable& obj, nlohmann::json& json){
+    void Serializer::deserialize(Serializable& obj, JSON& json){
         // Load each type
         for(auto& [key, field] : obj.fieldMap){
-            field.decodeJSON(json[key]);
+            JSON temp = json[key];
+            field.decodeJSON(temp);
         }
     }
 };

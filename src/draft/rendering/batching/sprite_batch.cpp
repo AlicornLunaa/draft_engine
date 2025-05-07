@@ -13,6 +13,9 @@
 using namespace std;
 
 namespace Draft {
+    // Static data
+    StaticResource<Shader> SpriteBatch::defaultShader = {FileHandle("assets/shaders/default")};
+
     // Private functions
     void SpriteBatch::internal_flush_opaque(){
         // Flush all the opaque quads to gpu

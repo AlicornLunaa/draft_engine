@@ -21,8 +21,8 @@
 #include "draft/util/asset_manager/json_loader.hpp"
 #include "draft/util/asset_manager/sound_buffer_loader.hpp"
 #include "draft/util/asset_manager/texture_loader.hpp"
+#include "draft/util/json.hpp"
 #include "draft/util/logger.hpp"
-#include "nlohmann/json.hpp" // IWYU pragma: keep
 #include "tracy/Tracy.hpp"
 
 namespace Draft {
@@ -70,7 +70,7 @@ namespace Draft {
 
         while(!stage2Queue.empty()){
             auto& loader = stage2Queue.front();
-            resources.insert_or_assign(ResourceKey{loader->handle.get_path(), loader->type}, loader->finish_async_gl());
+            resources.insert_or_assign(ResourceKey{loader->handle.get_path(), loader->type}, loader->finish_async_gl(*this));
             stage2Queue.pop();
         }
     }
@@ -90,12 +90,9 @@ namespace Draft {
         register_loader<Shader>(new GenericSyncLoader<Shader>());
         register_loader<Texture>(new TextureLoader());
         register_loader<ParticleProps>(new ParticleLoader());
-        register_loader<nlohmann::json>(new JSONLoader());
+        register_loader<JSON>(new JSONLoader());
         register_loader<TexturePacker>(new PackedTextureLoader());
     }
-
-    // Public vars
-    Assets Assets::manager;
 
     // Functions
     void Assets::load(){
@@ -107,7 +104,7 @@ namespace Draft {
         
         while(!stage1Queue.empty()){
             auto& loader = stage1Queue.front();
-            resources.insert_or_assign(ResourceKey{loader->handle.get_path(), loader->type}, loader->load_sync());
+            resources.insert_or_assign(ResourceKey{loader->handle.get_path(), loader->type}, loader->load_sync(*this));
             stage1Queue.pop();
         }
     }

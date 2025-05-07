@@ -34,12 +34,12 @@ namespace Draft {
         return HEADER_LENGTH + obj.length();
     }
 
-    void Serializer::serialize(std::string& obj, nlohmann::json& json){
+    void Serializer::serialize(std::string& obj, JSON& json){
         // JSON is fine already because it doesn't deal with memory.
         json = obj;
     }
 
-    void Serializer::deserialize(std::string& obj, nlohmann::json& json){
+    void Serializer::deserialize(std::string& obj, JSON& json){
         // JSON is fine already because it doesn't deal with memory.
         obj = json.template get<std::string>();
     }

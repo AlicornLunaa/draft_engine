@@ -11,10 +11,7 @@
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/clip.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
 #include "draft/util/asset_manager/resource.hpp"
-
-#include <cmath>
 
 namespace Draft {
     namespace UI {
@@ -22,11 +19,12 @@ namespace Draft {
         class Interface {
         private:
             // Variables
+            static StaticResource<Shader> defaultShader;
+
             Scene* scene = nullptr;
             SpriteBatch batch;
             ShapeBatch shapes;
             TextRenderer textBatch;
-            Resource<Shader> defaultShader = Assets::manager.get<Shader>("assets/shaders/default");
             Clip scissor;
 
             OrthoCamera camera = {{0, 0, 10}, {0, 0, -1}, 0, 1280, 720, 0};

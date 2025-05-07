@@ -15,7 +15,7 @@ namespace Draft {
         GenericLoader() : BaseLoader(typeid(T)) {}
 
         // Loading on main thread
-        virtual AssetPtr load_sync() const override {
+        virtual AssetPtr load_sync(Assets& assets) const override {
             // Default to basic call of default filehandle constructor
             try {
                 return make_asset_ptr(new T(handle));
@@ -32,7 +32,7 @@ namespace Draft {
         }
 
         // Create the finalized object
-        virtual AssetPtr finish_async_gl() override {
+        virtual AssetPtr finish_async_gl(Assets& assets) override {
             // Default to basic call of default filehandle constructor
             try {
                 return make_asset_ptr(new T(rawData));
@@ -57,7 +57,7 @@ namespace Draft {
         GenericSyncLoader() : BaseLoader(typeid(T)) {}
 
         // Loading on main thread
-        virtual AssetPtr load_sync() const override {
+        virtual AssetPtr load_sync(Assets& assets) const override {
             // Default to basic call of default filehandle constructor
             try {
                 return make_asset_ptr(new T(handle));
@@ -72,7 +72,7 @@ namespace Draft {
         virtual void load_async() override {}
 
         // Create the finalized object
-        virtual AssetPtr finish_async_gl() override {
+        virtual AssetPtr finish_async_gl(Assets& assets) override {
             // Default to basic call of default filehandle constructor
             try {
                 return make_asset_ptr(new T(handle));

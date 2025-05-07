@@ -8,7 +8,7 @@
 
 #include "draft/util/serialization/serializer.hpp"
 #include "draft/util/serialization/string_serializer.hpp"
-#include "nlohmann/json.hpp" // IWYU pragma: keep
+#include "draft/util/json.hpp"
 
 #define SerializeField(var) \
     Draft::Serializable::fieldMap.emplace(#var, var);
@@ -24,15 +24,14 @@ namespace Draft {
     protected:
         // Types
         typedef std::vector<std::byte> ByteArray;
-        typedef nlohmann::json Json;
 
         struct Field {
             void* ptr = nullptr;
 
             std::function<size_t(ByteArray& bytes)> encodeBytes; // Turns the ptr into bytes. Returns the length in bytes
             std::function<size_t(std::byte* bytePtr)> decodeBytes; // Turns the bytes into ptr. Returns the length in bytes
-            std::function<void(Json& json)> encodeJSON; // Turns the ptr into json
-            std::function<void(Json& json)> decodeJSON; // Turns the json into ptr
+            std::function<void(JSON& json)> encodeJSON; // Turns the ptr into json
+            std::function<void(JSON& json)> decodeJSON; // Turns the json into ptr
 
             template<typename T>
             Field(T& obj) : ptr(&obj) {
@@ -41,8 +40,8 @@ namespace Draft {
                 decodeBytes = [this](std::byte* bytePtr){ return Serializer::deserialize(*static_cast<T*>(ptr), bytePtr); };
                 
                 // JSON
-                encodeJSON = [this](Json& json){ Serializer::serialize(*static_cast<T*>(ptr), json); };
-                decodeJSON = [this](Json& json){ Serializer::deserialize(*static_cast<T*>(ptr), json); };
+                encodeJSON = [this](JSON& json){ Serializer::serialize(*static_cast<T*>(ptr), json); };
+                decodeJSON = [this](JSON& json){ Serializer::deserialize(*static_cast<T*>(ptr), json); };
             }
         };
 

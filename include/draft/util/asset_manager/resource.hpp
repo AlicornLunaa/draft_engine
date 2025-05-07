@@ -3,9 +3,55 @@
 #include "draft/util/asset_manager/asset_ptr.hpp"
 
 #include <cassert>
+#include <functional>
+#include <memory>
+#include <utility>
 
 namespace Draft {
     class Assets;
+
+    template<typename T>
+    class StaticResource {
+    private:
+        // Variables
+        std::unique_ptr<T> m_ptr = nullptr;
+        std::function<void(void)> m_construct;
+
+    public:
+        // Constructors
+        template<typename... Args>
+        StaticResource(Args&&... args){
+            // Create a lambda expression to construct T from args
+            m_construct = [this, ...args = std::forward<Args>(args)]() mutable {
+                m_ptr = std::make_unique<T>(std::move(args)...);
+            };
+        }
+
+        // Functions
+        T* get_ptr(){
+            if(!m_ptr)
+                m_construct();
+
+            return m_ptr.get();
+        }
+
+        T& get(){ return *get_ptr(); }
+        const T* get_ptr() const { return get_ptr(); }
+        const T& get() const { return *get_ptr(); }
+
+        bool is_valid() const { return m_ptr != nullptr; }
+
+        // Operators
+        StaticResource<T>& operator=(const StaticResource<T>& other) = delete;
+
+        T& operator*(){ return *get_ptr(); }
+        const T& operator*() const { return *get_ptr(); }
+
+        operator T*() { return get_ptr(); }
+        operator T&() { return get(); }
+        operator const T*() const { return get_ptr(); }
+        operator const T&() const { return get(); }
+    };
 
     template<typename T>
     class Resource {
@@ -27,6 +73,7 @@ namespace Draft {
         // Constructors
         Resource(T& ref) : dummyPtr(&ref) {}; // Used for implicit conversions
         Resource(T* p) : dummyPtr(p) {}; // Used for implicit conversions
+        Resource(StaticResource<T>& other) : Resource(other.get()) {};
         Resource(const Resource<T>& other) : ptr(other.ptr), dummyPtr(other.dummyPtr) {};
         ~Resource() = default;
 

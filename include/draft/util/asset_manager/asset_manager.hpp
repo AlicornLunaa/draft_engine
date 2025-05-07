@@ -54,7 +54,7 @@ namespace Draft {
         void load_sync_immediate(const FileHandle& handle){
             auto const& loaderTemplate = loaders[typeid(T)];
             auto loader = loaderTemplate->clone(handle);
-            resources.insert_or_assign(ResourceKey{handle.get_path(), typeid(T)}, loader->load_sync());
+            resources.insert_or_assign(ResourceKey{handle.get_path(), typeid(T)}, loader->load_sync(*this));
         }
 
         static void load_async_queue(std::queue<std::unique_ptr<BaseLoader>>& loadQueue, std::queue<std::unique_ptr<BaseLoader>>& finishQueue, size_t totalAssets, float* progress, std::mutex& mut);
@@ -64,9 +64,6 @@ namespace Draft {
         bool has_asset_loaded(const std::string& str){ return resources.find({str, typeid(T)}) != resources.end(); }
 
     public:
-        // Variables
-        static Assets manager;
-
         // Constructors
         Assets();
         ~Assets() = default;

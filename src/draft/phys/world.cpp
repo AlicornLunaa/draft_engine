@@ -18,6 +18,9 @@
 #include <memory>
 
 namespace Draft {
+    // Static data
+    StaticResource<Shader> World::defaultShader = {FileHandle("assets/shaders/shapes")};
+
     // pImpl
     struct World::Impl {
         b2World world = b2World({0, 0});

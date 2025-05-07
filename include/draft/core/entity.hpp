@@ -34,7 +34,7 @@ namespace Draft {
          * @param args Constructor arguments forwarded to the component
          * @return T& 
          */
-        template <typename T, typename... Args>
+        template<typename T, typename... Args>
         T& add_component(Args&&... args){
             T& component = m_context->get_registry().emplace<T>(m_entityID, std::forward<Args>(args)...);
             return component;

@@ -7,7 +7,6 @@
 #include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/rendering/batching/batch.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
 
 #include <queue>
 #include <vector>
@@ -52,7 +51,10 @@ namespace Draft {
             Vector2f(1, 1), // Bottom-right
             Vector2f(0, 1) // Bottom-left
         };
+
         const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
+
+        static StaticResource<Shader> defaultShader;
 
         // Batch variables
         ShaderBuffer<MatrixArray> shaderBuffer;
@@ -69,7 +71,7 @@ namespace Draft {
 
     public:
         // Constructors
-        SpriteBatch(Resource<Shader> shader = Assets::manager.get<Draft::Shader>("assets/shaders/default", true));
+        SpriteBatch(Resource<Shader> shader = defaultShader);
         virtual ~SpriteBatch() = default;
 
         // Functions

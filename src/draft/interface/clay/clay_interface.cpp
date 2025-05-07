@@ -1,9 +1,9 @@
 #include "draft/interface/clay/clay_interface.hpp"
-#include "draft/math/glm.hpp"
-#include "clay.h"
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/rendering/font.hpp"
-#include "draft/util/asset_manager/asset_manager.hpp"
+#include "draft/math/glm.hpp"
+#include "clay.h"
+#include "draft/util/asset_manager/resource.hpp"
 
 #include <string>
 #include <cstdlib>
@@ -12,6 +12,9 @@ namespace Draft {
     // Data to help bridge static to object oriented
     static Clay* activeClayInterface = nullptr;
     static SpriteBatch* activeBatch = nullptr;
+
+    StaticResource<Shader> Clay::defaultShader = {FileHandle("assets/shaders/default")};
+    StaticResource<Font> Clay::defaultFont = {FileHandle("assets/fonts/default.ttf")};
 
     // Private functions
     Clay_Dimensions Clay::measure_text(Clay_String* text, Clay_TextElementConfig* config){
@@ -35,7 +38,7 @@ namespace Draft {
     Clay::Clay(Application& app) : appRef(app), camera({{0, 0, 10}, {0, 0, -1}, 0, 1280, 0, 720, 0.1f, 100.f}) {
         Vector2u size = app.window.get_size();
         camera = {{0, 0, 10}, {0, 0, -1}, 0, (float)size.x, 0, (float)size.y, 0.1f, 100.f};
-        load_font(Assets::manager.get<Font>("assets/fonts/default.ttf", true));
+        load_font(defaultFont);
 
         totalMemorySize = Clay_MinMemorySize();
         arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, std::malloc(totalMemorySize));
