@@ -6,14 +6,14 @@ import json
 def main():
     '''Converts the Aseprite export JSON to an RML sprite sheet'''
     if len(sys.argv) != 3:
-        print(f"Usage: ./{sys.argv[0]} (input json) (output css)")
+        print(f"Usage: ./{sys.argv[0]} (input json) (output rcss)")
         return
 
     # Parse variables
     input_path = sys.argv[1]
     output_path = sys.argv[2]
 
-    if not input_path.endswith(".json") or not output_path.endswith(".css"):
+    if not input_path.endswith(".json") or not output_path.endswith(".rcss"):
         # Guarantees json is input and css is output
         return
 
