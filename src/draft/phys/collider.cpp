@@ -182,4 +182,15 @@ namespace Draft {
         rigidBodyPtr = nullptr;
         fixtures.clear();
     }
+
+    bool Collider::test_point(Vector2f point) const {
+        // Test all the points in the shape
+        for(auto& shape : shapes){
+            if(shape->contains(point)){
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

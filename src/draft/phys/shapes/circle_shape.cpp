@@ -23,7 +23,9 @@ namespace Draft {
     
     bool CircleShape::contains(const Vector2f& point) const {
         auto s = shape_to_b2(*this);
-        return s.TestPoint(b2Transform(), vector_to_b2(point));
+        b2Transform transform;
+        transform.SetIdentity();
+        return s.TestPoint(transform, vector_to_b2(point));
     }
 
     const Vector2f& CircleShape::get_position() const {

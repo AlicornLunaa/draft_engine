@@ -59,5 +59,7 @@ namespace Draft {
         void attach(RigidBody* rigidBodyPtr);
         void update_collider(); // Reattaches the body
         void detach();
+
+        bool test_point(Vector2f point) const;
     };
 }
