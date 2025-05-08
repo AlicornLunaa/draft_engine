@@ -44,6 +44,8 @@ namespace Draft {
         // Operators
         StaticResource<T>& operator=(const StaticResource<T>& other) = delete;
 
+        T* operator->(){ return get_ptr(); }
+        const T* operator->() const { return get_ptr(); }
         T& operator*(){ return *get_ptr(); }
         const T& operator*() const { return *get_ptr(); }
 
@@ -95,6 +97,8 @@ namespace Draft {
             return *this;
         }
 
+        T* operator->(){ return get_ptr(); }
+        const T* operator->() const { return get_ptr(); }
         T& operator*(){ return *get_ptr(); }
         const T& operator*() const { return *get_ptr(); }
 
