@@ -25,6 +25,7 @@ namespace Draft {
 
         // Private functions
         void copy_collider(const Collider& other);
+        void set_new_transform(Vector2f newPosition, Vector2f newOrigin, Vector2f newScale, float newRotation);
 
     public:
         // Constructors
@@ -46,6 +47,7 @@ namespace Draft {
         void set_origin(const Vector2f& origin);
         void set_scale(const Vector2f& scale);
         void set_rotation(float rotation);
+        inline void set_scale(float scalar) { set_scale({ scalar, scalar }); }
 
         const Vector2f& get_position() const;
         const Vector2f& get_origin() const;

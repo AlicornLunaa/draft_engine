@@ -1,5 +1,8 @@
 #include "draft/phys/collider.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/phys/fixture_def.hpp"
+#include "draft/phys/shapes/circle_shape.hpp"
+#include "draft/phys/shapes/edge_shape.hpp"
 #include "draft/phys/shapes/polygon_shape.hpp"
 #include <cassert>
 
@@ -19,6 +22,49 @@ namespace Draft {
         for(auto& shape : other.shapes){
             shapes.push_back(shape->clone());
         }
+    }
+    
+    void Collider::set_new_transform(Vector2f newPosition, Vector2f newOrigin, Vector2f newScale, float newRotation){
+        // Move all the points back to the original position
+        Matrix4 worldToLocal = Math::inverse(Optimal::fast_model_matrix(position, rotation, scale, origin, 0));
+        Matrix4 localToNewWorld = Optimal::fast_model_matrix(newPosition, newRotation, newScale, newOrigin, 0);
+        Matrix4 transform = localToNewWorld * worldToLocal;
+
+        for(auto& shape : shapes){
+            switch(shape->type){
+                case ShapeType::POLYGON: {
+                    PolygonShape* polygon = static_cast<PolygonShape*>(shape.get());
+
+                    for(size_t i = 0; i < polygon->get_vertex_count(); i++)
+                        polygon->set_vertex(i, transform * Vector4f(polygon->get_vertex(i), 0, 1));
+
+                    break;
+                }
+
+                case ShapeType::CIRCLE: {
+                    CircleShape* circle = static_cast<CircleShape*>(shape.get());
+                    circle->set_position(transform * Vector4f(circle->get_position(), 0, 1));
+                    circle->set_radius(circle->get_radius() / Math::length(scale) * Math::length(newScale));
+                    break;
+                }
+
+                case ShapeType::EDGE: {
+                    EdgeShape* edge = static_cast<EdgeShape*>(shape.get());
+                    edge->set_start(transform * Vector4f(edge->get_start(), 0, 1));
+                    edge->set_end(transform * Vector4f(edge->get_end(), 0, 1));
+                    break;
+                }
+            }
+        }
+
+        // Save new data
+        position = newPosition;
+        origin = newOrigin;
+        scale = newScale;
+        rotation = newRotation;
+        
+        if(is_attached())
+            update_collider();
     }
 
     // Constructors
@@ -89,10 +135,10 @@ namespace Draft {
             update_collider();
     }
 
-    void Collider::set_position(const Vector2f& position){ this->position = position; }
-    void Collider::set_origin(const Vector2f& origin){ this->origin = origin; }
-    void Collider::set_scale(const Vector2f& scale){ this->scale = scale; }
-    void Collider::set_rotation(float rotation){ this->rotation = rotation; }
+    void Collider::set_position(const Vector2f& position){ set_new_transform(position, origin, scale, rotation); }
+    void Collider::set_origin(const Vector2f& origin){ set_new_transform(position, origin, scale, rotation); }
+    void Collider::set_scale(const Vector2f& scale){ set_new_transform(position, origin, scale, rotation); }
+    void Collider::set_rotation(float rotation){ set_new_transform(position, origin, scale, rotation); }
 
     const Vector2f& Collider::get_position() const { return position; }
     const Vector2f& Collider::get_origin() const { return origin; }
