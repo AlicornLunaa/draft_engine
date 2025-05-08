@@ -11,6 +11,7 @@ namespace Draft {
         // Constructors
         ColliderComponent() = default;
         ColliderComponent(const Shape& shape){ collider.add_shape(shape); }
+        ColliderComponent(const Collider& collider){ this->collider = collider; }
 
         // Operators
         Collider* operator->(){ return &collider; }

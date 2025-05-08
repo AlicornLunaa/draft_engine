@@ -13,6 +13,7 @@
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/texture_packer.hpp"
+#include "draft/util/asset_manager/collider_loader.hpp"
 #include "draft/util/asset_manager/font_loader.hpp"
 #include "draft/util/asset_manager/generic_loader.hpp"
 #include "draft/util/asset_manager/image_loader.hpp"
@@ -92,6 +93,7 @@ namespace Draft {
         register_loader<ParticleProps>(new ParticleLoader());
         register_loader<JSON>(new JSONLoader());
         register_loader<TexturePacker>(new PackedTextureLoader());
+        register_loader<Collider>(new ColliderLoader());
     }
 
     // Functions

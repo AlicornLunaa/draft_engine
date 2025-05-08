@@ -1,5 +1,6 @@
 #include "draft/phys/collider.hpp"
 #include "draft/phys/fixture_def.hpp"
+#include "draft/phys/shapes/polygon_shape.hpp"
 #include <cassert>
 
 namespace Draft {
@@ -21,6 +22,29 @@ namespace Draft {
     }
 
     // Constructors
+    Collider::Collider(const JSON& json){
+        // JSON loader for collider
+        for(JSON shapeData : json){
+            PolygonShape shape;
+            JSON indices = shapeData["indices"];
+            JSON vertices = shapeData["vertices"];
+            
+            for(int index : indices){
+                float x = vertices[index * 2];
+                float y = vertices[index * 2 + 1];
+                shape.add_vertex({x, y});
+            }
+
+            shape.restitution = shapeData["restitution"];
+            shape.density = shapeData["density"];
+            shape.friction = shapeData["friction"];
+            shape.isSensor = shapeData["sensor"];
+            shape.isConvex = shapeData["convex"];
+
+            add_shape(shape);
+        }
+    }
+
     Collider::Collider(const Collider& other){
         copy_collider(other);
     }
