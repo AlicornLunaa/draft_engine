@@ -1,6 +1,4 @@
 #include "draft/rendering/vertex_array.hpp"
-#include "tracy/Tracy.hpp"
-#include "tracy/TracyOpenGL.hpp"
 #include <cassert>
 #include <type_traits>
 
@@ -16,8 +14,8 @@ namespace Draft {
         glBindBuffer(buf.glType, 0);
     }
 
-    void VertexArray::buffer_data(int glType, unsigned long bytes, const void* ptr){ TracyGpuZone("vao_buffer_data"); glBufferData(glType, bytes, ptr, GL_STATIC_DRAW); }
-    void VertexArray::buffer_sub_data(int glType, unsigned long offset, unsigned long bytes, const void* ptr){ TracyGpuZone("vao_buffer_sub_data"); glBufferSubData(glType, offset, bytes, ptr); }
+    void VertexArray::buffer_data(int glType, unsigned long bytes, const void* ptr){ glBufferData(glType, bytes, ptr, GL_STATIC_DRAW); }
+    void VertexArray::buffer_sub_data(int glType, unsigned long offset, unsigned long bytes, const void* ptr){ glBufferSubData(glType, offset, bytes, ptr); }
 
     // Constructors
     VertexArray::VertexArray(const std::vector<BufferVariant>& buffers){
@@ -25,8 +23,6 @@ namespace Draft {
     }
 
     VertexArray::~VertexArray(){
-        TracyGpuZone("vao_destruction");
-
         if(initialized){
             glDeleteVertexArrays(1, &vao);
 
@@ -39,20 +35,14 @@ namespace Draft {
     // Functions
     void VertexArray::bind() const {
         assert(initialized && "Vertex array not initialized");
-        TracyGpuZone("vao_bind");
         glBindVertexArray(vao);
     }
 
     void VertexArray::unbind() const {
-        TracyGpuZone("vao_unbind");
         glBindVertexArray(0);
     }
 
     void VertexArray::create(const std::vector<BufferVariant>& buffers){
-        // Profiler
-        ZoneScopedN("vao_creation");
-        TracyGpuZone("vao_creation");
-
         // Generate vao and bind it
         glGenVertexArrays(1, &vao);
         initialized = true;
