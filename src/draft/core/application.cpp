@@ -174,6 +174,16 @@ namespace Draft {
             window.set_vsync(std::stoi(args[1]) > 0);
             return true;
         });
+
+        console.register_cmd("is_debug", [this](ConsoleArgs args){
+            #ifdef DEBUG
+            bool isDebug = true;
+            #elif
+            bool isDebug = false;
+            #endif
+            console.print(isDebug ? "True\n" : "False\n");
+            return true;
+        });
     }
 
     Application::~Application(){
