@@ -18,7 +18,7 @@ namespace Draft {
         default:
         case 0:
             assert(false && "Channels cant be deduced from 0");
-            break;
+            return RGBA;
         }
     }
 
@@ -50,7 +50,7 @@ namespace Draft {
 
         default:
             assert(false && "Stride cant be deduced");
-            break;
+            return RGBA;
         }
     }
 };
