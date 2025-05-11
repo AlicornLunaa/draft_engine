@@ -14,9 +14,11 @@ namespace Draft {
         GLFWwindow* d_window = window.get_glfw_handle();
         ctx = ImGui::CreateContext();
 
+        #ifndef DEBUG
         auto& io = ImGui::GetIO();
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
+        #endif
 
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(d_window, false);
