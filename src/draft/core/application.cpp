@@ -178,7 +178,7 @@ namespace Draft {
         console.register_cmd("is_debug", [this](ConsoleArgs args){
             #ifdef DEBUG
             bool isDebug = true;
-            #elif
+            #else
             bool isDebug = false;
             #endif
             console.print(isDebug ? "True\n" : "False\n");

@@ -4,17 +4,17 @@
 
 #include <cassert>
 #include <functional>
-#include <memory>
 #include <utility>
 
 namespace Draft {
     class Assets;
 
+    /// Used ONLY for debug and other bullshit static defaulted resources, anything else will because leaks.
     template<typename T>
     class StaticResource {
     private:
         // Variables
-        std::unique_ptr<T> m_ptr = nullptr;
+        T* m_ptr = nullptr;
         std::function<void(void)> m_construct;
 
     public:
@@ -23,7 +23,7 @@ namespace Draft {
         StaticResource(Args&&... args){
             // Create a lambda expression to construct T from args
             m_construct = [this, ...args = std::forward<Args>(args)]() mutable {
-                m_ptr = std::make_unique<T>(std::move(args)...);
+                m_ptr = new T(std::move(args)...);
             };
         }
 
@@ -32,7 +32,7 @@ namespace Draft {
             if(!m_ptr)
                 m_construct();
 
-            return m_ptr.get();
+            return m_ptr;
         }
 
         T& get(){ return *get_ptr(); }

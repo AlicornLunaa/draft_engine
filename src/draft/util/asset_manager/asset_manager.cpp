@@ -157,4 +157,9 @@ namespace Draft {
 
         Logger::print_raw("Complete\n");
     }
+
+    void Assets::cleanup(){
+        placeholders.clear();
+        resources.clear();
+    }
 }

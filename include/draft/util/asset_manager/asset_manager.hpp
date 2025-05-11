@@ -113,5 +113,6 @@ namespace Draft {
         float get_loading_progress();
 
         void reload();
+        void cleanup();
     };
 }

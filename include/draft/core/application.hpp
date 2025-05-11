@@ -57,7 +57,7 @@ namespace Draft {
         Application(const char* title, const unsigned int width, const unsigned int height);
         Application(const Application& rhs) = delete; // Dont allow copying.
         Application& operator=(const Application& rhs) = delete;
-        ~Application();
+        virtual ~Application();
 
         /**
          * @brief Runs the application. This starts and spawns the main application loop.
