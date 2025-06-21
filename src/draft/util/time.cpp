@@ -52,7 +52,7 @@ namespace Draft {
     Time& Time::operator%=(const Time& right){ ptr->time %= right.ptr->time; return *this; }
 
     // Literals
-    Time operator"" _s(long double x){ return Time::seconds(x); }
-    Time operator"" _ms(unsigned long long x){ return Time::milliseconds(x); }
-    Time operator"" _mis(unsigned long long x){ return Time::microseconds(x); }
+    Time operator""_s(long double x){ return Time::seconds(x); }
+    Time operator""_ms(unsigned long long x){ return Time::milliseconds(x); }
+    Time operator""_mis(unsigned long long x){ return Time::microseconds(x); }
 };
