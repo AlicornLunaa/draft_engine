@@ -20,7 +20,7 @@ namespace Draft {
         bool contains(const Vector2f& point) const;
 
         size_t add_vertex(Vector2f vertex);
-        void set_as_box(float halfWidth, float halfHeight);
+        void set_as_box(float halfWidth, float halfHeight, float x = 0.f, float y = 0.f);
         void set_vertex(size_t index, Vector2f vertex);
         bool del_vertex(size_t index);
 

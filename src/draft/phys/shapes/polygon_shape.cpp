@@ -31,12 +31,12 @@ namespace Draft {
         return vertices.size() - 1;
     }
 
-    void PolygonShape::set_as_box(float hw, float hy){
+    void PolygonShape::set_as_box(float hw, float hy, float x, float y){
         vertices.clear();
-        add_vertex({ -hw, -hy });
-        add_vertex({ hw, -hy });
-        add_vertex({ hw, hy });
-        add_vertex({ -hw, hy });
+        add_vertex({ -hw + x, -hy + y });
+        add_vertex({ hw + x, -hy + y });
+        add_vertex({ hw + x, hy + y });
+        add_vertex({ -hw + x, hy + y });
     }
 
     void PolygonShape::set_vertex(size_t index, Vector2f vertex){
