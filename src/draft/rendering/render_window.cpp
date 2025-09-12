@@ -22,7 +22,7 @@ namespace Draft {
         }
 
         // Setup opengl context
-        glViewport(0, 0, width, height);
+        set_viewport(get_frame_size());
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
