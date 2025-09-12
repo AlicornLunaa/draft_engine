@@ -26,7 +26,7 @@ namespace Draft {
         }
 
         // Initialize interfaces
-        auto size = window.get_size();
+        auto size = window.get_frame_size();
         s_systemInterface->SetWindow(window.get_glfw_handle());
         s_renderInterface->SetViewport(size.x, size.y);
 
