@@ -238,7 +238,7 @@ namespace Draft {
         }
     }
 
-    void ShapeBatch::draw_arrow(const Vector2f& head, const Vector2f& tail){
+    void ShapeBatch::draw_arrow(const Vector2f& head, const Vector2f& tail, float arrowScale){
         // Profiling
         ZoneScopedN("shape_batch_arrow");
 
@@ -250,8 +250,8 @@ namespace Draft {
 
         // Get the size vertices for the arrow head
         float radians = std::atan2(head.y - tail.y, head.x - tail.x);
-        Vector2f left = Math::rotate(Vector2f(0, 1), radians + 3.141592654f/3.f) * 0.08f;
-        Vector2f right = Math::rotate(Vector2f(0, 1), radians + 2*3.141592654f/3.f) * 0.08f;
+        Vector2f left = Math::rotate(Vector2f(0, 1), radians + 3.141592654f/3.f) * 0.08f * arrowScale;
+        Vector2f right = Math::rotate(Vector2f(0, 1), radians + 2*3.141592654f/3.f) * 0.08f * arrowScale;
 
         // Generate and add vertices
         flush_if_overflowing(6);

@@ -73,7 +73,7 @@ namespace Draft {
         void draw_line(const Vector2f& start, const Vector2f& end);
         void draw_rect_line(const Vector2f& start, const Vector2f& end, float width = 1.f);
         void draw_dotted_line(Vector2f start, const Vector2f& end, float width = 1.f, float spacing = 1.f);
-        void draw_arrow(const Vector2f& head, const Vector2f& tail);
+        void draw_arrow(const Vector2f& head, const Vector2f& tail, float arrowScale = 1.f);
 
         virtual void begin();
         virtual void flush(); // Send shapes to shader
