@@ -12,4 +12,9 @@ namespace glm {
     T div_floor(T a, U n){
         return glm::floor(a / n);
     }
+
+    template<typename T>
+    T cross(const glm::vec<2, T>& a, const glm::vec<2, T>& b){
+        return a.x * b.y - a.y * b.x;
+    }
 };
