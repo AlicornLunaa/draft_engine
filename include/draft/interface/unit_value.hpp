@@ -41,7 +41,7 @@ public:
 
 typedef std::optional<UnitValue> OptUnitValue;
 
-UnitValue operator"" _pixels(long double value);
-UnitValue operator"" _pixels(unsigned long long value);
-UnitValue operator"" _percent(long double value);
-UnitValue operator"" _percent(unsigned long long value);
+UnitValue operator""_pixels(long double value);
+UnitValue operator""_pixels(unsigned long long value);
+UnitValue operator""_percent(long double value);
+UnitValue operator""_percent(unsigned long long value);

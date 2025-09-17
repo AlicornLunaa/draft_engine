@@ -80,7 +80,7 @@ bool UnitValue::is_pixel() const { return pixels != 0.f; }
 bool UnitValue::is_percent() const { return percent != 0.f; }
 
 // Literals
-UnitValue operator"" _pixels(long double value){ return { static_cast<float>(value), 0.f}; }
-UnitValue operator"" _pixels(unsigned long long value){ return { static_cast<float>(value), 0.f}; }
-UnitValue operator"" _percent(long double value){ return { 0.f, static_cast<float>(value)}; }
-UnitValue operator"" _percent(unsigned long long value){ return { 0.f, static_cast<float>(value)}; }
+UnitValue operator""_pixels(long double value){ return { static_cast<float>(value), 0.f}; }
+UnitValue operator""_pixels(unsigned long long value){ return { static_cast<float>(value), 0.f}; }
+UnitValue operator""_percent(long double value){ return { 0.f, static_cast<float>(value)}; }
+UnitValue operator""_percent(unsigned long long value){ return { 0.f, static_cast<float>(value)}; }
