@@ -10,7 +10,7 @@
 #include "draft/phys/joint_def.hpp"
 #include "draft/util/logger.hpp"
 #include "glm/common.hpp"
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
 #include <cassert>
 
 namespace Draft {

@@ -300,6 +300,7 @@ FetchContent_Declare(SFML GIT_REPOSITORY https://github.com/SFML/SFML.git GIT_TA
 FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git GIT_TAG v2.4.1)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_Declare(rmlui GIT_REPOSITORY https://github.com/mikke89/RmlUi.git GIT_TAG 6.0)
+FetchContent_Declare(tracy GIT_REPOSITORY https://github.com/wolfpld/tracy.git GIT_TAG v0.12.2)
 FetchContent_MakeAvailable(jemalloc)
 FetchContent_MakeAvailable(mimalloc)
 FetchContent_MakeAvailable(glfw)
@@ -308,13 +309,13 @@ FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(nlohmann_json)
 FetchContent_MakeAvailable(rmlui)
+FetchContent_MakeAvailable(tracy)
 
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb)
 add_subdirectory(vendor/entt)
 add_subdirectory(vendor/opensimplexnoise)
-add_subdirectory(vendor/tracy)
 add_subdirectory(vendor/clay)
 find_package(Freetype REQUIRED)
 
@@ -352,7 +353,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt clay imgui glm::glm nlohmann_json::nlohmann_json simplex_noise tracy RmlUi::RmlUi)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt clay imgui glm::glm nlohmann_json::nlohmann_json simplex_noise TracyClient RmlUi::RmlUi)
 target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE> $<$<CONFIG:Debug>:DEBUG>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)

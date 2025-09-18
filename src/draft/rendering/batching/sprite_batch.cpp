@@ -4,8 +4,8 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "glad/gl.h"
-#include "tracy/Tracy.hpp"
-#include "tracy/TracyOpenGL.hpp"
+#include <Tracy/tracy/Tracy.hpp>
+#include <Tracy/tracy/TracyOpenGL.hpp>
 
 #include <cstddef>
 #include <vector>

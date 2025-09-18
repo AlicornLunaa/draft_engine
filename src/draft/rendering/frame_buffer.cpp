@@ -1,6 +1,6 @@
 #include "draft/rendering/frame_buffer.hpp"
 #include "draft/rendering/texture.hpp"
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
 
 namespace Draft {
     // Static data

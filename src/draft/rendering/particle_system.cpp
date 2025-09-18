@@ -1,7 +1,7 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/math/rect.hpp"
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
 
 namespace Draft {
     // Static data

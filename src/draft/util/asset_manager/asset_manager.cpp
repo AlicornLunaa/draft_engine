@@ -24,7 +24,7 @@
 #include "draft/util/asset_manager/texture_loader.hpp"
 #include "draft/util/json.hpp"
 #include "draft/util/logger.hpp"
-#include "tracy/Tracy.hpp"
+#include <Tracy/tracy/Tracy.hpp>
 
 namespace Draft {
     // Private functions
