@@ -74,6 +74,7 @@ set(INTERFACES
     include/draft/phys/shapes/edge_shape.hpp
     include/draft/phys/shapes/polygon_shape.hpp
     include/draft/phys/shapes/shape.hpp
+    include/draft/phys/mass_data.hpp
     include/draft/phys/body_def.hpp
     include/draft/phys/collider.hpp
     include/draft/phys/filter.hpp

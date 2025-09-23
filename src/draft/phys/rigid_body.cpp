@@ -156,6 +156,25 @@ namespace Draft {
         currentWorld->destroy_body(this);
     }
 
+
+    void RigidBody::set_mass_data(const MassData& data){
+        b2MassData convertedData;
+        convertedData.mass = data.mass;
+        convertedData.center = vector_to_b2(data.centerOfMass);
+        convertedData.I = data.inertia;
+        ptr->body->SetMassData(&convertedData);
+    }
+    MassData RigidBody::get_mass_data() const {
+        b2MassData originalData;
+        ptr->body->GetMassData(&originalData);
+
+        MassData convertedData;
+        convertedData.mass = originalData.mass;
+        convertedData.centerOfMass = b2_to_vector<float>(originalData.center);
+        convertedData.inertia = originalData.I;
+        return convertedData;
+    }
+
     void RigidBody::set_transform(const Vector2f& position, float angle){ ptr->body->SetTransform({ position.x, position.y }, angle); }
     void RigidBody::set_linear_velocity(const Vector2f& vel){ ptr->body->SetLinearVelocity({ vel.x, vel.y }); }
     void RigidBody::set_angular_velocity(float angVel){ ptr->body->SetAngularVelocity(angVel); }

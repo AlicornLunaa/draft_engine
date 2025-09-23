@@ -4,6 +4,7 @@
 #include "draft/phys/fixture.hpp"
 #include "draft/phys/fixture_def.hpp"
 #include "draft/phys/joint_def.hpp"
+#include "draft/phys/mass_data.hpp"
 #include "draft/phys/shapes/shape.hpp"
 
 #include <memory>
@@ -57,6 +58,7 @@ namespace Draft {
         void set_linear_damping(float damping);
         void set_angular_damping(float damping);
         void set_gravity_scale(float scale);
+        void set_mass_data(const MassData& data);
         void set_type(BodyType type);
         void set_bullet(bool flag);
         void set_awake();
@@ -77,6 +79,7 @@ namespace Draft {
         float get_linear_damping() const;
         float get_angular_damping() const;
         float get_gravity_scale() const;
+        MassData get_mass_data() const;
         BodyType get_type() const;
         bool is_bullet() const;
         bool is_awake() const;
