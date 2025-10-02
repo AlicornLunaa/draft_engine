@@ -11,8 +11,8 @@
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/phys_renderer_p.hpp"
-#include <Tracy/tracy/Tracy.hpp>
-#include <Tracy/tracy/TracyOpenGL.hpp>
+#include <tracy/Tracy.hpp>
+#include <tracy/TracyOpenGL.hpp>
 
 #include <cassert>
 #include <memory>

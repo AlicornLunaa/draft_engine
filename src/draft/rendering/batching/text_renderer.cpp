@@ -1,6 +1,6 @@
 #include "draft/rendering/batching/text_renderer.hpp"
 #include "draft/math/glm.hpp"
-#include <Tracy/tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 #include <algorithm>
 
 namespace Draft {

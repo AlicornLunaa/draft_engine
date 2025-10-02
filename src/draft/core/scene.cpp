@@ -1,7 +1,7 @@
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 #include "draft/core/entity.hpp"
-#include <Tracy/tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 
 using namespace std;
 

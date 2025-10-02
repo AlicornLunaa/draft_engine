@@ -8,7 +8,7 @@
 #include "draft/util/logger.hpp"
 #include "glad/gl.h"
 #include "glm/geometric.hpp"
-#include <Tracy/tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 
 using namespace std;
 

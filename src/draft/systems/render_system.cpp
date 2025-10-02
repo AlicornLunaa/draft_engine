@@ -1,7 +1,7 @@
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
-#include <Tracy/tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 #include "draft/systems/render_system.hpp"
 
 namespace Draft {

@@ -6,7 +6,7 @@
 #include "draft/core/scene.hpp"
 
 #include "draft/input/action.hpp"
-#include <Tracy/tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace Draft {
     // Private functions

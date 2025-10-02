@@ -6,7 +6,7 @@
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
 
-#include <Tracy/tracy/TracyOpenGL.hpp>
+#include <tracy/TracyOpenGL.hpp>
 
 #include <string>
 
