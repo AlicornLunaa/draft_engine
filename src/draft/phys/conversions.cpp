@@ -78,6 +78,19 @@ namespace Draft {
         return s;
     }
 
+    b2ChainShape shape_to_b2(const ChainShape& shape){
+        std::vector<b2Vec2> rawPoints;
+        rawPoints.resize(shape.get_points().size());
+
+        for(size_t i = 0; i < shape.get_points().size(); i++){
+            rawPoints[i] = vector_to_b2(shape.get_points()[i]);
+        }
+
+        b2ChainShape s;
+        s.CreateLoop(rawPoints.data(), shape.get_points().size());
+        return s;
+    }
+
     b2Filter filter_to_b2(const PhysMask& filter){
         b2Filter f;
         f.categoryBits = filter.categoryBits;

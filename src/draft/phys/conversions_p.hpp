@@ -1,16 +1,18 @@
 #pragma once
 
-#include "box2d/b2_collision.h"
-#include "box2d/b2_math.h"
 #include "draft/math/glm.hpp"
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/raycast_props.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/phys/filter.hpp"
+#include "draft/phys/shapes/chain_shape.hpp"
 #include "draft/phys/shapes/circle_shape.hpp"
 #include "draft/phys/shapes/edge_shape.hpp"
 #include "draft/phys/shapes/polygon_shape.hpp"
 
+#include "box2d/b2_chain_shape.h"
+#include "box2d/b2_collision.h"
+#include "box2d/b2_math.h"
 #include "box2d/b2_body.h"
 #include "box2d/b2_joint.h"
 #include "box2d/b2_distance_joint.h"
@@ -33,6 +35,7 @@ namespace Draft {
     b2PolygonShape shape_to_b2(const PolygonShape& shape);
     b2CircleShape shape_to_b2(const CircleShape& shape);
     b2EdgeShape shape_to_b2(const EdgeShape& shape);
+    b2ChainShape shape_to_b2(const ChainShape& shape);
 
     b2Filter filter_to_b2(const PhysMask& def);
 

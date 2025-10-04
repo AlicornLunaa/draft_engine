@@ -5,7 +5,7 @@
 #include "draft/math/glm.hpp"
 
 namespace Draft {
-    enum class ShapeType { POLYGON, CIRCLE, EDGE };
+    enum class ShapeType { POLYGON, CIRCLE, EDGE, CHAIN };
 
     class Shape {
     public:

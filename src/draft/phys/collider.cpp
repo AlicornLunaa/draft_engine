@@ -1,6 +1,7 @@
 #include "draft/phys/collider.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/phys/fixture_def.hpp"
+#include "draft/phys/shapes/chain_shape.hpp"
 #include "draft/phys/shapes/circle_shape.hpp"
 #include "draft/phys/shapes/edge_shape.hpp"
 #include "draft/phys/shapes/polygon_shape.hpp"
@@ -52,6 +53,18 @@ namespace Draft {
                     EdgeShape* edge = static_cast<EdgeShape*>(shape.get());
                     edge->set_start(transform * Vector4f(edge->get_start(), 0, 1));
                     edge->set_end(transform * Vector4f(edge->get_end(), 0, 1));
+                    break;
+                }
+
+                case ShapeType::CHAIN: {
+                    ChainShape* chain = static_cast<ChainShape*>(shape.get());
+                    auto points = chain->get_points();
+                    chain->clear();
+                    
+                    for(auto& p : points){
+                        chain->add(transform * Vector4f(p, 0, 1));
+                    }
+
                     break;
                 }
             }

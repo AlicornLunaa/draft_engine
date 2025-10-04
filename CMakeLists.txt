@@ -71,6 +71,7 @@ set(INTERFACES
     include/draft/math/rect.hpp
 
     include/draft/phys/shapes/circle_shape.hpp
+    include/draft/phys/shapes/chain_shape.hpp
     include/draft/phys/shapes/edge_shape.hpp
     include/draft/phys/shapes/polygon_shape.hpp
     include/draft/phys/shapes/shape.hpp
@@ -182,6 +183,7 @@ set(SOURCES
 
     src/draft/phys/shapes/circle_shape.cpp
     src/draft/phys/shapes/edge_shape.cpp
+    src/draft/phys/shapes/chain_shape.cpp
     src/draft/phys/shapes/polygon_shape.cpp
     src/draft/phys/b2_raycast_proxy.cpp
     src/draft/phys/collider.cpp

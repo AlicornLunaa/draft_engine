@@ -91,6 +91,10 @@ namespace Draft {
             b2EdgeShape edgeShape = shape_to_b2(*static_cast<const EdgeShape*>(def.shape));
             b2Def.shape = &edgeShape;
             fixture = new Fixture(this, def.shape, ptr->body->CreateFixture(&b2Def));
+        } else if(def.shape->type == ShapeType::CHAIN){
+            b2ChainShape chainShape = shape_to_b2(*static_cast<const ChainShape*>(def.shape));
+            b2Def.shape = &chainShape;
+            fixture = new Fixture(this, def.shape, ptr->body->CreateFixture(&b2Def));
         }
 
         if(fixture){
@@ -113,6 +117,9 @@ namespace Draft {
         } else if(shape->type == ShapeType::EDGE){
             b2EdgeShape edgeShape = shape_to_b2(*static_cast<const EdgeShape*>(shape));
             fixture = new Fixture(this, shape, ptr->body->CreateFixture(&edgeShape, density));
+        } else if(shape->type == ShapeType::CHAIN){
+            b2ChainShape chainShape = shape_to_b2(*static_cast<const ChainShape*>(shape));
+            fixture = new Fixture(this, shape, ptr->body->CreateFixture(&chainShape, density));
         }
 
         if(fixture){
