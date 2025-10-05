@@ -294,6 +294,12 @@ option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" OFF)
 option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
 option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(TRACY_ENABLE ON CACHE BOOL "Disable Tracy in release" FORCE)
+else()
+    set(TRACY_ENABLE OFF CACHE BOOL "Disable Tracy in release" FORCE)
+endif()
+
 include(FetchContent)
 FetchContent_Declare(jemalloc GIT_REPOSITORY https://github.com/jemalloc/jemalloc.git GIT_TAG 5.3.0)
 FetchContent_Declare(mimalloc GIT_REPOSITORY https://github.com/microsoft/mimalloc.git GIT_TAG v3.0.3)
