@@ -66,6 +66,7 @@ namespace Draft {
         void set_sleep_allowed(bool flag);
         void set_enabled(bool flag);
         void set_fixed_rotation(bool flag);
+        void reset_mass_data();
 
         Matrix3 get_transform() const;
         Vector2f get_position() const;

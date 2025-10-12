@@ -195,6 +195,7 @@ namespace Draft {
     void RigidBody::set_sleep_allowed(bool flag){ ptr->body->SetSleepingAllowed(flag); }
     void RigidBody::set_enabled(bool flag){ ptr->body->SetEnabled(flag); }
     void RigidBody::set_fixed_rotation(bool flag){ ptr->body->SetFixedRotation(flag); }
+    void RigidBody::reset_mass_data(){ ptr->body->ResetMassData(); }
 
     Matrix3 RigidBody::get_transform() const {
         auto b2Trans = ptr->body->GetTransform();
