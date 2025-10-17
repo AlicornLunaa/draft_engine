@@ -128,9 +128,7 @@ set(INTERFACES
     include/draft/util/asset_manager/resource.hpp
     include/draft/util/asset_manager/sound_buffer_loader.hpp
     include/draft/util/asset_manager/texture_loader.hpp
-    include/draft/util/serialization/serializable.hpp
-    include/draft/util/serialization/serializer.hpp
-    include/draft/util/serialization/string_serializer.hpp
+    include/draft/util/serializer.hpp
     include/draft/util/ansi_colors.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/clock.hpp
