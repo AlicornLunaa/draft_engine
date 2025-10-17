@@ -47,7 +47,7 @@ namespace Draft {
         }
 
         template<typename T>
-        inline void read(std::span<const std::byte>& span, T& value){
+        inline void read(std::span<const std::byte> span, T& value){
             // Simply assigns the value with the data from the span.
             static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable");
 
@@ -56,7 +56,15 @@ namespace Draft {
             
             std::memcpy(&value, span.data(), sizeof(T));
             value = from_little_endian(value);
-            span = span.subspan(sizeof(T)); // Advance the span as convention says
+        }
+        
+        template<typename T>
+        inline void read_and_advance(std::span<const std::byte>& span, T& value){
+            // Simply assigns the value with the data from the span.
+            read(span, value);
+
+            // Advance the span for ease of use if its modifiable
+            span = span.subspan(sizeof(T));
         }
     };
 
@@ -72,10 +80,13 @@ namespace Draft {
 
         // Default for trivial types
         template<typename T> requires std::is_trivially_copyable_v<T>
-        inline void serialize(const T& value, std::vector<std::byte>& out){ write(out, value); }
+        inline void serialize(const T& value, std::vector<std::byte>& out){ Binary::write(out, value); }
 
         template<typename T> requires std::is_trivially_copyable_v<T>
-        inline void deserialize(T& value, std::span<const std::byte>& span){ read(span, value); }
+        inline void deserialize(T& value, std::span<const std::byte> span){ Binary::read(span, value); }
+
+        template<typename T> requires std::is_trivially_copyable_v<T>
+        inline void deserialize_and_advance(T& value, std::span<const std::byte>& span){ Binary::read_and_advance(span, value); }
 
         // Default for JSON-serializable trivials
         template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T> || std::is_same_v<T, std::string>
