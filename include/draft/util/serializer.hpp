@@ -78,6 +78,20 @@ namespace Draft {
             { T::deserialize(object, json) } -> std::convertible_to<void>;
         };
 
+        // Default for complex types
+        template<Serializable T>
+        inline void serialize(const T& value, std::vector<std::byte>& out){ T::serialize(value, out); }
+
+        template<Serializable T>
+        inline void deserialize(T& value, std::span<const std::byte> span){ T::deserialize(span, value); }
+
+        // Default for JSON-serializable complex types
+        template<Serializable T>
+        inline void serialize(const T& value, JSON& json){ T::serialize(value, json); }
+
+        template<Serializable T>
+        inline void deserialize(T& value, JSON& json){ T::deserialize(value, json); }
+
         // Default for trivial types
         template<typename T> requires std::is_trivially_copyable_v<T>
         inline void serialize(const T& value, std::vector<std::byte>& out){ Binary::write(out, value); }
@@ -85,7 +99,7 @@ namespace Draft {
         template<typename T> requires std::is_trivially_copyable_v<T>
         inline void deserialize(T& value, std::span<const std::byte> span){ Binary::read(span, value); }
 
-        template<typename T> requires std::is_trivially_copyable_v<T>
+        template<typename T>
         inline void deserialize_and_advance(T& value, std::span<const std::byte>& span){ Binary::read_and_advance(span, value); }
 
         // Default for JSON-serializable trivials
