@@ -12,7 +12,7 @@ namespace Draft {
         inline constexpr bool IS_LITTLE_ENDIAN = std::endian::native == std::endian::little;
         typedef std::vector<std::byte> ByteArray;
         typedef std::span<std::byte> ByteSpan;
-        typedef std::span<const std::byte> ConstByteSpan;
+        typedef std::span<const std::byte> ByteView;
     
         // Helpers
         template<typename T>
@@ -52,7 +52,7 @@ namespace Draft {
         }
 
         template<typename T>
-        inline void read(ConstByteSpan span, T& value){
+        inline void read(ByteView span, T& value){
             // Simply assigns the value with the data from the span.
             static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable");
 
@@ -64,7 +64,7 @@ namespace Draft {
         }
         
         template<typename T>
-        inline void read_and_advance(ConstByteSpan& span, T& value){
+        inline void read_and_advance(ByteView& span, T& value){
             // Simply assigns the value with the data from the span.
             read(span, value);
 
@@ -76,7 +76,19 @@ namespace Draft {
     namespace Serializer {
         // Serializable types
         template<typename T>
-        concept Serializable = requires(T object, Binary::ByteArray& buffer, Binary::ConstByteSpan& span, Draft::JSON& json){
+        concept BinarySerializable = requires(T object, Binary::ByteArray& buffer, Binary::ByteView& span){
+            { T::serialize(object, buffer) } -> std::convertible_to<void>;
+            { T::deserialize(object, span) } -> std::convertible_to<void>;
+        };
+
+        template<typename T>
+        concept JsonSerializable = requires(T object, Draft::JSON& json){
+            { T::serialize(object, json) } -> std::convertible_to<void>;
+            { T::deserialize(object, json) } -> std::convertible_to<void>;
+        };
+
+        template<typename T>
+        concept Serializable = requires(T object, Binary::ByteArray& buffer, Binary::ByteView& span, Draft::JSON& json){
             { T::serialize(object, buffer) } -> std::convertible_to<void>;
             { T::deserialize(object, span) } -> std::convertible_to<void>;
             { T::serialize(object, json) } -> std::convertible_to<void>;
@@ -84,23 +96,23 @@ namespace Draft {
         };
 
         // Default for complex types
-        template<Serializable T>
+        template<BinarySerializable T>
         inline void serialize(const T& value, Binary::ByteArray& out){ T::serialize(value, out); }
 
-        template<Serializable T>
-        inline void deserialize(T& value, Binary::ConstByteSpan span){ T::deserialize(span, value); }
+        template<BinarySerializable T>
+        inline void deserialize(T& value, Binary::ByteView span){ T::deserialize(span, value); }
 
-        template<Serializable T>
-        inline void deserialize_and_advance(T& value, Binary::ConstByteSpan& span){
+        template<BinarySerializable T>
+        inline void deserialize_and_advance(T& value, Binary::ByteView& span){
             T::deserialize(value, span);
             span = span.subspan(sizeof(T));
         }
 
         // Default for JSON-serializable complex types
-        template<Serializable T>
+        template<JsonSerializable T>
         inline void serialize(const T& value, JSON& json){ T::serialize(value, json); }
 
-        template<Serializable T>
+        template<JsonSerializable T>
         inline void deserialize(T& value, JSON& json){ T::deserialize(value, json); }
 
 
@@ -109,10 +121,10 @@ namespace Draft {
         inline void serialize(const T& value, Binary::ByteArray& out){ Binary::write(out, value); }
 
         template<typename T> requires std::is_trivially_copyable_v<T>
-        inline void deserialize(T& value, Binary::ConstByteSpan span){ Binary::read(span, value); }
+        inline void deserialize(T& value, Binary::ByteView span){ Binary::read(span, value); }
 
         template<typename T> requires std::is_trivially_copyable_v<T>
-        inline void deserialize_and_advance(T& value, Binary::ConstByteSpan& span){
+        inline void deserialize_and_advance(T& value, Binary::ByteView& span){
             deserialize(value, span);
             span = span.subspan(sizeof(T));
         }
@@ -137,7 +149,7 @@ namespace Draft {
         }
 
         template<typename K>
-        inline void deserialize(std::vector<K>& array, Binary::ConstByteSpan span){
+        inline void deserialize(std::vector<K>& array, Binary::ByteView span){
             // Serialize a vector array, starting with the size
             size_t size = 0;
             deserialize_and_advance(size, span);
