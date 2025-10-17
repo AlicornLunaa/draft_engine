@@ -100,7 +100,7 @@ namespace Draft {
         inline void serialize(const T& value, Binary::ByteArray& out){ T::serialize(value, out); }
 
         template<BinarySerializable T>
-        inline void deserialize(T& value, Binary::ByteView span){ T::deserialize(span, value); }
+        inline void deserialize(T& value, Binary::ByteView span){ T::deserialize(value, span); }
 
         template<BinarySerializable T>
         inline void deserialize_and_advance(T& value, Binary::ByteView& span){
