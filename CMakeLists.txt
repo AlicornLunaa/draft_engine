@@ -231,9 +231,6 @@ set(SOURCES
     src/draft/util/asset_manager/particle_loader.cpp
     src/draft/util/asset_manager/sound_buffer_loader.cpp
     src/draft/util/asset_manager/texture_loader.cpp
-    src/draft/util/serialization/serializable.cpp
-    src/draft/util/serialization/serializer.cpp
-    src/draft/util/serialization/string_serializer.cpp
     src/draft/util/clock.cpp
     src/draft/util/color.cpp
     src/draft/util/file_handle.cpp
