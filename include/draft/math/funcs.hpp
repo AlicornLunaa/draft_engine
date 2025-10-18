@@ -17,4 +17,9 @@ namespace glm {
     T cross(const glm::vec<2, T>& a, const glm::vec<2, T>& b){
         return a.x * b.y - a.y * b.x;
     }
+
+    template<typename T>
+    T lerp(const T& a, const T& b, float t){
+        return a * (1 - t) + b * t;
+    }
 };
