@@ -46,6 +46,18 @@ namespace Draft {
         virtual void render(Time deltaTime);
 
         /**
+         * @brief Called every frame to generate geometry data within the game
+         * @param deltaTime 
+         */
+        virtual void render_world(Time deltaTime);
+
+        /**
+         * @brief Called every frame after all other passes in the pipeline
+         * @param deltaTime 
+         */
+        virtual void render_interface(Time deltaTime);
+
+        /**
          * @brief Called when the scene is set to the current scene
          */
         virtual void on_attach();

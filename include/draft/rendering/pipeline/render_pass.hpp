@@ -63,4 +63,20 @@ namespace Draft {
         RenderState p_state = {};
         Resource<Shader> p_shader;
     };
+
+    /// Generic render passes
+    class InterfacePass : public AbstractRenderPass {
+    public:
+        // Constructors
+        InterfacePass(Resource<Shader> shader);
+        virtual ~InterfacePass() = default;
+
+        // Functions
+        virtual void run(Renderer& renderer, Scene& scene, Time deltaTime);
+
+    private:
+        // Variables
+        RenderState p_state = {};
+        Resource<Shader> p_shader;
+    };
 };

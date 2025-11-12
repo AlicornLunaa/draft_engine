@@ -21,7 +21,7 @@ namespace Draft {
         renderer.set_state(p_state);
         p_shader->bind();
 
-        scene.render(deltaTime);
+        scene.render_world(deltaTime);
 
         p_frameBuffer.end();
         renderer.end_pass();
@@ -42,6 +42,22 @@ namespace Draft {
         geometry.bind(0);
 
         renderer.draw_fullscreen_quad();
+
+        renderer.end_pass();
+    }
+
+    /// Interface run
+    InterfacePass::InterfacePass(Resource<Shader> shader) : AbstractRenderPass(), p_shader(shader) {
+
+    }
+
+    void InterfacePass::run(Renderer& renderer, Scene& scene, Time deltaTime){
+        renderer.begin_pass(*this);
+        renderer.set_state(p_state);
+
+        p_shader->bind();
+
+        scene.render_interface(deltaTime);
 
         renderer.end_pass();
     }

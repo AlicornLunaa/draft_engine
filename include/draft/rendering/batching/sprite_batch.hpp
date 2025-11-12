@@ -76,7 +76,6 @@ namespace Draft {
 
         // Functions
         void draw(SpriteProps props); // Add quad to scene
-        void draw(Texture* texture, const Vector2f& position, const Vector2f& size, float rotation = 0.f, const Vector2f& origin = {}, FloatRect region = {}); // Add quad to scene
         virtual void begin();
         virtual void flush();
         virtual void end();

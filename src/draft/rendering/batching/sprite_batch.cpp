@@ -204,19 +204,6 @@ namespace Draft {
         }
     }
 
-    void SpriteBatch::draw(Texture* texture, const Vector2f& position, const Vector2f& size, float rotation, const Vector2f& origin, FloatRect region){
-        // Shortcut function for backwards compat
-        draw(SpriteProps{
-            texture,
-            region,
-            position,
-            rotation,
-            size,
-            origin,
-            0
-        });
-    }
-
     void SpriteBatch::begin(){
         // Profiling
         ZoneScopedN("sprite_batch_begin");

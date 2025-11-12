@@ -52,7 +52,10 @@ namespace Draft {
         // Variables
         StaticResource<Shader> m_geometryShader{"assets/shaders/geometry"};
         StaticResource<Shader> m_compositeShader{"assets/shaders/composite"};
+        StaticResource<Shader> m_interfaceShader{"assets/shaders/default"};
+
         GeometryPass m_geometryPass{m_geometryShader, p_renderSize};
         CompositePass m_compositePass{m_compositeShader};
+        InterfacePass m_interfacePass{m_interfaceShader};
     };
 };

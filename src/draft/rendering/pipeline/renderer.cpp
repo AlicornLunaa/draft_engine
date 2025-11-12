@@ -100,8 +100,12 @@ namespace Draft {
     }
 
     void DefaultRenderer::render_frame(Scene& scene, Time deltaTime){
+        // World rendering
         auto& geometry = m_geometryPass.run(*this, scene, deltaTime);
         m_compositePass.run(*this, geometry);
+
+        // Interface rendering
+        m_interfacePass.run(*this, scene, deltaTime);
     }
 
     void DefaultRenderer::resize(const Vector2u& size){

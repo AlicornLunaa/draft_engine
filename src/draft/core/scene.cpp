@@ -23,7 +23,9 @@ namespace Draft {
 
     void Scene::handle_event(Event event){}
     void Scene::update(Time timeStep){}
-    void Scene::render(Time deltaTime){}
+    void Scene::render(Time deltaTime){ render_world(deltaTime); render_interface(deltaTime); }
+    void Scene::render_world(Time timeStep){}
+    void Scene::render_interface(Time timeStep){}
     void Scene::on_attach(){}
     void Scene::on_detach(){}
 }

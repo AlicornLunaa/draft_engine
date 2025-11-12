@@ -73,5 +73,7 @@ namespace Draft {
 
         void set_scene(Scene* scene);
         Scene* get_scene() const;
+
+        inline Renderer* get_renderer(){ return m_renderer.get(); }
     };
 }
