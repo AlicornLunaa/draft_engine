@@ -91,6 +91,9 @@ set(INTERFACES
     include/draft/rendering/batching/shape_batch.hpp
     include/draft/rendering/batching/sprite_batch.hpp
     include/draft/rendering/batching/text_renderer.hpp
+    include/draft/rendering/pipeline/render_pass.hpp
+    include/draft/rendering/pipeline/render_state.hpp
+    include/draft/rendering/pipeline/renderer.hpp
     include/draft/rendering/animation.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/clip.hpp
@@ -195,6 +198,8 @@ set(SOURCES
     src/draft/rendering/batching/shape_batch.cpp
     src/draft/rendering/batching/sprite_batch.cpp
     src/draft/rendering/batching/text_renderer.cpp
+    src/draft/rendering/pipeline/render_pass.cpp
+    src/draft/rendering/pipeline/renderer.cpp
     src/draft/rendering/animation.cpp
     src/draft/rendering/camera.cpp
     src/draft/rendering/clip.cpp

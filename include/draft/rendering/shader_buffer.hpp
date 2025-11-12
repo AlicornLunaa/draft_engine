@@ -20,7 +20,6 @@ namespace Draft {
         }
 
         ~ShaderBuffer(){
-
         }
 
         // Functions

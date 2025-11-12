@@ -2,6 +2,11 @@
 Just a project to learn computer graphics, openGL, and C++ library creation.
 
 ## Next version goals
+- [ ] Create rendering pipeline class
+    1. Big "renderer" class which handles each pass
+    2. beginPass accepts a RenderPass structure which holds GPU state
+    3. endPass cleans up and marks ready for next pass
+    4. Possibly a RenderState structure.
 - [ ] Profiler api
 - [x] Better asyncronous loading of resources
 - [ ] Texture packer
