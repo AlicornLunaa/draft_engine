@@ -94,6 +94,9 @@ set(INTERFACES
     include/draft/rendering/pipeline/render_pass.hpp
     include/draft/rendering/pipeline/render_state.hpp
     include/draft/rendering/pipeline/renderer.hpp
+    include/draft/rendering/pipeline/passes/geometry_pass.hpp
+    include/draft/rendering/pipeline/passes/composite_pass.hpp
+    include/draft/rendering/pipeline/passes/interface_pass.hpp
     include/draft/rendering/animation.hpp
     include/draft/rendering/camera.hpp
     include/draft/rendering/clip.hpp
@@ -200,6 +203,9 @@ set(SOURCES
     src/draft/rendering/batching/text_renderer.cpp
     src/draft/rendering/pipeline/render_pass.cpp
     src/draft/rendering/pipeline/renderer.cpp
+    src/draft/rendering/pipeline/passes/geometry_pass.cpp
+    src/draft/rendering/pipeline/passes/composite_pass.cpp
+    src/draft/rendering/pipeline/passes/interface_pass.cpp
     src/draft/rendering/animation.cpp
     src/draft/rendering/camera.cpp
     src/draft/rendering/clip.cpp

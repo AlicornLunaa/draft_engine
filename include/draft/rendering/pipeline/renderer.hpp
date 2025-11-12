@@ -2,6 +2,9 @@
 
 #include "draft/core/scene.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/rendering/pipeline/passes/composite_pass.hpp"
+#include "draft/rendering/pipeline/passes/geometry_pass.hpp"
+#include "draft/rendering/pipeline/passes/interface_pass.hpp"
 #include "draft/rendering/pipeline/render_pass.hpp"
 #include "draft/rendering/pipeline/render_state.hpp"
 #include "draft/rendering/shader.hpp"
@@ -37,6 +40,7 @@ namespace Draft {
         AbstractRenderPass* m_currentPass = nullptr;
     };
 
+    
     /// Generic renderer, default implementation
     class DefaultRenderer : public Renderer {
     public:

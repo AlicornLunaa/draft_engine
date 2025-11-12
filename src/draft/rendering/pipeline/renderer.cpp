@@ -95,6 +95,7 @@ namespace Draft {
         m_previousState = newState;
     }
 
+    
     /// Generic implementation
     DefaultRenderer::DefaultRenderer(const Vector2u& renderSize) : Renderer(renderSize) {
     }

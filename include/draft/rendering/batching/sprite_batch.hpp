@@ -26,6 +26,8 @@ namespace Draft {
 
         Vector4f color{1};
         bool renderAsTransparent = false;
+
+        Shader const* shader = nullptr;
         
         bool operator()(SpriteProps const& a, SpriteProps const& b){ return a.zIndex > b.zIndex; }
     };
