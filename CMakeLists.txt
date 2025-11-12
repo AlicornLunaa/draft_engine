@@ -270,6 +270,10 @@ set(RESOURCES
     assets/shaders/shapes/fragment.glsl
     assets/shaders/text/vertex.glsl
     assets/shaders/text/fragment.glsl
+    assets/shaders/geometry/vertex.glsl
+    assets/shaders/geometry/fragment.glsl
+    assets/shaders/composite/vertex.glsl
+    assets/shaders/composite/fragment.glsl
 
     assets/textures/debug_black.png
     assets/textures/debug_white.png

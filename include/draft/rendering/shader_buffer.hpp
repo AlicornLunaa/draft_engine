@@ -20,6 +20,7 @@ namespace Draft {
         }
 
         ~ShaderBuffer(){
+            glDeleteBuffers(1, buffer);
         }
 
         // Functions
@@ -31,7 +32,7 @@ namespace Draft {
         }
 
         void bind() const {
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffer);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, buffer);
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
         }
 
