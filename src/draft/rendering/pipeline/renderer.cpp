@@ -1,4 +1,5 @@
 #include "draft/rendering/pipeline/renderer.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/rendering/pipeline/render_state.hpp"
 #include <cassert>
 
@@ -8,10 +9,15 @@ namespace Draft {
     Renderer::Renderer(const Vector2u& renderSize) : m_renderSize(renderSize) {
         // Set default state to start
         set_state(RenderState{}, true);
+        resize(renderSize);
     }
 
     // Functions
-    void Renderer::begin_pass(RenderPass& pass){
+    void Renderer::resize(const Vector2u& size){
+        m_renderSize = size;
+    }
+
+    void Renderer::begin_pass(AbstractRenderPass& pass){
         // Initialize this pass by setting the state
         assert(!m_currentPass && "Previous pass must be ended before starting another");
         m_currentPass = &pass;
@@ -72,7 +78,16 @@ namespace Draft {
     }
 
     /// Generic implementation
+    DefaultRenderer::DefaultRenderer(const Vector2u& renderSize) : Renderer(renderSize) {
+    }
+
     void DefaultRenderer::render_frame(Scene& scene, Time deltaTime){
         auto& geometry = m_geometryPass.run(*this, scene, deltaTime);
+        m_compositePass.run(*this, geometry);
+    }
+
+    void DefaultRenderer::resize(const Vector2u& size){
+        Renderer::resize(size);
+        m_geometryPass.resize(size);
     }
 };

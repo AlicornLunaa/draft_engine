@@ -27,6 +27,11 @@ namespace Draft {
             };
         }
 
+        ~StaticResource(){
+            if(m_ptr)
+                delete m_ptr;
+        }
+
         // Functions
         T* get_ptr(){
             if(!m_ptr)

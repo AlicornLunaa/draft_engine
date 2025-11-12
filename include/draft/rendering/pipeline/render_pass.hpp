@@ -13,19 +13,22 @@ namespace Draft {
     class Scene;
 
     /// Render pass interface
-    class IRenderPass {
+    class AbstractRenderPass {
     public:
         // Constructors
-        IRenderPass() = default;
-        virtual ~IRenderPass() = default;
+        AbstractRenderPass() = default;
+        virtual ~AbstractRenderPass() = default;
     };
 
     /// Abstract render pass class
-    class RenderPass : public IRenderPass {
+    class BufferedPass : public AbstractRenderPass {
     public:
         // Constructors
-        RenderPass(Resource<Shader> shader, const Vector2u& size);
-        virtual ~RenderPass() = default;
+        BufferedPass(Resource<Shader> shader, const Vector2u& size);
+        virtual ~BufferedPass() = default;
+
+        // Functions
+        virtual void resize(const Vector2u& size);
 
     protected:
         // Variables
@@ -35,7 +38,7 @@ namespace Draft {
     };
 
     /// Generic render passes
-    class GeometryPass : public RenderPass {
+    class GeometryPass : public BufferedPass {
     public:
         // Constructors
         GeometryPass(Resource<Shader> shader, const Vector2u& size);
@@ -46,13 +49,18 @@ namespace Draft {
     };
 
     /// Generic render passes
-    class CompositePass : public IRenderPass {
+    class CompositePass : public AbstractRenderPass {
     public:
         // Constructors
-        CompositePass(Resource<Shader> shader, const Vector2u& size);
+        CompositePass(Resource<Shader> shader);
         virtual ~CompositePass() = default;
 
         // Functions
         virtual void run(Renderer& renderer, const Texture& geometry);
+
+    private:
+        // Variables
+        RenderState p_state = {};
+        Resource<Shader> p_shader;
     };
 };

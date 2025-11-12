@@ -3,18 +3,22 @@
 
 namespace Draft {
     /// Abstract implementation
-    RenderPass::RenderPass(Resource<Shader> shader, const Vector2u& size) : p_shader(shader), p_frameBuffer(size) {
+    BufferedPass::BufferedPass(Resource<Shader> shader, const Vector2u& size) : p_shader(shader), p_frameBuffer(size) {
+    }
+
+    void BufferedPass::resize(const Vector2u& size){
+        p_frameBuffer.resize(size);
     }
 
     /// Geometry pass implementation
-    GeometryPass::GeometryPass(Resource<Shader> shader, const Vector2u& size) : RenderPass(shader, size) {
+    GeometryPass::GeometryPass(Resource<Shader> shader, const Vector2u& size) : BufferedPass(shader, size) {
     }
 
     const Texture& GeometryPass::run(Renderer& renderer, Scene& scene, Time deltaTime){
-        p_frameBuffer.begin();
-
-        renderer.set_state(p_state);
         renderer.begin_pass(*this);
+        p_frameBuffer.begin();
+        
+        renderer.set_state(p_state);
         p_shader->bind();
 
         scene.render(deltaTime);
@@ -26,4 +30,16 @@ namespace Draft {
     }
 
     /// Composite run
+    CompositePass::CompositePass(Resource<Shader> shader) : AbstractRenderPass(), p_shader(shader) {
+    }
+
+    void CompositePass::run(Renderer& renderer, const Texture& geometry){
+        renderer.begin_pass(*this);
+        renderer.set_state(p_state);
+        p_shader->bind();
+
+        
+
+        renderer.end_pass();
+    }
 };

@@ -17,7 +17,9 @@ namespace Draft {
 
         // Functions
         virtual void render_frame(Scene& scene, Time deltaTime) = 0;
-        void begin_pass(RenderPass& pass);
+        virtual void resize(const Vector2u& size);
+
+        void begin_pass(AbstractRenderPass& pass);
         void end_pass();
 
         void set_state(const RenderState& state, bool force = false);
@@ -29,18 +31,25 @@ namespace Draft {
     private:
         // Variables
         RenderState m_previousState = {};
-        RenderPass* m_currentPass = nullptr;
+        AbstractRenderPass* m_currentPass = nullptr;
     };
 
     /// Generic renderer, default implementation
     class DefaultRenderer : public Renderer {
     public:
+        // Constructor
+        DefaultRenderer(const Vector2u& renderSize);
+        virtual ~DefaultRenderer() = default;
+
         // Functions
         virtual void render_frame(Scene& scene, Time deltaTime) override;
+        virtual void resize(const Vector2u& size) override;
 
     private:
         // Variables
-        StaticResource<Shader> m_geometryShader{"assets/shaders/default"};
+        StaticResource<Shader> m_geometryShader{"assets/shaders/geometry"};
+        StaticResource<Shader> m_compositeShader{"assets/shaders/composite"};
         GeometryPass m_geometryPass{m_geometryShader, m_renderSize};
+        CompositePass m_compositePass{m_compositeShader};
     };
 };
