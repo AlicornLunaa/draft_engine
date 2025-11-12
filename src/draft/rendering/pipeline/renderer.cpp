@@ -5,7 +5,7 @@
 namespace Draft {
     /// Abstract class
     // Constructor
-    Renderer::Renderer(){
+    Renderer::Renderer(const Vector2u& renderSize) : m_renderSize(renderSize) {
         // Set default state to start
         set_state(RenderState{}, true);
     }
@@ -14,7 +14,6 @@ namespace Draft {
     void Renderer::begin_pass(RenderPass& pass){
         // Initialize this pass by setting the state
         assert(!m_currentPass && "Previous pass must be ended before starting another");
-        set_state(pass.get_render_state());
         m_currentPass = &pass;
     }
 
@@ -73,7 +72,7 @@ namespace Draft {
     }
 
     /// Generic implementation
-    void DefaultRenderer::render_frame(Scene& scene){
-        m_geometryPass.run(*this, scene);
+    void DefaultRenderer::render_frame(Scene& scene, Time deltaTime){
+        auto& geometry = m_geometryPass.run(*this, scene, deltaTime);
     }
 };

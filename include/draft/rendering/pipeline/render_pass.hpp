@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/math/glm.hpp"
 #include "draft/rendering/frame_buffer.hpp"
 #include "draft/rendering/pipeline/render_state.hpp"
 #include "draft/rendering/shader.hpp"
@@ -11,19 +12,24 @@ namespace Draft {
     class Renderer;
     class Scene;
 
-    /// Abstract render pass class
-    class RenderPass {
+    /// Render pass interface
+    class IRenderPass {
     public:
         // Constructors
-        virtual ~RenderPass() = default;
+        IRenderPass() = default;
+        virtual ~IRenderPass() = default;
+    };
 
-        // Functions
-        virtual Texture run(Renderer& renderer, Scene& scene, Time deltaTime) = 0;
-        inline const RenderState& get_render_state() const { return p_state; }
+    /// Abstract render pass class
+    class RenderPass : public IRenderPass {
+    public:
+        // Constructors
+        RenderPass(Resource<Shader> shader, const Vector2u& size);
+        virtual ~RenderPass() = default;
 
     protected:
         // Variables
-        RenderState p_state;
+        RenderState p_state = {};
         Framebuffer p_frameBuffer;
         Resource<Shader> p_shader;
     };
@@ -32,9 +38,21 @@ namespace Draft {
     class GeometryPass : public RenderPass {
     public:
         // Constructors
+        GeometryPass(Resource<Shader> shader, const Vector2u& size);
         virtual ~GeometryPass() = default;
 
         // Functions
-        virtual Texture run(Renderer& renderer, Scene& scene, Time deltaTime) override;
+        virtual const Texture& run(Renderer& renderer, Scene& scene, Time deltaTime);
+    };
+
+    /// Generic render passes
+    class CompositePass : public IRenderPass {
+    public:
+        // Constructors
+        CompositePass(Resource<Shader> shader, const Vector2u& size);
+        virtual ~CompositePass() = default;
+
+        // Functions
+        virtual void run(Renderer& renderer, const Texture& geometry);
     };
 };
