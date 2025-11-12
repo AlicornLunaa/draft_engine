@@ -4,17 +4,36 @@
 #include <cassert>
 
 namespace Draft {
+    /// Helper data
+    constexpr std::array<Draft::Vector2f, 4> QUAD_VERTICES = {
+        Draft::Vector2f(0, 0), // Top-left
+        Draft::Vector2f(1, 0), // Top-right
+        Draft::Vector2f(1, 1), // Bottom-right
+        Draft::Vector2f(0, 1) // Bottom-left
+    };
+    constexpr std::array<int, 6> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
+
     /// Abstract class
     // Constructor
-    Renderer::Renderer(const Vector2u& renderSize) : m_renderSize(renderSize) {
+    Renderer::Renderer(const Vector2u& renderSize) : p_renderSize(renderSize) {
         // Set default state to start
         set_state(RenderState{}, true);
         resize(renderSize);
+
+        // Initialize full-screen quad
+        p_fullscreenQuad.create({
+            StaticBuffer{{
+                BufferAttribute{0, GL_FLOAT, 2, sizeof(Vector2f), 0},
+            }},
+            StaticBuffer{{ BufferAttribute{3, GL_INT, 1, sizeof(int), 0} }, GL_ELEMENT_ARRAY_BUFFER}
+        });
+        p_fullscreenQuad.set_data(0, QUAD_VERTICES);
+        p_fullscreenQuad.set_data(1, QUAD_INDICES);
     }
 
     // Functions
     void Renderer::resize(const Vector2u& size){
-        m_renderSize = size;
+        p_renderSize = size;
     }
 
     void Renderer::begin_pass(AbstractRenderPass& pass){

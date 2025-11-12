@@ -3,6 +3,7 @@
 #include "glad/gl.h"
 
 #include <algorithm>
+#include <array>
 #include <variant>
 #include <vector>
 
@@ -105,6 +106,26 @@ namespace Draft {
         // Functions
         template<typename T>
         void set_data(size_t bufferIndex, const std::vector<T>& arr, unsigned long offset = 0){
+            // Set data for each index
+            auto& buf = vbos[bufferIndex];
+            bind();
+            bind_vbo(bufferIndex);
+
+            // Check types, if dynamic use subdata and if static use regular
+            switch(buf.type){
+            case BufferType::DYNAMIC:
+                buffer_sub_data(buf.glType, offset * sizeof(T), std::min(static_cast<unsigned long>(arr.size() * sizeof(T)), buf.maxBytes), (void*)arr.data());
+                break;
+
+            default:
+            case BufferType::STATIC:
+                buffer_data(buf.glType, arr.size() * sizeof(T), (void*)arr.data());
+                break;
+            }
+        }
+
+        template<typename T, size_t K>
+        void set_data(size_t bufferIndex, const std::array<T, K>& arr, unsigned long offset = 0){
             // Set data for each index
             auto& buf = vbos[bufferIndex];
             bind();

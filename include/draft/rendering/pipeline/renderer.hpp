@@ -5,6 +5,7 @@
 #include "draft/rendering/pipeline/render_pass.hpp"
 #include "draft/rendering/pipeline/render_state.hpp"
 #include "draft/rendering/shader.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 
 namespace Draft {
@@ -26,7 +27,8 @@ namespace Draft {
 
     protected:
         // Variables
-        Vector2u m_renderSize;
+        Vector2u p_renderSize;
+        VertexArray p_fullscreenQuad;
 
     private:
         // Variables
@@ -49,7 +51,7 @@ namespace Draft {
         // Variables
         StaticResource<Shader> m_geometryShader{"assets/shaders/geometry"};
         StaticResource<Shader> m_compositeShader{"assets/shaders/composite"};
-        GeometryPass m_geometryPass{m_geometryShader, m_renderSize};
+        GeometryPass m_geometryPass{m_geometryShader, p_renderSize};
         CompositePass m_compositePass{m_compositeShader};
     };
 };
