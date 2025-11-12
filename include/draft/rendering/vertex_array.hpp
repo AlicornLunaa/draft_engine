@@ -104,8 +104,13 @@ namespace Draft {
         VertexArray& operator=(const VertexArray& other) = delete;
 
         // Functions
-        template<typename T>
-        void set_data(size_t bufferIndex, const std::vector<T>& arr, unsigned long offset = 0){
+        template<typename Container>
+        void set_data(size_t bufferIndex, const Container& arr, unsigned long offset = 0){
+            // Grab type and data
+            using T = typename std::decay_t<decltype(*std::data(arr))>;
+            const void* ptr = static_cast<const void*>(std::data(arr));
+            unsigned long bytes = std::size(arr) * sizeof(T);
+
             // Set data for each index
             auto& buf = vbos[bufferIndex];
             bind();
@@ -114,32 +119,12 @@ namespace Draft {
             // Check types, if dynamic use subdata and if static use regular
             switch(buf.type){
             case BufferType::DYNAMIC:
-                buffer_sub_data(buf.glType, offset * sizeof(T), std::min(static_cast<unsigned long>(arr.size() * sizeof(T)), buf.maxBytes), (void*)arr.data());
+                buffer_sub_data(buf.glType, offset * sizeof(T), std::min(bytes, buf.maxBytes), ptr);
                 break;
 
             default:
             case BufferType::STATIC:
-                buffer_data(buf.glType, arr.size() * sizeof(T), (void*)arr.data());
-                break;
-            }
-        }
-
-        template<typename T, size_t K>
-        void set_data(size_t bufferIndex, const std::array<T, K>& arr, unsigned long offset = 0){
-            // Set data for each index
-            auto& buf = vbos[bufferIndex];
-            bind();
-            bind_vbo(bufferIndex);
-
-            // Check types, if dynamic use subdata and if static use regular
-            switch(buf.type){
-            case BufferType::DYNAMIC:
-                buffer_sub_data(buf.glType, offset * sizeof(T), std::min(static_cast<unsigned long>(arr.size() * sizeof(T)), buf.maxBytes), (void*)arr.data());
-                break;
-
-            default:
-            case BufferType::STATIC:
-                buffer_data(buf.glType, arr.size() * sizeof(T), (void*)arr.data());
+                buffer_data(buf.glType, bytes, ptr);
                 break;
             }
         }
