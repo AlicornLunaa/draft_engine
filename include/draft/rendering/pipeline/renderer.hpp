@@ -23,15 +23,16 @@ namespace Draft {
         void begin_pass(AbstractRenderPass& pass);
         void end_pass();
 
+        void draw_fullscreen_quad() const;
         void set_state(const RenderState& state, bool force = false);
 
     protected:
         // Variables
         Vector2u p_renderSize;
-        VertexArray p_fullscreenQuad;
-
+        
     private:
         // Variables
+        VertexArray m_fullscreenQuad;
         RenderState m_previousState = {};
         AbstractRenderPass* m_currentPass = nullptr;
     };

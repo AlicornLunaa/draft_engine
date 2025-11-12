@@ -10,12 +10,6 @@ namespace Draft {
         bool depthWrite = true;
         GLenum depthFunction = GL_LESS;
 
-        // Stenciling
-        // bool stencilTest = false;
-        // GLenum stencilFunction = GL_ALWAYS;
-        // GLint stencilRef = 0;
-        // GLuint stencilMask = 0xFF;
-
         // Blending
         bool blend = false;
         GLenum blendSrc = GL_SRC_ALPHA;
@@ -27,10 +21,6 @@ namespace Draft {
         GLenum cullMode = GL_BACK;
         bool frontFaceCCW = true;
         bool polygonOffset = false;
-
-        // Viewport
-        int viewportX = 0, viewportY = 0;
-        int viewportWidth = 0, viewportHeight = 0;
 
         // Scissor
         bool scissorTest = false;

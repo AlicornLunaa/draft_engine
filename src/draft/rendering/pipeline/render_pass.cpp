@@ -36,9 +36,12 @@ namespace Draft {
     void CompositePass::run(Renderer& renderer, const Texture& geometry){
         renderer.begin_pass(*this);
         renderer.set_state(p_state);
-        p_shader->bind();
 
-        
+        p_shader->bind();
+        p_shader->set_uniform("u_geometryTexture", 0);
+        geometry.bind(0);
+
+        renderer.draw_fullscreen_quad();
 
         renderer.end_pass();
     }

@@ -1,11 +1,13 @@
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include <string>
 
 #include "draft/core/application.hpp"
 #include "draft/core/scene.hpp"
 
 #include "draft/input/action.hpp"
+#include "draft/rendering/pipeline/renderer.hpp"
 #include <tracy/Tracy.hpp>
 
 namespace Draft {
@@ -16,6 +18,9 @@ namespace Draft {
         m_event.size.height = height;
 
         window.set_viewport({m_event.size.width, m_event.size.height});
+        
+        if(m_renderer)
+            m_renderer->resize({width, height});
 
         if(m_activeScene)
             m_activeScene->handle_event(m_event);
@@ -141,8 +146,13 @@ namespace Draft {
         window.clear();
         imgui.start_frame();
 
-        if(m_activeScene)
-            m_activeScene->render(deltaTime);
+        if(m_activeScene){
+            if(m_renderer){
+                m_renderer->render_frame(*m_activeScene, deltaTime);
+            } else {
+                m_activeScene->render(deltaTime);
+            }
+        }
 
         // Draw debug stuff
         stats.draw(*this);
@@ -168,6 +178,9 @@ namespace Draft {
         mouse.mouseScrollCallback = std::bind(&Application::mouse_scroll_callback, this, std::placeholders::_1);
         mouse.mouseEnterCallback = std::bind(&Application::mouse_enter_callback, this);
         mouse.mouseLeaveCallback = std::bind(&Application::mouse_leave_callback, this);
+
+        // Create renderer
+        m_renderer = std::make_unique<DefaultRenderer>(window.get_size());
 
         // Register basic commands
         console.register_cmd("cl_vsync", [this](ConsoleArgs args){

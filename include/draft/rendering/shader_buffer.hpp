@@ -20,7 +20,7 @@ namespace Draft {
         }
 
         ~ShaderBuffer(){
-            glDeleteBuffers(1, buffer);
+            // glDeleteBuffers(1, buffer);
         }
 
         // Functions

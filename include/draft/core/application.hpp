@@ -4,11 +4,13 @@
 #include "draft/input/event.hpp"
 #include "draft/input/mouse.hpp"
 #include "draft/input/keyboard.hpp"
+#include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/rendering/render_window.hpp"
 #include "draft/interface/rmlui/rml_engine.hpp"
 #include "draft/interface/imgui/console.hpp"
 #include "draft/interface/imgui/stats.hpp"
 #include "draft/util/clock.hpp"
+#include <memory>
 
 namespace Draft {
     /**
@@ -19,9 +21,12 @@ namespace Draft {
     class Application {
     private:
         // Private vars
+        std::unique_ptr<Renderer> m_renderer;
+
         Scene* m_activeScene = nullptr;
         Clock m_deltaClock;
         Event m_event;
+
         double m_accumulator = 0.0; // Used for fixed timestep
 
         // Private functions
