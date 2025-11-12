@@ -12,6 +12,7 @@
 #include <vector>
 
 namespace Draft {
+    /// Properties to render a sprite
     struct SpriteProps {
         // Variables
         Texture const* texture = nullptr;
@@ -32,6 +33,8 @@ namespace Draft {
         bool operator()(SpriteProps const& a, SpriteProps const& b){ return a.zIndex > b.zIndex; }
     };
 
+
+    /// Sprite data collection class
     class SpriteBatch : public Batch {
     public:
         // Static data
