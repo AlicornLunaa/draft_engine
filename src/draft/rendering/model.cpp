@@ -49,7 +49,7 @@ namespace Draft {
         return mdl;
     }
 
-    void load_materials(const FileHandle& handle, std::vector<Material>* materials, std::vector<std::unique_ptr<Texture>>& embeddedTextures, tinygltf::Model& mdl){
+    void load_materials(const FileHandle& handle, std::vector<Material3D>* materials, std::vector<std::unique_ptr<Texture>>& embeddedTextures, tinygltf::Model& mdl){
         // Helper functions
         auto load_texture = [mdl, materials, &embeddedTextures](int index) -> Texture* {
             if(index == -1){
@@ -77,7 +77,7 @@ namespace Draft {
         for(auto& mat : mdl.materials){
             // Name
             materials->push_back({ mat.name });
-            Material& material = materials->back();
+            Material3D& material = materials->back();
 
             // Properties
             material.baseColor = { mat.pbrMetallicRoughness.baseColorFactor[0], mat.pbrMetallicRoughness.baseColorFactor[1], mat.pbrMetallicRoughness.baseColorFactor[2], mat.pbrMetallicRoughness.baseColorFactor[3] };

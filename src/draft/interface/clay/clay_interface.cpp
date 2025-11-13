@@ -3,6 +3,7 @@
 #include "draft/rendering/font.hpp"
 #include "draft/math/glm.hpp"
 #include "clay.h"
+#include "draft/rendering/material.hpp"
 #include "draft/util/asset_manager/resource.hpp"
 
 #include <string>
@@ -104,14 +105,17 @@ namespace Draft {
                 auto& bounds = renderCommand->boundingBox;
                 auto& col = renderCommand->config.rectangleElementConfig->color;
 
+                Material2D material;
+                material.tint = {col.r / 255.f, col.g / 255.f, col.b / 255.f, col.a / 255.f};
+
                 batch.draw({
-                    nullptr, {},
                     {bounds.x, winSize.y - bounds.y},
                     0.f,
                     {bounds.width, bounds.height},
                     {0, bounds.height},
                     0.f,
-                    {col.r / 255.f, col.g / 255.f, col.b / 255.f, col.a / 255.f}
+                    {},
+                    material
                 });
 
                 break;

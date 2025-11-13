@@ -52,14 +52,14 @@ namespace Draft {
         virtual void render_frame(Scene& scene, Time deltaTime) override;
         virtual void resize(const Vector2u& size) override;
 
-    private:
+    protected:
         // Variables
-        StaticResource<Shader> m_geometryShader{"assets/shaders/geometry"};
-        StaticResource<Shader> m_compositeShader{"assets/shaders/composite"};
-        StaticResource<Shader> m_interfaceShader{"assets/shaders/default"};
+        StaticResource<Shader> p_geometryShader{"assets/shaders/geometry"};
+        StaticResource<Shader> p_compositeShader{"assets/shaders/composite"};
+        StaticResource<Shader> p_interfaceShader{"assets/shaders/default"};
 
-        GeometryPass m_geometryPass{m_geometryShader, p_renderSize};
-        CompositePass m_compositePass{m_compositeShader};
-        InterfacePass m_interfacePass{m_interfaceShader};
+        GeometryPass p_geometryPass{p_geometryShader, p_renderSize};
+        CompositePass p_compositePass{p_compositeShader};
+        InterfacePass p_interfacePass{p_interfaceShader};
     };
 };

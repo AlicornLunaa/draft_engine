@@ -1,6 +1,5 @@
 #include "draft/rendering/particle_system.hpp"
 #include "draft/math/glm.hpp"
-#include "draft/math/rect.hpp"
 #include <tracy/Tracy.hpp>
 
 namespace Draft {
@@ -65,15 +64,17 @@ namespace Draft {
             Vector4f color = particle.props.colorBegin + (particle.props.colorEnd - particle.props.colorBegin) * life;
             color.a *= life;
 
+            Material2D particleMaterial;
+            particleMaterial.baseTexture = particle.props.texture;
+
             batch.draw({
-                particle.props.texture,
-                FloatRect{},
                 particle.position,
                 particle.rotation,
                 Vector2f{particle.size},
                 Vector2f{particle.size * 0.5f},
                 2.f,
-                color
+                {},
+                particleMaterial
             });
         }
     }

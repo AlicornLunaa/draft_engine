@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <variant>
 
 #include "draft/math/glm.hpp"
 #include "draft/util/file_handle.hpp"
@@ -21,6 +22,30 @@ namespace Draft {
         void load_from_handle(const FileHandle& shaderHandle);
 
     public:
+        // Types
+        using Uniform = std::variant<
+            int,
+            uint,
+            float,
+            double,
+            bool,
+            Vector2i,
+            Vector3i,
+            Vector4i,
+            Vector2u,
+            Vector3u,
+            Vector4u,
+            Vector2f,
+            Vector3f,
+            Vector4f,
+            Vector2d,
+            Vector3d,
+            Vector4d,
+            Matrix2,
+            Matrix3,
+            Matrix4
+        >;
+
         // Constructors
         Shader(const FileHandle& vertexHandle, const FileHandle& fragmentHandle);
         Shader(const FileHandle& handle);

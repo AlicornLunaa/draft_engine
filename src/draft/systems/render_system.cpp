@@ -23,14 +23,17 @@ namespace Draft {
             auto& spriteComponent = view.get<SpriteComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
 
+            Material2D mat;
+            mat.baseTexture = spriteComponent.texture.texture;
+
             batch.draw({
-                spriteComponent.texture.texture,
-                spriteComponent.texture.bounds,
                 transformComponent.position,
                 transformComponent.rotation,
                 spriteComponent.size,
                 spriteComponent.origin,
-                spriteComponent.zIndex
+                spriteComponent.zIndex,
+                spriteComponent.texture.bounds,
+                mat
             });
         }
     }

@@ -18,7 +18,7 @@ namespace Draft {
 
         FileHandle handle;
         std::vector<Mesh> meshes;
-        std::vector<Material> materials;
+        std::vector<Material3D> materials;
         std::vector<int> meshToMaterialMap;
         std::vector<Matrix4> meshToMatrixMap;
         std::vector<std::unique_ptr<VertexBuffer>> buffers;

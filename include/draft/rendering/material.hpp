@@ -8,7 +8,7 @@
 #include <string>
 
 namespace Draft {
-    class Material {
+    class Material3D {
     private:
         Resource<Texture> debugWhite;
         Resource<Texture> debugBlack;
@@ -32,9 +32,36 @@ namespace Draft {
         float occlusionStrength = 1.f;
 
         // Constructors
-        Material(const std::string& name);
+        Material3D(const std::string& name);
 
         // Functions
         void apply(const Shader& shader) const;
+    };
+
+    struct Material2D {
+        // Variables
+        std::string name;
+
+        Shader const* shader = nullptr; // Nullptr means use default in pass
+        Texture const* baseTexture = nullptr;
+        Texture const* normalTexture = nullptr;
+        Texture const* emissiveTexture = nullptr;
+
+        Vector4f tint = {1, 1, 1, 1};
+        bool transparent = false;
+
+        std::unordered_map<std::string, Shader::Uniform> uniforms;
+
+        // Functions
+        void apply() const;
+        
+        bool operator==(const Material2D& other) const {
+            return shader == other.shader &&
+                    baseTexture == other.baseTexture &&
+                    normalTexture == other.normalTexture &&
+                    emissiveTexture == other.emissiveTexture &&
+                    tint == other.tint &&
+                    transparent == other.transparent;
+        }
     };
 };

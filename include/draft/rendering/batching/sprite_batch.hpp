@@ -2,8 +2,8 @@
 
 #include "draft/math/rect.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/rendering/material.hpp"
 #include "draft/rendering/shader.hpp"
-#include "draft/rendering/texture.hpp"
 #include "draft/rendering/shader_buffer.hpp"
 #include "draft/rendering/vertex_buffer.hpp"
 #include "draft/rendering/batching/batch.hpp"
@@ -15,20 +15,14 @@ namespace Draft {
     /// Properties to render a sprite
     struct SpriteProps {
         // Variables
-        Texture const* texture = nullptr;
-        FloatRect region{};
-
         Vector2f position{0, 0};
         float rotation = 0.f;
-
         Vector2f size{1, 1};
         Vector2f origin{0, 0};
         float zIndex = 0.f;
 
-        Vector4f color{1};
-        bool renderAsTransparent = false;
-
-        Shader const* shader = nullptr;
+        FloatRect textureRegion{};
+        Material2D material;
         
         bool operator()(SpriteProps const& a, SpriteProps const& b){ return a.zIndex > b.zIndex; }
     };
@@ -71,8 +65,6 @@ namespace Draft {
         std::queue<SpriteProps> opaqueQuads;
 
         // Private functions
-        void internal_flush_opaque();
-        void internal_flush_transparent();
 
     public:
         // Constructors
@@ -83,6 +75,8 @@ namespace Draft {
         void draw(SpriteProps props); // Add quad to scene
         virtual void begin();
         virtual void flush();
+        virtual void flush_opaque();
+        virtual void flush_transparent();
         virtual void end();
     };
 };

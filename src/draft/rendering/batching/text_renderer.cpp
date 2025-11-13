@@ -63,16 +63,19 @@ namespace Draft {
             float h = glyph.size.y * props.scale;
 
             // Render glyph
+            Material2D glyphMaterial;
+            glyphMaterial.baseTexture = glyph.region.texture;
+            glyphMaterial.transparent = true;
+            glyphMaterial.tint = props.color;
+
             batch.draw(SpriteProps{
-                glyph.region.texture,
-                glyph.region.bounds,
                 Vector2f{xPos, yPos},
                 props.rotation,
                 {w, h},
                 center,
                 0.f,
-                props.color,
-                true
+                glyph.region.bounds,
+                glyphMaterial
             });
             
             currX += (glyph.advance >> 6) * props.scale;
