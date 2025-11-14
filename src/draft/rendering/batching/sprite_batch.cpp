@@ -5,6 +5,7 @@
 #include "draft/rendering/batching/batch.hpp"
 #include "draft/rendering/batching/sprite_batch.hpp"
 #include "glad/gl.h"
+#include <optional>
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyOpenGL.hpp>
 
@@ -106,8 +107,7 @@ namespace Draft {
 
     void SpriteBatch::flush_opaque(){
         // Flush all the opaque quads to gpu
-        Material2D const* materialPtr = nullptr;
-
+        std::optional<Material2D> material;
         std::vector<InstanceData> instances;
         instances.reserve(MAX_SPRITES_TO_RENDER);
 
@@ -116,26 +116,26 @@ namespace Draft {
 
         // Assemble quads and render them in chunks of maxSprites
         while(!opaqueQuads.empty()){
-            materialPtr = nullptr;
+            material.reset();
 
             for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !opaqueQuads.empty(); i++){
                 auto& props = opaqueQuads.front();
 
-                if(!materialPtr){
+                if(!material.has_value()){
                     // No material previously, apply it
-                    materialPtr = &props.material;                    
-                    materialPtr->shader->set_uniform("projection", get_proj_matrix());
-                    materialPtr->shader->set_uniform("view", get_trans_matrix());
-                    materialPtr->apply();
+                    material = props.material;
+                    material->apply();
+                    material->shader->set_uniform("view", get_trans_matrix());
+                    material->shader->set_uniform("projection", get_proj_matrix());
                 }
 
-                if(props.material != *materialPtr){
+                if(!(props.material == *material)){
                     // Different material, escape this loop to trigger an immediate flush and restart
-                    materialPtr = nullptr;
+                    material.reset();
                     break;
                 }
 
-                auto textureSize = props.material.baseTexture->get_properties().size;
+                auto textureSize = material->baseTexture->get_properties().size;
                 float x = props.textureRegion.x / textureSize.x;
                 float y = props.textureRegion.y / textureSize.y;
                 float w = ((props.textureRegion.width <= 0) ? textureSize.x : props.textureRegion.width) / textureSize.x;
@@ -169,42 +169,35 @@ namespace Draft {
 
     void SpriteBatch::flush_transparent(){
         // Flush all the transparent quads
-        Material2D const* materialPtr = nullptr;
-
+        std::optional<Material2D> material;
         std::vector<InstanceData> instances;
         instances.reserve(MAX_SPRITES_TO_RENDER);
-
-        // Prep the shader
-        Shader* shader = this->shader;
-        shader->bind();
-        shader->set_uniform("view", get_trans_matrix());
-        shader->set_uniform("projection", get_proj_matrix());
 
         // Prep buffer
         vertexBuffer.bind();
 
         // Render in maxSprites chunks
         while(!transparentQuads.empty()){
-            materialPtr = nullptr;
+            material.reset();
 
             for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !transparentQuads.empty(); i++){
                 auto& props = transparentQuads.top();
 
-                if(!materialPtr){
+                if(!material.has_value()){
                     // No material previously, apply it
-                    materialPtr = &props.material;
-                    materialPtr->shader->set_uniform("projection", get_proj_matrix());
-                    materialPtr->shader->set_uniform("view", get_trans_matrix());
-                    materialPtr->apply();
+                    material = props.material;
+                    material->apply();
+                    material->shader->set_uniform("view", get_trans_matrix());
+                    material->shader->set_uniform("projection", get_proj_matrix());
                 }
 
-                if(props.material != *materialPtr){
+                if(!(props.material == *material)){
                     // Different material, escape this loop to trigger an immediate flush and restart
-                    materialPtr = nullptr;
+                    material.reset();
                     break;
                 }
 
-                auto textureSize = props.material.baseTexture->get_properties().size;
+                auto textureSize = material->baseTexture->get_properties().size;
                 float x = props.textureRegion.x / textureSize.x;
                 float y = props.textureRegion.y / textureSize.y;
                 float w = ((props.textureRegion.width <= 0) ? textureSize.x : props.textureRegion.width) / textureSize.x;

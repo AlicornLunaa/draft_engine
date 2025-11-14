@@ -54,14 +54,16 @@ namespace Draft {
 
         // Functions
         void apply() const;
+        void apply_uniforms() const;
         
         bool operator==(const Material2D& other) const {
             return shader == other.shader &&
                     baseTexture == other.baseTexture &&
                     normalTexture == other.normalTexture &&
                     emissiveTexture == other.emissiveTexture &&
+                    transparent == other.transparent &&
                     tint == other.tint &&
-                    transparent == other.transparent;
+                    name == other.name;
         }
     };
 };
