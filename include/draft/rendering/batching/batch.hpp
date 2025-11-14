@@ -12,6 +12,8 @@ namespace Draft {
     protected:
         // Variables
         Texture whiteTexture{Image({1, 1}, {1, 1, 1, 1}, RGB)};
+        Texture blackTexture{Image({1, 1}, {0, 0, 0, 1})};
+        Texture normalTexture{Image({1, 1}, {128.0/255.0, 128.0/255.0, 1, 1})};
         bool blend = true;
 
         Matrix4 projMatrix{1.f};

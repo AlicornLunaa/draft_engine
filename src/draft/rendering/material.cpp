@@ -47,9 +47,9 @@ namespace Draft {
 
         apply_uniforms();
 
-        if(baseTexture){ baseTexture->bind(0); } else { s_debugWhite.get().bind(0); }
-        if(normalTexture){ normalTexture->bind(1); } else { s_emptyNormal.get().bind(1); }
-        if(emissiveTexture){ emissiveTexture->bind(2); } else { s_debugWhite.get().bind(2); }
+        if(baseTexture){ baseTexture->bind(0); }
+        if(normalTexture){ normalTexture->bind(1); }
+        if(emissiveTexture){ emissiveTexture->bind(2); }
     }
 
     void Material2D::apply_uniforms() const {

@@ -48,13 +48,19 @@ namespace Draft {
 
         // Preprocessing for the props
         if(!props.material.shader){
-            // No texture means use debug white
             props.material.shader = defaultShader;
         }
 
         if(!props.material.baseTexture){
-            // No texture means use debug white
             props.material.baseTexture = &whiteTexture;
+        }
+
+        if(!props.material.normalTexture){
+            props.material.normalTexture = &normalTexture;
+        }
+
+        if(!props.material.emissiveTexture){
+            props.material.emissiveTexture = &blackTexture;
         }
 
         // Check if the sprite is translucent or not

@@ -39,6 +39,7 @@ namespace Draft {
     };
 
     struct Material2D {
+    public:
         // Variables
         std::string name;
 

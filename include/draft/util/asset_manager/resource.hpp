@@ -28,8 +28,6 @@ namespace Draft {
         }
 
         ~StaticResource(){
-            if(m_ptr)
-                delete m_ptr;
         }
 
         // Functions
