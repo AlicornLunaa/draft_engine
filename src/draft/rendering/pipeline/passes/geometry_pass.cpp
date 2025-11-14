@@ -2,6 +2,7 @@
 #include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/core/scene.hpp"
 
 namespace Draft {
     /// Geometry pass implementation
@@ -15,7 +16,7 @@ namespace Draft {
         renderer.set_state(p_state);
         p_shader->bind();
 
-        scene.render_world(deltaTime);
+        scene.render_world(renderer, deltaTime);
 
         p_frameBuffer.end();
         renderer.end_pass();

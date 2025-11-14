@@ -1,7 +1,8 @@
 #pragma once
 
-#include "draft/core/scene.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/rendering/batching/shape_batch.hpp"
+#include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/rendering/pipeline/passes/composite_pass.hpp"
 #include "draft/rendering/pipeline/passes/geometry_pass.hpp"
 #include "draft/rendering/pipeline/passes/interface_pass.hpp"
@@ -15,6 +16,10 @@ namespace Draft {
     /// Renderer interface
     class Renderer {
     public:
+        // Public variables
+        SpriteBatch batch;
+        ShapeBatch shape;
+
         // Constructors
         Renderer(const Vector2u& renderSize);
         virtual ~Renderer() = default;

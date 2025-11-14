@@ -2,6 +2,7 @@
 
 #include "draft/core/registry.hpp"
 #include "draft/input/event.hpp"
+#include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/systems/relationship_system.hpp"
 #include "draft/util/time.hpp"
 
@@ -43,19 +44,19 @@ namespace Draft {
          * @brief Called every frame
          * @param deltaTime 
          */
-        virtual void render(Time deltaTime);
+        virtual void render(Renderer& renderer, Time deltaTime);
 
         /**
          * @brief Called every frame to generate geometry data within the game
          * @param deltaTime 
          */
-        virtual void render_world(Time deltaTime);
+        virtual void render_world(Renderer& renderer, Time deltaTime);
 
         /**
          * @brief Called every frame after all other passes in the pipeline
          * @param deltaTime 
          */
-        virtual void render_interface(Time deltaTime);
+        virtual void render_interface(Renderer& renderer, Time deltaTime);
 
         /**
          * @brief Called when the scene is set to the current scene

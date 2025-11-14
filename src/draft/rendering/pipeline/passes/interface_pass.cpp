@@ -1,6 +1,7 @@
 #include "draft/rendering/pipeline/passes/interface_pass.hpp"
 #include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/rendering/shader.hpp"
+#include "draft/core/scene.hpp"
 
 namespace Draft {
     /// Interface impl
@@ -14,7 +15,7 @@ namespace Draft {
 
         p_shader->bind();
 
-        scene.render_interface(deltaTime);
+        scene.render_interface(renderer, deltaTime);
 
         renderer.end_pass();
     }

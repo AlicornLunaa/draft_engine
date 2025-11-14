@@ -150,7 +150,7 @@ namespace Draft {
             if(m_renderer){
                 m_renderer->render_frame(*m_activeScene, deltaTime);
             } else {
-                m_activeScene->render(deltaTime);
+                m_activeScene->render(*m_renderer, deltaTime);
             }
         }
 
