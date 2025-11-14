@@ -50,7 +50,6 @@ namespace Draft {
         font.set_font_size(props.fontSize);
 
         float currX = props.position.x;
-        batch.set_shader(fontShader);
 
         for(char ch : props.str){
             // Get glyph to render
@@ -67,6 +66,7 @@ namespace Draft {
             glyphMaterial.baseTexture = glyph.region.texture;
             glyphMaterial.transparent = true;
             glyphMaterial.tint = props.color;
+            glyphMaterial.shader = fontShader;
 
             batch.draw(SpriteProps{
                 Vector2f{xPos, yPos},

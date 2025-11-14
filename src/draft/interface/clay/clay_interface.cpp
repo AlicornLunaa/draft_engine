@@ -75,7 +75,6 @@ namespace Draft {
         );
         batch.set_proj_matrix(camera.get_combined());
         batch.set_trans_matrix(Matrix4(1.f));
-        batch.set_shader(uiShader);
 
         Vector2f pointer = appRef.mouse.get_position();
         Vector2f delta = appRef.mouse.get_scroll();
@@ -107,6 +106,7 @@ namespace Draft {
 
                 Material2D material;
                 material.tint = {col.r / 255.f, col.g / 255.f, col.b / 255.f, col.a / 255.f};
+                material.shader = uiShader;
 
                 batch.draw({
                     {bounds.x, winSize.y - bounds.y},
@@ -135,8 +135,6 @@ namespace Draft {
                 props.str = std::string(renderCommand->text.chars, renderCommand->text.length);
 
                 textBatch.draw_text(batch, props);
-                batch.set_shader(uiShader);
-
                 break;
             }
 

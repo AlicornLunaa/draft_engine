@@ -207,13 +207,10 @@ namespace Draft::UI {
 
             switch(cmd.type){
                 case Command::SPRITE:{
-                    if(&batch.get_shader() != defaultShader.get_ptr()){
-                        batch.set_shader(defaultShader);
-                    }
-
                     Material2D mat;
                     mat.baseTexture = cmd.sprite.texture;
                     mat.tint = cmd.color;
+                    mat.shader = defaultShader;
 
                     batch.draw({
                         {cmd.x, cmd.y}, 0.f,

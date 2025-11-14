@@ -1,5 +1,4 @@
 #include "draft/rendering/batching/batch.hpp"
-#include "draft/rendering/shader.hpp"
 #include "draft/math/glm.hpp"
 
 namespace Draft {
@@ -13,24 +12,12 @@ namespace Draft {
         combinedMatrix *= transMatrix;
     }
 
-    // Constructors
-    Batch::Batch(Resource<Shader> shader) : shader(shader) {
-    }
-
     // Functions
     void Batch::set_blending(bool blend){
         if(activeBatch == this)
             flush();
         
         this->blend = blend;
-    }
-
-    void Batch::set_shader(Resource<Shader> shader){
-        if(activeBatch == this)
-            flush();
-
-        this->shader = shader;
-        shader.get().bind();
     }
 
     void Batch::set_proj_matrix(const Matrix4& m){

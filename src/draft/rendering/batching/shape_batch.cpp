@@ -26,7 +26,7 @@ namespace Draft {
     }
 
     // Constructor
-    ShapeBatch::ShapeBatch(Resource<Shader> shader) : Batch(shader) {
+    ShapeBatch::ShapeBatch(Resource<Shader> shader) : Batch(), shader(shader) {
         // Setup data buffers
         vertexArray.create({
             DynamicBuffer::create<Point>(MAX_POINTS_PER_PASS, {
@@ -52,6 +52,14 @@ namespace Draft {
             flush();
 
         zLayer = depth;
+    }
+
+    void ShapeBatch::set_shader(Resource<Shader> shader){
+        if(is_active())
+            flush();
+
+        this->shader = shader;
+        shader.get().bind();
     }
 
     void ShapeBatch::draw_polygon(const std::vector<Vector2f>& polygonVertices){

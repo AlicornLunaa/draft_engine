@@ -68,7 +68,7 @@ namespace Draft {
 
     public:
         // Constructors
-        SpriteBatch(Resource<Shader> shader = defaultShader);
+        SpriteBatch();
         virtual ~SpriteBatch() = default;
 
         // Functions

@@ -19,7 +19,7 @@ namespace Draft {
     StaticResource<Shader> SpriteBatch::defaultShader = {FileHandle("assets/shaders/default")};
 
     // Constructor
-    SpriteBatch::SpriteBatch(Resource<Shader> shader) : Batch(shader) {
+    SpriteBatch::SpriteBatch() : Batch() {
         // Profiling
         ZoneScopedN("sprite_batch_setup");
 
