@@ -7,20 +7,35 @@
 namespace Draft {
     /// Geometry pass implementation
     GeometryPass::GeometryPass(Resource<Shader> shader, const Vector2u& size) : BufferedPass(shader, size) {
+        // Opaque pass details
+        m_opaqueState.blend = false;
+
+        // Transparent pass is slightly different
+        m_transparentState.blend = true;
+        m_transparentState.depthWrite = false;
     }
 
     const Texture& GeometryPass::run(Renderer& renderer, Scene& scene, Time deltaTime){
+        // Start the pass
         renderer.begin_pass(*this);
         p_frameBuffer.begin();
-        
-        renderer.set_state(p_state);
         p_shader->bind();
 
+        // Collect all world geometry data into the collections
         scene.render_world(renderer, deltaTime);
+        
+        // Do an opaque pass by setting the state for opaque and continuing
+        renderer.set_state(m_opaqueState);
+        renderer.batch.flush_opaque();
+        renderer.shape.flush();
+        
+        // Do a transparent pass
+        renderer.set_state(m_transparentState);
+        renderer.batch.flush_transparent();
 
+        // Wrap up the pass and return the data collected
         p_frameBuffer.end();
         renderer.end_pass();
-
         return p_frameBuffer.get_texture();
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/rendering/pipeline/render_pass.hpp"
+#include "draft/rendering/pipeline/render_state.hpp"
 
 namespace Draft {
     /// Generic render passes
@@ -12,5 +13,10 @@ namespace Draft {
 
         // Functions
         virtual const Texture& run(Renderer& renderer, Scene& scene, Time deltaTime);
+
+    private:
+        // Variables
+        RenderState m_transparentState = {};
+        RenderState& m_opaqueState = p_state;
     };
 }

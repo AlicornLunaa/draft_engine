@@ -97,6 +97,8 @@ namespace Draft {
             return;
 
         // Flush first batch of opaque & transparent remaining
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
         flush_opaque();
 
         // Set render options
