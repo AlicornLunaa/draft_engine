@@ -9,6 +9,14 @@
 #include <queue>
 
 namespace Draft {
+    /// Generic adapter for queue
+    template <typename Q>
+    concept QueueLike = requires(Q q) {
+        { q.pop() };
+        { q.empty() } -> std::convertible_to<bool>;
+    };
+
+    /// Sprite collection
     class SpriteCollection : public Collection {
     public:
         // Static data
@@ -55,5 +63,8 @@ namespace Draft {
         // Queues
         std::priority_queue<SpriteDrawCommand, std::vector<SpriteDrawCommand>, SpriteDrawCommand> m_transparentQuads;
         std::queue<SpriteDrawCommand> m_opaqueQuads;
+
+        // Private functions
+        void flush_generic(QueueLike auto& queue);
     };
 };

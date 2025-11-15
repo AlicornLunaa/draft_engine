@@ -15,19 +15,19 @@ namespace Draft {
         static constexpr size_t MAX_POINTS_PER_PASS = 1024;
 
         // Constructors
-        ShapeCollection(Resource<Shader> shader = defaultShader);
+        ShapeCollection(Resource<Shader> shader = s_defaultShader);
         virtual ~ShapeCollection() = default;
 
         // Functions
-        inline void set_color(const Vector4f& color){ currentColor = color; }
+        inline void set_color(const Vector4f& color){ m_currentColor = color; }
         void set_z_layer(float depth);
         void set_render_type(ShapeRenderType type);
         void set_shader(Resource<Shader> shader);
         
-        inline const Vector4f& get_color() const { return currentColor; }
-        inline float get_z_layer() const { return zLayer; }
-        inline const ShapeRenderType& get_render_type() const { return currentRenderType; }
-        inline const Shader& get_shader() const { return shader; }
+        inline const Vector4f& get_color() const { return m_currentColor; }
+        inline float get_z_layer() const { return m_zLayer; }
+        inline const ShapeRenderType& get_render_type() const { return m_currentRenderType; }
+        inline const Shader& get_shader() const { return m_shader; }
         
         void draw_polygon(const std::vector<Vector2f>& polygonVertices);
         void draw_rect(const Vector2f& position, const Vector2f& size, float rotation);
@@ -58,16 +58,16 @@ namespace Draft {
 
         const std::vector<int> QUAD_INDICES = { 0, 1, 2, 2, 3, 0 };
 
-        static StaticResource<Shader> defaultShader;
+        static StaticResource<Shader> s_defaultShader;
 
         // Variables
-        VertexArray vertexArray;
+        VertexArray m_vertexArray;
 
         std::queue<ShapeDrawCommand> m_drawCommands;
-        Vector4f currentColor{ 1, 1, 1, 1 };
-        ShapeRenderType currentRenderType = ShapeRenderType::LINE;
-        Resource<Shader> shader;
-        float zLayer = 0.f;
+        Vector4f m_currentColor{ 1, 1, 1, 1 };
+        ShapeRenderType m_currentRenderType = ShapeRenderType::LINE;
+        Resource<Shader> m_shader;
+        float m_zLayer = 0.f;
         bool m_commandDirty = false;
 
         // Private functions

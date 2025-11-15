@@ -20,6 +20,83 @@ namespace Draft {
     // Static data
     StaticResource<Shader> SpriteCollection::s_defaultShader = {FileHandle("assets/shaders/default")};
 
+    // Helpers
+    template<QueueLike Q>
+    auto get_front(Q& q){
+        if constexpr (requires { q.front(); }){
+            return q.front();
+        } else {
+            return q.top();
+        }
+    };
+
+    // Private functions
+    void SpriteCollection::flush_generic(QueueLike auto& queue){
+        // Flush all the queued quads to gpu
+        std::optional<Material2D> material;
+        std::vector<InstanceData> instances;
+        instances.reserve(MAX_SPRITES_TO_RENDER);
+
+        // Prep buffer
+        m_vertexBuffer.bind();
+
+        // Assemble quads and render them in chunks of maxSprites
+        while(!queue.empty()){
+            material.reset();
+
+            for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !queue.empty(); i++){
+                const SpriteDrawCommand& command = get_front(queue);
+                const SpriteProps& sprite = command.sprite;
+
+                if(!material.has_value()){
+                    // No material previously, apply it
+                    material = sprite.material;
+                    material->apply();
+                }
+
+                if(command.matricesDirty){
+                    material->shader->set_uniform("view", command.transformMatrix);
+                    material->shader->set_uniform("projection", command.projectionMatrix);
+                }
+
+                if(!(sprite.material == *material)){
+                    // Different material, escape this loop to trigger an immediate flush and restart
+                    material.reset();
+                    break;
+                }
+
+                auto textureSize = material->baseTexture->get_properties().size;
+                float x = sprite.textureRegion.x / textureSize.x;
+                float y = sprite.textureRegion.y / textureSize.y;
+                float w = ((sprite.textureRegion.width <= 0) ? textureSize.x : sprite.textureRegion.width) / textureSize.x;
+                float h = ((sprite.textureRegion.height <= 0) ? textureSize.y : sprite.textureRegion.height) / textureSize.y;
+
+                instances.push_back({
+                    sprite.material.tint,
+                    {
+                        {x, y},
+                        {x + w, y},
+                        {x + w, y + h},
+                        {x, y + h}
+                    },
+                });
+
+                matrixArray.matrices[instances.size() - 1] = Optimal::fast_model_matrix(sprite.position, sprite.rotation, sprite.size, sprite.origin, sprite.zIndex);
+                queue.pop();
+            }
+
+            // Render the opaque instances
+            m_shaderBuffer.set(matrixArray);
+            m_vertexBuffer.set_dynamic_data(m_dynamicDataLoc, instances);
+
+            // Render every triangle
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
+
+            // Reset instances
+            instances.clear();
+        }
+    }
+
     // Constructor
     SpriteCollection::SpriteCollection() : Collection() {
         // Profiling
@@ -83,7 +160,7 @@ namespace Draft {
                 p_matricesDirty
             });
         }
-        
+
         p_matricesDirty = false;
     }
 
@@ -115,133 +192,11 @@ namespace Draft {
 
     void SpriteCollection::flush_opaque(){
         // Flush all the opaque quads to gpu
-        std::optional<Material2D> material;
-        std::vector<InstanceData> instances;
-        instances.reserve(MAX_SPRITES_TO_RENDER);
-
-        // Prep buffer
-        m_vertexBuffer.bind();
-
-        // Assemble quads and render them in chunks of maxSprites
-        while(!m_opaqueQuads.empty()){
-            material.reset();
-
-            for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !m_opaqueQuads.empty(); i++){
-                SpriteDrawCommand& command = m_opaqueQuads.front();
-                SpriteProps& sprite = command.sprite;
-
-                if(!material.has_value()){
-                    // No material previously, apply it
-                    material = sprite.material;
-                    material->apply();
-                }
-
-                if(command.matricesDirty){
-                    material->shader->set_uniform("view", command.transformMatrix);
-                    material->shader->set_uniform("projection", command.projectionMatrix);
-                }
-
-                if(!(sprite.material == *material)){
-                    // Different material, escape this loop to trigger an immediate flush and restart
-                    material.reset();
-                    break;
-                }
-
-                auto textureSize = material->baseTexture->get_properties().size;
-                float x = sprite.textureRegion.x / textureSize.x;
-                float y = sprite.textureRegion.y / textureSize.y;
-                float w = ((sprite.textureRegion.width <= 0) ? textureSize.x : sprite.textureRegion.width) / textureSize.x;
-                float h = ((sprite.textureRegion.height <= 0) ? textureSize.y : sprite.textureRegion.height) / textureSize.y;
-
-                instances.push_back({
-                    sprite.material.tint,
-                    {
-                        {x, y},
-                        {x + w, y},
-                        {x + w, y + h},
-                        {x, y + h}
-                    },
-                });
-
-                matrixArray.matrices[instances.size() - 1] = Optimal::fast_model_matrix(sprite.position, sprite.rotation, sprite.size, sprite.origin, sprite.zIndex);
-                m_opaqueQuads.pop();
-            }
-
-            // Render the opaque instances
-            m_shaderBuffer.set(matrixArray);
-            m_vertexBuffer.set_dynamic_data(m_dynamicDataLoc, instances);
-
-            // Render every triangle
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
-
-            // Reset instances
-            instances.clear();
-        }
+        flush_generic(m_opaqueQuads);
     }
 
     void SpriteCollection::flush_transparent(){
         // Flush all the transparent quads
-        std::optional<Material2D> material;
-        std::vector<InstanceData> instances;
-        instances.reserve(MAX_SPRITES_TO_RENDER);
-
-        // Prep buffer
-        m_vertexBuffer.bind();
-
-        // Render in maxSprites chunks
-        while(!m_transparentQuads.empty()){
-            material.reset();
-
-            for(size_t i = 0; i < MAX_SPRITES_TO_RENDER && !m_transparentQuads.empty(); i++){
-                const SpriteDrawCommand& command = m_transparentQuads.top();
-                const SpriteProps& sprite = command.sprite;
-
-                if(!material.has_value()){
-                    // No material previously, apply it
-                    material = sprite.material;
-                    material->apply();
-                }
-
-                if(command.matricesDirty){
-                    material->shader->set_uniform("view", command.transformMatrix);
-                    material->shader->set_uniform("projection", command.projectionMatrix);
-                }
-
-                if(!(sprite.material == *material)){
-                    // Different material, escape this loop to trigger an immediate flush and restart
-                    material.reset();
-                    break;
-                }
-
-                auto textureSize = material->baseTexture->get_properties().size;
-                float x = sprite.textureRegion.x / textureSize.x;
-                float y = sprite.textureRegion.y / textureSize.y;
-                float w = ((sprite.textureRegion.width <= 0) ? textureSize.x : sprite.textureRegion.width) / textureSize.x;
-                float h = ((sprite.textureRegion.height <= 0) ? textureSize.y : sprite.textureRegion.height) / textureSize.y;
-
-                instances.push_back({
-                    sprite.material.tint,
-                    {
-                        {x, y},
-                        {x + w, y},
-                        {x + w, y + h},
-                        {x, y + h}
-                    },
-                });
-
-                matrixArray.matrices[instances.size() - 1] = Optimal::fast_model_matrix(sprite.position, sprite.rotation, sprite.size, sprite.origin, sprite.zIndex);
-                m_transparentQuads.pop();
-            }
-
-            // Render the opaque instances
-            m_shaderBuffer.set(matrixArray);
-            m_vertexBuffer.set_dynamic_data(m_dynamicDataLoc, instances);
-
-            // Render every triangle
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
-
-            // Remove maxSprites from queue
-            instances.clear();
-        }
+        flush_generic(m_transparentQuads);
     }
 };
