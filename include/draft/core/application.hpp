@@ -25,6 +25,7 @@ namespace Draft {
         std::unique_ptr<Renderer> m_newRenderer = nullptr; // Used for switching context when not in use
 
         Scene* m_activeScene = nullptr;
+        Scene* m_newScene = nullptr; // Used for switching out of context
         Clock m_deltaClock;
         Event m_event;
 
@@ -41,6 +42,8 @@ namespace Draft {
         void mouse_scroll_callback(const Vector2d& delta);
         void mouse_enter_callback();
         void mouse_leave_callback();
+
+        void scene_change();
 
         void tick();
         void frame();
@@ -72,8 +75,8 @@ namespace Draft {
 
         void reset_timers();
 
-        void set_scene(Scene* scene);
-        Scene* get_scene() const;
+        inline void set_scene(Scene* scene){ m_newScene = scene; }
+        inline Scene* get_scene() const { return m_activeScene; }
 
         inline Renderer* get_renderer(){ return m_renderer.get(); }
         inline void set_renderer(std::unique_ptr<Renderer>&& renderer){ m_newRenderer = std::move(renderer); }

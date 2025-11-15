@@ -124,6 +124,21 @@ namespace Draft {
             m_activeScene->handle_event(m_event);
     }
 
+    void Application::scene_change(){
+        if(m_activeScene)
+            // Detach event on previous scene
+            m_activeScene->on_detach();
+
+        reset_timers(); // Reset dt to avoid large jumps in physics
+        
+        if(m_newScene)
+            // Attach event on new scene
+            m_newScene->on_attach();
+
+        m_activeScene = m_newScene;
+        m_newScene = nullptr;
+    }
+
     void Application::tick(){
         // This function does a fixed time-step update
         ZoneScopedNCS("fixed_tick", 0xff3333, 20);
@@ -211,6 +226,10 @@ namespace Draft {
                 m_newRenderer = nullptr;
             }
 
+            if(m_newScene){
+                scene_change();
+            }
+
             // Clock reset
             deltaTime = m_deltaClock.restart();
 
@@ -233,25 +252,5 @@ namespace Draft {
         m_accumulator = 0.f;
         m_deltaClock.restart();
         deltaTime = Time();
-    }
-
-    void Application::set_scene(Scene* scene){
-        ZoneScopedN("scene_change");
-
-        if(m_activeScene)
-            // Detach event on previous scene
-            m_activeScene->on_detach();
-
-        reset_timers(); // Reset dt to avoid large jumps in physics
-        
-        if(scene)
-            // Attach event on new scene
-            scene->on_attach();
-
-        m_activeScene = scene;
-    }
-
-    Scene* Application::get_scene() const {
-        return m_activeScene;
     }
 }
