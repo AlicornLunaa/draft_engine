@@ -18,6 +18,10 @@ namespace Draft {
     StaticResource<Shader> ShapeCollection::s_defaultShader = {FileHandle("assets/shaders/shapes")};
 
     // Private functions
+    bool ShapeCollection::needs_new_command() const {
+        return m_commandDirty || m_layerDirty || m_shaderDirty || p_matricesDirty;
+    }
+
     void ShapeCollection::new_command(){
         if(m_drawCommands.empty()){
             p_matricesDirty = true;
@@ -76,6 +80,7 @@ namespace Draft {
             m_commandDirty = true;
             m_shaderDirty = true;
             p_matricesDirty = true;
+            m_layerDirty = true;
         }
         
         m_shader = shader;
@@ -85,7 +90,7 @@ namespace Draft {
         // Profiling
         ZoneScopedN("shape_batch_polygon");
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
         
         auto& points = m_drawCommands.back().points;
@@ -101,7 +106,7 @@ namespace Draft {
         // Profiling
         ZoneScopedN("shape_batch_rect");
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
 
         // Generate and add vertices
@@ -127,7 +132,7 @@ namespace Draft {
         // Profiling
         ZoneScopedN("shape_batch_triangle");
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
 
         // Connect all indices, depending on filled or lines
@@ -153,7 +158,7 @@ namespace Draft {
         // Profiling
         ZoneScopedN("shape_batch_triangle");
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
 
         // Connect all indices, depending on filled or lines
@@ -179,7 +184,7 @@ namespace Draft {
         // Profiling
         ZoneScopedN("shape_batch_circle");
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
 
         // Generate and add vertices
@@ -226,7 +231,7 @@ namespace Draft {
             set_render_type(ShapeRenderType::LINE);
         }
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
 
         auto& points = m_drawCommands.back().points;
@@ -240,7 +245,7 @@ namespace Draft {
         // Profiling
         ZoneScopedN("shape_batch_rect_line");
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
 
         // Generate and add vertices
@@ -298,7 +303,7 @@ namespace Draft {
             set_render_type(ShapeRenderType::LINE);
         }
 
-        if(m_commandDirty)
+        if(needs_new_command())
             new_command();
 
         // Get the size vertices for the arrow head
