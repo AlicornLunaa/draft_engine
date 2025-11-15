@@ -1,8 +1,7 @@
-#include "draft/rendering/batching/sprite_batch.hpp"
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
-#include <tracy/Tracy.hpp>
 #include "draft/systems/render_system.hpp"
+#include <tracy/Tracy.hpp>
 
 namespace Draft {
     // Constructors
@@ -14,7 +13,7 @@ namespace Draft {
     }
 
     // Functions
-    void RenderSystem::render(SpriteBatch& batch){
+    void RenderSystem::render(SpriteCollection& batch){
         ZoneScopedN("render_system");
 
         auto view = registryRef.view<SpriteComponent, TransformComponent>();

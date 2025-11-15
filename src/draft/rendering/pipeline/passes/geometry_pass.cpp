@@ -21,11 +21,9 @@ namespace Draft {
         p_frameBuffer.begin();
         p_shader->bind();
 
-        // Collect all world geometry data into the collections
-        scene.render_world(renderer, deltaTime);
-        
         // Do an opaque pass by setting the state for opaque and continuing
         renderer.set_state(m_opaqueState);
+        scene.render_world(renderer, deltaTime);
         renderer.batch.flush_opaque();
         renderer.shape.flush();
         

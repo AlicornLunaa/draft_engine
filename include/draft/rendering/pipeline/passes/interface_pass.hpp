@@ -15,7 +15,8 @@ namespace Draft {
 
     private:
         // Variables
-        RenderState p_state = {};
+        RenderState m_transparentState = {};
+        RenderState m_opaqueState = {};
         Resource<Shader> p_shader;
     };
 }

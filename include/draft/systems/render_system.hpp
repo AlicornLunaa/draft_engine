@@ -1,8 +1,8 @@
 #pragma once
 
 #include "draft/core/registry.hpp"
+#include "draft/rendering/batching/sprite_collection.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/rendering/batching/sprite_batch.hpp"
 
 namespace Draft {
     class RenderSystem {
@@ -21,6 +21,6 @@ namespace Draft {
         RenderSystem& operator=(const RenderSystem& other) = delete;
 
         // Functions
-        void render(SpriteBatch& batch);
+        void render(SpriteCollection& batch);
     };
 };
