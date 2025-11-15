@@ -8,6 +8,8 @@
 #include "glm/gtx/rotate_vector.hpp" // IWYU pragma: keep, Includes definitions and such
 #include "glm/geometric.hpp" // IWYU pragma: keep, Includes definitions and such
 
+typedef unsigned int uint;
+
 namespace Draft {
     // Aliases for GLM
     namespace Math = glm;
