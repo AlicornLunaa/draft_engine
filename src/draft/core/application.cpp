@@ -13,17 +13,7 @@
 namespace Draft {
     // Private functions
     void Application::framebuffer_resized(uint width, uint height){
-        m_event.type = Event::Resized;
-        m_event.size.width = width;
-        m_event.size.height = height;
-
-        window.set_viewport({m_event.size.width, m_event.size.height});
-        
-        if(m_renderer)
-            m_renderer->resize({width, height});
-
-        if(m_activeScene)
-            m_activeScene->handle_event(m_event);
+        m_pendingResize = true;
     }
 
     void Application::window_focus(bool focused){
@@ -124,6 +114,23 @@ namespace Draft {
             m_activeScene->handle_event(m_event);
     }
 
+    void Application::trigger_resize(uint width, uint height){
+        // Used to smooth out the resize events
+        m_event.type = Event::Resized;
+        m_event.size.width = width;
+        m_event.size.height = height;
+
+        window.set_viewport({m_event.size.width, m_event.size.height});
+        
+        if(m_renderer)
+            m_renderer->resize({width, height});
+
+        if(m_activeScene)
+            m_activeScene->handle_event(m_event);
+
+        m_pendingResize = false;
+    }
+
     void Application::scene_change(){
         if(m_activeScene)
             // Detach event on previous scene
@@ -221,7 +228,15 @@ namespace Draft {
     void Application::run(){
         // Start application loop
         while(window.is_open()){
+            // Clock reset
+            deltaTime = m_deltaClock.restart();
+
             // Switch renderers if corrected
+            if(m_pendingResize){
+                Vector2u size = window.get_frame_size();
+                trigger_resize(size.x, size.y);
+            }
+            
             if(m_newRenderer){
                 m_renderer = std::move(m_newRenderer);
                 m_newRenderer = nullptr;
@@ -230,9 +245,6 @@ namespace Draft {
             if(m_newScene){
                 scene_change();
             }
-
-            // Clock reset
-            deltaTime = m_deltaClock.restart();
 
             // Handle control events
             window.poll_events();

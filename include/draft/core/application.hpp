@@ -30,6 +30,7 @@ namespace Draft {
         Event m_event;
 
         double m_accumulator = 0.0; // Used for fixed timestep
+        bool m_pendingResize = false;
 
         // Private functions
         void framebuffer_resized(uint width, uint height);
@@ -43,6 +44,7 @@ namespace Draft {
         void mouse_enter_callback();
         void mouse_leave_callback();
 
+        void trigger_resize(uint width, uint height);
         void scene_change();
 
         void tick();
