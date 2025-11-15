@@ -149,8 +149,6 @@ namespace Draft {
         if(m_activeScene){
             if(m_renderer){
                 m_renderer->render_frame(*m_activeScene, deltaTime);
-            } else {
-                m_activeScene->render(*m_renderer, deltaTime);
             }
         }
 
@@ -207,6 +205,12 @@ namespace Draft {
     void Application::run(){
         // Start application loop
         while(window.is_open()){
+            // Switch renderers if corrected
+            if(m_newRenderer){
+                m_renderer = std::move(m_newRenderer);
+                m_newRenderer = nullptr;
+            }
+
             // Clock reset
             deltaTime = m_deltaClock.restart();
 

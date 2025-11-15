@@ -38,6 +38,7 @@ namespace Draft {
         });
 
         p_matricesDirty = false;
+        m_commandDirty = false; //! ERROR FROM THIS??
         m_shaderDirty = false;
         m_layerDirty = false;
     }

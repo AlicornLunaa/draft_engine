@@ -22,6 +22,7 @@ namespace Draft {
     private:
         // Private vars
         std::unique_ptr<Renderer> m_renderer;
+        std::unique_ptr<Renderer> m_newRenderer = nullptr; // Used for switching context when not in use
 
         Scene* m_activeScene = nullptr;
         Clock m_deltaClock;
@@ -75,6 +76,6 @@ namespace Draft {
         Scene* get_scene() const;
 
         inline Renderer* get_renderer(){ return m_renderer.get(); }
-        inline void set_renderer(std::unique_ptr<Renderer>&& renderer){ m_renderer = std::move(renderer); }
+        inline void set_renderer(std::unique_ptr<Renderer>&& renderer){ m_newRenderer = std::move(renderer); }
     };
 }
