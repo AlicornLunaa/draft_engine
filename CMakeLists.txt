@@ -91,6 +91,12 @@ set(INTERFACES
     include/draft/rendering/batching/shape_batch.hpp
     include/draft/rendering/batching/sprite_batch.hpp
     include/draft/rendering/batching/text_renderer.hpp
+    include/draft/rendering/batching/collection.hpp
+    include/draft/rendering/batching/draw_command.hpp
+    include/draft/rendering/batching/shape_collection.hpp
+    include/draft/rendering/batching/shape_point.hpp
+    include/draft/rendering/batching/sprite_collection.hpp
+    include/draft/rendering/batching/sprite_props.hpp
     include/draft/rendering/pipeline/render_pass.hpp
     include/draft/rendering/pipeline/render_state.hpp
     include/draft/rendering/pipeline/renderer.hpp
@@ -201,6 +207,9 @@ set(SOURCES
     src/draft/rendering/batching/shape_batch.cpp
     src/draft/rendering/batching/sprite_batch.cpp
     src/draft/rendering/batching/text_renderer.cpp
+    src/draft/rendering/batching/collection.cpp
+    src/draft/rendering/batching/shape_collection.cpp
+    src/draft/rendering/batching/sprite_collection.cpp
     src/draft/rendering/pipeline/render_pass.cpp
     src/draft/rendering/pipeline/renderer.cpp
     src/draft/rendering/pipeline/passes/geometry_pass.cpp
