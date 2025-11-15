@@ -1,8 +1,8 @@
-# Draft Engine v0.1.0
+# Draft Engine v0.3.0
 Just a project to learn computer graphics, openGL, and C++ library creation.
 
 ## Next version goals
-- [ ] Create rendering pipeline class
+- [x] Create rendering pipeline class
     1. Big "renderer" class which handles each pass
     2. beginPass accepts a RenderPass structure which holds GPU state
     3. endPass cleans up and marks ready for next pass
@@ -14,7 +14,6 @@ Just a project to learn computer graphics, openGL, and C++ library creation.
 - [ ] Localization API
 - [ ] Handle errors gracefully
 - [x] Overhaul UI
-- [ ] Convert UI to be stateless. Thinking of a lone container with different functions to draw to it
 - [ ] Load collider data from files
 - [x] Serialization
 - [ ] JSON handling
