@@ -75,5 +75,6 @@ namespace Draft {
         Scene* get_scene() const;
 
         inline Renderer* get_renderer(){ return m_renderer.get(); }
+        inline void set_renderer(std::unique_ptr<Renderer>&& renderer){ m_renderer = std::move(renderer); }
     };
 }
