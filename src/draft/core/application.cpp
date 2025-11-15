@@ -164,6 +164,7 @@ namespace Draft {
         if(m_activeScene){
             if(m_renderer){
                 m_renderer->render_frame(*m_activeScene, deltaTime);
+                m_renderer->resize(window.get_frame_size());
             }
         }
 
