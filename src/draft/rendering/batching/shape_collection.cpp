@@ -50,7 +50,7 @@ namespace Draft {
             StaticBuffer::create<ShapePoint>({
                 BufferAttribute{0, GL_FLOAT, 2, sizeof(ShapePoint), 0, false},
                 BufferAttribute{1, GL_FLOAT, 4, sizeof(ShapePoint), offsetof(ShapePoint, color), false}
-            })
+            }, GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW)
         });
     }
 
