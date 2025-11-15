@@ -38,7 +38,7 @@ namespace Draft {
         instances.reserve(MAX_SPRITES_TO_RENDER);
 
         // Prep buffer
-        m_vertexBuffer.bind();
+        m_vertexArray.bind();
 
         // Assemble quads and render them in chunks of maxSprites
         while(!queue.empty()){
@@ -89,7 +89,7 @@ namespace Draft {
 
             // Render the opaque instances
             m_shaderBuffer.set(matrixArray);
-            m_vertexBuffer.set_dynamic_data(m_dynamicDataLoc, instances);
+            m_vertexArray.set_data(1, instances);
 
             // Render every triangle
             glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
@@ -104,22 +104,25 @@ namespace Draft {
         // Profiling
         ZoneScopedN("sprite_batch_setup");
 
-        // Buffer the data on the GPU
-        m_vertexBuffer.buffer(0, QUAD_VERTICES);
-        m_vertexBuffer.buffer(3, QUAD_INDICES, GL_ELEMENT_ARRAY_BUFFER);
+        // Create the VAO
+        m_vertexArray.create({
+            StaticBuffer::create<Vector2f>({
+                BufferAttribute{0, GL_FLOAT, 2, sizeof(Vector2f), 0},
+            }, GL_ARRAY_BUFFER, GL_STATIC_DRAW),
 
-        m_dynamicDataLoc = m_vertexBuffer.start_buffer<InstanceData>(MAX_SPRITES_TO_RENDER);
-        m_vertexBuffer.set_attribute(1, GL_FLOAT, 4, sizeof(InstanceData), offsetof(InstanceData, color));
-        m_vertexBuffer.set_attribute(2, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords));
-        m_vertexBuffer.set_attribute(3, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 1);
-        m_vertexBuffer.set_attribute(4, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 2);
-        m_vertexBuffer.set_attribute(5, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 3);
-        glVertexAttribDivisor(1, 1);
-        glVertexAttribDivisor(2, 1);
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
-        m_vertexBuffer.end_buffer();
+            StaticBuffer::create<InstanceData>({
+                BufferAttribute{1, GL_FLOAT, 4, sizeof(InstanceData), offsetof(InstanceData, color), false, 1},
+                BufferAttribute{2, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords), false, 1},
+                BufferAttribute{3, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 1, false, 1},
+                BufferAttribute{4, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 2, false, 1},
+                BufferAttribute{5, GL_FLOAT, 2, sizeof(InstanceData), offsetof(InstanceData, texCoords) + sizeof(Vector2f) * 3, false, 1}
+            }, GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW),
+
+            StaticBuffer::create<int>({}, GL_ELEMENT_ARRAY_BUFFER)
+        });
+
+        m_vertexArray.set_data(0, QUAD_VERTICES);
+        m_vertexArray.set_data(2, QUAD_INDICES);
     }
     
     // Functions

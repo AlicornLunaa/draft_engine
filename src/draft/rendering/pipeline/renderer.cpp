@@ -27,7 +27,7 @@ namespace Draft {
                 BufferAttribute{0, GL_FLOAT, 2, sizeof(Vector2f) * 2, 0},
                 BufferAttribute{1, GL_FLOAT, 2, sizeof(Vector2f) * 2, sizeof(Vector2f)},
             }},
-            StaticBuffer{{ BufferAttribute{2, GL_INT, 1, sizeof(int), 0} }, GL_ELEMENT_ARRAY_BUFFER}
+            StaticBuffer{{}, GL_ELEMENT_ARRAY_BUFFER}
         });
         m_fullscreenQuad.set_data(0, QUAD_VERTICES);
         m_fullscreenQuad.set_data(1, QUAD_INDICES);

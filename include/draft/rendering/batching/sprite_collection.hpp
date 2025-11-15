@@ -5,7 +5,7 @@
 #include "draft/rendering/batching/draw_command.hpp"
 #include "draft/rendering/batching/sprite_props.hpp"
 #include "draft/rendering/shader_buffer.hpp"
-#include "draft/rendering/vertex_buffer.hpp"
+#include "draft/rendering/vertex_array.hpp"
 #include <queue>
 
 namespace Draft {
@@ -57,8 +57,7 @@ namespace Draft {
 
         // Batch variables
         ShaderBuffer<MatrixArray> m_shaderBuffer;
-        VertexBuffer m_vertexBuffer;
-        size_t m_dynamicDataLoc;
+        VertexArray m_vertexArray;
         
         // Queues
         std::priority_queue<SpriteDrawCommand, std::vector<SpriteDrawCommand>, SpriteDrawCommand> m_transparentQuads;
