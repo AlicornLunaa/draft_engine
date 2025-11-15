@@ -68,7 +68,10 @@ namespace Draft {
         ShapeRenderType m_currentRenderType = ShapeRenderType::LINE;
         Resource<Shader> m_shader;
         float m_zLayer = 0.f;
-        bool m_commandDirty = false;
+
+        bool m_commandDirty = true;
+        bool m_shaderDirty = true;
+        bool m_layerDirty = true;
 
         // Private functions
         void new_command();

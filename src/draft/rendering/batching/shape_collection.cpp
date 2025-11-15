@@ -19,14 +19,27 @@ namespace Draft {
 
     // Private functions
     void ShapeCollection::new_command(){
+        if(m_drawCommands.empty()){
+            p_matricesDirty = true;
+            m_shaderDirty = true;
+            m_layerDirty = true;
+        }
+
         m_drawCommands.push({
             {},
             get_proj_matrix(),
             get_trans_matrix(),
             m_currentRenderType,
             m_shader,
-            m_zLayer
+            m_zLayer,
+            p_matricesDirty,
+            m_shaderDirty,
+            m_layerDirty
         });
+
+        p_matricesDirty = false;
+        m_shaderDirty = false;
+        m_layerDirty = false;
     }
 
     void ShapeCollection::new_command_if_overflowing(uint count){
@@ -48,8 +61,6 @@ namespace Draft {
                 BufferAttribute{1, GL_FLOAT, 4, sizeof(ShapePoint), offsetof(ShapePoint, color), false}
             })
         });
-
-        new_command();
     }
 
     // Functions
@@ -61,17 +72,22 @@ namespace Draft {
     }
 
     void ShapeCollection::set_z_layer(float depth){
-        if(m_zLayer != depth)
+        if(m_zLayer != depth){
             m_commandDirty = true;
-
+            m_layerDirty = true;
+        }
+        
         m_zLayer = depth;
     }
 
     void ShapeCollection::set_shader(Resource<Shader> shader){
-        if(shader != this->m_shader)
+        if(shader != this->m_shader){
             m_commandDirty = true;
-
-        this->m_shader = shader;
+            m_shaderDirty = true;
+            p_matricesDirty = true;
+        }
+        
+        m_shader = shader;
     }
 
     void ShapeCollection::draw_polygon(const std::vector<Vector2f>& polygonVertices){
@@ -332,24 +348,31 @@ namespace Draft {
         m_vertexArray.bind();
 
         while(!m_drawCommands.empty()){
-            ShapeDrawCommand& command = m_drawCommands.front();
+            const ShapeDrawCommand& command = m_drawCommands.front();
             auto& points = command.points;
+
+            // Set shader state
+            if(command.shaderDirty){
+                command.shader->bind();
+            }
+
+            if(command.matricesDirty){
+                command.shader->set_uniform("view", command.transformMatrix);
+                command.shader->set_uniform("projection", command.projectionMatrix);
+            }
+
+            if(command.layerDirty){
+                command.shader->set_uniform("zLayer", command.zLayer);
+            }
 
             // Draws all the shapes to opengl
             if(points.empty()){
                 m_drawCommands.pop();
                 continue;
             }
-
-            // Set shader state
-            command.shader->bind();
-            command.shader->set_uniform("view", command.transformMatrix);
-            command.shader->set_uniform("projection", command.projectionMatrix);
-            command.shader->set_uniform("zLayer", command.zLayer);
             
             // Render VBO
             size_t pointsRendered = std::min(points.size(), MAX_POINTS_PER_PASS);
-
             m_vertexArray.set_data(0, points);
             glDrawArrays((command.type == ShapeRenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, pointsRendered);
 

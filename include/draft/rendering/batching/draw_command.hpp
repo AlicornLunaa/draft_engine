@@ -22,5 +22,9 @@ namespace Draft {
         ShapeRenderType type = ShapeRenderType::LINE;
         Shader const* shader = nullptr;
         float zLayer = 0.f;
+
+        bool matricesDirty = false; // If this is true, the batch should reupload them
+        bool shaderDirty = false; // If this is true, the batch should reupload them
+        bool layerDirty = false; // If this is true, the batch should reupload them
     };
 }

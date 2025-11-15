@@ -52,6 +52,8 @@ namespace Draft {
                     // No material previously, apply it
                     material = sprite.material;
                     material->apply();
+                    material->shader->set_uniform("view", command.transformMatrix);
+                    material->shader->set_uniform("projection", command.projectionMatrix);
                 }
 
                 if(command.matricesDirty){
