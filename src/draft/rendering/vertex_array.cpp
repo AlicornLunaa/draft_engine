@@ -14,7 +14,7 @@ namespace Draft {
         glBindBuffer(buf.glType, 0);
     }
 
-    void VertexArray::buffer_data(int glType, unsigned long bytes, const void* ptr){ glBufferData(glType, bytes, ptr, GL_STATIC_DRAW); }
+    void VertexArray::buffer_data(int glType, int glDataHint, unsigned long bytes, const void* ptr){ glBufferData(glType, bytes, ptr, glDataHint); }
     void VertexArray::buffer_sub_data(int glType, unsigned long offset, unsigned long bytes, const void* ptr){ glBufferSubData(glType, offset, bytes, ptr); }
 
     // Constructors
@@ -59,7 +59,7 @@ namespace Draft {
                 // Variant-specific
                 if constexpr (std::is_same_v<std::decay_t<decltype(buf)>, DynamicBuffer>){
                     // Dynamic only
-                    glBufferData(buf.glType, buf.maxBytes, nullptr, GL_DYNAMIC_DRAW);
+                    glBufferData(buf.glType, buf.maxBytes, nullptr, buf.glDataHint);
                 }
 
                 // Setup attributes

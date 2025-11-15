@@ -11,9 +11,6 @@
 namespace Draft {
     class ShapeCollection : public Collection {
     public:
-        // Public constants
-        static constexpr size_t MAX_POINTS_PER_PASS = 1024;
-
         // Constructors
         ShapeCollection(Resource<Shader> shader = s_defaultShader);
         virtual ~ShapeCollection() = default;
@@ -75,6 +72,5 @@ namespace Draft {
 
         // Private functions
         void new_command();
-        void new_command_if_overflowing(uint count);
     };
 };

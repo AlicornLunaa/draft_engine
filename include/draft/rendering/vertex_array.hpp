@@ -25,31 +25,32 @@ namespace Draft {
         const BufferType type;
         const std::vector<BufferAttribute> attribs;
         const int glType;
+        const int glDataHint;
 
-        RawBuffer(BufferType type, const std::vector<BufferAttribute>& attribs, int glType)
-            : type(type), attribs(attribs), glType(glType) {
+        RawBuffer(BufferType type, const std::vector<BufferAttribute>& attribs, int glType, int glDataHint)
+            : type(type), attribs(attribs), glType(glType), glDataHint(glDataHint) {
         }
     };
 
     struct StaticBuffer : public RawBuffer {
-        StaticBuffer(const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER)
-            : RawBuffer(BufferType::STATIC, attribs, glType) {
+        StaticBuffer(const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER, int glDataHint = GL_STATIC_DRAW)
+            : RawBuffer(BufferType::STATIC, attribs, glType, glDataHint) {
         }
 
         // Only for parity with dynamicbuffer
         template<typename T>
-        static StaticBuffer create(const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER){ return StaticBuffer(attribs, glType); }
+        static StaticBuffer create(const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER, int glDataHint = GL_STATIC_DRAW){ return StaticBuffer(attribs, glType, glDataHint); }
     };
 
     struct DynamicBuffer : public RawBuffer {
         const unsigned long maxBytes;
 
-        DynamicBuffer(size_t bytes, const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER)
-            : RawBuffer(BufferType::DYNAMIC, attribs, glType), maxBytes(bytes) {
+        DynamicBuffer(size_t bytes, const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER, int glDataHint = GL_DYNAMIC_DRAW)
+            : RawBuffer(BufferType::DYNAMIC, attribs, glType, glDataHint), maxBytes(bytes) {
         }
 
         template<typename T>
-        static DynamicBuffer create(size_t count, const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER){ return DynamicBuffer(count * sizeof(T), attribs, glType); }
+        static DynamicBuffer create(size_t count, const std::vector<BufferAttribute>& attribs, int glType = GL_ARRAY_BUFFER, int glDataHint = GL_DYNAMIC_DRAW){ return DynamicBuffer(count * sizeof(T), attribs, glType, glDataHint); }
     };
 
     class VertexArray {
@@ -62,6 +63,7 @@ namespace Draft {
             unsigned long maxBytes = 0;
             BufferType type;
             int glType;
+            int glDataHint;
 
             OpenGLBuffer(unsigned int vbo, const BufferVariant& variant) : vbo(vbo) {
                 // Save max bytes
@@ -69,6 +71,7 @@ namespace Draft {
                     // Common logic
                     type = buf.type;
                     glType = buf.glType;
+                    glDataHint = buf.glDataHint;
 
                     // Variant-specific
                     if constexpr (std::is_same_v<std::decay_t<decltype(buf)>, DynamicBuffer>){
@@ -87,7 +90,7 @@ namespace Draft {
         // Functions
         void bind_vbo(size_t index) const;
         void unbind_vbo(size_t index) const;
-        void buffer_data(int glType, unsigned long bytes, const void* ptr);
+        void buffer_data(int glType, int glDataHint, unsigned long bytes, const void* ptr);
         void buffer_sub_data(int glType, unsigned long offset, unsigned long bytes, const void* ptr);
 
     public:
@@ -105,7 +108,7 @@ namespace Draft {
 
         // Functions
         template<typename Container>
-        void set_data(size_t bufferIndex, const Container& arr, unsigned long offset = 0){
+        void set_data(size_t bufferIndex, const Container& arr, unsigned long offset = 0, int hint = -1){
             // Grab type and data
             using T = typename std::decay_t<decltype(*std::data(arr))>;
             const void* ptr = static_cast<const void*>(std::data(arr));
@@ -124,7 +127,7 @@ namespace Draft {
 
             default:
             case BufferType::STATIC:
-                buffer_data(buf.glType, bytes, ptr);
+                buffer_data(buf.glType, buf.glDataHint, bytes, ptr);
                 break;
             }
         }

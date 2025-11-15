@@ -38,26 +38,16 @@ namespace Draft {
         });
 
         p_matricesDirty = false;
-        m_commandDirty = false; //! ERROR FROM THIS??
+        m_commandDirty = false;
         m_shaderDirty = false;
         m_layerDirty = false;
-    }
-
-    void ShapeCollection::new_command_if_overflowing(uint count){
-        // This function will flush the batch if it is about to overflow, i.e. go higher than MAX_POINTS_PER_PASS
-        // This is due to the fact if it reaches the end and cant fit all its vertices in, itll go missing
-        auto& points = m_drawCommands.back().points;
-
-        if(points.size() + count >= MAX_POINTS_PER_PASS){
-            new_command();
-        }
     }
 
     // Constructor
     ShapeCollection::ShapeCollection(Resource<Shader> shader) : Collection(), m_shader(shader) {
         // Setup data buffers
         m_vertexArray.create({
-            DynamicBuffer::create<ShapePoint>(MAX_POINTS_PER_PASS, {
+            StaticBuffer::create<ShapePoint>({
                 BufferAttribute{0, GL_FLOAT, 2, sizeof(ShapePoint), 0, false},
                 BufferAttribute{1, GL_FLOAT, 4, sizeof(ShapePoint), offsetof(ShapePoint, color), false}
             })
@@ -98,8 +88,6 @@ namespace Draft {
         if(m_commandDirty)
             new_command();
         
-        assert(polygonVertices.size() < MAX_POINTS_PER_PASS && "Polygon cannot be bigger than max batchable points");
-        new_command_if_overflowing(polygonVertices.size() * 2);
         auto& points = m_drawCommands.back().points;
 
         // Generate and add vertices
@@ -119,7 +107,6 @@ namespace Draft {
         // Generate and add vertices
         if(m_currentRenderType == ShapeRenderType::FILL){
             // Two triangles to fill
-            new_command_if_overflowing(QUAD_INDICES.size());
             auto& points = m_drawCommands.back().points;
 
             for(int index : QUAD_INDICES){
@@ -127,7 +114,6 @@ namespace Draft {
             }
         } else {
             // Lines
-            new_command_if_overflowing(QUAD_VERTICES.size() * 2);
             auto& points = m_drawCommands.back().points;
 
             for(size_t i = 0; i < QUAD_VERTICES.size(); i++){
@@ -147,7 +133,6 @@ namespace Draft {
         // Connect all indices, depending on filled or lines
         if(m_currentRenderType == ShapeRenderType::FILL){
             // One triangles to fill
-            new_command_if_overflowing(TRI_VERTICES.size());
             auto& points = m_drawCommands.back().points;
 
             for(const Vector2f& v : TRI_VERTICES){
@@ -155,7 +140,6 @@ namespace Draft {
             }
         } else {
             // Lines
-            new_command_if_overflowing(TRI_VERTICES.size() * 2);
             auto& points = m_drawCommands.back().points;
 
             for(size_t i = 0; i < TRI_VERTICES.size(); i++){
@@ -175,7 +159,6 @@ namespace Draft {
         // Connect all indices, depending on filled or lines
         if(m_currentRenderType == ShapeRenderType::FILL){
             // Two triangles to fill
-            new_command_if_overflowing(positions.size());
             auto& points = m_drawCommands.back().points;
 
             points.push_back({ positions[0], m_currentColor });
@@ -183,7 +166,6 @@ namespace Draft {
             points.push_back({ positions[2], m_currentColor });
         } else {
             // Lines
-            new_command_if_overflowing(positions.size() * 2);
             auto& points = m_drawCommands.back().points;
 
             for(size_t i = 0; i < positions.size(); i++){
@@ -205,7 +187,6 @@ namespace Draft {
 
         // Connect all indices, depending on filled or lines
         if(m_currentRenderType == ShapeRenderType::FILL){
-            new_command_if_overflowing(segments * 3);
             auto& points = m_drawCommands.back().points;
 
             for(size_t i = 0; i < segments; i++){
@@ -219,7 +200,6 @@ namespace Draft {
             }
         } else {
             // Lines
-            new_command_if_overflowing(segments * 2 + 2);
             auto& points = m_drawCommands.back().points;
 
             for(size_t i = 0; i < segments; i++){
@@ -249,7 +229,6 @@ namespace Draft {
         if(m_commandDirty)
             new_command();
 
-        new_command_if_overflowing(2);
         auto& points = m_drawCommands.back().points;
 
         // Generate and add vertices
@@ -272,7 +251,6 @@ namespace Draft {
         // Connect all indices, depending on filled or lines
         if(m_currentRenderType == ShapeRenderType::FILL){
             // Two triangles to fill
-            new_command_if_overflowing(6);
             auto& points = m_drawCommands.back().points;
 
             points.push_back({ start - right, m_currentColor }); // 1
@@ -283,7 +261,6 @@ namespace Draft {
             points.push_back({ end - right, m_currentColor }); // 2
         } else {
             // Lines
-            new_command_if_overflowing(8);
             auto& points = m_drawCommands.back().points;
 
             points.push_back({ start + right, m_currentColor }); // 0
@@ -330,7 +307,6 @@ namespace Draft {
         Vector2f right = Math::rotate(Vector2f(0, 1), radians + 2*3.141592654f/3.f) * 0.08f * arrowScale;
 
         // Generate and add vertices
-        new_command_if_overflowing(6);
         auto& points = m_drawCommands.back().points;
 
         points.push_back({ head, m_currentColor }); // 0
@@ -373,9 +349,8 @@ namespace Draft {
             }
             
             // Render VBO
-            size_t pointsRendered = std::min(points.size(), MAX_POINTS_PER_PASS);
             m_vertexArray.set_data(0, points);
-            glDrawArrays((command.type == ShapeRenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, pointsRendered);
+            glDrawArrays((command.type == ShapeRenderType::LINE) ? GL_LINES : GL_TRIANGLES, 0, points.size());
 
             m_drawCommands.pop();
         }
