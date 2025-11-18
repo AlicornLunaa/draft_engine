@@ -39,14 +39,7 @@ namespace Draft {
         this->rotation = rotation;
     }
 
-    void Camera::apply(const RenderWindow& window, const Shader& shader) const {
-        if(viewport.width <= 0 || viewport.height <= 0){
-            auto size = window.get_frame_size();
-            glViewport(0, 0, size.x, size.y);
-        } else {
-            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
-        }
-
+    void Camera::apply(const Shader& shader) const {
         shader.set_uniform("view", get_view());
         shader.set_uniform("projection", get_projection());
     }

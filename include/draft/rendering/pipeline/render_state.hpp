@@ -1,14 +1,16 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
+#include "draft/math/rect.hpp"
 #include "glad/gl.h"
+#include <optional>
 
 namespace Draft {
     struct RenderState {
         // Depth state
         bool depthTest = true;
         bool depthWrite = true;
-        GLenum depthFunction = GL_LESS;
+        GLenum depthFunction = GL_LEQUAL;
 
         // Blending
         bool blend = false;
@@ -22,9 +24,9 @@ namespace Draft {
         bool frontFaceCCW = true;
         bool polygonOffset = false;
 
-        // Scissor
-        bool scissorTest = false;
-        int scissorX, scissorY, scissorWidth, scissorHeight;
+        // Viewport and scissors
+        std::optional<Rect<float>> viewport;
+        std::optional<Rect<float>> scissor;
 
         // Drawing
         Vector4f clearColor = Vector4f(0, 0, 0, 1);

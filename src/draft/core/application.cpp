@@ -8,6 +8,7 @@
 
 #include "draft/input/action.hpp"
 #include "draft/rendering/pipeline/renderer.hpp"
+#include "draft/util/logger.hpp"
 #include <tracy/Tracy.hpp>
 
 namespace Draft {
@@ -119,8 +120,6 @@ namespace Draft {
         m_event.type = Event::Resized;
         m_event.size.width = width;
         m_event.size.height = height;
-
-        window.set_viewport({m_event.size.width, m_event.size.height});
         
         if(m_renderer)
             m_renderer->resize({width, height});
@@ -172,6 +171,8 @@ namespace Draft {
             if(m_renderer){
                 m_renderer->render_frame(*m_activeScene, deltaTime);
                 m_renderer->resize(window.get_frame_size());
+            } else {
+                Logger::println(Level::WARNING, "Renderer", "No renderer implementation set! Nothing can be drawn.");
             }
         }
 

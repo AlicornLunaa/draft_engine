@@ -22,7 +22,6 @@ namespace Draft {
         }
 
         // Setup opengl context
-        set_viewport(get_frame_size());
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
@@ -31,14 +30,6 @@ namespace Draft {
     }
 
     // Functions
-    void RenderWindow::set_viewport(const Vector2f& position, const Vector2f& size) const {
-        glViewport(position.x, position.y, size.x, size.y);
-    }
-
-    void RenderWindow::set_viewport(const Vector2f& size) const {
-        glViewport(0, 0, size.x, size.y);
-    }
-
     void RenderWindow::clear(const Vector4f& clearColor){
         // Profiler frame start
         TracyGpuZone("window_clear");

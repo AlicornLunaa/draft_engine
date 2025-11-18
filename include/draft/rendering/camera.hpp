@@ -1,15 +1,12 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/math/rect.hpp"
-#include "draft/rendering/render_window.hpp"
 #include "draft/rendering/shader.hpp"
 
 namespace Draft {
     class Camera {
     protected:
         // Variables
-        Rect<float> viewport = { 0, 0, -1, -1 };
         Vector3f position{};
 
         Vector3f up{ 0, 1, 0 };
@@ -52,15 +49,8 @@ namespace Draft {
          */
         inline void set_position(const Vector3f& vec){ position = vec; point(forward); }
 
-        /**
-         * @brief Set the viewport object
-         * @param rect 
-         */
-        inline void set_viewport(const Rect<float>& rect){ viewport = rect; }
-
         inline const Vector3f& get_position() const { return position; }
         inline float get_rotation() const { return rotation; }
-        inline const FloatRect& get_viewport() const { return viewport; }
         inline const Vector3f& get_forward() const { return forward; }
         inline const Vector3f& get_right() const { return right; }
         inline const Vector3f& get_up() const { return up; }
@@ -68,7 +58,7 @@ namespace Draft {
         inline const Matrix4& get_view() const { return viewMatrix; }
         inline const Matrix4 get_combined() const { return projMatrix * viewMatrix; }
 
-        void apply(const RenderWindow& window, const Shader& shader) const;
+        void apply(const Shader& shader) const;
         Vector2f project(const Vector2f& point) const;
         Vector2f unproject(const Vector2f& point) const;
     };

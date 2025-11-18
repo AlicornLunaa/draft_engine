@@ -81,15 +81,20 @@ namespace Draft {
         if(force || newState.polygonOffset != m_previousState.polygonOffset) (newState.polygonOffset ? glEnable(GL_POLYGON_OFFSET_FILL) : glDisable(GL_POLYGON_OFFSET_FILL));
 
         // Scissor
-        if(force || newState.scissorTest != m_previousState.scissorTest) (newState.scissorTest ? glEnable(GL_SCISSOR_TEST) : glDisable(GL_SCISSOR_TEST));
-        if(force || newState.scissorTest && (newState.scissorX != m_previousState.scissorX || newState.scissorY != m_previousState.scissorY || newState.scissorWidth != m_previousState.scissorWidth || newState.scissorHeight != m_previousState.scissorHeight)){
-            glScissor(newState.scissorX, newState.scissorY, newState.scissorWidth, newState.scissorHeight);
+        if(force || newState.scissor.has_value() != m_previousState.scissor.has_value()) (newState.scissor ? glEnable(GL_SCISSOR_TEST) : glDisable(GL_SCISSOR_TEST));
+        if(newState.scissor && (force || newState.scissor->x != m_previousState.scissor->x || newState.scissor->y != m_previousState.scissor->y || newState.scissor->width != m_previousState.scissor->width || newState.scissor->height != m_previousState.scissor->height)){
+            glScissor(newState.scissor->x, newState.scissor->y, newState.scissor->width, newState.scissor->height);
+        }
+
+        // Viweport
+        if(newState.viewport){
+            glViewport(newState.viewport->x, newState.viewport->y, newState.viewport->width, newState.viewport->height);
+        } else {
+            glViewport(0, 0, p_renderSize.x, p_renderSize.y);
         }
 
         // Clear color
-        if(force || newState.clearColor != m_previousState.clearColor){
-            glClearColor(newState.clearColor.x, newState.clearColor.y, newState.clearColor.z, newState.clearColor.w);
-        }
+        if(force || newState.clearColor != m_previousState.clearColor) glClearColor(newState.clearColor.x, newState.clearColor.y, newState.clearColor.z, newState.clearColor.w);
 
         // Make copy for keeping state tracked
         m_previousState = newState;
