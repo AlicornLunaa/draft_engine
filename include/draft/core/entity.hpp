@@ -78,9 +78,9 @@ namespace Draft {
          * @return true 
          * @return false 
          */
-        template<typename T>
+        template<typename ...T>
         bool has_component(){
-            return m_context->get_registry().all_of<T>(m_entityID);
+            return m_context->get_registry().all_of<T...>(m_entityID);
         }
 
         /**
