@@ -26,20 +26,19 @@ namespace Draft {
         glGenFramebuffers(1, &fbo);
 
         // Create textures based on the properties
-        texture.set_properties(colorBufferProps);
-        depthTexture.set_properties(depthBufferProps);
+        for(auto& attachment : m_properties.attachments){
+            m_textures[attachment.attachment].set_properties(attachment.textureProperties);
+        }
 
         // Bind each texture to this framebuffer
         bind();
 
-        {
-            // Create a render texture
+        // Create a render texture
+        for(auto& attachment : m_properties.attachments){
+            auto& texture = m_textures[attachment.attachment];
             texture.bind();
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.get_texture_handle(), 0);
-
-            // Create a depth texture
-            depthTexture.bind();
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture.get_texture_handle(), 0);
+            glFramebufferTexture2D(attachment.target, attachment.attachment, attachment.textureProperties.target, texture.get_texture_handle(), 0);
+            texture.unbind();
         }
 
         unbind();
@@ -50,9 +49,7 @@ namespace Draft {
     }
 
     // Constructors
-    Framebuffer::Framebuffer(const Vector2u& size){
-        colorBufferProps.size = size;
-        depthBufferProps.size = size;
+    Framebuffer::Framebuffer(FramebufferProperties properties) : m_properties(properties) {
         generate();
     }
 
@@ -96,9 +93,12 @@ namespace Draft {
     void Framebuffer::resize(const Vector2u& size){
         ZoneScopedN("framebuffer_resize");
 
-        // Resize color and depth texture
-        colorBufferProps.size = size;
-        depthBufferProps.size = size;
+        // Resize all attached colors
+        m_properties.size = size;
+
+        for(auto& attachment : m_properties.attachments){
+            attachment.textureProperties.size = size;
+        }
 
         // Resize the framebuffer by regenerating it
         cleanup();
@@ -106,7 +106,7 @@ namespace Draft {
     }
 
     void Framebuffer::write_depth_stencil(){
-        Vector2i size = texture.get_properties().size;
+        Vector2i size = m_properties.size;
         glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, currentFbo);
         glBlitFramebuffer(0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);

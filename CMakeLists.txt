@@ -7,6 +7,8 @@ set(INTERFACES
     include/draft/aliasing/format.hpp
     include/draft/aliasing/parameter.hpp
     include/draft/aliasing/target.hpp
+    include/draft/aliasing/framebuffer.hpp
+    include/draft/aliasing/attachment.hpp
     include/draft/aliasing/wrap.hpp
 
     include/draft/audio/listener.hpp

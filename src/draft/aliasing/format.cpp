@@ -33,7 +33,7 @@ namespace Draft {
         case DEPTH_COMPONENT24:
             return 3;
         
-        case DEPTH_STENCIL:
+        case DEPTH_STENCIL_COMPONENT:
             return 1;
         
         case GREYSCALE:
