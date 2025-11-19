@@ -1,11 +1,13 @@
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/systems/render_system.hpp"
+#include "draft/core/application.hpp"
+
 #include <tracy/Tracy.hpp>
 
 namespace Draft {
     // Constructors
-    RenderSystem::RenderSystem(Registry& registryRef, RenderWindow& windowRef) : registryRef(registryRef), windowRef(windowRef) {
+    RenderSystem::RenderSystem(Scene& sceneRef) : registryRef(sceneRef.get_registry()), windowRef(sceneRef.get_app()->window) {
         // Attach listeners
     }
 

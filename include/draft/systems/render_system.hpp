@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/core/scene.hpp"
 #include "draft/core/registry.hpp"
 #include "draft/rendering/batching/sprite_collection.hpp"
 #include "draft/rendering/render_window.hpp"
@@ -13,7 +14,7 @@ namespace Draft {
 
     public:
         // Constructors
-        RenderSystem(Registry& registryRef, RenderWindow& windowRef);
+        RenderSystem(Scene& sceneRef);
         RenderSystem(const RenderSystem& other) = delete;
         ~RenderSystem();
 
