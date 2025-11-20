@@ -89,6 +89,7 @@ namespace Draft {
         void resize(const Vector2u& size);
         void write_depth_stencil();
 
+        inline const Vector2u& get_size() const { return m_properties.size; }
         inline const Texture& get_texture(FramebufferAttachment attachment = COLOR) const { return m_textures.at(attachment); }
         inline const Texture& get_depth_texture() const { return m_textures.at(DEPTH); }
     };

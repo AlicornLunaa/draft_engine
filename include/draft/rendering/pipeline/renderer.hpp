@@ -25,6 +25,8 @@ namespace Draft {
         virtual ~Renderer() = default;
 
         // Functions
+        inline const Vector2u& get_size() const { return p_renderSize; }
+        
         virtual void render_frame(Scene& scene, Time deltaTime) = 0;
         virtual void resize(const Vector2u& size);
 
