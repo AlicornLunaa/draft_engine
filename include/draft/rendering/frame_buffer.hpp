@@ -68,6 +68,7 @@ namespace Draft {
         uint previousFbo = 0;
 
         FramebufferProperties m_properties;
+        std::vector<GLenum> m_drawBuffers;
         std::map<FramebufferAttachment, Texture> m_textures;
 
         // Private functions

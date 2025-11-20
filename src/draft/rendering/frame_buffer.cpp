@@ -12,6 +12,9 @@ namespace Draft {
         previousFbo = currentFbo;
         currentFbo = fbo;
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+        if(!m_drawBuffers.empty())
+            glDrawBuffers(m_drawBuffers.size(), m_drawBuffers.data());
     }
 
     void Framebuffer::unbind(){
@@ -39,12 +42,17 @@ namespace Draft {
             texture.bind();
             glFramebufferTexture2D(attachment.target, attachment.attachment, attachment.textureProperties.target, texture.get_texture_handle(), 0);
             texture.unbind();
+
+            if(attachment.attachment >= GL_COLOR_ATTACHMENT0 && attachment.attachment <= GL_COLOR_ATTACHMENT31)
+                m_drawBuffers.push_back(attachment.attachment);
         }
 
         unbind();
     }
 
     void Framebuffer::cleanup(){
+        m_drawBuffers.clear();
+        m_textures.clear();
         glDeleteFramebuffers(1, &fbo);
     }
 
