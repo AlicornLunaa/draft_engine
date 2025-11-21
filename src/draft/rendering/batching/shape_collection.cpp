@@ -86,7 +86,7 @@ namespace Draft {
         m_shader = shader;
     }
 
-    void ShapeCollection::draw_polygon(const std::vector<Vector2f>& polygonVertices){
+    void ShapeCollection::draw_polygon(const std::span<Vector2f>& polygonVertices){
         // Profiling
         ZoneScopedN("shape_batch_polygon");
 

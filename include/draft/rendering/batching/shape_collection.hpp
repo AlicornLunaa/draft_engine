@@ -7,6 +7,7 @@
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/vertex_array.hpp"
 #include <queue>
+#include <span>
 
 namespace Draft {
     class ShapeCollection : public Collection {
@@ -26,7 +27,7 @@ namespace Draft {
         inline const ShapeRenderType& get_render_type() const { return m_currentRenderType; }
         inline const Shader& get_shader() const { return m_shader; }
         
-        void draw_polygon(const std::vector<Vector2f>& polygonVertices);
+        void draw_polygon(const std::span<Vector2f>& polygonVertices);
         void draw_rect(const Vector2f& position, const Vector2f& size, float rotation);
         void draw_triangle(const Vector2f& position, const Vector2f& size, float rotation);
         void draw_triangle(const std::array<Vector2f, 3>& positions);
