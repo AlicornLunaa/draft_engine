@@ -79,6 +79,7 @@ namespace Draft {
                 int sign = -Math::sign(dot);
 
                 float dopplerShift = (343 + Math::length(observerVelocity) * dopplerSensitivity * sign) / (343 - Math::length(source.get_linear_velocity()) * dopplerSensitivity * sign);
+                dopplerShift = Math::max(dopplerShift, 0.f);
                 music->set_pitch(dopplerShift);
             }
         }
