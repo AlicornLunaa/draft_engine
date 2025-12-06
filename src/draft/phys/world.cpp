@@ -178,6 +178,10 @@ namespace Draft {
         ptr->world.SetGravity(vector_to_b2(v));
     }
 
+    void World::shiftOrigin(const Vector2f& origin){
+        ptr->world.ShiftOrigin(vector_to_b2(origin));
+    }
+
     void World::set_debug_renderer(Resource<Shader> shader, void* renderer){
         if(!renderer){
             ptr->physRenderer.reset();

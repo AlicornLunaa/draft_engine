@@ -46,6 +46,7 @@ namespace Draft {
         void destroy_joint(Joint* jointPtr);
 
         void set_gravity(const Vector2f& v);
+        void shiftOrigin(const Vector2f& origin);
 
         void set_debug_renderer(Resource<Shader> shader = defaultShader, void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;
