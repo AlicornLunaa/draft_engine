@@ -86,6 +86,7 @@ namespace Draft {
         bool is_awake() const;
         bool is_enabled() const;
         bool is_fixed_rotation() const;
+        bool is_touching(const RigidBody& other) const;
 
         Vector2f get_world_point(const Vector2f& localPoint) const;
         Vector2f get_world_vector(const Vector2f& localVector) const;

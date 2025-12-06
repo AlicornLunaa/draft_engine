@@ -1,6 +1,7 @@
 #include "box2d/b2_body.h"
 
 #include "box2d/b2_collision.h"
+#include "box2d/b2_contact.h"
 #include "box2d/b2_fixture.h"
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_circle_shape.h"
@@ -221,6 +222,17 @@ namespace Draft {
     bool RigidBody::is_awake() const { return ptr->body->IsAwake(); }
     bool RigidBody::is_enabled() const { return ptr->body->IsEnabled(); }
     bool RigidBody::is_fixed_rotation() const { return ptr->body->IsFixedRotation(); }
+
+    bool RigidBody::is_touching(const RigidBody& other) const {
+        // Determines if two rigidbodies are touching
+        for(b2ContactEdge* ce = ptr->body->GetContactList(); ce; ce = ce->next){
+            if(ce->other == other.ptr->body && ce->contact->IsTouching()){
+                return true;
+            }
+        }
+
+        return false;
+    }
         
     void RigidBody::apply_force(const Vector2f& force, const Vector2f& point, bool wake){ ptr->body->ApplyForce(vector_to_b2(force), vector_to_b2(point), wake); }
     void RigidBody::apply_force(const Vector2f& force, bool wake){ ptr->body->ApplyForceToCenter(vector_to_b2(force), wake); }
