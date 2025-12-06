@@ -20,6 +20,7 @@ namespace Draft {
         static StaticResource<Shader> defaultShader;
         std::vector<std::unique_ptr<RigidBody>> rigidBodies;
         std::vector<std::unique_ptr<Joint>> joints;
+        Vector2d offsetShift;
 
     public:
         // Static public vars
@@ -46,7 +47,8 @@ namespace Draft {
         void destroy_joint(Joint* jointPtr);
 
         void set_gravity(const Vector2f& v);
-        void shiftOrigin(const Vector2f& origin);
+        void shift_origin(const Vector2d& shift);
+        inline const Vector2d& get_shift_offset() const { return offsetShift; }
 
         void set_debug_renderer(Resource<Shader> shader = defaultShader, void* renderer = nullptr);
         void set_destruction_listener(void* listener) noexcept;

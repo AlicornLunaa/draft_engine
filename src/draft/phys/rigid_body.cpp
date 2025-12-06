@@ -183,7 +183,11 @@ namespace Draft {
         return convertedData;
     }
 
-    void RigidBody::set_transform(const Vector2f& position, float angle){ ptr->body->SetTransform({ position.x, position.y }, angle); }
+    void RigidBody::set_transform(const Vector2f& position, float angle){
+        Vector2f offsetPos = position - static_cast<Vector2f>(currentWorld->get_shift_offset());
+        ptr->body->SetTransform({offsetPos.x, offsetPos.y }, angle);
+    }
+
     void RigidBody::set_linear_velocity(const Vector2f& vel){ ptr->body->SetLinearVelocity({ vel.x, vel.y }); }
     void RigidBody::set_angular_velocity(float angVel){ ptr->body->SetAngularVelocity(angVel); }
     void RigidBody::set_linear_damping(float damping){ ptr->body->SetLinearDamping(damping); }
@@ -200,14 +204,23 @@ namespace Draft {
 
     Matrix3 RigidBody::get_transform() const {
         auto b2Trans = ptr->body->GetTransform();
+        auto shift = currentWorld->get_shift_offset();
         Matrix3 mat = Matrix3(1.f);
-        mat = Math::translate(mat, { b2Trans.p.x, b2Trans.p.y });
+        mat = Math::translate(mat, {b2Trans.p.x + shift.x, b2Trans.p.y + shift.y});
         mat = Math::rotate(mat, b2Trans.q.GetAngle());
         return mat;
     }
 
-    Vector2f RigidBody::get_position() const { return b2_to_vector<float>(ptr->body->GetPosition()); }
-    Vector2f RigidBody::get_world_center() const { return b2_to_vector<float>(ptr->body->GetWorldCenter()); }
+    Vector2f RigidBody::get_position() const {
+        auto shift = currentWorld->get_shift_offset();
+        return b2_to_vector<float>(ptr->body->GetPosition()) + static_cast<Vector2f>(shift);
+    }
+
+    Vector2f RigidBody::get_world_center() const {
+        auto shift = currentWorld->get_shift_offset();
+        return b2_to_vector<float>(ptr->body->GetWorldCenter()) + static_cast<Vector2f>(shift);
+    }
+
     Vector2f RigidBody::get_local_center() const { return b2_to_vector<float>(ptr->body->GetLocalCenter()); }
     Vector2f RigidBody::get_linear_velocity() const { return b2_to_vector<float>(ptr->body->GetLinearVelocity()); }
     float RigidBody::get_angular_velocity() const { return ptr->body->GetAngularVelocity(); }
@@ -234,19 +247,48 @@ namespace Draft {
         return false;
     }
         
-    void RigidBody::apply_force(const Vector2f& force, const Vector2f& point, bool wake){ ptr->body->ApplyForce(vector_to_b2(force), vector_to_b2(point), wake); }
+    void RigidBody::apply_force(const Vector2f& force, const Vector2f& point, bool wake){
+        auto shift = currentWorld->get_shift_offset();
+        ptr->body->ApplyForce(vector_to_b2(force), vector_to_b2(point - static_cast<Vector2f>(shift)), wake);
+    }
+    
     void RigidBody::apply_force(const Vector2f& force, bool wake){ ptr->body->ApplyForceToCenter(vector_to_b2(force), wake); }
     void RigidBody::apply_torque(float torque, bool wake){ ptr->body->ApplyTorque(torque, wake); }
-    void RigidBody::apply_linear_impulse(const Vector2f& impulse, const Vector2f& point, bool wake){ ptr->body->ApplyLinearImpulse(vector_to_b2(impulse), vector_to_b2(point), wake); }
+
+    void RigidBody::apply_linear_impulse(const Vector2f& impulse, const Vector2f& point, bool wake){
+        auto shift = currentWorld->get_shift_offset();
+        ptr->body->ApplyLinearImpulse(vector_to_b2(impulse), vector_to_b2(point - static_cast<Vector2f>(shift)), wake);
+    }
+
     void RigidBody::apply_linear_impulse(const Vector2f& impulse, bool wake){ ptr->body->ApplyLinearImpulseToCenter(vector_to_b2(impulse), wake); }
     void RigidBody::apply_angular_impulse(float impulse, bool wake){ ptr->body->ApplyAngularImpulse(impulse, wake); }
 
-    Vector2f RigidBody::get_world_point(const Vector2f& localPoint) const { return b2_to_vector<float>(ptr->body->GetWorldPoint(vector_to_b2(localPoint))); };
-	Vector2f RigidBody::get_world_vector(const Vector2f& localVector) const { return b2_to_vector<float>(ptr->body->GetWorldVector(vector_to_b2(localVector))); };
-	Vector2f RigidBody::get_local_point(const Vector2f& worldPoint) const { return b2_to_vector<float>(ptr->body->GetLocalPoint(vector_to_b2(worldPoint))); };
-	Vector2f RigidBody::get_local_vector(const Vector2f& worldVector) const { return b2_to_vector<float>(ptr->body->GetWorldVector(vector_to_b2(worldVector))); };
-	Vector2f RigidBody::get_linear_velocity_from_world_point(const Vector2f& worldPoint) const { return b2_to_vector<float>(ptr->body->GetLinearVelocityFromWorldPoint(vector_to_b2(worldPoint))); };
-	Vector2f RigidBody::get_linear_velocity_from_local_point(const Vector2f& localPoint) const { return b2_to_vector<float>(ptr->body->GetLinearVelocityFromLocalPoint(vector_to_b2(localPoint))); };
+    Vector2f RigidBody::get_world_point(const Vector2f& localPoint) const {
+        auto shift = currentWorld->get_shift_offset();
+        return b2_to_vector<float>(ptr->body->GetWorldPoint(vector_to_b2(localPoint))) + static_cast<Vector2f>(shift);
+    }
+
+	Vector2f RigidBody::get_world_vector(const Vector2f& localVector) const {
+        return b2_to_vector<float>(ptr->body->GetWorldVector(vector_to_b2(localVector)));
+    }
+
+	Vector2f RigidBody::get_local_point(const Vector2f& worldPoint) const {
+        auto shift = currentWorld->get_shift_offset();
+        return b2_to_vector<float>(ptr->body->GetLocalPoint(vector_to_b2(worldPoint - static_cast<Vector2f>(shift))));
+    }
+
+	Vector2f RigidBody::get_local_vector(const Vector2f& worldVector) const {
+        return b2_to_vector<float>(ptr->body->GetWorldVector(vector_to_b2(worldVector)));
+    }
+
+	Vector2f RigidBody::get_linear_velocity_from_world_point(const Vector2f& worldPoint) const {
+        auto shift = currentWorld->get_shift_offset();
+        return b2_to_vector<float>(ptr->body->GetLinearVelocityFromWorldPoint(vector_to_b2(worldPoint - static_cast<Vector2f>(shift))));
+    }
+
+	Vector2f RigidBody::get_linear_velocity_from_local_point(const Vector2f& localPoint) const {
+        return b2_to_vector<float>(ptr->body->GetLinearVelocityFromLocalPoint(vector_to_b2(localPoint)));
+    }
 
     World* RigidBody::get_world(){ return currentWorld; }
     const World* RigidBody::get_world() const { return currentWorld; }

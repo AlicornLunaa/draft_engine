@@ -11,6 +11,7 @@
 #include "draft/phys/joint_def.hpp"
 #include "draft/phys/rigid_body.hpp"
 #include "draft/rendering/phys_renderer_p.hpp"
+#include "glm/ext/matrix_transform.hpp"
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyOpenGL.hpp>
 
@@ -37,7 +38,10 @@ namespace Draft {
 
     // Functions
     RigidBody* World::create_rigid_body(const BodyDef& def){
-        b2BodyDef tmp = bodydef_to_b2(def);
+        BodyDef cpy = def;
+        cpy.position -= static_cast<Vector2f>(get_shift_offset());
+
+        b2BodyDef tmp = bodydef_to_b2(cpy);
         b2Body* body = ptr->world.CreateBody(&tmp);
         rigidBodies.push_back(std::unique_ptr<RigidBody>(new RigidBody(this, body)));
         ptr->b2ToBodyPtrs[body] = rigidBodies.back().get();
@@ -178,8 +182,9 @@ namespace Draft {
         ptr->world.SetGravity(vector_to_b2(v));
     }
 
-    void World::shiftOrigin(const Vector2f& origin){
-        ptr->world.ShiftOrigin(vector_to_b2(origin));
+    void World::shift_origin(const Vector2d& shift){
+        ptr->world.ShiftOrigin(vector_to_b2(shift));
+        offsetShift += shift;
     }
 
     void World::set_debug_renderer(Resource<Shader> shader, void* renderer){
@@ -206,8 +211,11 @@ namespace Draft {
         ZoneScopedN("phys_debug_render");
         TracyGpuZone("phys_debug_render");
 
+        // Account for shift
+        Matrix4 shiftedMatrix = Math::translate(m, {offsetShift, 0});
+
         // Debug
-        ptr->physRenderer->begin(m);
+        ptr->physRenderer->begin(shiftedMatrix);
         ptr->world.DebugDraw();
         ptr->physRenderer->render();
     }
