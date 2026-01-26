@@ -294,9 +294,6 @@ namespace Draft {
     }
 
     void ShapeCollection::draw_arrow(const Vector2f& head, const Vector2f& tail, float arrowScale){
-        // Profiling
-        ZoneScopedN("shape_batch_arrow");
-
         // Lines can only be GL_LINES
         if(m_currentRenderType != ShapeRenderType::LINE){
             Logger::println(Level::WARNING, "Shape Batch", "draw_arrow(const Vector2f&, const Vector2f&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
@@ -323,9 +320,6 @@ namespace Draft {
     }
 
     void ShapeCollection::flush(){
-        // Profiling
-        ZoneScopedN("shape_batch_flush");
-
         // Attach the VAO for rendering
         m_vertexArray.bind();
 
