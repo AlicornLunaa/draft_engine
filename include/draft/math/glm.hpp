@@ -43,6 +43,11 @@ namespace Draft {
     typedef Matrix<float, 4, 4> Matrix4;
     typedef Matrix<float, 4, 4> Quaternion;
 
+    typedef Matrix<double, 2, 2> Matrix2d;
+    typedef Matrix<double, 3, 3> Matrix3d;
+    typedef Matrix<double, 4, 4> Matrix4d;
+    typedef Matrix<double, 4, 4> Quaterniond;
+
     namespace Optimal {
         Matrix4 fast_model_matrix(const Vector2f& translation, float rotation, const Vector2f& scale, const Vector2f& origin, int zIndex);
     }
