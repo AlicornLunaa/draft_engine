@@ -20,7 +20,7 @@ namespace Draft {
         static StaticResource<Shader> defaultShader;
         std::vector<std::unique_ptr<RigidBody>> rigidBodies;
         std::vector<std::unique_ptr<Joint>> joints;
-        Vector2d offsetShift;
+        Vector2d offsetShift{};
 
     public:
         // Static public vars

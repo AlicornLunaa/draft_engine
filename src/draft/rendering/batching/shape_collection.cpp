@@ -115,15 +115,15 @@ namespace Draft {
             auto& points = m_drawCommands.back().points;
 
             for(int index : QUAD_INDICES){
-                points.push_back({QUAD_VERTICES[index] * size + position, m_currentColor});
+                points.push_back({Math::rotate(QUAD_VERTICES[index] * size, rotation) + position, m_currentColor});
             }
         } else {
             // Lines
             auto& points = m_drawCommands.back().points;
 
             for(size_t i = 0; i < QUAD_VERTICES.size(); i++){
-                points.push_back({QUAD_VERTICES[i] * size + position, m_currentColor});
-                points.push_back({QUAD_VERTICES[(i + 1) % QUAD_VERTICES.size()] * size + position, m_currentColor});
+                points.push_back({Math::rotate(QUAD_VERTICES[i] * size, rotation) + position, m_currentColor});
+                points.push_back({Math::rotate(QUAD_VERTICES[(i + 1) % QUAD_VERTICES.size()] * size, rotation) + position, m_currentColor});
             }
         }
     }
