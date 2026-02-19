@@ -22,4 +22,9 @@ namespace glm {
     T lerp(const T& a, const T& b, float t){
         return a * (1 - t) + b * t;
     }
+
+    template<typename T>
+    glm::vec<2, T> perpendicular(const glm::vec<2, T>& v){
+        return {-v.y, v.x};
+    }
 };
