@@ -6,10 +6,9 @@
 #include "draft/util/asset_manager/resource.hpp"
 #include "draft/util/file_handle.hpp"
 #include "draft/util/logger.hpp"
-#include "glad/gl.h"
 #include "glm/geometric.hpp"
+#include "glad/gl.h"
 #include <cassert>
-#include <tracy/Tracy.hpp>
 
 using namespace std;
 
@@ -88,8 +87,6 @@ namespace Draft {
 
     void ShapeCollection::draw_polygon(const std::span<Vector2f>& polygonVertices){
         // Profiling
-        ZoneScopedN("shape_batch_polygon");
-
         if(needs_new_command())
             new_command();
         
@@ -104,8 +101,6 @@ namespace Draft {
 
     void ShapeCollection::draw_rect(const Vector2f& position, const Vector2f& size, float rotation){
         // Profiling
-        ZoneScopedN("shape_batch_rect");
-
         if(needs_new_command())
             new_command();
 
@@ -130,8 +125,6 @@ namespace Draft {
 
     void ShapeCollection::draw_triangle(const Vector2f& position, const Vector2f& size, float rotation){
         // Profiling
-        ZoneScopedN("shape_batch_triangle");
-
         if(needs_new_command())
             new_command();
 
@@ -156,8 +149,6 @@ namespace Draft {
 
     void ShapeCollection::draw_triangle(const std::array<Vector2f, 3>& positions){
         // Profiling
-        ZoneScopedN("shape_batch_triangle");
-
         if(needs_new_command())
             new_command();
 
@@ -182,8 +173,6 @@ namespace Draft {
 
     void ShapeCollection::draw_circle(const Vector2f& position, float radius, float rotation, size_t segments){
         // Profiling
-        ZoneScopedN("shape_batch_circle");
-
         if(needs_new_command())
             new_command();
 
@@ -222,9 +211,6 @@ namespace Draft {
     }
 
     void ShapeCollection::draw_line(const Vector2f& start, const Vector2f& end){
-        // Profiling
-        ZoneScopedN("shape_batch_line");
-
         // Lines can only be GL_LINES
         if(m_currentRenderType != ShapeRenderType::LINE){
             Logger::println(Level::WARNING, "Shape Batch", "draw_line(const Vector2f&, const Vector2f&) may only be called with LINE render type.\n\tIt was set automatically, but you should do it manually.");
@@ -242,9 +228,6 @@ namespace Draft {
     }
 
     void ShapeCollection::draw_rect_line(const Vector2f& start, const Vector2f& end, float width){
-        // Profiling
-        ZoneScopedN("shape_batch_rect_line");
-
         if(needs_new_command())
             new_command();
 
