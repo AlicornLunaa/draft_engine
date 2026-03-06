@@ -80,6 +80,11 @@ namespace Draft {
         return m_path.relative_path().string();
     }
 
+    std::string FileHandle::get_parent_path() const {
+        if(m_path == "null") return "";
+        return m_path.parent_path().string();
+    }
+
     Time FileHandle::last_modified() const {
         // Returns time the file was last modified
         if(m_path == "null") return Time::microseconds(0);

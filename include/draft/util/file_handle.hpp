@@ -31,6 +31,7 @@ namespace Draft {
         std::string extension() const;
         std::string filename() const;
         std::string get_path() const;
+        std::string get_parent_path() const;
         Time last_modified() const;
         Access get_access() const;
 
