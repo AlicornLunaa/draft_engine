@@ -15,6 +15,8 @@
 #include "box2d/b2_joint.h"
 #include "box2d/b2_friction_joint.h"
 #include "box2d/b2_gear_joint.h"
+#include "draft/phys/shapes/chain_shape.hpp"
+#include "draft/util/logger.hpp"
 
 namespace Draft {
     b2BodyType bodytype_to_b2(const RigidBody::BodyType& type){
@@ -86,8 +88,17 @@ namespace Draft {
             rawPoints[i] = vector_to_b2(shape.get_points()[i]);
         }
 
+        auto type = shape.get_chain_type();
         b2ChainShape s;
-        s.CreateLoop(rawPoints.data(), shape.get_points().size());
+
+        if(type == ChainShape::CHAIN){
+            s.CreateChain(rawPoints.data(), shape.get_points().size(), vector_to_b2(shape.get_previous()), vector_to_b2(shape.get_next()));
+        } else if(type == ChainShape::LOOP){
+            s.CreateLoop(rawPoints.data(), rawPoints.size());
+        } else {
+            Logger::println(Level::WARNING, "Chain Shape", "Invalid chain type");
+        }
+
         return s;
     }
 
