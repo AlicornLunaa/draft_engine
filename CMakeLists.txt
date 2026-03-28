@@ -39,12 +39,9 @@ set(INTERFACES
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
     
-    include/draft/interface/clay/clay_interface.hpp
     include/draft/interface/imgui/console.hpp
     include/draft/interface/imgui/imgui_engine.hpp
     include/draft/interface/imgui/stats.hpp
-    include/draft/interface/loader/css_loader.hpp
-    include/draft/interface/loader/css_style.hpp
     include/draft/interface/rmlui/rml_context.hpp
     include/draft/interface/rmlui/rml_debugger.hpp
     include/draft/interface/rmlui/rml_engine.hpp
@@ -53,21 +50,6 @@ set(INTERFACES
     include/draft/interface/rmlui/RmlUi_Include_GL3.h
     include/draft/interface/rmlui/RmlUi_Platform_GLFW.h
     include/draft/interface/rmlui/RmlUi_Renderer_GL3.h
-    include/draft/interface/widgets/button.hpp
-    include/draft/interface/widgets/grid.hpp
-    include/draft/interface/widgets/label.hpp
-    include/draft/interface/widgets/layout.hpp
-    include/draft/interface/widgets/panel.hpp
-    include/draft/interface/widgets/scroll.hpp
-    include/draft/interface/command.hpp
-    include/draft/interface/context.hpp
-    include/draft/interface/dom_tree.hpp
-    include/draft/interface/edges.hpp
-    include/draft/interface/global_style.hpp
-    include/draft/interface/interface.hpp
-    include/draft/interface/metrics.hpp
-    include/draft/interface/size.hpp
-    include/draft/interface/unit_value.hpp
 
     include/draft/math/bounds.hpp
     include/draft/math/funcs.hpp
@@ -173,24 +155,15 @@ set(SOURCES
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
 
-    src/draft/interface/clay/clay_interface.cpp
     src/draft/interface/imgui/console.cpp
     src/draft/interface/imgui/imgui_engine.cpp
     src/draft/interface/imgui/stats.cpp
-    src/draft/interface/loader/css_loader.cpp
     src/draft/interface/rmlui/rml_context.cpp
     src/draft/interface/rmlui/rml_debugger.cpp
     src/draft/interface/rmlui/rml_engine.cpp
     src/draft/interface/rmlui/rml_listener.cpp
     src/draft/interface/rmlui/RmlUi_Platform_GLFW.cpp
     src/draft/interface/rmlui/RmlUi_Renderer_GL3.cpp
-    src/draft/interface/widgets/button.cpp
-    src/draft/interface/widgets/grid.cpp
-    src/draft/interface/widgets/label.cpp
-    src/draft/interface/widgets/layout.cpp
-    src/draft/interface/widgets/panel.cpp
-    src/draft/interface/interface.cpp
-    src/draft/interface/unit_value.cpp
 
     src/draft/math/bounds.cpp
     src/draft/math/glm.cpp
@@ -401,7 +374,7 @@ if(DRAFT_BUILD_TESTS)
     message(STATUS "Building engine tests")
     enable_testing()
 
-    file(GLOB_RECURSE TEST_SOURCES "tests/src/*.cpp")
+    file(GLOB_RECURSE TEST_SOURCES "tests/src/**/*.cpp")
 
     add_executable(
         engine_tests
