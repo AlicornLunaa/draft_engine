@@ -81,5 +81,8 @@ std::string Color::to_hex(bool alpha) const {
              << std::setw(2) << std::setfill('0') << std::hex << g1
              << std::setw(2) << std::setfill('0') << std::hex << b1;
 
+    if(alpha)
+        hexColor << std::setw(2) << std::setfill('0') << std::hex << a1;
+
     return hexColor.str();
 }

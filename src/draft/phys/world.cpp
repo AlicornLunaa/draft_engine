@@ -73,6 +73,10 @@ namespace Draft {
         }
     }
 
+    size_t World::get_body_count() const {
+        return rigidBodies.size();
+    }
+
     Joint* World::create_joint(const JointDef& def){
         b2Joint* jointPtr = nullptr;
         Joint* joint = nullptr;

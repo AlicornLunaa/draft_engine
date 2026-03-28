@@ -42,6 +42,7 @@ namespace Draft {
         RigidBody* create_rigid_body(const BodyDef& def);
         RigidBody* get_body(void* ptr) const;
         void destroy_body(RigidBody* rigidBodyPtr);
+        size_t get_body_count() const;
 
         Joint* create_joint(const JointDef& def);
         void destroy_joint(Joint* jointPtr);

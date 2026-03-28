@@ -46,6 +46,6 @@ namespace Draft {
         inline unsigned long length() const { return len; }
 
         // Operators
-        inline T& operator[](int index){ return ptr[(start + index) % len]; }
+        inline T& operator[](int index){ return ptr[(start + index) % size]; }
     };
 };

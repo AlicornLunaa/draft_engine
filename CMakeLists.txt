@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 3.11)
 project("draft_engine" VERSION 0.3.0 LANGUAGES CXX)
 
+option(DRAFT_BUILD_TESTS "Build the tests for the draft engine" ON)
+
 set(INTERFACES
     include/draft/aliasing/filter.hpp
     include/draft/aliasing/format.hpp
@@ -333,6 +335,10 @@ FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_Declare(rmlui GIT_REPOSITORY https://github.com/mikke89/RmlUi.git GIT_TAG master)
 FetchContent_Declare(tracy GIT_REPOSITORY https://github.com/wolfpld/tracy.git GIT_TAG v0.13.0)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
+)
 FetchContent_MakeAvailable(jemalloc)
 FetchContent_MakeAvailable(mimalloc)
 FetchContent_MakeAvailable(glfw)
@@ -342,6 +348,7 @@ FetchContent_MakeAvailable(box2d)
 FetchContent_MakeAvailable(nlohmann_json)
 FetchContent_MakeAvailable(rmlui)
 FetchContent_MakeAvailable(tracy)
+FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/imgui)
@@ -389,3 +396,25 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glfw glad entt clay imgui glm::glm 
 target_link_libraries(${PROJECT_NAME} PRIVATE box2d stb ${FREETYPE_LIBRARIES} ${SFML_FLAGS} ${PROJECT_NAME}::rc)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE> $<$<CONFIG:Debug>:DEBUG>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+
+if(DRAFT_BUILD_TESTS)
+    message(STATUS "Building engine tests")
+    enable_testing()
+
+    file(GLOB_RECURSE TEST_SOURCES "tests/src/*.cpp")
+
+    add_executable(
+        engine_tests
+        ${TEST_SOURCES}
+    )
+
+    target_link_libraries(
+        engine_tests
+        PRIVATE
+        GTest::gtest_main
+        ${PROJECT_NAME}
+    )
+
+    include(GoogleTest)
+    gtest_discover_tests(engine_tests)
+endif()
