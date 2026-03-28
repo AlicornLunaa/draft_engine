@@ -21,7 +21,7 @@ bool Draft::Math::contains(const Draft::Bounds& bounds, const Draft::Vector2f& p
             continue;
 
         // Guaranteed intersection
-        if(point.x <= v0.x && point.x <= v0.x){
+        if(point.x <= v0.x && point.x <= v1.x){
             intersections++;
             continue;
         }
