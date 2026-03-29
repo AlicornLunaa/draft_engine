@@ -182,6 +182,11 @@ namespace Draft {
         }
     }
 
+    Vector2f World::get_gravity() const {
+        b2Vec2 gravity = ptr->world.GetGravity();
+        return b2_to_vector<float>(gravity);
+    }
+
     void World::set_gravity(const Vector2f& v){
         ptr->world.SetGravity(vector_to_b2(v));
     }

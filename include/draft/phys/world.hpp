@@ -47,6 +47,7 @@ namespace Draft {
         Joint* create_joint(const JointDef& def);
         void destroy_joint(Joint* jointPtr);
 
+        Vector2f get_gravity() const;
         void set_gravity(const Vector2f& v);
         void shift_origin(const Vector2d& shift);
         inline const Vector2d& get_shift_offset() const { return offsetShift; }
