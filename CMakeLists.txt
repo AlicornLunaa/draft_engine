@@ -310,10 +310,7 @@ FetchContent_Declare(box2d GIT_REPOSITORY https://github.com/erincatto/box2d.git
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git GIT_TAG master)
 FetchContent_Declare(rmlui GIT_REPOSITORY https://github.com/mikke89/RmlUi.git GIT_TAG master)
 FetchContent_Declare(tracy GIT_REPOSITORY https://github.com/wolfpld/tracy.git GIT_TAG v0.13.0)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
-)
+FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip)
 FetchContent_MakeAvailable(jemalloc)
 FetchContent_MakeAvailable(mimalloc)
 FetchContent_MakeAvailable(glfw)
