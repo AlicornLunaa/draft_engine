@@ -8,8 +8,8 @@ namespace Draft {
     class Fixture;
 
     struct RaycastProps {
-        Vector2f origin;
-        Vector2f translation;
+        Vector2f origin = {0.f, 0.f};
+        Vector2f translation = {0.f, 0.f};
         float maxFraction = 1.f;
     };
 
@@ -23,8 +23,8 @@ namespace Draft {
     };
 
     struct RaycastResult {
-        Vector2f normal;
-        float fraction;
+        Vector2f normal = {0.f, 0.f};
+        float fraction = 0.f;
     };
 
     typedef std::function<float(Fixture* fixture, const Vector2f& point, const Vector2f& normal, float fraction)> RaycastCallback;

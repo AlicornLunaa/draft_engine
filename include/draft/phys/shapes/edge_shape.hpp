@@ -7,8 +7,8 @@ namespace Draft {
     class EdgeShape : public Shape {
     private:
         // Variables
-        Vector2f start;
-        Vector2f end;
+        Vector2f start = {0.f, 0.f};
+        Vector2f end = {0.f, 0.f};
 
     public:
         // Constructors

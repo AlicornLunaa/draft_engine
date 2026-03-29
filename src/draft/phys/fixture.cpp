@@ -39,7 +39,7 @@ namespace Draft {
     void Fixture::set_friction(float friction){ ptr->fixture->SetFriction(friction); }
     void Fixture::set_restitution(float restitution){ ptr->fixture->SetRestitution(restitution); }
     void Fixture::set_restitution_threshold(float threshold){ ptr->fixture->SetRestitutionThreshold(threshold); }
-    void Fixture::set_sensor(bool sensor){ ptr->fixture->SetSensor(true); }
+    void Fixture::set_sensor(bool sensor){ ptr->fixture->SetSensor(sensor); }
 
     b2Filter Fixture::get_filter_data() const { return ptr->fixture->GetFilterData(); }
     float Fixture::get_density() const { return ptr->fixture->GetDensity(); }
