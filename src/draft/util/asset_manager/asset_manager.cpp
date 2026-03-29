@@ -78,7 +78,7 @@ namespace Draft {
 
     void Assets::register_placeholders(){
         register_placeholder(new Texture(Image({1, 1}, {1, 0, 1, 1}, RGB)));
-        register_placeholder(new Shader("assets/shaders/missing_shader"));
+        register_placeholder(new Shader(FileHandle::automatic("assets/shaders/missing_shader")));
     }
 
     // Constructors

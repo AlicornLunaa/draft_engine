@@ -11,7 +11,7 @@ using namespace std;
 
 namespace Draft {
     // Static data
-    StaticResource<Shader> ShapeBatch::defaultShader = {FileHandle("assets/shaders/shapes")};
+    StaticResource<Shader> ShapeBatch::defaultShader = {FileHandle::automatic("assets/shaders/shapes")};
 
     // Constructor
     ShapeBatch::ShapeBatch(Resource<Shader> shader) : Batch(), ShapeCollection(shader) {

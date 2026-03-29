@@ -20,7 +20,7 @@
 
 namespace Draft {
     // Static data
-    StaticResource<Shader> World::defaultShader = {FileHandle("assets/shaders/shapes")};
+    StaticResource<Shader> World::defaultShader = {FileHandle::automatic("assets/shaders/shapes")};
 
     // pImpl
     struct World::Impl {

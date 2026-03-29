@@ -5,8 +5,8 @@
 
 namespace Draft {
     // Static data
-    StaticResource<Font> TextRenderer::defaultFont = {FileHandle("assets/fonts/default.ttf")};
-    StaticResource<Shader> TextRenderer::defaultShader = {FileHandle("assets/shaders/text")};
+    StaticResource<Font> TextRenderer::defaultFont = {FileHandle::automatic("assets/fonts/default.ttf")};
+    StaticResource<Shader> TextRenderer::defaultShader = {FileHandle::automatic("assets/shaders/text")};
 
     // Private functions
     const Font& TextRenderer::get_font(const TextProperties& props) const {

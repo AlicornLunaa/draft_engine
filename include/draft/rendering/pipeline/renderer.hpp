@@ -61,9 +61,9 @@ namespace Draft {
 
     protected:
         // Variables
-        Shader p_geometryShader{"assets/shaders/geometry"};
-        Shader p_compositeShader{"assets/shaders/composite"};
-        Shader p_interfaceShader{"assets/shaders/default"};
+        Shader p_geometryShader{FileHandle::automatic("assets/shaders/geometry")};
+        Shader p_compositeShader{FileHandle::automatic("assets/shaders/composite")};
+        Shader p_interfaceShader{FileHandle::automatic("assets/shaders/default")};
 
         GeometryPass p_geometryPass{p_geometryShader, p_renderSize};
         CompositePass p_compositePass{p_compositeShader};

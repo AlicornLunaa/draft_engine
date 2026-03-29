@@ -18,7 +18,7 @@ using namespace std;
 
 namespace Draft {
     // Static data
-    StaticResource<Shader> SpriteCollection::s_defaultShader = {FileHandle("assets/shaders/default")};
+    StaticResource<Shader> SpriteCollection::s_defaultShader = {FileHandle::automatic("assets/shaders/default")};
 
     // Helpers
     template<QueueLike Q>

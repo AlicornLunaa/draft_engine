@@ -14,7 +14,7 @@ using namespace std;
 
 namespace Draft {
     // Static data
-    StaticResource<Shader> ShapeCollection::s_defaultShader = {FileHandle("assets/shaders/shapes")};
+    StaticResource<Shader> ShapeCollection::s_defaultShader = {FileHandle::automatic("assets/shaders/shapes")};
 
     // Private functions
     bool ShapeCollection::needs_new_command() const {

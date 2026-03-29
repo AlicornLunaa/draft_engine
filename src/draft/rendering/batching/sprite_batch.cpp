@@ -10,7 +10,7 @@ using namespace std;
 
 namespace Draft {
     // Static data
-    StaticResource<Shader> SpriteBatch::defaultShader = {FileHandle("assets/shaders/default")};
+    StaticResource<Shader> SpriteBatch::defaultShader = {FileHandle::automatic("assets/shaders/default")};
 
     // Constructor
     SpriteBatch::SpriteBatch() : Batch(), SpriteCollection() {
