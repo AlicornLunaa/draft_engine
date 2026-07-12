@@ -55,7 +55,7 @@ namespace Draft {
     }
 
     std::string FileHandle::get_path() const {
-        return m_path.string();
+        return m_path.generic_string();
     }
 
     std::string FileHandle::get_absolute_path() const {

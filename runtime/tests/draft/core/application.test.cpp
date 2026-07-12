@@ -53,12 +53,12 @@ protected:
 
 TEST_F(ApplicationTest, ConstructionSucceedsWithNoActiveSceneAndARealDefaultRenderer)
 {
-    Application app("application_test", 64, 64);
+    Application app("application_test", 320, 320);
 
     EXPECT_EQ(app.get_scene(), nullptr);
     ASSERT_NE(app.get_renderer(), nullptr);
-    EXPECT_EQ(app.get_renderer()->get_size().x, 64u);
-    EXPECT_EQ(app.get_renderer()->get_size().y, 64u);
+    EXPECT_EQ(app.get_renderer()->get_size().x, 320u);
+    EXPECT_EQ(app.get_renderer()->get_size().y, 320u);
 }
 
 TEST_F(ApplicationTest, StepTicksTheActiveSceneOnBothCadences)
