@@ -7,6 +7,7 @@
 #include "draft/rendering/pipeline/passes/composite_pass.hpp"
 #include "draft/rendering/pipeline/passes/geometry_pass.hpp"
 #include "draft/rendering/pipeline/passes/interface_pass.hpp"
+#include "draft/rendering/pipeline/passes/overlay_pass.hpp"
 #include "draft/rendering/pipeline/render_pass.hpp"
 #include "draft/rendering/render_state.hpp"
 #include "draft/rendering/shader.hpp"
@@ -84,5 +85,6 @@ namespace Draft {
         GeometryPass p_geometryPass;
         CompositePass p_compositePass;
         InterfacePass p_interfacePass;
+        OverlayPass p_overlayPass;
     };
 }

@@ -149,6 +149,7 @@ set(HEADERS
     include/draft/rendering/pipeline/passes/composite_pass.hpp
     include/draft/rendering/pipeline/passes/geometry_pass.hpp
     include/draft/rendering/pipeline/passes/interface_pass.hpp
+    include/draft/rendering/pipeline/passes/overlay_pass.hpp
     include/draft/rendering/pipeline/render_pass.hpp
     include/draft/rendering/pipeline/renderer.hpp
     include/draft/rendering/render_layer.hpp
@@ -215,6 +216,7 @@ set(SOURCES
     src/draft/rendering/pipeline/passes/composite_pass.cpp
     src/draft/rendering/pipeline/passes/geometry_pass.cpp
     src/draft/rendering/pipeline/passes/interface_pass.cpp
+    src/draft/rendering/pipeline/passes/overlay_pass.cpp
     src/draft/rendering/pipeline/render_pass.cpp
     src/draft/rendering/pipeline/renderer.cpp
     src/draft/rendering/render_window.cpp

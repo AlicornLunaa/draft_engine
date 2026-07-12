@@ -17,11 +17,11 @@ namespace Draft {
     const Texture& GeometryPass::run(Renderer& renderer){
         // Start the pass
         renderer.begin_pass(*this);
+        renderer.set_state(m_opaqueState);
         p_frameBuffer.begin();
         p_shader->bind();
 
         // Do an opaque pass by setting the state for opaque and continuing
-        renderer.set_state(m_opaqueState);
         renderer.batch.flush_opaque();
         renderer.shape.flush();
 

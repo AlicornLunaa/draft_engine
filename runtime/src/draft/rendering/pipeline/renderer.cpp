@@ -133,6 +133,7 @@ namespace Draft {
 
         // Anything that must draw after the whole pipeline above has finished (e.g. an
         // immediate-mode UI toolkit's own draw call, which CompositePass would otherwise erase)
+        p_overlayPass.run(*this);
         systems.render_all(dt, RenderLayer::Overlay);
     }
 
