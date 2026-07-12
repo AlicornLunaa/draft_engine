@@ -120,24 +120,24 @@ set(HEADERS
     include/draft/interface/rmlui/rml_layout.hpp
     include/draft/interface/rmlui/rml_listener.hpp
     include/draft/interface/rmlui/rml_system.hpp
-    include/draft/phys/body_def.hpp
-    include/draft/phys/body_type.hpp
-    include/draft/phys/collider.hpp
-    include/draft/phys/filter.hpp
-    include/draft/phys/fixture.hpp
-    include/draft/phys/fixture_def.hpp
-    include/draft/phys/joint.hpp
-    include/draft/phys/joint_data.hpp
-    include/draft/phys/joint_def.hpp
-    include/draft/phys/mass_data.hpp
-    include/draft/phys/raycast_props.hpp
-    include/draft/phys/rigid_body.hpp
-    include/draft/phys/shapes/chain_shape.hpp
-    include/draft/phys/shapes/circle_shape.hpp
-    include/draft/phys/shapes/edge_shape.hpp
-    include/draft/phys/shapes/polygon_shape.hpp
-    include/draft/phys/shapes/shape.hpp
-    include/draft/phys/world.hpp
+    include/draft/physics/body_def.hpp
+    include/draft/physics/body_type.hpp
+    include/draft/physics/collider.hpp
+    include/draft/physics/filter.hpp
+    include/draft/physics/fixture.hpp
+    include/draft/physics/fixture_def.hpp
+    include/draft/physics/joint.hpp
+    include/draft/physics/joint_data.hpp
+    include/draft/physics/joint_def.hpp
+    include/draft/physics/mass_data.hpp
+    include/draft/physics/raycast_props.hpp
+    include/draft/physics/rigid_body.hpp
+    include/draft/physics/shapes/chain_shape.hpp
+    include/draft/physics/shapes/circle_shape.hpp
+    include/draft/physics/shapes/edge_shape.hpp
+    include/draft/physics/shapes/polygon_shape.hpp
+    include/draft/physics/shapes/shape.hpp
+    include/draft/physics/world.hpp
     include/draft/rendering/batching/collection.hpp
     include/draft/rendering/batching/draw_command.hpp
     include/draft/rendering/batching/shape_collection.hpp
@@ -196,17 +196,17 @@ set(SOURCES
     src/draft/interface/rmlui/rml_debugger.cpp
     src/draft/interface/rmlui/rml_listener.cpp
     src/draft/interface/rmlui/rml_system.cpp
-    src/draft/phys/b2_raycast_proxy.cpp
-    src/draft/phys/collider.cpp
-    src/draft/phys/conversions.cpp
-    src/draft/phys/fixture.cpp
-    src/draft/phys/joint.cpp
-    src/draft/phys/rigid_body.cpp
-    src/draft/phys/shapes/chain_shape.cpp
-    src/draft/phys/shapes/circle_shape.cpp
-    src/draft/phys/shapes/edge_shape.cpp
-    src/draft/phys/shapes/polygon_shape.cpp
-    src/draft/phys/world.cpp
+    src/draft/physics/b2_raycast_proxy.cpp
+    src/draft/physics/collider.cpp
+    src/draft/physics/conversions.cpp
+    src/draft/physics/fixture.cpp
+    src/draft/physics/joint.cpp
+    src/draft/physics/rigid_body.cpp
+    src/draft/physics/shapes/chain_shape.cpp
+    src/draft/physics/shapes/circle_shape.cpp
+    src/draft/physics/shapes/edge_shape.cpp
+    src/draft/physics/shapes/polygon_shape.cpp
+    src/draft/physics/world.cpp
     src/draft/rendering/batching/collection.cpp
     src/draft/rendering/batching/shape_collection.cpp
     src/draft/rendering/batching/sprite_collection.cpp

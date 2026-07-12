@@ -2,8 +2,8 @@
 
 #include "draft/ecs/entity.hpp"
 #include "draft/ecs/scene.hpp"
-#include "draft/phys/joint.hpp"
-#include "draft/phys/joint_data.hpp"
+#include "draft/physics/joint.hpp"
+#include "draft/physics/joint_data.hpp"
 
 #include <tuple>
 #include <type_traits>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "draft/phys/collider.hpp"
-#include "draft/phys/shapes/shape.hpp"
+#include "draft/physics/collider.hpp"
+#include "draft/physics/shapes/shape.hpp"
 
 namespace Draft {
     /**

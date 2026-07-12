@@ -13,9 +13,9 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 * Intentionally lightweight engine, where main logic is all compiled in with C++.
 
 ## Current Todo/Future Ideas
-- [ ] BuildTools
 - [ ] Component registry
 - [ ] Scene serialization
+- [ ] BuildTools
 - [ ] Proper editor
 - [ ] Shader pipeline
 - [ ] Animation editor

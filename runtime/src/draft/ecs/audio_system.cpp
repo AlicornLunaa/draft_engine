@@ -4,7 +4,7 @@
 #include "draft/components/rigid_body_component.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/math/glm.hpp"
-#include "draft/phys/rigid_body.hpp"
+#include "draft/physics/rigid_body.hpp"
 
 namespace Draft {
     // Constructors

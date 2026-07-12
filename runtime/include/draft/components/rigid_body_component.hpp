@@ -1,8 +1,8 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
-#include "draft/phys/body_type.hpp"
-#include "draft/phys/rigid_body.hpp"
+#include "draft/physics/body_type.hpp"
+#include "draft/physics/rigid_body.hpp"
 #include "draft/util/reflectable.hpp"
 
 namespace Draft {

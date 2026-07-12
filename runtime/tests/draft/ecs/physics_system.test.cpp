@@ -6,8 +6,8 @@
 #include "draft/components/joint_component.hpp"
 #include "draft/components/rigid_body_component.hpp"
 #include "draft/components/transform_component.hpp"
-#include "draft/phys/shapes/circle_shape.hpp"
-#include "draft/phys/world.hpp"
+#include "draft/physics/shapes/circle_shape.hpp"
+#include "draft/physics/world.hpp"
 
 using namespace Draft;
 

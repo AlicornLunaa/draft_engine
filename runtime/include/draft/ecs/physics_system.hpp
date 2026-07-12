@@ -5,7 +5,7 @@
 #include "draft/ecs/registry.hpp"
 #include "draft/ecs/scene.hpp"
 #include "draft/ecs/system.hpp"
-#include "draft/phys/world.hpp"
+#include "draft/physics/world.hpp"
 
 #include <algorithm>
 #include <cassert>

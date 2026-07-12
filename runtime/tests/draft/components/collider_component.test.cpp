@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "draft/components/collider_component.hpp"
-#include "draft/phys/shapes/circle_shape.hpp"
+#include "draft/physics/shapes/circle_shape.hpp"
 
 using namespace Draft;
 
