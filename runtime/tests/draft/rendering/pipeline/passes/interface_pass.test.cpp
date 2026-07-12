@@ -56,7 +56,6 @@ protected:
     }
 
     static Resource<Shader> make_shader(const std::string& vertName, const std::string& fragName){
-        // TODO: Implement in-memory file system
         VirtualFileSystem fs;
         fs.write_string(vertName, SHAPES_VERTEX_SRC);
         fs.write_string(fragName, SHAPES_FRAGMENT_SRC);

@@ -61,7 +61,6 @@ TEST_F(CompositePassTest, RunBlitsTheGeometryTextureOntoTheCurrentFramebuffer)
 {
     TestRenderer renderer({8, 8});
 
-        // TODO: Implement in-memory file system
     VirtualFileSystem fs;
     fs.write_string("composite_pass_v.glsl", COMPOSITE_VERTEX_SRC);
     fs.write_string("composite_pass_f.glsl", COMPOSITE_FRAGMENT_SRC);
