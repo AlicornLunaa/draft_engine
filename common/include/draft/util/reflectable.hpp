@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -34,6 +35,7 @@ namespace Draft {
     template<typename T>
     concept Reflectable = requires {
         T::reflect();
+        { T::reflect_name() } -> std::convertible_to<std::string_view>;
     };
 
     /**
@@ -130,7 +132,8 @@ namespace Draft {
 /**
  * @def DRAFT_REFLECTABLE(ClassName, ...)
  * @brief Declares `static constexpr auto reflect()`, returning a `std::tuple` of a Field per
- * listed member - each pairing that member's stringized name with `&ClassName::member`.
+ * listed member. Each pairing that member's stringized name with `&ClassName::member`. Also
+ * declares `static constexpr std::string_view reflect_name()`, returning @p ClassName stringized type name.
  *
  * Field names still have to be listed here, but DRAFT_REFLECTED() at the member declaration
  * itself keeps the two spots visually consistent and marks intent inline.
@@ -150,6 +153,7 @@ namespace Draft {
  * @endcode
  */
 #define DRAFT_REFLECTABLE(ClassName, ...) \
+    static constexpr std::string_view reflect_name(){ return #ClassName; } \
     static constexpr auto reflect(){ \
         return std::make_tuple(DRAFT_DETAIL_FOR_EACH(DRAFT_DETAIL_REFLECT_FIELD, ClassName, __VA_ARGS__)); \
     }

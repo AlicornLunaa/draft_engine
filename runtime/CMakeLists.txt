@@ -98,7 +98,9 @@ set(HEADERS
     include/draft/components/transform_component.hpp
     include/draft/components/texture_component.hpp
     include/draft/core/application.hpp
+    include/draft/core/engine.hpp
     include/draft/ecs/audio_system.hpp
+    include/draft/ecs/component_catalog.hpp
     include/draft/ecs/entity.hpp
     include/draft/ecs/physics_system.hpp
     include/draft/ecs/registry.hpp
@@ -180,6 +182,7 @@ set(SOURCES
     src/draft/audio/sound.cpp
     src/draft/audio/sound_buffer.cpp
     src/draft/core/application.cpp
+    src/draft/core/engine.cpp
     src/draft/ecs/audio_system.cpp
     src/draft/ecs/entity.cpp
     src/draft/ecs/physics_system.cpp
