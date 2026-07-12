@@ -4,7 +4,7 @@
 #include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/rendering/frame_buffer.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -157,7 +157,7 @@ TEST_F(RendererTest, DrawFullscreenQuadCoversTheWholeViewport)
     TestRenderer renderer({8, 8});
     Framebuffer target({{8, 8}});
 
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("renderer_quad_v.glsl", SOLID_COLOR_VERTEX_SRC);
     fs.write_string("renderer_quad_f.glsl", SOLID_RED_FRAGMENT_SRC);
     Shader shader(fs.open("renderer_quad_v.glsl"), fs.open("renderer_quad_f.glsl"));

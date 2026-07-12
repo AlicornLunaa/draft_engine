@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -46,7 +46,7 @@ namespace {
         "}\n";
 
     Resource<Shader> make_shader(const std::string& vertName, const std::string& fragName){
-        HostFileSystem fs;
+        VirtualFileSystem fs;
         fs.write_string(vertName, DEFAULT_VERTEX_SRC);
         fs.write_string(fragName, DEFAULT_FRAGMENT_SRC);
 

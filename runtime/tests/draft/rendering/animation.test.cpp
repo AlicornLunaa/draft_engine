@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "draft/rendering/animation.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -63,7 +63,7 @@ RenderWindow* AnimationTest::window = nullptr;
 
 TEST_F(AnimationTest, GetFrameReturnsTheFrameCoveringTheGivenTime)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("anim_three_frame.json", THREE_FRAME_JSON);
     Animation anim(make_texture(), fs.open("anim_three_frame.json"));
 
@@ -74,7 +74,7 @@ TEST_F(AnimationTest, GetFrameReturnsTheFrameCoveringTheGivenTime)
 
 TEST_F(AnimationTest, GetFrameWrapsAroundPastTheTotalDuration)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("anim_wrap.json", THREE_FRAME_JSON);
     Animation anim(make_texture(), fs.open("anim_wrap.json"));
 
@@ -84,7 +84,7 @@ TEST_F(AnimationTest, GetFrameWrapsAroundPastTheTotalDuration)
 
 TEST_F(AnimationTest, ConstructingWithNoFramesThrowsFromGetFrameInsteadOfIndexingOutOfBounds)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("anim_empty.json", EMPTY_FRAMES_JSON);
     Animation anim(make_texture(), fs.open("anim_empty.json"));
 
@@ -97,7 +97,7 @@ TEST_F(AnimationTest, AllZeroDurationFramesFallBackToTheLastFrameNotAnOutOfBound
     // check is false, so the old code fell through to `frames[(int)(frameTime / 100) % 20]`,
     // which is out of bounds for any frames.size() < 20 (here, 2). The fix falls back to
     // frames.back() instead.
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("anim_zero_duration.json", ZERO_DURATION_JSON);
     Animation anim(make_texture(), fs.open("anim_zero_duration.json"));
 

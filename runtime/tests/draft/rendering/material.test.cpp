@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "draft/rendering/material.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -67,7 +67,7 @@ protected:
     }
 
     static Shader make_shader(const std::string& vertName, const std::string& fragName){
-        HostFileSystem fs;
+        VirtualFileSystem fs;
         fs.write_string(vertName, VALID_VERTEX_SRC);
         fs.write_string(fragName, VALID_FRAGMENT_SRC);
         return Shader(fs.open(vertName), fs.open(fragName));

@@ -4,7 +4,7 @@
 #include "draft/ecs/scene.hpp"
 #include "draft/components/audio_components.hpp"
 #include "draft/components/transform_component.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 #include "../audio/wav_test_helper.hpp"
 #include <filesystem>
 #include <memory>
@@ -15,7 +15,7 @@ using namespace Draft::Testing;
 namespace {
     class AudioSystemTest : public ::testing::Test {
     protected:
-        HostFileSystem fs;
+        VirtualFileSystem fs;
         std::filesystem::path musicPath = "audio_system_test.wav";
 
         void SetUp() override {

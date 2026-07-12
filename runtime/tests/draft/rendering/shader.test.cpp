@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -58,7 +58,7 @@ RenderWindow* ShaderTest::window = nullptr;
 
 TEST_F(ShaderTest, ConstructionFromValidSourceBindsAndUnbindsWithoutThrowing)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("test_shader_vertex.glsl", VALID_VERTEX_SRC);
     fs.write_string("test_shader_fragment.glsl", VALID_FRAGMENT_SRC);
 
@@ -73,7 +73,7 @@ TEST_F(ShaderTest, ConstructionFromValidSourceBindsAndUnbindsWithoutThrowing)
 
 TEST_F(ShaderTest, HasUniformDistinguishesRealFromMissingNames)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("test_shader_vertex2.glsl", VALID_VERTEX_SRC);
     fs.write_string("test_shader_fragment2.glsl", VALID_FRAGMENT_SRC);
 
@@ -88,7 +88,7 @@ TEST_F(ShaderTest, HasUniformDistinguishesRealFromMissingNames)
 
 TEST_F(ShaderTest, SetUniformRoundTripsFloatIntVec3AndMat4)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("test_shader_vertex3.glsl", VALID_VERTEX_SRC);
     fs.write_string("test_shader_fragment3.glsl", VALID_FRAGMENT_SRC);
 
@@ -127,7 +127,7 @@ TEST_F(ShaderTest, SetUniformRoundTripsFloatIntVec3AndMat4)
 TEST_F(ShaderTest, SetUniformVector4uRoundTripsAllFourComponents)
 {
     // Regression test for a bug found while porting
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("test_shader_vertex4.glsl", VALID_VERTEX_SRC);
     fs.write_string("test_shader_fragment4.glsl", VALID_FRAGMENT_SRC);
 
@@ -149,7 +149,7 @@ TEST_F(ShaderTest, SetUniformVector4uRoundTripsAllFourComponents)
 
 TEST_F(ShaderTest, ConstructionFromBrokenSourceThrowsInsteadOfExiting)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("test_shader_vertex5.glsl", VALID_VERTEX_SRC);
     fs.write_string("test_shader_broken_fragment.glsl", BROKEN_FRAGMENT_SRC);
 

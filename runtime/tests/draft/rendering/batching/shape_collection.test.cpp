@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "draft/rendering/batching/shape_collection.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -52,7 +52,7 @@ protected:
 
     static Resource<Shader> make_shader(const std::string& vertName, const std::string& fragName){
         // TODO: Implement in-memory file system
-        HostFileSystem fs;
+        VirtualFileSystem fs;
         fs.write_string(vertName, SHAPES_VERTEX_SRC);
         fs.write_string(fragName, SHAPES_FRAGMENT_SRC);
 

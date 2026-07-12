@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "draft/rendering/camera.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -90,7 +90,7 @@ RenderWindow* CameraApplyTest::window = nullptr;
 
 TEST_F(CameraApplyTest, ApplyPushesViewAndProjectionUniforms)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("test_camera_vertex.glsl",
         "#version 450 core\n"
         "uniform mat4 view;\n"

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "draft/audio/music.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 #include "wav_test_helper.hpp"
 #include <filesystem>
 
@@ -12,7 +12,7 @@ namespace {
     // tests still need a real file on disk rather than in-memory bytes.
     class MusicTest : public ::testing::Test {
     protected:
-        HostFileSystem fs;
+        VirtualFileSystem fs;
         std::filesystem::path path = "music_test.wav";
 
         void SetUp() override {

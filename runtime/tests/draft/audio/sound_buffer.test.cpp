@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "draft/audio/sound_buffer.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 #include "wav_test_helper.hpp"
 
 using namespace Draft;
@@ -19,7 +19,7 @@ TEST(SoundBuffer, LoadsFromRawBytes)
 
 TEST(SoundBuffer, LoadsFromFileHandle)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     auto handle = fs.open("sound_buffer_test.wav");
     fs.write_bytes("sound_buffer_test.wav", make_wav_bytes(22050, 2205));
 
@@ -49,7 +49,7 @@ TEST(SoundBuffer, ReloadIsANoOpForABufferBuiltFromRawBytes)
 
 TEST(SoundBuffer, ReloadRereadsFromDisk)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_bytes("sound_buffer_reload_test.wav", make_wav_bytes(44100, 4410));
     SoundBuffer buffer(fs.open("sound_buffer_reload_test.wav"));
 

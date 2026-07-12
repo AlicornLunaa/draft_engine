@@ -8,7 +8,7 @@
 #include "draft/components/transform_component.hpp"
 #include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -73,7 +73,7 @@ protected:
     }
 
     static Resource<Shader> make_shader(const std::string& vertName, const std::string& fragName){
-        HostFileSystem fs;
+        VirtualFileSystem fs;
         fs.write_string(vertName, SPRITE_VERTEX_SRC);
         fs.write_string(fragName, SPRITE_FRAGMENT_SRC);
 

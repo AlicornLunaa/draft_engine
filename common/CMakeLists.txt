@@ -24,6 +24,8 @@ set(HEADERS
     include/draft/util/files/file_handle.hpp
     include/draft/util/files/file_provider.hpp
     include/draft/util/files/host_file_system.hpp
+    include/draft/util/files/memory_file_provider.hpp
+    include/draft/util/files/virtual_file_system.hpp
     include/draft/util/json.hpp
     include/draft/util/logger.hpp
     include/draft/util/reflectable.hpp
@@ -42,6 +44,8 @@ set(SOURCES
     src/draft/util/files/file_handle.cpp
     src/draft/util/files/file_provider.cpp
     src/draft/util/files/host_file_system.cpp
+    src/draft/util/files/memory_file_provider.cpp
+    src/draft/util/files/virtual_file_system.cpp
     src/draft/util/json.cpp
     src/draft/util/logger.cpp
     src/draft/util/time.cpp

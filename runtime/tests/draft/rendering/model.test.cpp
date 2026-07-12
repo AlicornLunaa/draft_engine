@@ -139,6 +139,9 @@ TEST(ModelLoad, SingleNonIndexedTriangleLoadsWithOneFlattenedPrimitive)
     fs.write_string("model_triangle.gltf", json);
 
     Model model(fs.open("model_triangle.gltf"));
+    fs.remove("model_triangle.bin");
+    fs.remove("model_triangle.gltf");
+
     EXPECT_EQ(ModelTestAccess::mesh_count(model), 1u);
 }
 
@@ -184,6 +187,10 @@ TEST(ModelLoad, IndexedQuadWithMissingTexcoordLoadsWithoutError)
     fs.write_string("model_quad.gltf", json);
 
     EXPECT_NO_THROW({ Model model(fs.open("model_quad.gltf")); });
+
+    fs.remove("model_quad.bin");
+    fs.remove("model_quad_indices.bin");
+    fs.remove("model_quad.gltf");
 }
 
 TEST(ModelLoad, MultiPrimitiveMeshAppliesTheSameNodeTransformToEveryPrimitive)
@@ -224,6 +231,9 @@ TEST(ModelLoad, MultiPrimitiveMeshAppliesTheSameNodeTransformToEveryPrimitive)
     fs.write_string("model_multiprim.gltf", json);
 
     Model model(fs.open("model_multiprim.gltf"));
+    fs.remove("model_multiprim.bin");
+    fs.remove("model_multiprim.gltf");
+
     ASSERT_EQ(ModelTestAccess::mesh_count(model), 2u);
 
     const Matrix4& first = ModelTestAccess::mesh_matrix(model, 0);
@@ -274,6 +284,9 @@ TEST(ModelLoad, ChildNodeTransformComposesWithItsParent)
     fs.write_string("model_hierarchy.gltf", json);
 
     Model model(fs.open("model_hierarchy.gltf"));
+    fs.remove("model_hierarchy.bin");
+    fs.remove("model_hierarchy.gltf");
+
     ASSERT_EQ(ModelTestAccess::mesh_count(model), 2u);
 
     const Matrix4& rootMatrix = ModelTestAccess::mesh_matrix(model, 0);
@@ -352,10 +365,16 @@ TEST_F(ModelTexturedTest, CopyKeepsTheEmbeddedTextureAliveAfterTheSourceIsDestro
     shaderFs.write_string("model_copy_v.glsl", vertSrc);
     shaderFs.write_string("model_copy_f.glsl", fragSrc);
     Shader shader(shaderFs.open("model_copy_v.glsl"), shaderFs.open("model_copy_f.glsl"));
+    shaderFs.remove("model_copy_v.glsl");
+    shaderFs.remove("model_copy_f.glsl");
 
     std::optional<Model> copy;
     {
         Model original(handle);
+        fs.remove("model_copy_texture.png");
+        fs.remove("model_copy_texture.bin");
+        fs.remove("model_copy_texture.gltf");
+
         ASSERT_EQ(ModelTestAccess::embedded_texture_count(original), 5u);
         copy.emplace(original);
     } // original destroyed here
@@ -377,5 +396,9 @@ TEST_F(ModelTexturedTest, ReloadDoesNotAccumulateDuplicateEmbeddedTextures)
     EXPECT_EQ(ModelTestAccess::embedded_texture_count(model), 5u);
 
     model.reload();
+    fs.remove("model_reload_texture.png");
+    fs.remove("model_reload_texture.bin");
+    fs.remove("model_reload_texture.gltf");
+
     EXPECT_EQ(ModelTestAccess::embedded_texture_count(model), 5u);
 }

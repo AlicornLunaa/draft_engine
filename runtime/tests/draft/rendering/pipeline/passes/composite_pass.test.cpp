@@ -5,7 +5,7 @@
 #include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/rendering/frame_buffer.hpp"
 #include "draft/rendering/render_window.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 #include "GLFW/glfw3.h"
 #include "glad/gl.h"
@@ -62,7 +62,7 @@ TEST_F(CompositePassTest, RunBlitsTheGeometryTextureOntoTheCurrentFramebuffer)
     TestRenderer renderer({8, 8});
 
         // TODO: Implement in-memory file system
-    HostFileSystem fs;
+    VirtualFileSystem fs;
     fs.write_string("composite_pass_v.glsl", COMPOSITE_VERTEX_SRC);
     fs.write_string("composite_pass_f.glsl", COMPOSITE_FRAGMENT_SRC);
     auto shader = std::make_shared<Shader>(fs.open("composite_pass_v.glsl"), fs.open("composite_pass_f.glsl"));
