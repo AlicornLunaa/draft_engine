@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project("draft_common" VERSION 0.1.0 LANGUAGES CXX)
+project("draft_common" VERSION 1.0.0 LANGUAGES CXX)
 
 option(DRAFT_COMMON_BUILD_TESTS "Build the tests for draft_common" ON)
 

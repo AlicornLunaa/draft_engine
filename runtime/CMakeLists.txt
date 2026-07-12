@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project("draft_runtime" VERSION 1.0.0 LANGUAGES CXX)
+project("draft_runtime" VERSION 2.0.0 LANGUAGES CXX)
 
 option(DRAFT_RUNTIME_BUILD_TESTS "Build the tests for draft_runtime" ON)
 

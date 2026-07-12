@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project("draft" VERSION 0.1.0 LANGUAGES CXX)
+project("draft" VERSION 2.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,3 +10,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(common)
 add_subdirectory(build_tools)
 add_subdirectory(runtime)
+add_subdirectory(editor)
