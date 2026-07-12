@@ -18,8 +18,8 @@ namespace Draft {
         m_systems.update_all(dt);
     }
 
-    void Scene::render(Time dt){
-        m_systems.render_all(dt);
+    void Scene::render(Time dt, RenderLayer layer){
+        m_systems.render_all(dt, layer);
     }
 
     void Scene::attach(){

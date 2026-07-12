@@ -102,6 +102,15 @@ set(HEADERS
     include/draft/input/event.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
+    include/draft/interface/imgui/imgui_system.hpp
+    include/draft/interface/rmlui/RmlUi_Include_GL3.h
+    include/draft/interface/rmlui/RmlUi_Platform_GLFW.h
+    include/draft/interface/rmlui/RmlUi_Renderer_GL3.h
+    include/draft/interface/rmlui/rml_context.hpp
+    include/draft/interface/rmlui/rml_debugger.hpp
+    include/draft/interface/rmlui/rml_layout.hpp
+    include/draft/interface/rmlui/rml_listener.hpp
+    include/draft/interface/rmlui/rml_system.hpp
     include/draft/phys/body_def.hpp
     include/draft/phys/body_type.hpp
     include/draft/phys/collider.hpp
@@ -142,6 +151,7 @@ set(HEADERS
     include/draft/rendering/pipeline/passes/interface_pass.hpp
     include/draft/rendering/pipeline/render_pass.hpp
     include/draft/rendering/pipeline/renderer.hpp
+    include/draft/rendering/render_layer.hpp
     include/draft/rendering/render_state.hpp
     include/draft/rendering/render_window.hpp
     include/draft/rendering/shader.hpp
@@ -169,6 +179,13 @@ set(SOURCES
     src/draft/ecs/system.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
+    src/draft/interface/imgui/imgui_system.cpp
+    src/draft/interface/rmlui/RmlUi_Platform_GLFW.cpp
+    src/draft/interface/rmlui/RmlUi_Renderer_GL3.cpp
+    src/draft/interface/rmlui/rml_context.cpp
+    src/draft/interface/rmlui/rml_debugger.cpp
+    src/draft/interface/rmlui/rml_listener.cpp
+    src/draft/interface/rmlui/rml_system.cpp
     src/draft/phys/b2_raycast_proxy.cpp
     src/draft/phys/collider.cpp
     src/draft/phys/conversions.cpp

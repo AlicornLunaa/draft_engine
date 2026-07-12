@@ -7,7 +7,7 @@ namespace Draft {
     RenderSystem::RenderSystem(Registry& registryRef, Renderer& rendererRef) : registryRef(registryRef), rendererRef(rendererRef) {}
 
     // Functions
-    void RenderSystem::render(Time){
+    void RenderSystem::render(Time, RenderLayer){
         auto view = registryRef.view<SpriteComponent, TransformComponent>();
 
         for(auto entity : view){

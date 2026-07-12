@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/input/event.hpp"
+#include "draft/rendering/render_layer.hpp"
 #include "draft/util/time.hpp"
 
 #include <algorithm>
@@ -33,14 +34,27 @@ namespace Draft {
         virtual void update(Time dt) {}
 
         /**
-         * @brief Advances this system by the actual, variable frame @p dt. Called exactly once
-         * per frame by SystemRegistry::render_all() / Scene::render(), for anything that should
-         * run every frame regardless of how many (or how few) fixed update() steps just ran.
+         * @brief Advances this system by the actual, variable frame @p dt, for whichever
+         * @p layer this call is for. Called by SystemRegistry::render_all(dt, layer) /
+         * Scene::render(dt, layer), once per frame per layer this system participates in (see
+         * get_render_layers()), for anything that should run every frame regardless of how many
+         * (or how few) fixed update() steps just ran.
+         *
+         * RenderLayer::Default (the default of get_render_layers()) is driven directly by
+         * Application::frame(), before Renderer::render_frame() runs at all, and always runs
+         * even with no Renderer set.
          *
          * Default no-op: a system only interested in fixed-step work doesn't need to override
          * this.
          */
-        virtual void render(Time dt) {}
+        virtual void render(Time dt, RenderLayer layer) {}
+
+        /**
+         * @brief Which RenderLayer(s) this system's render(dt, layer) should be called for.
+         * Defaults to RenderLayer::Default, matching the pre-RenderLayer behavior of render()
+         * being called exactly once per frame regardless of rendering.
+         */
+        virtual RenderLayer get_render_layers() const { return RenderLayer::Default; }
 
         /**
          * @brief Called once when this system's Scene becomes the active one (see
@@ -152,10 +166,11 @@ namespace Draft {
         void update_all(Time dt);
 
         /**
-         * @brief Calls render(dt) on every registered system, in the order each was first
-         * added. Meant to be driven exactly once per frame with the actual frame delta.
+         * @brief Calls render(dt, layer) on every registered system whose get_render_layers()
+         * includes @p layer, in the order each was first added. Meant to be driven once per
+         * frame per layer (see AbstractSystem::render()'s doc comment for when each layer runs).
          */
-        void render_all(Time dt);
+        void render_all(Time dt, RenderLayer layer);
 
         /**
          * @brief Calls on_attach() on every registered system, in registration order. Meant to

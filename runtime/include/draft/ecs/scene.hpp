@@ -42,10 +42,9 @@ namespace Draft {
 
         /**
          * @brief Runs every registered system's per-frame work with the actual, variable frame
-         * @p dt, in registration order. Equivalent to get_systems().render_all(dt). Meant to be
-         * called exactly once per frame, regardless of how many (or how few) update()
+         * @p dt for the given @p layer, in registration order. Equivalent to get_systems().render_all(dt, layer).
          */
-        void render(Time dt);
+        void render(Time dt, RenderLayer layer);
 
         /**
          * @brief Notifies every registered system that this Scene has become the active one.

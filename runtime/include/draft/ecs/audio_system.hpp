@@ -23,7 +23,7 @@ namespace Draft {
         ~AudioSystem() override = default;
 
         // Functions
-        void render(Time dt) override;
+        void render(Time dt, RenderLayer layer) override;
 
         DRAFT_REFLECTABLE(AudioSystem, dopplerSensitivity)
     };

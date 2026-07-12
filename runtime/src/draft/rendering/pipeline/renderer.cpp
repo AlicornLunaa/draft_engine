@@ -120,13 +120,20 @@ namespace Draft {
     {
     }
 
-    void DefaultRenderer::render_frame(Time){
-        // World rendering
-        const Texture& geometry = p_geometryPass.run(*this);
-        p_compositePass.run(*this, geometry);
+    void DefaultRenderer::render_frame(Time dt, SystemRegistry& systems){
+        // World rendering: submit, then flush
+        systems.render_all(dt, RenderLayer::Geometry); // Fills the collections with data
+        const Texture& geometry = p_geometryPass.run(*this); // Flushes the data
+        p_compositePass.run(*this, geometry); // Composites the frames
 
-        // Interface rendering
+        // Interface rendering: submit, then flush. The geometry flush above already drained
+        // batch/shape, so this is a fresh queue InterfacePass alone drains
+        systems.render_all(dt, RenderLayer::Interface);
         p_interfacePass.run(*this);
+
+        // Anything that must draw after the whole pipeline above has finished (e.g. an
+        // immediate-mode UI toolkit's own draw call, which CompositePass would otherwise erase)
+        systems.render_all(dt, RenderLayer::Overlay);
     }
 
     void DefaultRenderer::resize(const Vector2u& size){

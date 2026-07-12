@@ -21,7 +21,7 @@ namespace {
     class TestRenderer : public Renderer {
     public:
         using Renderer::Renderer;
-        void render_frame(Time) override {}
+        void render_frame(Time, SystemRegistry&) override {}
     };
 
     const char* SPRITE_VERTEX_SRC =
@@ -99,7 +99,7 @@ TEST_F(RenderSystemTest, RenderSubmitsSpriteEntitiesIntoTheRendererBatchWithoutE
     SpriteComponent& sprite = entity.add_component<SpriteComponent>(Resource<Texture>{}, Vector2f{10.f, 10.f});
     sprite.shader = shader.get();
 
-    scene.render(Time::seconds(0));
+    scene.render(Time::seconds(0), RenderLayer::Geometry);
 
     glGetError();
     renderer.batch.flush();
@@ -113,5 +113,5 @@ TEST_F(RenderSystemTest, RenderWithNoSpriteEntitiesDoesNotThrow)
 
     scene.get_systems().add<RenderSystem>(scene.get_registry(), renderer);
 
-    ASSERT_NO_THROW(scene.render(Time::seconds(0)));
+    ASSERT_NO_THROW(scene.render(Time::seconds(0), RenderLayer::Geometry));
 }

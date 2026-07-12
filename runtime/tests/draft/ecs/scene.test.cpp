@@ -13,7 +13,7 @@ namespace {
 
     struct FrameCounter : AbstractSystem {
         int frames = 0;
-        void render(Time) override { frames++; }
+        void render(Time, RenderLayer) override { frames++; }
     };
 
     struct LifecycleCounter : AbstractSystem {
@@ -78,7 +78,7 @@ TEST(Scene, RenderDrivesRegisteredSystemsOnceRegardlessOfUpdateCount)
     scene.update(Time::seconds(1.f / 60.f));
     scene.update(Time::seconds(1.f / 60.f));
     scene.update(Time::seconds(1.f / 60.f));
-    scene.render(Time::seconds(1.f / 20.f));
+    scene.render(Time::seconds(1.f / 20.f), RenderLayer::Default);
 
     ASSERT_EQ(scene.get_systems().get<TickCounter>().ticks, 3);
     ASSERT_EQ(scene.get_systems().get<FrameCounter>().frames, 1);

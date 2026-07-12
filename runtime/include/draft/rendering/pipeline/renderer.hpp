@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/ecs/system.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/rendering/batching/shape_collection.hpp"
 #include "draft/rendering/batching/sprite_collection.hpp"
@@ -33,10 +34,13 @@ namespace Draft {
 
         /**
          * @brief Runs this renderer's whole pass pipeline for one frame. Called once per frame,
-         * after Scene::render(dt) has already ticked every per-frame AbstractSystem (including whatever
-         * submits this frame's geometry/UI into `batch`/`shape`).
+         * after RenderLayer::Default has already run (see Application::frame()). Drives
+         * @p systems itself, layer by layer, interleaved with its own passes, e.g.
+         * DefaultRenderer::render_frame() runs RenderLayer::Geometry, flushes it via
+         * GeometryPass/CompositePass, runs RenderLayer::Interface, flushes it via InterfacePass,
+         * then runs RenderLayer::Overlay for anything that must draw after everything else.
          */
-        virtual void render_frame(Time deltaTime) = 0;
+        virtual void render_frame(Time deltaTime, SystemRegistry& systems) = 0;
         virtual void resize(const Vector2u& size);
 
         void begin_pass(AbstractRenderPass& pass);
@@ -68,7 +72,7 @@ namespace Draft {
         virtual ~DefaultRenderer() = default;
 
         // Functions
-        virtual void render_frame(Time deltaTime) override;
+        virtual void render_frame(Time deltaTime, SystemRegistry& systems) override;
         virtual void resize(const Vector2u& size) override;
 
     protected:

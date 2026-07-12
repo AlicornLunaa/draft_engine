@@ -21,6 +21,7 @@ namespace Draft {
         ~RenderSystem() override = default;
 
         // Functions
-        void render(Time dt) override;
+        void render(Time dt, RenderLayer layer) override;
+        RenderLayer get_render_layers() const override { return RenderLayer::Geometry; }
     };
 }

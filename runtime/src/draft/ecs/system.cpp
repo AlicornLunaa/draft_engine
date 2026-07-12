@@ -9,11 +9,11 @@ namespace Draft {
         }
     }
 
-    void SystemRegistry::render_all(Time dt){
+    void SystemRegistry::render_all(Time dt, RenderLayer layer){
         for(auto& type : m_order){
             auto it = m_systems.find(type);
-            if(it != m_systems.end())
-                it->second->render(dt);
+            if(it != m_systems.end() && has_layer(it->second->get_render_layers(), layer))
+                it->second->render(dt, layer);
         }
     }
 

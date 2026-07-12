@@ -19,7 +19,7 @@ namespace {
     public:
         using Renderer::Renderer;
         int resizeCalls = 0;
-        void render_frame(Time) override {}
+        void render_frame(Time, SystemRegistry&) override {}
         void resize(const Vector2u& size) override {
             resizeCalls++;
             Renderer::resize(size);
@@ -35,7 +35,7 @@ namespace {
         bool consumeEvents = false;
 
         void update(Time) override { updateCalls++; }
-        void render(Time) override { renderCalls++; }
+        void render(Time, RenderLayer) override { renderCalls++; }
         void on_attach() override { attachCalls++; }
         void on_detach() override { detachCalls++; }
         bool on_event(const Event&) override { eventCalls++; return consumeEvents; }

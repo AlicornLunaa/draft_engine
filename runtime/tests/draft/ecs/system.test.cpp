@@ -163,11 +163,13 @@ namespace {
         void update(Time) override { updateCalls++; }
     };
 
-    // Only overrides render(), the once-per-frame variable-dt cadence.
+    // Only overrides render(), the once-per-frame variable-dt cadence. Never overrides
+    // get_render_layers(), so it stays on the default RenderLayer::Default.
     struct RenderOnlySystem : AbstractSystem {
         int renderCalls = 0;
         Time lastDt;
-        void render(Time dt) override { renderCalls++; lastDt = dt; }
+        RenderLayer lastLayer = RenderLayer::None;
+        void render(Time dt, RenderLayer layer) override { renderCalls++; lastDt = dt; lastLayer = layer; }
     };
 }
 
@@ -176,8 +178,8 @@ TEST(SystemRegistry, RenderAllRunsEveryRegisteredSystemsRenderHook)
     SystemRegistry systems;
     systems.add<RenderOnlySystem>();
 
-    systems.render_all(Time::seconds(1.f / 60.f));
-    systems.render_all(Time::seconds(1.f / 60.f));
+    systems.render_all(Time::seconds(1.f / 60.f), RenderLayer::Default);
+    systems.render_all(Time::seconds(1.f / 60.f), RenderLayer::Default);
 
     ASSERT_EQ(systems.get<RenderOnlySystem>().renderCalls, 2);
 }
@@ -188,9 +190,22 @@ TEST(SystemRegistry, RenderAllPassesDtThrough)
     systems.add<RenderOnlySystem>();
 
     Time dt = Time::seconds(1.f / 30.f);
-    systems.render_all(dt);
+    systems.render_all(dt, RenderLayer::Default);
 
     ASSERT_EQ(systems.get<RenderOnlySystem>().lastDt.as_microseconds(), dt.as_microseconds());
+}
+
+TEST(SystemRegistry, RenderAllOnlyCallsSystemsWhoseLayersIncludeTheRequestedLayer)
+{
+    SystemRegistry systems;
+    systems.add<RenderOnlySystem>(); // RenderLayer::Default only
+
+    systems.render_all(Time::seconds(1.f / 60.f), RenderLayer::Geometry);
+    ASSERT_EQ(systems.get<RenderOnlySystem>().renderCalls, 0);
+
+    systems.render_all(Time::seconds(1.f / 60.f), RenderLayer::Default);
+    ASSERT_EQ(systems.get<RenderOnlySystem>().renderCalls, 1);
+    ASSERT_EQ(systems.get<RenderOnlySystem>().lastLayer, RenderLayer::Default);
 }
 
 TEST(SystemRegistry, UpdateAndRenderCadencesAreIndependent)
@@ -204,7 +219,7 @@ TEST(SystemRegistry, UpdateAndRenderCadencesAreIndependent)
     systems.update_all(Time::seconds(1.f / 60.f));
     systems.update_all(Time::seconds(1.f / 60.f));
     systems.update_all(Time::seconds(1.f / 60.f));
-    systems.render_all(Time::seconds(1.f / 30.f));
+    systems.render_all(Time::seconds(1.f / 30.f), RenderLayer::Default);
 
     ASSERT_EQ(systems.get<UpdateOnlySystem>().updateCalls, 3);
     ASSERT_EQ(systems.get<RenderOnlySystem>().renderCalls, 1);
@@ -217,7 +232,7 @@ TEST(SystemRegistry, SystemsWithNoOverrideForACadenceAreHarmlessNoOps)
     SystemRegistry systems;
     systems.add<UpdateOnlySystem>();
 
-    ASSERT_NO_THROW(systems.render_all(Time()));
+    ASSERT_NO_THROW(systems.render_all(Time(), RenderLayer::Default));
     ASSERT_EQ(systems.get<UpdateOnlySystem>().updateCalls, 0);
 }
 

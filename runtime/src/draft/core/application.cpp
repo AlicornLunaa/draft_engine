@@ -153,10 +153,11 @@ namespace Draft {
         window.clear();
 
         if(p_activeScene){
-            p_activeScene->render(deltaTime);
+            // Ordinary per-frame work always runs, even with no renderer set
+            p_activeScene->render(deltaTime, RenderLayer::Default);
 
             if(p_renderer)
-                p_renderer->render_frame(deltaTime);
+                p_renderer->render_frame(deltaTime, p_activeScene->get_systems());
         }
 
         window.display();

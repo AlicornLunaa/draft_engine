@@ -12,13 +12,13 @@
 using namespace Draft;
 
 namespace {
-    // Renderer is abstract (render_frame is pure virtual) - a trivial concrete subclass is
+    // Renderer is abstract (render_frame is pure virtual), a trivial concrete subclass is
     // needed to construct one at all, matching the pattern already used for BufferedPass in
     // render_pass.test.cpp.
     class TestRenderer : public Renderer {
     public:
         using Renderer::Renderer;
-        void render_frame(Time) override {}
+        void render_frame(Time, SystemRegistry&) override {}
     };
 
     const char* SOLID_COLOR_VERTEX_SRC =

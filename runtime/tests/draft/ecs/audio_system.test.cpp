@@ -43,7 +43,7 @@ TEST_F(AudioSystemTest, RenderSyncsListenerPositionFromTransform)
     listenerEntity.add_component<TransformComponent>(TransformComponent{{2.f, 3.f}, 0.f});
     ListenerComponent& listenerComp = listenerEntity.add_component<ListenerComponent>();
 
-    scene.render(Time::seconds(0));
+    scene.render(Time::seconds(0), RenderLayer::Default);
 
     EXPECT_FLOAT_EQ(listenerComp.listener.get_position().x, 2.f);
     EXPECT_FLOAT_EQ(listenerComp.listener.get_position().y, 3.f);
@@ -61,7 +61,7 @@ TEST_F(AudioSystemTest, RenderSyncsSoundPositionFromTransform)
     soundEntity.add_component<TransformComponent>(TransformComponent{{5.f, 7.f}, 0.f});
     SoundComponent& soundComp = soundEntity.add_component<SoundComponent>(sound);
 
-    scene.render(Time::seconds(0));
+    scene.render(Time::seconds(0), RenderLayer::Default);
 
     EXPECT_FLOAT_EQ(soundComp.sound.get_position().x, 5.f);
     EXPECT_FLOAT_EQ(soundComp.sound.get_position().y, 7.f);
@@ -79,7 +79,7 @@ TEST_F(AudioSystemTest, RenderSyncsMusicPositionFromTransform)
     musicEntity.add_component<TransformComponent>(TransformComponent{{9.f, 11.f}, 0.f});
     MusicComponent& musicComp = musicEntity.add_component<MusicComponent>(track);
 
-    scene.render(Time::seconds(0));
+    scene.render(Time::seconds(0), RenderLayer::Default);
 
     EXPECT_FLOAT_EQ(musicComp.track->get_position().x, 9.f);
     EXPECT_FLOAT_EQ(musicComp.track->get_position().y, 11.f);
@@ -90,5 +90,5 @@ TEST_F(AudioSystemTest, RenderWithNoAudioEntitiesDoesNotThrow)
     Scene scene;
     scene.get_systems().add<AudioSystem>(scene.get_registry());
 
-    ASSERT_NO_THROW(scene.render(Time::seconds(0)));
+    ASSERT_NO_THROW(scene.render(Time::seconds(0), RenderLayer::Default));
 }

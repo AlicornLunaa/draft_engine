@@ -11,7 +11,7 @@ namespace Draft {
     AudioSystem::AudioSystem(Registry& registryRef) : registryRef(registryRef) {}
 
     // Functions
-    void AudioSystem::render(Time){
+    void AudioSystem::render(Time, RenderLayer){
         // Update positions of every audio-based component from its entity's transform
         auto listenerView = registryRef.view<ListenerComponent, TransformComponent>();
         auto soundView = registryRef.view<SoundComponent, TransformComponent>();

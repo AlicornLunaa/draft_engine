@@ -62,6 +62,8 @@ namespace Draft {
 
         friend class Keyboard;
         friend class Mouse;
+        friend class ImGuiSystem;
+        friend class RmlUiSystem;
 
         void poll_events() const;
         void swap_buffers() const;
