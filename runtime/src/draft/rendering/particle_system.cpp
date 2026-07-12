@@ -71,8 +71,8 @@ namespace Draft {
             // SpriteCollection::draw() already falls back to its own shared texture/shader
             // defaults whenever baseTexture/shader are left null
             Material2D particleMaterial;
-            particleMaterial.baseTexture = particle.props.texture;
-            particleMaterial.shader = particle.props.shader;
+            particleMaterial.baseTexture = particle.props.texture ? particle.props.texture->get() : nullptr;
+            particleMaterial.shader = particle.props.shader ? particle.props.shader->get() : nullptr;
             particleMaterial.tint = visual.color;
 
             batch.draw(SpriteProps{

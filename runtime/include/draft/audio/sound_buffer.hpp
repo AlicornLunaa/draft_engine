@@ -4,7 +4,6 @@
 #include "draft/util/time.hpp"
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <vector>
 
 namespace Draft {
@@ -16,9 +15,6 @@ namespace Draft {
      */
     class SoundBuffer {
     private:
-        // Variables
-        std::optional<FileHandle> m_handle; // Unset when built from raw bytes rather than a file
-
         // Private functions
         const void* get_buffer_ptr() const;
 
@@ -41,12 +37,6 @@ namespace Draft {
         unsigned int get_sample_rate() const;
         unsigned int get_channel_count() const;
         Time get_duration() const;
-
-        /**
-         * @brief Re-decodes from the backing FileHandle. No-op if this buffer was built from
-         * raw bytes rather than a file (nothing on disk/embedded to reload from).
-         */
-        void reload();
 
     private:
         // pImpl

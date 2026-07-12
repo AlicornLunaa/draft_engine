@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <map>
 #include <memory>
-#include <optional>
 #include <unordered_map>
 
 namespace Draft {
@@ -61,7 +60,6 @@ namespace Draft {
         mutable std::map<unsigned int, size_t> fontSizeToTextureMap;
         mutable std::vector<FontType> fontTypes;
         mutable unsigned int fontSize = 24;
-        std::optional<FileHandle> handle; // Unset when built from raw bytes rather than a file
 
         // Private functions
         void load_font();
@@ -82,7 +80,6 @@ namespace Draft {
         inline unsigned int get_font_size() const { return fontSize; }
         inline void set_font_size(unsigned int size) const { fontSize = size; }
         const Glyph& get_glyph(char ch) const;
-        void reload();
 
     private:
         // pImpl implementation

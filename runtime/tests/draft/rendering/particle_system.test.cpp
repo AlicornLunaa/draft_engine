@@ -136,7 +136,7 @@ TEST_F(ParticleSystemTest, EmitUpdateRenderFlushProducesNoGLError)
     ParticleProps props;
     props.position = {5.f, 5.f};
     props.lifeTime = 1.f;
-    props.shader = shader.get();
+    props.shader = shader;
     particles.emit(props);
     particles.emit(props);
 
@@ -157,7 +157,7 @@ TEST_F(ParticleSystemTest, ParticlesThatAgeOutStopRenderingWithoutError)
 
     ParticleProps props;
     props.lifeTime = 0.05f;
-    props.shader = shader.get();
+    props.shader = shader;
     particles.emit(props);
 
     // Advance well past lifeTime, the particle should become inactive and render() should
@@ -179,7 +179,7 @@ TEST_F(ParticleSystemTest, EmittingMoreThanThePoolSizeRecyclesWithoutError)
 
     ParticleProps props;
     props.lifeTime = 10.f; // stay alive across every emit below
-    props.shader = shader.get();
+    props.shader = shader;
     for(int i = 0; i < 10; i++){
         props.position = {(float)i, 0.f};
         particles.emit(props);

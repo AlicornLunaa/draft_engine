@@ -126,7 +126,7 @@ namespace Draft {
     }
 
     // Constructors
-    Font::Font(const FileHandle& handle) : ptr(std::make_unique<Impl>()), handle(handle) {
+    Font::Font(const FileHandle& handle) : ptr(std::make_unique<Impl>()) {
         // Load font data
         rawData = handle.read_bytes();
         load_font();
@@ -159,11 +159,5 @@ namespace Draft {
 
         // Otherwise return the glyph requested
         return fontType.glyphs.at(ch);
-    }
-
-    void Font::reload(){
-        // Delete old textures
-        clear();
-        load_font();
     }
 }

@@ -84,7 +84,6 @@ namespace Draft {
 
     void Texture::set_reloadable(FileHandle handle){
         reloadable = true;
-        this->handle = handle;
     }
 
     // Constructors
@@ -97,11 +96,18 @@ namespace Draft {
         load_texture(image);
     }
 
-    Texture::Texture(const FileHandle& handle, TextureProperties props) : reloadable(true), handle(handle), properties(props) {
+    Texture::Texture(const FileHandle& handle, TextureProperties props) : reloadable(true), properties(props) {
         Image img(handle);
         img.flip_vertically();
         generate_opengl();
         load_texture(img);
+    }
+
+    Texture::Texture(Texture&& other) noexcept
+        : reloadable(other.reloadable), loaded(other.loaded), texId(other.texId),
+          lastTexUnit(other.lastTexUnit), properties(other.properties) {
+        // Stop the r-value from deleting the texture when its deleted
+        other.texId = 0;
     }
 
     Texture::~Texture(){
@@ -121,7 +127,6 @@ namespace Draft {
         // Copy data from other
         reloadable = other.reloadable;
         loaded = other.loaded;
-        handle = other.handle;
         texId = other.texId;
         lastTexUnit = other.lastTexUnit;
         properties = other.properties;
@@ -193,11 +198,5 @@ namespace Draft {
         // This will reset ALL texture data contained within this texture
         properties = props;
         update_parameters();
-    }
-
-    void Texture::reload(){
-        assert(reloadable && "Can't reload an unreloadable image. Could be caused from copying an image?");
-        unbind();
-        load_texture(Image(*handle));
     }
 }

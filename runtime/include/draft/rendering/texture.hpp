@@ -12,7 +12,6 @@
 
 #include <array>
 #include <map>
-#include <optional>
 #include <utility>
 
 namespace Draft {
@@ -53,7 +52,6 @@ namespace Draft {
         // Variables
         bool reloadable = false;
         bool loaded = false;
-        std::optional<FileHandle> handle; // Unset until set_reloadable() or the FileHandle-taking constructor is used
 
         uint texId = 0;
         mutable uint lastTexUnit = 0;
@@ -73,6 +71,7 @@ namespace Draft {
         Texture(const Image& image, TextureProperties props = {});
         Texture(const FileHandle& handle, TextureProperties props = {});
         Texture(const Texture& other) = delete;
+        Texture(Texture&& other) noexcept;
         ~Texture();
 
         // Operators
@@ -88,7 +87,6 @@ namespace Draft {
         void unbind() const;
         void set_image(const Image& image, IntRect rect = {0, 0, 0, 0});
         void set_properties(TextureProperties const& props);
-        void reload();
     };
 
     /**

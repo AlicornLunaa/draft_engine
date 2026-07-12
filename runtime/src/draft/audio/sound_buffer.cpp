@@ -14,7 +14,7 @@ namespace Draft {
     }
 
     // Constructors
-    SoundBuffer::SoundBuffer(const FileHandle& handle) : m_handle(handle), ptr(std::make_unique<Impl>()) {
+    SoundBuffer::SoundBuffer(const FileHandle& handle) : ptr(std::make_unique<Impl>()) {
         // Load bytes into the buffer
         auto bytes = handle.read_bytes();
         ptr->buffer.loadFromMemory(bytes.data(), bytes.size());
@@ -24,7 +24,7 @@ namespace Draft {
         ptr->buffer.loadFromMemory(rawData.data(), rawData.size());
     }
 
-    SoundBuffer::SoundBuffer(const SoundBuffer& other) : m_handle(other.m_handle), ptr(std::make_unique<Impl>()) {
+    SoundBuffer::SoundBuffer(const SoundBuffer& other) : ptr(std::make_unique<Impl>()) {
         // Copy the other buffer
         ptr->buffer = sf::SoundBuffer(other.ptr->buffer);
     }
@@ -45,12 +45,4 @@ namespace Draft {
     unsigned int SoundBuffer::get_sample_rate() const { return ptr->buffer.getSampleRate(); }
     unsigned int SoundBuffer::get_channel_count() const { return ptr->buffer.getChannelCount(); }
     Time SoundBuffer::get_duration() const { return Time::microseconds(ptr->buffer.getDuration().asMicroseconds()); }
-
-    void SoundBuffer::reload() {
-        // A buffer built from raw bytes has nothing on disk/embedded to reload from.
-        if (!m_handle) return;
-
-        auto bytes = m_handle->read_bytes();
-        ptr->buffer.loadFromMemory(bytes.data(), bytes.size());
-    }
 }

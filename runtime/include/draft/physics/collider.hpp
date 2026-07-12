@@ -7,6 +7,7 @@
 #include "draft/physics/fixture.hpp"
 #include "draft/physics/rigid_body.hpp"
 #include "draft/physics/shapes/shape.hpp"
+#include "draft/util/json.hpp"
 
 namespace Draft {
     class Collider {
@@ -34,6 +35,7 @@ namespace Draft {
     public:
         // Constructors
         Collider() = default;
+        Collider(const JSON& json);
         Collider(const Collider& other);
         ~Collider();
 

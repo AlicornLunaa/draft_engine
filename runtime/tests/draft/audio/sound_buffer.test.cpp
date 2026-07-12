@@ -39,26 +39,3 @@ TEST(SoundBuffer, CopyConstructorDuplicatesTheDecodedBuffer)
     EXPECT_EQ(copy.get_sample_rate(), original.get_sample_rate());
     EXPECT_EQ(copy.get_sample_count(), original.get_sample_count());
 }
-
-TEST(SoundBuffer, ReloadIsANoOpForABufferBuiltFromRawBytes)
-{
-    SoundBuffer buffer(make_wav_bytes(44100, 4410));
-    ASSERT_NO_THROW(buffer.reload());
-    EXPECT_EQ(buffer.get_sample_count(), 4410u);
-}
-
-TEST(SoundBuffer, ReloadRereadsFromDisk)
-{
-    VirtualFileSystem fs;
-    fs.write_bytes("sound_buffer_reload_test.wav", make_wav_bytes(44100, 4410));
-    SoundBuffer buffer(fs.open("sound_buffer_reload_test.wav"));
-
-    // Overwrite with different content, then reload should pick it up
-    fs.write_bytes("sound_buffer_reload_test.wav", make_wav_bytes(48000, 4800));
-    buffer.reload();
-
-    EXPECT_EQ(buffer.get_sample_rate(), 48000u);
-    EXPECT_EQ(buffer.get_sample_count(), 4800u);
-
-    fs.remove("sound_buffer_reload_test.wav");
-}

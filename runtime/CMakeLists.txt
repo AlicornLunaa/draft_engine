@@ -84,6 +84,7 @@ set(HEADERS
     include/draft/aliasing/target.hpp
     include/draft/aliasing/wrap.hpp
     include/draft/asset/asset_manager.hpp
+    include/draft/asset/default_loaders.hpp
     include/draft/asset/resource.hpp
     include/draft/audio/listener.hpp
     include/draft/audio/music.hpp
@@ -178,6 +179,7 @@ set(HEADERS
 set(SOURCES
     src/draft/aliasing/format.cpp
     src/draft/asset/asset_manager.cpp
+    src/draft/asset/default_loaders.cpp
     src/draft/audio/listener.cpp
     src/draft/audio/music.cpp
     src/draft/audio/sound.cpp

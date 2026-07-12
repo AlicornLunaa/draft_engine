@@ -20,8 +20,8 @@ namespace Draft {
         float sizeEnd = 0.1f;
         float sizeVariation = 0.f;
         float lifeTime = 1.f;
-        Texture* texture = nullptr; // Nullptr means use SpriteCollection's shared fallback texture
-        Shader* shader = nullptr; // Nullptr means use SpriteCollection's shared default shader
+        std::optional<Resource<Texture>> texture; // None means use SpriteCollection's shared fallback texture
+        std::optional<Resource<Shader>> shader; // None means use SpriteCollection's shared default shader
     };
 
     /**
