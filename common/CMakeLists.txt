@@ -117,7 +117,7 @@ if(DRAFT_COMMON_BUILD_TESTS)
     enable_testing()
 
     include(FetchContent)
-    FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip)
+    FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip SYSTEM)
     FetchContent_MakeAvailable(googletest)
 
     file(GLOB_RECURSE COMMON_TEST_SOURCES "tests/**/*.cpp")

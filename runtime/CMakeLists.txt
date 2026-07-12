@@ -4,10 +4,8 @@ project("draft_runtime" VERSION 2.0.0 LANGUAGES CXX)
 option(DRAFT_RUNTIME_BUILD_TESTS "Build the tests for draft_runtime" ON)
 
 include(FetchContent)
-FetchContent_Declare(entt GIT_REPOSITORY https://github.com/skypjack/entt.git GIT_TAG v3.13.2)
+FetchContent_Declare(entt GIT_REPOSITORY https://github.com/skypjack/entt.git GIT_TAG v3.13.2 SYSTEM)
 FetchContent_MakeAvailable(entt)
-get_target_property(ENTT_INCLUDE_DIRS EnTT INTERFACE_INCLUDE_DIRECTORIES)
-set_target_properties(EnTT PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${ENTT_INCLUDE_DIRS}")
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -268,7 +266,7 @@ if(DRAFT_RUNTIME_BUILD_TESTS)
     enable_testing()
 
     include(FetchContent)
-    FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip)
+    FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip SYSTEM)
     FetchContent_MakeAvailable(googletest)
 
     file(GLOB_RECURSE RUNTIME_TEST_SOURCES "tests/**/*.cpp")
