@@ -271,6 +271,19 @@ target_link_libraries(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)
 
+if(WIN32)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(DRAFT_OPENAL_ARCH "x64")
+    else()
+        set(DRAFT_OPENAL_ARCH "x86")
+    endif()
+    set(DRAFT_OPENAL_DLL "${sfml_SOURCE_DIR}/extlibs/bin/${DRAFT_OPENAL_ARCH}/openal32.dll")
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_link_options(${PROJECT_NAME} PRIVATE "-mwindows")
+    endif()
+endif()
+
 if(DRAFT_RUNTIME_BUILD_TESTS)
     message(STATUS "Building draft_runtime tests")
     enable_testing()
@@ -295,6 +308,14 @@ if(DRAFT_RUNTIME_BUILD_TESTS)
         glad
         ${SFML_FLAGS}
     )
+
+    if(WIN32)
+        add_custom_command(
+            TARGET draft_runtime_tests
+            POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${DRAFT_OPENAL_DLL} $<TARGET_FILE_DIR:draft_runtime_tests>
+            COMMENT "Copy OpenAL DLL"
+            VERBATIM)
+    endif()
 
     include(GoogleTest)
     gtest_discover_tests(draft_runtime_tests)
