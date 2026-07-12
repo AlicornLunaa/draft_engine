@@ -1,66 +1,249 @@
-# Draft Engine v0.3.0
-Just a project to learn computer graphics, openGL, and C++ library creation.
+# Draft Engine 2
+The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clean architecture, tooling, and a basic editor.
 
-## Next version goals
-- [x] Create rendering pipeline class
-    1. Big "renderer" class which handles each pass
-    2. beginPass accepts a RenderPass structure which holds GPU state
-    3. endPass cleans up and marks ready for next pass
-    4. Possibly a RenderState structure.
-- [ ] Profiler api
-- [x] Better asyncronous loading of resources
-- [ ] Texture packer
-- [ ] Develop animation class
-- [ ] Localization API
-- [ ] Handle errors gracefully
-- [x] Overhaul UI
-- [ ] Load collider data from files
-- [x] Serialization
-- [ ] JSON handling
-- [ ] Update to new physics engine
-- [x] Better texture class with some sort of TextureProperties struct
-- [ ] Same with framebuffer
+### Core Principles
+* Use modern C++23 features where they improve readability and correctness.
+* Favor RAII and strong ownership semantics.
+* Use exceptions for operations where failures are exceptional (filesystem, networking, serialization, etc.).
+* Keep runtime systems (rendering, ECS, physics, math) exception-free during normal execution.
+* Prefer explicit registration over implicit "magic."
+* Editor and build tools work with the command line.
+* The runtime should never know whether it is running inside the game or the editor.
+* Make the engine one giant package that includes everything needed for a game.
+* Intentionally lightweight engine, where main logic is all compiled in with C++.
+
+## Current Todo/Future Ideas
+- [ ] BuildTools
+- [ ] Component registry
+- [ ] Scene serialization
+- [ ] Proper editor
+- [ ] Shader pipeline
+- [ ] Animation editor
+- [ ] Particle editor
+- [ ] Hot-reload of the game module
+- [ ] Prefab system
+- [ ] Asset dependency graph
+- [ ] Incremental asset builds
+- [ ] Visual debugging tools
+
+- [ ] Create a localization system
+- [ ] Profiler system to standardize calls to RAM across systems
+- [ ] Serializable colliders
 - [ ] Crash logs
-- [ ] Devtools & registry editor
-- [ ] Math utils for lerp, slerp, and other graphs. Map function as well
-- [x] Color class
+- [ ] Math utils for map, lerp, slerp, and other graphs
 
-## How the engine works
-### OpenGL Resources
-- Every OpenGL class has had RAII in mind.
-- Do not instantiate an OpenGL class without having an OpenGL context ready!
 
-### File handle
-- File handle controls reading and writing
-- Access type LOCAL means relative to the executable
-- Access type INTERNAL means compiled into the exe
+## Project Structure
+Example game project:
 
-### Inputs
-- Keyboard and Mouse classes are classes which help abstract GLFW's functoins
-- Controls the interface with GLFW's input system
-- Has support for callbacks or direct checking
+```text
+MyGame/
+├── src/
+├── assets/
+├── vendor/
+│   └── draft/
+├── CMakeLists.txt
+└── build/
+```
 
-### Rendering
-- Done either using the shapebatch, spritebatch, or vertexarray.
-- ShapeBatch and SpriteBatch are extremely generalized, and therefore slow
-- VertexArray must be extremely specific, therefore faster
+The engine is included as a git submodule inside `vendor/`.
 
-### Application
-- The fundamental class for the engine
-- Handles updates, rendering, and events
-- Funnels stuff to the active scene
 
-### Scenes
-- Each scene has its own registry
-- Each scene has a render function and update function
-- Entities are rendered/updated automatically
-- Render/update function in scene is meant for custom rendering
+## Engine Modules
+```text
+draft/
+├── runtime/
+├── editor/
+├── build_tools/
+├── common/
+└── CMakeLists.txt
+```
 
-### User interface
-- Each panel has the offset for the buffer data and the length to subbuffer
-- Each panel, when invalidated, rebuilds its buffer data and sends it to the GPU. Panels can define multiple vertices to draw
-- Panels can hold a pointer to their parent, if the parent is invalidated, so is the child. Parent->child invalidations are checked in the ui container
-    
+### Runtime
+**Responsible for**:
+* ECS
+* Rendering
+* Scene management
+* Asset loading
+* Serialization
+* Reflection
+* Physics
+* Audio
+* Input
+* Ease-of-use UI layers
+
+The Runtime contains no editor-specific functionality.
+
 ### Editor
-- Scenes are collection of entities
-    * Decoder class for abstract data to classes
+A lightweight frontend for working with game projects.
+
+**Responsible for**:
+* Scene hierarchy
+* Entity inspector
+* Component editing
+* Asset browser
+* Scene view
+* Transform gizmos
+* Console output
+* Build/export buttons
+
+The editor operates directly on loose project files.  
+The editor does **not** replace VS Code or CMake.
+
+### Build Tools
+Shared build/export functionality.
+
+**Responsible for**:
+* Pack project assets
+* Export projects
+* Asset validation
+* Dependency analysis (future)
+* Asset importing/conversion (future)
+
+The BuildTools library is used by both:
+* CLI tools
+* Editor
+
+There should only be one implementation of project export logic.  
+This should ALSO have an executable target for the CLI.
+
+
+## Development Workflow
+Normal development remains command-line driven.
+
+```bash
+cmake -S . -B build
+cmake --build build
+./build/game
+```
+
+The editor simply automates these tasks where convenient.
+
+For example:
+
+* Build
+* Rebuild
+* Export
+* Run
+
+All of these ultimately invoke the existing CMake workflow.
+
+
+## Game Registration
+The engine does not know about game-specific components or systems.  
+The game explicitly registers everything during initialization.
+
+Example:
+
+```cpp
+extern "C" void RegisterGame(Engine& engine)
+{
+    engine.registerComponent<Player>();
+    engine.registerComponent<Health>();
+
+    engine.registerSystem<PlayerMovement>();
+}
+```
+
+Reflection supplies metadata used by:
+
+* Serialization
+* Scene loading
+* Inspector
+* Property editing
+
+
+## Asset Philosophy
+Everything is considered an asset.
+
+Examples:
+
+```text
+assets/
+├── scenes/
+├── textures/
+├── audio/
+├── prefabs/
+├── materials/
+└── shaders/
+```
+
+Scenes are simply another asset type.  
+The editor edits loose assets.  
+The exporter packages them into a runtime format, which will probably be a simple custom zip for now.
+
+
+## Export Pipeline
+Development:
+* Loose files
+* JSON scenes
+* Easy Git diffs
+* Human-readable assets
+
+Release:
+* Assets packed into a custom binary/zip format
+* Runtime loads packaged assets
+* Faster loading
+* Simpler distribution
+
+
+## Editor Workflow
+The editor opens a project root.  
+Example:
+
+```text
+MyGame/
+```
+
+On startup the editor:
+1. Opens the project.
+2. Loads loose assets.
+3. Detects the compiled game module.
+4. Loads the game module.
+5. Calls the game's registration function.
+6. Discovers all registered components and systems.
+
+If no compiled module exists, the editor should allow the user to build the project using the existing CMake configuration.
+
+## Roadmap
+
+### Phase 1, Engine 2.0
+Goals:
+* Modernize architecture
+* Improve error handling
+* Refactor filesystem
+* Reflection system
+* Serialization
+* Scene system
+* Component registry
+* System registry
+* Unit testing
+* Documentation
+* Build cleanup
+
+Deliverable:  
+A stable runtime suitable for future games.
+
+### Phase 2, Editor
+Goals:
+* Open project directories
+* Browse assets
+* Edit scenes
+* Entity hierarchy
+* Component inspector
+* Scene saving
+* Build integration
+* Export integration
+
+Deliverable:  
+A usable editor for content creation.
+
+### Phase 3, Game Migration
+Goals:
+* Port the existing game to Engine 2.0
+* Create scenes using the editor
+* Continue gameplay development
+* Expand tooling as needed
+
+Deliverable:  
+Gameplay development occurs primarily through the editor while code continues to be written in VS Code.
