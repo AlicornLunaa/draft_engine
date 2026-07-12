@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/ecs/component_catalog.hpp"
+#include "draft/ecs/system_catalog.hpp"
 
 namespace Draft {
     /**
@@ -30,7 +31,20 @@ namespace Draft {
         ComponentCatalog& components() { return m_components; }
         const ComponentCatalog& components() const { return m_components; }
 
+        /**
+         * @brief Registers T under its reflected name. Shorthand for
+         * systems().register_system<T>().
+         */
+        template<typename T>
+        void register_system(){
+            m_systems.register_system<T>();
+        }
+
+        SystemCatalog& systems() { return m_systems; }
+        const SystemCatalog& systems() const { return m_systems; }
+
     private:
         ComponentCatalog m_components;
+        SystemCatalog m_systems;
     };
 }

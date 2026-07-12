@@ -116,6 +116,24 @@ namespace Draft {
         }
 
         /**
+         * @brief Registers a T from a supplied system, replacing any previously-registered T.
+         * @return A reference to the newly-constructed system.
+         */
+        template<typename T>
+        T& emplace(std::unique_ptr<AbstractSystem>&& systemPtr){
+            static_assert(std::is_base_of_v<AbstractSystem, T>, "SystemRegistry::emplace<T>(): T must derive from AbstractSystem");
+
+            T& ref = *systemPtr;
+
+            auto type = std::type_index(typeid(T));
+            if(!m_systems.contains(type))
+                m_order.push_back(type);
+
+            m_systems[type] = std::move(systemPtr);
+            return ref;
+        }
+
+        /**
          * @brief Gets the registered T.
          * @throws std::logic_error if no T is registered.
          */

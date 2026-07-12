@@ -16,8 +16,6 @@ namespace Draft {
         register_component<ChildComponent>();
         register_component<TextureComponent>();
         register_component<SpriteComponent>();
-        register_component<SoundComponent>();
-        register_component<MusicComponent>();
         register_component<ListenerComponent>();
         register_component<ColliderComponent>();
         register_component<ConstrainedComponent>();

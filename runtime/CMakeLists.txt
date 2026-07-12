@@ -100,6 +100,7 @@ set(HEADERS
     include/draft/core/application.hpp
     include/draft/core/engine.hpp
     include/draft/ecs/audio_system.hpp
+    include/draft/ecs/system_catalog.hpp
     include/draft/ecs/component_catalog.hpp
     include/draft/ecs/entity.hpp
     include/draft/ecs/physics_system.hpp
