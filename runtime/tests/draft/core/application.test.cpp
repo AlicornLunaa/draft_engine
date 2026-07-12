@@ -47,6 +47,7 @@ protected:
     void SetUp() override {
         glfwInit();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     }
 };
 
