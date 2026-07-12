@@ -88,6 +88,7 @@ set(HEADERS
     include/draft/components/sprite_component.hpp
     include/draft/components/tag_component.hpp
     include/draft/components/transform_component.hpp
+    include/draft/components/texture_component.hpp
     include/draft/core/application.hpp
     include/draft/ecs/audio_system.hpp
     include/draft/ecs/entity.hpp
