@@ -7,12 +7,15 @@
 namespace fs = std::filesystem;
 
 namespace Draft {
+    std::unordered_map<std::string, std::string> MemoryFileProvider::s_contents{};
+    std::unordered_map<std::string, std::filesystem::file_time_type> MemoryFileProvider::s_lastWriteTime{};
+
     std::unique_ptr<FileProvider> MemoryFileProvider::clone() const {
         return std::make_unique<MemoryFileProvider>(*this);
     }
 
     bool MemoryFileProvider::exists(const fs::path& path) const {
-        return m_contents->find(path) != m_contents->end();
+        return s_contents.find(path) != s_contents.end();
     }
 
     bool MemoryFileProvider::is_directory(const fs::path& path) const {
@@ -29,13 +32,13 @@ namespace Draft {
     }
 
     Time MemoryFileProvider::last_modified(const fs::path& path) const {
-        auto last_time = m_lastWriteTime->at(path);
+        auto last_time = s_lastWriteTime.at(path);
         auto since_epoch = std::chrono::file_clock::to_sys(last_time).time_since_epoch();
         return Time::microseconds(std::chrono::duration_cast<std::chrono::microseconds>(since_epoch).count());
     }
 
     bool MemoryFileProvider::remove(const fs::path& path) const {
-        return m_contents->erase(path) > 0;
+        return s_contents.erase(path) > 0;
     }
 
     bool MemoryFileProvider::create_directories(const fs::path& path) const {
@@ -43,19 +46,19 @@ namespace Draft {
     }
 
     std::string MemoryFileProvider::read_string(const fs::path& path) const {
-        bool in = (m_contents->find(path) != m_contents->end());
+        bool in = (s_contents.find(path) != s_contents.end());
         if (!in) throw std::runtime_error("MemoryFileProvider: failed to open '" + path.string() + "' for reading");
-        return m_contents->at(path);
+        return s_contents.at(path);
     }
 
     void MemoryFileProvider::write_string(const fs::path& path, const std::string& str) const {
-        (*m_contents)[path] = str;
-        (*m_lastWriteTime)[path] = fs::file_time_type::clock::now();
+        s_contents[path] = str;
+        s_lastWriteTime[path] = fs::file_time_type::clock::now();
     }
 
     std::vector<std::byte> MemoryFileProvider::read_bytes(const fs::path& path, std::size_t offset) const {
-        auto it = m_contents->find(path);
-        if (it == m_contents->end()) throw std::runtime_error("MemoryFileProvider: failed to open '" + path.string() + "' for reading");
+        auto it = s_contents.find(path);
+        if (it == s_contents.end()) throw std::runtime_error("MemoryFileProvider: failed to open '" + path.string() + "' for reading");
 
         const std::string& contents = it->second;
         if (offset >= contents.size()) return {};
@@ -67,13 +70,13 @@ namespace Draft {
     }
 
     void MemoryFileProvider::write_bytes(const fs::path& path, const void* data, std::size_t size) const {
-        (*m_contents)[path] = std::string(reinterpret_cast<const char*>(data), size);
-        (*m_lastWriteTime)[path] = fs::file_time_type::clock::now();
+        s_contents[path] = std::string(reinterpret_cast<const char*>(data), size);
+        s_lastWriteTime[path] = fs::file_time_type::clock::now();
     }
 
     std::vector<fs::path> MemoryFileProvider::list(const fs::path& path) const {
         std::vector<fs::path> result;
-        for (const auto& [key, value] : *m_contents) {
+        for (const auto& [key, value] : s_contents) {
             fs::path entry(key);
             if (entry.parent_path() == path) result.push_back(entry);
         }

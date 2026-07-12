@@ -39,7 +39,7 @@ namespace Draft {
         std::string get_absolute_path(const std::filesystem::path& path) const override;
 
     private:
-        std::shared_ptr<std::unordered_map<std::string, std::string>> m_contents;
-        std::shared_ptr<std::unordered_map<std::string, std::filesystem::file_time_type>> m_lastWriteTime;
+        static std::unordered_map<std::string, std::string> s_contents;
+        static std::unordered_map<std::string, std::filesystem::file_time_type> s_lastWriteTime;
     };
 }

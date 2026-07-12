@@ -572,8 +572,8 @@ Rendering Roadmap Phase 6 (`Renderer`, `GeometryPass`, `CompositePass`) - see
   `scene.render_interface(renderer, dt)` - virtual hooks on the old `Scene`, exactly the
   hardcoded-render-phases anti-pattern the ECS redesign already rejected (see "ECS" below).
   engine-refactor's `Scene` has no such hooks, only `update(dt)`/`render(dt)` running every
-  registered `ISystem`'s matching cadence. Resolution: **submission and flushing are now two
-  separate steps.** "Submit this frame's geometry" becomes an ordinary `ISystem::render(dt)` call
+  registered `AbstractSystem`'s matching cadence. Resolution: **submission and flushing are now two
+  separate steps.** "Submit this frame's geometry" becomes an ordinary `AbstractSystem::render(dt)` call
   (a future `RenderSystem`/`InterfaceSystem`, Rendering Roadmap Phase 9, holding a `Renderer&`
   and calling `renderer.shape.draw_*()`/`renderer.batch.draw()` - the same pattern every other
   system already uses) - by the time any pass runs, `renderer.batch`/`renderer.shape` are already
@@ -583,7 +583,7 @@ Rendering Roadmap Phase 6 (`Renderer`, `GeometryPass`, `CompositePass`) - see
   - `Renderer`'s pure-virtual `render_frame` dropped `Scene&`, becoming
     `virtual void render_frame(Time deltaTime) = 0;` - the once-per-frame pass-pipeline entry
     point a concrete renderer (Phase 9's `DefaultRenderer`) implements, called by the application
-    main loop *after* `scene.render(dt)` already ticked every per-frame `ISystem`. `Renderer`
+    main loop *after* `scene.render(dt)` already ticked every per-frame `AbstractSystem`. `Renderer`
     needs no `Scene` forward declaration at all now.
   - `CompositePass` needed no change - it never took `Scene&` in the old engine either.
   - The same shape change applies to Phase 9's `InterfacePass` when it lands.
@@ -764,7 +764,7 @@ Rendering Roadmap Phase 9 (`InterfacePass`, `RenderSystem`, `DefaultRenderer`) -
 - **`InterfacePass`** (`pipeline/passes/interface_pass.hpp`/`.cpp`) - structurally a clone of
   `GeometryPass`: no framebuffer of its own, draws directly onto whatever's currently bound.
   Dropped `Scene&`/`Time` from `run()` the same way `GeometryPass::run()` did in Phase 6 -
-  submission already happened via a per-frame `ISystem` before the pass pipeline runs. **Found and
+  submission already happened via a per-frame `AbstractSystem` before the pass pipeline runs. **Found and
   fixed a real bug via structural-sibling comparison** (the same method that caught Phase 6's
   cull-face staleness): `m_transparentState.depthWrite = true;` is a literal no-op against
   `RenderState`'s own default (`depthWrite = true`), while `GeometryPass`'s analogous transparent
@@ -785,7 +785,7 @@ Rendering Roadmap Phase 9 (`InterfacePass`, `RenderSystem`, `DefaultRenderer`) -
   like the old engine.
 - **`RenderSystem`** (`ecs/render_system.hpp`/`.cpp`, moved from the old `draft/systems/` to
   `draft/ecs/` alongside `AudioSystem`) - reworked from a `Scene&`-constructed class exposing a
-  manually-called `render(SpriteCollection&)` method into an ordinary `ISystem` (constructor takes
+  manually-called `render(SpriteCollection&)` method into an ordinary `AbstractSystem` (constructor takes
   `Registry&` + `Renderer&` directly, per the design Phase 6 already flagged as the resolved
   shape), overriding `render(Time dt)` to submit every `<SpriteComponent, TransformComponent>`
   entity into `rendererRef.batch` - registered via `scene.get_systems().add<RenderSystem>(...)`
@@ -946,13 +946,13 @@ and `test_scene.cpp`, backed that up with specifics).
   `Entity::add_component`) is the one mechanism now. `RelationshipSystem` stays a dedicated
   `Scene` member rather than going through `SystemRegistry` - it reacts to component
   construction/destruction, it has no per-tick work of its own to schedule.
-- **`ISystem` has two cadences, not one: `update(dt)` and `render(dt)`.** The old engine ran
+- **`AbstractSystem` has two cadences, not one: `update(dt)` and `render(dt)`.** The old engine ran
   `Scene::update()` from a fixed-timestep accumulator (for deterministic physics) and
   `Scene::render()` once per frame with the actual variable frame delta, regardless of how many
   (or how few) fixed steps just ran. That's a real, load-bearing distinction - unlike the
   `render`/`render_world`/`render_interface` split above, which was just two arbitrary drawing
   phases hardcoded as separate methods for no structural reason - so it's kept, just at the
-  `ISystem`/`SystemRegistry` level instead of hardcoded onto `Scene`: `update()` and `render()`
+  `AbstractSystem`/`SystemRegistry` level instead of hardcoded onto `Scene`: `update()` and `render()`
   both default to a no-op, so a system only overrides whichever cadence(s) it actually needs (a
   physics system overrides `update()` only; a rendering or interface/UI system overrides
   `render()` only - it's an ordinary system like any other, not a special hook, per the
@@ -1004,13 +1004,13 @@ and `test_scene.cpp`, backed that up with specifics).
   provide everything it'd need. `Components` below now gives it something real to validate
   against, but building the registry itself is still a separate, later step. Scene
   (de)serialization is the natural following step after that exists.
-- **`ISystem` gained a third cadence pair, `on_attach()`/`on_detach()`, plus `on_event(const
+- **`AbstractSystem` gained a third cadence pair, `on_attach()`/`on_detach()`, plus `on_event(const
   Event&)`** - added for `Application` (see below), which needed to reinstate the old engine's
   attach/detach-per-scene lifecycle (used there for starting/stopping music) and event dispatch
   (the old `Scene::handle_event()`) without reintroducing either as a `Scene`-level virtual. Same
   shape as `update`/`render`: default no-op, opt-in per system. `on_event` is the one exception -
   it returns `bool` (`true` = consumed, stop propagating) instead of `void`, so e.g. a future
-  `ImguiSystem` can claim whatever ImGui's own `WantCaptureMouse`/`WantCaptureKeyboard` wants and
+  `ImguAbstractSystem` can claim whatever ImGui's own `WantCaptureMouse`/`WantCaptureKeyboard` wants and
   keep it from reaching anything registered after it - directly restoring the old engine's ImGui
   input-gating behavior (previously hardcoded into `Keyboard`/`Mouse` themselves, stripped out
   earlier in this port per `architecture.md`), but as an ordinary, opt-in system instead.
@@ -1035,7 +1035,7 @@ GLFW-callback-to-`Event` translation), with a few deliberate differences:
 
 - **No `Scene::handle_event()`/`on_attach()`/`on_detach()` to call into** - the ECS redesign
   stripped every virtual off `Scene`. `Application` still translates raw GLFW callbacks into
-  `Event`, same as before, but dispatches through the new `ISystem`/`SystemRegistry`/`Scene`
+  `Event`, same as before, but dispatches through the new `AbstractSystem`/`SystemRegistry`/`Scene`
   hooks described above instead: a private `dispatch(const Event&)` helper calls
   `eventCallback(event)` first (a new public `EventCallback eventCallback` member, for
   embedder-level concerns not tied to any particular `Scene` - an editor's own global shortcuts,
@@ -1063,12 +1063,12 @@ GLFW-callback-to-`Event` translation), with a few deliberate differences:
 - **ImGui/RmlUi/Console/Stats/Tracy are not ported.** `architecture.md` says Runtime has no
   editor-specific functionality (already why `Keyboard`/`Mouse` had their ImGui gating stripped
   earlier in this port), and Tracy is a cross-cutting exclusion from the whole Rendering roadmap.
-  None of it belongs in this class - an `ImguiSystem` (if/when ImGui integration happens) would
-  be an ordinary `ISystem` using the `on_event()` gating described above, not something baked
+  None of it belongs in this class - an `ImguAbstractSystem` (if/when ImGui integration happens) would
+  be an ordinary `AbstractSystem` using the `on_event()` gating described above, not something baked
   into the loop driver itself.
 - `editor/src/main.cpp` now uses `Application` in place of its hand-rolled loop, as the real
   end-to-end smoke test - the square/text-box demo content and the `ParticleEmitterSystem`
-  showcase both became ordinary `ISystem`s submitting into `Application::get_renderer()`'s shared
+  showcase both became ordinary `AbstractSystem`s submitting into `Application::get_renderer()`'s shared
   `batch`/`shape` collections via `render(Time dt)`, registered on a `Scene` the `Application`
   holds and drives.
 
@@ -1348,7 +1348,7 @@ friend-constructor is `World` (already ported), and `*JointDef`'s only dependenc
     instead of "fixed", the same way `Camera::project()`'s missing perspective divide was.
 
 **Physics Roadmap Phase 5 is also done** - the ECS integration: the missing physics components
-and reworking `PhysicsSystem` into an ordinary `ISystem`. Unlike Phases 1-3, this wasn't new
+and reworking `PhysicsSystem` into an ordinary `AbstractSystem`. Unlike Phases 1-3, this wasn't new
 box2d-handle plumbing - it's wiring the already-ported physics types into the ECS via ~46
 `on_construct`/`on_destroy`/`on_update` signal connections, the exact pattern already proven in
 `RelationshipSystem` (`draft/ecs/relationship_system.cpp`). The roadmap's own "first thing to
@@ -1367,7 +1367,7 @@ relied on - turned out to be a non-issue: `Registry` (`draft/ecs/registry.hpp`) 
   straight ports, none reflectable (raw `Joint*` member).
 - **`transform_component.hpp`** gained back `force_sync(Entity)` (needs `NativeBodyComponent`,
   which now exists) - resolves the checklist's tracked follow-up.
-- **New `draft/ecs/physics_system.hpp`/`.cpp`**: `PhysicsSystem : public ISystem` (moved out of
+- **New `draft/ecs/physics_system.hpp`/`.cpp`**: `PhysicsSystem : public AbstractSystem` (moved out of
   the old `draft/systems/`, same location as `AudioSystem`/`RenderSystem`) - a real design change
   from the old engine's `Scene`-owned special case with its own `World world{{0.f, 0.f}};` public
   member. Constructor is `PhysicsSystem(Scene& sceneRef, World& worldRef)`: `Scene&` for the same
@@ -1375,7 +1375,7 @@ relied on - turned out to be a non-issue: `Registry` (`draft/ecs/registry.hpp`) 
   inside signal callbacks, e.g. for `ConstrainedComponent::constraints`), `World&` injected rather
   than owned (matching `RenderSystem` taking `Renderer&` externally). The old `physicsTimestep`/
   `Application*` override is dropped entirely - `dt` already arrives pre-fixed-stepped from
-  `SystemRegistry::update_all(dt)` (`ISystem::update(Time dt)`), making it redundant.
+  `SystemRegistry::update_all(dt)` (`AbstractSystem::update(Time dt)`), making it redundant.
   `update(Time dt)` is now just `world.step(dt, ...); handle_joints(); handle_forces();
   handle_bodies();` - the old per-tick body minus the timestep-swap dance. All private helpers
   (`construct_body_func`, `construct_native_body_func`, `construct_collider_func`,
