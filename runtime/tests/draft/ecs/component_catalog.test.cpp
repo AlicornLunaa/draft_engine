@@ -27,11 +27,13 @@ namespace {
     // reflect_name(), to exercise the name-collision guard even though two macro-declared types
     // can't normally collide (their reflected name always matches their own C++ type name).
     struct SharedNameA {
+        int unused = 0;
         static constexpr auto reflect(){ return std::make_tuple(); }
         static constexpr std::string_view reflect_name(){ return "Shared"; }
     };
 
     struct SharedNameB {
+        int unused = 0;
         static constexpr auto reflect(){ return std::make_tuple(); }
         static constexpr std::string_view reflect_name(){ return "Shared"; }
     };

@@ -2,6 +2,7 @@
 
 #include "draft/rendering/texture.hpp"
 #include "draft/asset/resource.hpp"
+#include "draft/util/reflectable.hpp"
 
 #include <vector>
 
@@ -28,5 +29,7 @@ namespace Draft {
                 textures[i]->bind(i);
             }
         }
+
+        DRAFT_REFLECTABLE(TextureComponent, textures)
     };
 }

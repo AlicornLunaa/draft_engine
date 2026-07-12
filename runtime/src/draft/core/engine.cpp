@@ -1,4 +1,8 @@
 #include "draft/core/engine.hpp"
+#include "draft/components/audio_components.hpp"
+#include "draft/components/collider_component.hpp"
+#include "draft/components/joint_component.hpp"
+#include "draft/components/sprite_component.hpp"
 #include "draft/components/tag_component.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/components/texture_component.hpp"
@@ -11,5 +15,12 @@ namespace Draft {
         register_component<ParentComponent>();
         register_component<ChildComponent>();
         register_component<TextureComponent>();
+        register_component<SpriteComponent>();
+        register_component<SoundComponent>();
+        register_component<MusicComponent>();
+        register_component<ListenerComponent>();
+        register_component<ColliderComponent>();
+        register_component<ConstrainedComponent>();
+        register_component<RigidBodyComponent>();
     }
 }
