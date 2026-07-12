@@ -284,6 +284,18 @@ if(WIN32)
     endif()
 endif()
 
+# Copies the OpenAL DLL next to `target`'s output on Windows; no-op on other platforms.
+# Any project linking against draft::runtime should call this for its executables.
+function(draft_copy_openal_dll target)
+    if(WIN32)
+        add_custom_command(
+            TARGET ${target}
+            POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${DRAFT_OPENAL_DLL} $<TARGET_FILE_DIR:${target}>
+            COMMENT "Copy OpenAL DLL"
+            VERBATIM)
+    endif()
+endfunction()
+
 if(DRAFT_RUNTIME_BUILD_TESTS)
     message(STATUS "Building draft_runtime tests")
     enable_testing()
@@ -309,13 +321,7 @@ if(DRAFT_RUNTIME_BUILD_TESTS)
         ${SFML_FLAGS}
     )
 
-    if(WIN32)
-        add_custom_command(
-            TARGET draft_runtime_tests
-            POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${DRAFT_OPENAL_DLL} $<TARGET_FILE_DIR:draft_runtime_tests>
-            COMMENT "Copy OpenAL DLL"
-            VERBATIM)
-    endif()
+    draft_copy_openal_dll(draft_runtime_tests)
 
     include(GoogleTest)
     gtest_discover_tests(draft_runtime_tests)
