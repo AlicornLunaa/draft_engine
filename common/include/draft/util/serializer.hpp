@@ -144,6 +144,46 @@ namespace Draft {
         };
 
         /**
+         * @brief Customization point for giving a type explicit (de)serialization without adding
+         * static serialize/deserialize members to the type itself, for types you don't own (e.g.
+         * glm::vec2) or just don't want to touch. Specialize this template for T in your own
+         * header; nothing here needs to change or know about it ahead of time. Left undefined on
+         * purpose as it is only ever named inside unevaluated requires-expressions or specialized, never
+         * instantiated as-is.
+         *
+         * @code
+         * // in your own header, e.g. glm_serializer.hpp
+         * template<>
+         * struct Draft::Serializer::CustomSerializer<glm::vec2> {
+         *     static void serialize(const glm::vec2& v, JSON& json) { json = {v.x, v.y}; }
+         *     static void deserialize(glm::vec2& v, JSON& json) { v = {json[0], json[1]}; }
+         *     // ...and/or the Binary::ByteArray&/Binary::ByteView overloads, independently -
+         *     // Binary and JSON support don't both need to be specialized.
+         * };
+         * @endcode
+         */
+        template<typename T>
+        struct CustomSerializer;
+
+        /**
+         * @brief Satisfied once CustomSerializer<T> has been specialized with Binary methods.
+         */
+        template<typename T>
+        concept CustomBinarySerializable = requires(T object, Binary::ByteArray& buffer, Binary::ByteView& span){
+            { CustomSerializer<T>::serialize(object, buffer) } -> std::convertible_to<void>;
+            { CustomSerializer<T>::deserialize(object, span) } -> std::convertible_to<void>;
+        };
+
+        /**
+         * @brief Satisfied once CustomSerializer<T> has been specialized with JSON methods.
+         */
+        template<typename T>
+        concept CustomJsonSerializable = requires(T object, Draft::JSON& json){
+            { CustomSerializer<T>::serialize(object, json) } -> std::convertible_to<void>;
+            { CustomSerializer<T>::deserialize(object, json) } -> std::convertible_to<void>;
+        };
+
+        /**
          * @brief Satisfied by trivially copyable types with no explicit Binary (de)serialization
          * of their own, the lowest-priority Binary tier.
          */
@@ -166,7 +206,7 @@ namespace Draft {
          * inside an earlier one (e.g. the reflect tier calling into the trivial tier).
          */
         ///@{
-        // Explicit tier
+        // Explicit tier: member functions on T
         template<BinarySerializable T> void serialize(const T& value, Binary::ByteArray& out);
         template<BinarySerializable T> void deserialize(T& value, Binary::ByteView span);
         template<BinarySerializable T> void deserialize_and_advance(T& value, Binary::ByteView& span);
@@ -174,30 +214,43 @@ namespace Draft {
         template<JsonSerializable T> void serialize(const T& value, JSON& json);
         template<JsonSerializable T> void deserialize(T& value, JSON& json);
 
-        // Reflectable tier
-        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>)
+        // Explicit tier: out-of-line via a CustomSerializer<T> specialization
+        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
         void serialize(const T& value, Binary::ByteArray& out);
-        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>)
+        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
         void deserialize(T& value, Binary::ByteView span);
-        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>)
+        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
         void deserialize_and_advance(T& value, Binary::ByteView& span);
 
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>)
+        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
         void serialize(const T& value, JSON& json);
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>)
+        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
+        void deserialize(T& value, JSON& json);
+
+        // Reflectable tier
+        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
+        void serialize(const T& value, Binary::ByteArray& out);
+        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
+        void deserialize(T& value, Binary::ByteView span);
+        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
+        void deserialize_and_advance(T& value, Binary::ByteView& span);
+
+        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
+        void serialize(const T& value, JSON& json);
+        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
         void deserialize(T& value, JSON& json);
 
         // Trivial tier
-        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!Reflectable<T>)
+        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
         void serialize(const T& value, Binary::ByteArray& out);
-        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!Reflectable<T>)
+        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
         void deserialize(T& value, Binary::ByteView span);
-        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!Reflectable<T>)
+        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
         void deserialize_and_advance(T& value, Binary::ByteView& span);
 
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!Reflectable<T>)
+        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         void serialize(const T& value, JSON& json);
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!Reflectable<T>)
+        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         void deserialize(T& value, JSON& json);
 
         // std::string isn't trivially copyable, so unlike arithmetic/enum types it needs its own
@@ -240,8 +293,32 @@ namespace Draft {
         inline void deserialize(T& value, JSON& json){ T::deserialize(value, json); }
 
 
+        // Default for types with a CustomSerializer<T> specialization
+        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
+        inline void serialize(const T& value, Binary::ByteArray& out){ CustomSerializer<T>::serialize(value, out); }
+
+        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
+        inline void deserialize(T& value, Binary::ByteView span){ CustomSerializer<T>::deserialize(value, span); }
+
+        /**
+         * @brief Assumes CustomSerializer<T>::deserialize consumed exactly sizeof(T) bytes, same
+         * caveat as the BinarySerializable tier's deserialize_and_advance().
+         */
+        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
+        inline void deserialize_and_advance(T& value, Binary::ByteView& span){
+            CustomSerializer<T>::deserialize(value, span);
+            span = span.subspan(sizeof(T));
+        }
+
+        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
+        inline void serialize(const T& value, JSON& json){ CustomSerializer<T>::serialize(value, json); }
+
+        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
+        inline void deserialize(T& value, JSON& json){ CustomSerializer<T>::deserialize(value, json); }
+
+
         // Default for reflectable types (wins over trivial, loses to explicit methods above)
-        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>)
+        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
         inline void serialize(const T& value, Binary::ByteArray& out){
             for_each_field(value, [&](std::string_view, const auto& field){ serialize(field, out); });
         }
@@ -251,18 +328,18 @@ namespace Draft {
          * may itself be variable-length, e.g. a vector), so unlike the trivial tier this can't
          * assume sizeof(T) bytes were consumed. It always defers to deserialize_and_advance().
          */
-        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>)
+        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
         inline void deserialize(T& value, Binary::ByteView span){
             deserialize_and_advance(value, span);
         }
 
-        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>)
+        template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
         inline void deserialize_and_advance(T& value, Binary::ByteView& span){
             for_each_field(value, [&](std::string_view, auto& field){ deserialize_and_advance(field, span); });
         }
 
         // Default for reflectable JSON types
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>)
+        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
         inline void serialize(const T& value, JSON& json){
             for_each_field(value, [&](std::string_view name, const auto& field){
                 JSON child;
@@ -271,7 +348,7 @@ namespace Draft {
             });
         }
 
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>)
+        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
         inline void deserialize(T& value, JSON& json){
             for_each_field(value, [&](std::string_view name, auto& field){
                 // json.at() returns a base nlohmann::json&, which can't bind to the JSON&
@@ -283,102 +360,26 @@ namespace Draft {
 
 
         // Default for trivial types
-        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!Reflectable<T>)
+        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
         inline void serialize(const T& value, Binary::ByteArray& out){ Binary::write(out, value); }
 
-        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!Reflectable<T>)
+        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
         inline void deserialize(T& value, Binary::ByteView span){ Binary::read(span, value); }
 
-        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!Reflectable<T>)
+        template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
         inline void deserialize_and_advance(T& value, Binary::ByteView& span){
             deserialize(value, span);
             span = span.subspan(sizeof(T));
         }
 
         // Default for JSON-serializable trivials
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!Reflectable<T>)
+        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         inline void serialize(const T& value, JSON& json){ json = value; }
 
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!Reflectable<T>)
+        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         inline void deserialize(T& value, JSON& json){ value = json.template get<T>(); }
-
-
-        // std::string Binary encoding: size-prefixed raw bytes, mirroring vector<K> below.
-        inline void serialize(const std::string& value, Binary::ByteArray& out){
-            serialize(value.size(), out);
-            out.insert(out.end(),
-                reinterpret_cast<const std::byte*>(value.data()),
-                reinterpret_cast<const std::byte*>(value.data()) + value.size());
-        }
-
-        inline void deserialize(std::string& value, Binary::ByteView span){
-            deserialize_and_advance(value, span);
-        }
-
-        inline void deserialize_and_advance(std::string& value, Binary::ByteView& span){
-            size_t size = 0;
-            deserialize_and_advance(size, span);
-
-            if(span.size() < size)
-                throw std::runtime_error("deserialize(std::string) out of bounds");
-
-            value.assign(reinterpret_cast<const char*>(span.data()), size);
-            span = span.subspan(size);
-        }
-
-
-        // Basic included non-trivial serializers
-        template<typename K>
-        inline void serialize(const std::vector<K>& array, Binary::ByteArray& out){
-            // Serialize a vector array, starting with the size
-            serialize(array.size(), out);
-
-            for(auto& val : array){
-                serialize(val, out);
-            }
-        }
-
-        template<typename K>
-        inline void deserialize(std::vector<K>& array, Binary::ByteView span){
-            deserialize_and_advance(array, span);
-        }
-
-        template<typename K>
-        inline void deserialize_and_advance(std::vector<K>& array, Binary::ByteView& span){
-            // Deserialize a vector array, starting with the size
-            size_t size = 0;
-            deserialize_and_advance(size, span);
-
-            array.reserve(size);
-
-            for(size_t i = 0; i < size; i++){
-                K value{};
-                deserialize_and_advance(value, span);
-                array.push_back(value);
-            }
-        }
-
-        template<typename K>
-        inline void serialize(const std::vector<K>& array, JSON& json){
-            json = JSON::array();
-
-            for(auto& val : array){
-                JSON child;
-                serialize(val, child);
-                json.push_back(std::move(child));
-            }
-        }
-
-        template<typename K>
-        inline void deserialize(std::vector<K>& array, JSON& json){
-            array.reserve(json.size());
-
-            for(auto& item : json){
-                JSON child = item;
-                K value{};
-                deserialize(value, child);
-                array.push_back(value);
-            }
-        }
     };
 };
+
+// std::string's and std::vector<K>'s serializers are defined in a sibling file
+#include "draft/util/serializer_containers.hpp"

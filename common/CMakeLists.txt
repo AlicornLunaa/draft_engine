@@ -15,6 +15,7 @@ set(HEADERS
     include/draft/math/color.hpp
     include/draft/math/funcs.hpp
     include/draft/math/glm.hpp
+    include/draft/math/glm_serializer.hpp
     include/draft/math/rect.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/clock.hpp
@@ -30,6 +31,7 @@ set(HEADERS
     include/draft/util/logger.hpp
     include/draft/util/reflectable.hpp
     include/draft/util/serializer.hpp
+    include/draft/util/serializer_containers.hpp
     include/draft/util/time.hpp
 )
 

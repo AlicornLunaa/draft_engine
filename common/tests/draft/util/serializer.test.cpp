@@ -297,3 +297,70 @@ TEST(SerializerVector, JsonRoundTrip)
 
     ASSERT_EQ(restored, values);
 }
+
+namespace {
+    // Stands in for a type we don't own (e.g. a third-party math type)
+    struct ForeignPoint {
+        int x = 0;
+        int y = 0;
+    };
+}
+
+template<>
+struct Draft::Serializer::CustomSerializer<ForeignPoint> {
+    static void serialize(const ForeignPoint& p, Binary::ByteArray& out){
+        Serializer::serialize(p.x, out);
+        Serializer::serialize(p.y, out);
+    }
+
+    static void deserialize(ForeignPoint& p, Binary::ByteView span){
+        Serializer::deserialize_and_advance(p.x, span);
+        Serializer::deserialize(p.y, span);
+    }
+
+    static void serialize(const ForeignPoint& p, JSON& json){
+        json = {p.x, p.y};
+    }
+
+    static void deserialize(ForeignPoint& p, JSON& json){
+        p.x = json[0];
+        p.y = json[1];
+    }
+};
+
+namespace {
+    static_assert(!Reflectable<ForeignPoint>);
+    static_assert(!Serializer::BinarySerializable<ForeignPoint>);
+    static_assert(!Serializer::JsonSerializable<ForeignPoint>);
+    static_assert(Serializer::CustomBinarySerializable<ForeignPoint>);
+    static_assert(Serializer::CustomJsonSerializable<ForeignPoint>);
+}
+
+TEST(SerializerCustomSerializer, BinaryRoundTrip)
+{
+    ForeignPoint original{7, 8};
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(original, buffer);
+
+    Binary::ByteView view(buffer);
+    ForeignPoint restored;
+    Serializer::deserialize(restored, view);
+
+    ASSERT_EQ(restored.x, 7);
+    ASSERT_EQ(restored.y, 8);
+}
+
+TEST(SerializerCustomSerializer, JsonRoundTrip)
+{
+    ForeignPoint original{9, 10};
+
+    JSON json;
+    Serializer::serialize(original, json);
+
+    ForeignPoint restored;
+    Serializer::deserialize(restored, json);
+
+    ASSERT_EQ(restored.x, 9);
+    ASSERT_EQ(restored.y, 10);
+}
