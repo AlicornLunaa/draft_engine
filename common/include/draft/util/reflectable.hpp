@@ -12,6 +12,8 @@ namespace Draft {
      */
     template<typename Class, typename MemberType>
     struct Field {
+        using ValueType = MemberType;
+
         std::string_view name;
         MemberType Class::* pointer;
 
