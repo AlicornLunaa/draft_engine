@@ -1,7 +1,8 @@
 #pragma once
 
-#include "draft/util/serializer.hpp"
-#include "draft/math/glm.hpp"
+#include "draft/util/serialization/custom.hpp"
+#include "draft/util/json.hpp"
+#include "draft/math/glm.hpp" // IWYU pragma: keep
 
 template<glm::length_t L, typename T, glm::qualifier Q>
 struct Draft::Serializer::CustomSerializer<Draft::Math::vec<L, T, Q>> {

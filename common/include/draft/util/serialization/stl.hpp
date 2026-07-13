@@ -1,5 +1,7 @@
 #pragma once
-#include "draft/util/serializer.hpp"
+#include "draft/util/serialization/binary.hpp"
+#include "draft/util/serialization/custom.hpp"
+#include <string>
 
 template<>
 struct Draft::Serializer::CustomSerializer<std::string> {

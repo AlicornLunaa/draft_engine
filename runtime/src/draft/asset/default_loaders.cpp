@@ -9,7 +9,7 @@
 #include "draft/rendering/texture_packer.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/json.hpp"
-#include "draft/util/serializer.hpp"
+#include "draft/util/serialization/serializer.hpp"
 #include <any>
 #include <utility>
 

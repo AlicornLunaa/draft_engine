@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "draft/math/glm_serializer.hpp"
+#include "draft/util/serialization/serializer.hpp"
 
 using namespace Draft;
 

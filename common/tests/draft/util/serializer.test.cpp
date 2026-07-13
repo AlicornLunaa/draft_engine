@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "draft/util/serializer.hpp"
+#include "draft/util/serialization/serializer.hpp"
 #include <cstdint>
 #include <stdexcept>
 #include <string>
