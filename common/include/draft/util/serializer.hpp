@@ -163,7 +163,7 @@ namespace Draft {
          * @endcode
          */
         template<typename T>
-        struct CustomSerializer;
+        struct CustomSerializer; // TODO: Hoist out so the containers can specialize without including this file, allowing this file to include the containers so the containers are always available by default
 
         /**
          * @brief Satisfied once CustomSerializer<T> has been specialized with Binary methods.
@@ -181,6 +181,17 @@ namespace Draft {
         concept CustomJsonSerializable = requires(T object, Draft::JSON& json){
             { CustomSerializer<T>::serialize(object, json) } -> std::convertible_to<void>;
             { CustomSerializer<T>::deserialize(object, json) } -> std::convertible_to<void>;
+        };
+
+        /**
+         * @brief Satisfied when a CustomBinarySerializable T's CustomSerializer also supplies its
+         * own deserialize_and_advance, needed for variable-length types (e.g. a string or
+         * vector), where the default "consumed exactly sizeof(T) bytes" assumption used for
+         * fixed-size custom types would be wrong.
+         */
+        template<typename T>
+        concept CustomBinarySerializableWithAdvance = CustomBinarySerializable<T> && requires(T object, Binary::ByteView& span){
+            { CustomSerializer<T>::deserialize_and_advance(object, span) } -> std::convertible_to<void>;
         };
 
         /**
@@ -219,7 +230,9 @@ namespace Draft {
         void serialize(const T& value, Binary::ByteArray& out);
         template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
         void deserialize(T& value, Binary::ByteView span);
-        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
+        template<typename T> requires CustomBinarySerializableWithAdvance<T> && (!BinarySerializable<T>)
+        void deserialize_and_advance(T& value, Binary::ByteView& span);
+        template<typename T> requires CustomBinarySerializable<T> && (!CustomBinarySerializableWithAdvance<T>) && (!BinarySerializable<T>)
         void deserialize_and_advance(T& value, Binary::ByteView& span);
 
         template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
@@ -252,19 +265,6 @@ namespace Draft {
         void serialize(const T& value, JSON& json);
         template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         void deserialize(T& value, JSON& json);
-
-        // std::string isn't trivially copyable, so unlike arithmetic/enum types it needs its own
-        // Binary encoding (JSON already covers it via JsonTrivial).
-        void serialize(const std::string& value, Binary::ByteArray& out);
-        void deserialize(std::string& value, Binary::ByteView span);
-        void deserialize_and_advance(std::string& value, Binary::ByteView& span);
-
-        template<typename K> void serialize(const std::vector<K>& array, Binary::ByteArray& out);
-        template<typename K> void deserialize(std::vector<K>& array, Binary::ByteView span);
-        template<typename K> void deserialize_and_advance(std::vector<K>& array, Binary::ByteView& span);
-
-        template<typename K> void serialize(const std::vector<K>& array, JSON& json);
-        template<typename K> void deserialize(std::vector<K>& array, JSON& json);
         ///@}
 
         // Default for complex types with explicit binary functions
@@ -301,10 +301,22 @@ namespace Draft {
         inline void deserialize(T& value, Binary::ByteView span){ CustomSerializer<T>::deserialize(value, span); }
 
         /**
-         * @brief Assumes CustomSerializer<T>::deserialize consumed exactly sizeof(T) bytes, same
-         * caveat as the BinarySerializable tier's deserialize_and_advance().
+         * @brief Prefers CustomSerializer<T>'s own deserialize_and_advance when it has one, for
+         * variable-length custom types (e.g. a string or vector) where "consumed exactly
+         * sizeof(T) bytes" would be wrong.
          */
-        template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
+        template<typename T> requires CustomBinarySerializableWithAdvance<T> && (!BinarySerializable<T>)
+        inline void deserialize_and_advance(T& value, Binary::ByteView& span){
+            CustomSerializer<T>::deserialize_and_advance(value, span);
+        }
+
+        /**
+         * @brief Fallback for fixed-size custom types: assumes CustomSerializer<T>::deserialize
+         * consumed exactly sizeof(T) bytes, same caveat as the BinarySerializable tier's
+         * deserialize_and_advance(). Types with a variable-length encoding need to give their
+         * CustomSerializer its own deserialize_and_advance instead (see the concept above).
+         */
+        template<typename T> requires CustomBinarySerializable<T> && (!CustomBinarySerializableWithAdvance<T>) && (!BinarySerializable<T>)
         inline void deserialize_and_advance(T& value, Binary::ByteView& span){
             CustomSerializer<T>::deserialize(value, span);
             span = span.subspan(sizeof(T));
@@ -380,6 +392,3 @@ namespace Draft {
         inline void deserialize(T& value, JSON& json){ value = json.template get<T>(); }
     };
 };
-
-// std::string's and std::vector<K>'s serializers are defined in a sibling file
-#include "draft/util/serializer_containers.hpp"
