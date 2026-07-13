@@ -70,8 +70,6 @@ namespace Draft {
         inline float get_reaction_torque(float inv_dt) const { DRAFT_MAYBE_OR_ELSE(m_nativeHandlePtr, get_reaction_torque(inv_dt), 0.f); }
         inline bool get_collide_connected() const { DRAFT_MAYBE_OR_ELSE(m_nativeHandlePtr, get_collide_connected(), 0.f); }
         inline bool is_enabled() const { DRAFT_MAYBE_OR_ELSE(m_nativeHandlePtr, is_enabled(), 0.f); }
-        
-        DRAFT_REFLECTABLE(JointComponent, entityA, entityB)
     };
 
     /**
@@ -86,36 +84,62 @@ namespace Draft {
     // Specialized components
     struct DistanceJointComponent : public JointComponent<DistanceJointData> {
         inline float get_current_length() const { DRAFT_MAYBE_OR_ELSE(static_cast<DistanceJoint*>(m_nativeHandlePtr), get_current_length(), 0.f); }
+
+        DRAFT_REFLECTABLE(DistanceJointComponent, entityA, entityB, collideConnected,
+            anchorA, anchorB, length, minLength, maxLength, stiffness, damping)
     };
 
     struct FrictionJointComponent : public JointComponent<FrictionJointData> {
+        DRAFT_REFLECTABLE(FrictionJointComponent, entityA, entityB, collideConnected,
+            anchorA, anchorB, maxForce, maxTorque)
     };
 
     struct GearJointComponent : public JointComponent<GearJointData> {
+        // joint1/joint2 stay unreflected, same reasoning as GearJointData itself.
+        DRAFT_REFLECTABLE(GearJointComponent, entityA, entityB, collideConnected, ratio)
     };
 
     struct MotorJointComponent : public JointComponent<MotorJointData> {
+        DRAFT_REFLECTABLE(MotorJointComponent, entityA, entityB, collideConnected,
+            linearOffset, angularOffset, maxForce, maxTorque, correctionFactor)
     };
 
     struct MouseJointComponent : public JointComponent<MouseJointData> {
+        DRAFT_REFLECTABLE(MouseJointComponent, entityA, entityB, collideConnected,
+            target, maxForce, stiffness, damping)
     };
 
     struct PrismaticJointComponent : public JointComponent<PrismaticJointData> {
         inline float get_joint_translation() const { DRAFT_MAYBE_OR_ELSE(static_cast<PrismaticJoint*>(m_nativeHandlePtr), get_joint_translation(), 0.f); }
+
+        DRAFT_REFLECTABLE(PrismaticJointComponent, entityA, entityB, collideConnected,
+            anchorA, anchorB, localAxisA, referenceAngle, lowerTranslation, upperTranslation,
+            maxMotorForce, motorSpeed, enableLimit, enableMotor)
     };
 
     struct PulleyJointComponent : public JointComponent<PulleyJointData> {
         inline float get_current_length_a() const { DRAFT_MAYBE_OR_ELSE(static_cast<PulleyJoint*>(m_nativeHandlePtr), get_current_length_a(), 0.f); }
         inline float get_current_length_b() const { DRAFT_MAYBE_OR_ELSE(static_cast<PulleyJoint*>(m_nativeHandlePtr), get_current_length_b(), 0.f); }
+
+        DRAFT_REFLECTABLE(PulleyJointComponent, entityA, entityB, collideConnected,
+            groundAnchorA, groundAnchorB, localAnchorA, localAnchorB, lengthA, lengthB, ratio)
     };
 
     struct RevoluteJointComponent : public JointComponent<RevoluteJointData> {
+        DRAFT_REFLECTABLE(RevoluteJointComponent, entityA, entityB, collideConnected,
+            localAnchorA, localAnchorB, referenceAngle, lowerAngle, upperAngle,
+            maxMotorTorque, motorSpeed, enableLimit, enableMotor)
     };
 
     struct WeldJointComponent : public JointComponent<WeldJointData> {
+        DRAFT_REFLECTABLE(WeldJointComponent, entityA, entityB, collideConnected,
+            anchorA, anchorB, referenceAngle, stiffness, damping)
     };
 
     struct WheelJointComponent : public JointComponent<WheelJointData> {
+        DRAFT_REFLECTABLE(WheelJointComponent, entityA, entityB, collideConnected,
+            anchorA, anchorB, localAxis, lowerTranslation, upperTranslation,
+            maxMotorTorque, motorSpeed, stiffness, damping, enableLimit, enableMotor)
     };
 
     // Aliasing for metaprogramming
