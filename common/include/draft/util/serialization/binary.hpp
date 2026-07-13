@@ -4,6 +4,7 @@
 #include <cstring>
 #include <span>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 namespace Draft {

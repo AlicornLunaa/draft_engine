@@ -277,6 +277,5 @@ namespace Draft {
 };
 
 /// Included after in order to always be available with serializer.
-/// Should **NEVER** include these alone.
 #include "stl.hpp" // IWYU pragma: keep
 #include "glm.hpp" // IWYU pragma: keep

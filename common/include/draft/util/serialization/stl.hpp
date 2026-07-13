@@ -1,6 +1,7 @@
 #pragma once
 #include "draft/util/serialization/binary.hpp"
 #include "draft/util/serialization/custom.hpp"
+#include "draft/util/serialization/serializer.hpp"
 #include <string>
 
 template<>
