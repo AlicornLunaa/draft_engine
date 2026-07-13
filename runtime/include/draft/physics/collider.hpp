@@ -7,7 +7,7 @@
 #include "draft/physics/fixture.hpp"
 #include "draft/physics/rigid_body.hpp"
 #include "draft/physics/shapes/shape.hpp"
-#include "draft/util/json.hpp"
+#include "draft/util/serialization/serializer.hpp"
 
 namespace Draft {
     class Collider {
@@ -70,5 +70,11 @@ namespace Draft {
         void detach();
 
         bool test_point(Vector2f point) const;
+
+        // Serialization
+        static void serialize(const Collider& collider, Binary::ByteArray& out);
+        static void deserialize(Collider& collider, Binary::ByteView span);
+        static void serialize(const Collider& collider, JSON& json);
+        static void deserialize(Collider& collider, JSON& json);
     };
 }

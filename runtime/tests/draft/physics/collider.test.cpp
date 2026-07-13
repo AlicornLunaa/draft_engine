@@ -2,6 +2,8 @@
 #include "draft/physics/collider.hpp"
 #include "draft/physics/shapes/circle_shape.hpp"
 #include "draft/physics/shapes/polygon_shape.hpp"
+#include "draft/physics/shapes/edge_shape.hpp"
+#include "draft/physics/shapes/chain_shape.hpp"
 #include "draft/physics/world.hpp"
 #include "draft/physics/rigid_body.hpp"
 #include "draft/physics/body_def.hpp"
@@ -175,4 +177,139 @@ TEST(Collider, ColliderIsInvalidatedWhenItsBodyIsDestroyedFirst)
     collider.set_position({5.f, 5.f});
     ASSERT_EQ(collider.get_position().x, 5.f);
     ASSERT_EQ(collider.get_position().y, 5.f);
+}
+
+namespace {
+    Draft::Collider binary_round_trip(const Draft::Collider& original){
+        Draft::Binary::ByteArray buffer;
+        Draft::Collider::serialize(original, buffer);
+
+        Draft::Binary::ByteView view(buffer);
+        Draft::Collider restored;
+        Draft::Collider::deserialize(restored, view);
+        return restored;
+    }
+
+    Draft::Collider json_round_trip(const Draft::Collider& original){
+        Draft::JSON json;
+        Draft::Collider::serialize(original, json);
+
+        Draft::Collider restored;
+        Draft::Collider::deserialize(restored, json);
+        return restored;
+    }
+
+    void assert_shapes_match(const Draft::Shape* a, const Draft::Shape* b){
+        ASSERT_EQ(a->type, b->type);
+        ASSERT_FLOAT_EQ(a->friction, b->friction);
+        ASSERT_FLOAT_EQ(a->restitution, b->restitution);
+        ASSERT_FLOAT_EQ(a->density, b->density);
+        ASSERT_EQ(a->isSensor, b->isSensor);
+        ASSERT_EQ(a->isConvex, b->isConvex);
+    }
+}
+
+TEST(ColliderSerialization, CircleRoundTrip)
+{
+    Draft::Collider original;
+    Draft::CircleShape shape;
+    shape.set_position({1.f, 2.f});
+    shape.set_radius(3.f);
+    shape.isSensor = true;
+    original.add_shape(shape);
+
+    for(auto& restored : {binary_round_trip(original), json_round_trip(original)}){
+        ASSERT_EQ(restored.get_shape_count(), 1);
+
+        auto* circle = static_cast<Draft::CircleShape*>(restored.get_shapes()[0].get());
+        assert_shapes_match(original.get_shapes()[0].get(), circle);
+        ASSERT_FLOAT_EQ(circle->get_position().x, 1.f);
+        ASSERT_FLOAT_EQ(circle->get_position().y, 2.f);
+        ASSERT_FLOAT_EQ(circle->get_radius(), 3.f);
+    }
+}
+
+TEST(ColliderSerialization, PolygonRoundTrip)
+{
+    Draft::Collider original;
+    Draft::PolygonShape shape;
+    shape.add_vertex({0.f, 0.f});
+    shape.add_vertex({1.f, 0.f});
+    shape.add_vertex({1.f, 1.f});
+    original.add_shape(shape);
+
+    for(auto& restored : {binary_round_trip(original), json_round_trip(original)}){
+        ASSERT_EQ(restored.get_shape_count(), 1);
+
+        auto* polygon = static_cast<Draft::PolygonShape*>(restored.get_shapes()[0].get());
+        assert_shapes_match(original.get_shapes()[0].get(), polygon);
+        ASSERT_EQ(polygon->get_vertex_count(), 3u);
+        ASSERT_FLOAT_EQ(polygon->get_vertex(1).x, 1.f);
+        ASSERT_FLOAT_EQ(polygon->get_vertex(2).y, 1.f);
+    }
+}
+
+TEST(ColliderSerialization, EdgeRoundTrip)
+{
+    Draft::Collider original;
+    Draft::EdgeShape shape({-1.f, 0.f}, {1.f, 0.f});
+    original.add_shape(shape);
+
+    for(auto& restored : {binary_round_trip(original), json_round_trip(original)}){
+        ASSERT_EQ(restored.get_shape_count(), 1);
+
+        auto* edge = static_cast<Draft::EdgeShape*>(restored.get_shapes()[0].get());
+        assert_shapes_match(original.get_shapes()[0].get(), edge);
+        ASSERT_FLOAT_EQ(edge->get_start().x, -1.f);
+        ASSERT_FLOAT_EQ(edge->get_end().x, 1.f);
+    }
+}
+
+TEST(ColliderSerialization, ChainRoundTrip)
+{
+    Draft::Collider original;
+    Draft::ChainShape shape(Draft::ChainShape::LOOP);
+    shape.add({0.f, 0.f});
+    shape.add({1.f, 0.f});
+    shape.add({1.f, 1.f});
+    shape.set_previous({-1.f, -1.f});
+    shape.set_next({2.f, 2.f});
+    original.add_shape(shape);
+
+    for(auto& restored : {binary_round_trip(original), json_round_trip(original)}){
+        ASSERT_EQ(restored.get_shape_count(), 1);
+
+        auto* chain = static_cast<Draft::ChainShape*>(restored.get_shapes()[0].get());
+        assert_shapes_match(original.get_shapes()[0].get(), chain);
+        ASSERT_EQ(chain->get_chain_type(), Draft::ChainShape::LOOP);
+        ASSERT_EQ(chain->get_points().size(), 3u);
+        ASSERT_FLOAT_EQ(chain->get_previous().x, -1.f);
+        ASSERT_FLOAT_EQ(chain->get_next().y, 2.f);
+    }
+}
+
+TEST(ColliderSerialization, MultiShapeAndTransformRoundTrip)
+{
+    Draft::Collider original;
+    Draft::CircleShape circle;
+    circle.set_radius(2.f);
+    original.add_shape(circle);
+    original.add_shape(Draft::PolygonShape{});
+
+    original.set_position({3.f, 4.f});
+    original.set_origin({0.5f, 0.5f});
+    original.set_scale({2.f, 2.f});
+    original.set_rotation(1.2f);
+
+    for(auto& restored : {binary_round_trip(original), json_round_trip(original)}){
+        ASSERT_EQ(restored.get_shape_count(), 2);
+        ASSERT_EQ(restored.get_shapes()[0]->type, Draft::ShapeType::CIRCLE);
+        ASSERT_EQ(restored.get_shapes()[1]->type, Draft::ShapeType::POLYGON);
+
+        ASSERT_FLOAT_EQ(restored.get_position().x, 3.f);
+        ASSERT_FLOAT_EQ(restored.get_position().y, 4.f);
+        ASSERT_FLOAT_EQ(restored.get_origin().x, 0.5f);
+        ASSERT_FLOAT_EQ(restored.get_scale().x, 2.f);
+        ASSERT_FLOAT_EQ(restored.get_rotation(), 1.2f);
+    }
 }

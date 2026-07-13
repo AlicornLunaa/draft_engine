@@ -223,4 +223,300 @@ namespace Draft {
 
         return false;
     }
+
+    // Serialization
+    // Binary encoding is shape count, then per shape a type tag, the shared Shape fields, and its
+    // own geometry, then the collider's own transform. Variable length, so a Collider inside a
+    // larger byte stream needs to advance its own span rather than assume sizeof(Collider).
+    void Collider::serialize(const Collider& collider, Binary::ByteArray& out){
+        Serializer::serialize(collider.shapes.size(), out);
+
+        for(auto& shape : collider.shapes){
+            Serializer::serialize(shape->type, out);
+            Serializer::serialize(shape->friction, out);
+            Serializer::serialize(shape->restitution, out);
+            Serializer::serialize(shape->density, out);
+            Serializer::serialize(shape->isSensor, out);
+            Serializer::serialize(shape->isConvex, out);
+
+            switch(shape->type){
+                case ShapeType::CIRCLE: {
+                    auto* circle = static_cast<CircleShape*>(shape.get());
+                    Serializer::serialize(circle->get_position(), out);
+                    Serializer::serialize(circle->get_radius(), out);
+                    break;
+                }
+
+                case ShapeType::POLYGON: {
+                    auto* polygon = static_cast<PolygonShape*>(shape.get());
+                    Serializer::serialize(polygon->get_vertices(), out);
+                    break;
+                }
+
+                case ShapeType::EDGE: {
+                    auto* edge = static_cast<EdgeShape*>(shape.get());
+                    Serializer::serialize(edge->get_start(), out);
+                    Serializer::serialize(edge->get_end(), out);
+                    break;
+                }
+
+                case ShapeType::CHAIN: {
+                    auto* chain = static_cast<ChainShape*>(shape.get());
+                    Serializer::serialize(chain->get_chain_type(), out);
+                    Serializer::serialize(chain->get_points(), out);
+                    Serializer::serialize(chain->get_previous(), out);
+                    Serializer::serialize(chain->get_next(), out);
+                    break;
+                }
+            }
+        }
+
+        Serializer::serialize(collider.position, out);
+        Serializer::serialize(collider.origin, out);
+        Serializer::serialize(collider.scale, out);
+        Serializer::serialize(collider.rotation, out);
+    }
+
+    void Collider::deserialize(Collider& collider, Binary::ByteView span){
+        collider.clear();
+
+        size_t shapeCount = 0;
+        Serializer::deserialize_and_advance(shapeCount, span);
+
+        for(size_t i = 0; i < shapeCount; i++){
+            ShapeType type{};
+            float friction = 0.f, restitution = 0.f, density = 0.f;
+            bool isSensor = false, isConvex = true;
+
+            Serializer::deserialize_and_advance(type, span);
+            Serializer::deserialize_and_advance(friction, span);
+            Serializer::deserialize_and_advance(restitution, span);
+            Serializer::deserialize_and_advance(density, span);
+            Serializer::deserialize_and_advance(isSensor, span);
+            Serializer::deserialize_and_advance(isConvex, span);
+
+            Shape* added = nullptr;
+
+            switch(type){
+                case ShapeType::CIRCLE: {
+                    CircleShape shape;
+                    Vector2f position{};
+                    float radius = 0.f;
+                    Serializer::deserialize_and_advance(position, span);
+                    Serializer::deserialize_and_advance(radius, span);
+                    shape.set_position(position);
+                    shape.set_radius(radius);
+                    added = collider.add_shape(shape);
+                    break;
+                }
+
+                case ShapeType::POLYGON: {
+                    PolygonShape shape;
+                    std::vector<Vector2f> vertices;
+                    Serializer::deserialize_and_advance(vertices, span);
+                    for(auto& vertex : vertices)
+                        shape.add_vertex(vertex);
+                    added = collider.add_shape(shape);
+                    break;
+                }
+
+                case ShapeType::EDGE: {
+                    Vector2f start{}, end{};
+                    Serializer::deserialize_and_advance(start, span);
+                    Serializer::deserialize_and_advance(end, span);
+                    EdgeShape shape(start, end);
+                    added = collider.add_shape(shape);
+                    break;
+                }
+
+                case ShapeType::CHAIN: {
+                    ChainShape::ChainType chainType{};
+                    Serializer::deserialize_and_advance(chainType, span);
+
+                    std::vector<Vector2f> points;
+                    Vector2f previous{}, next{};
+                    Serializer::deserialize_and_advance(points, span);
+                    Serializer::deserialize_and_advance(previous, span);
+                    Serializer::deserialize_and_advance(next, span);
+
+                    ChainShape shape(chainType);
+                    for(auto& point : points)
+                        shape.add(point);
+                    shape.set_previous(previous);
+                    shape.set_next(next);
+
+                    added = collider.add_shape(shape);
+                    break;
+                }
+            }
+
+            if(added){
+                added->friction = friction;
+                added->restitution = restitution;
+                added->density = density;
+                added->isSensor = isSensor;
+                added->isConvex = isConvex;
+            }
+        }
+
+        Serializer::deserialize_and_advance(collider.position, span);
+        Serializer::deserialize_and_advance(collider.origin, span);
+        Serializer::deserialize_and_advance(collider.scale, span);
+        Serializer::deserialize_and_advance(collider.rotation, span);
+    }
+
+    void Collider::serialize(const Collider& collider, JSON& json){
+        // json[key] returns a base nlohmann::json&, and assigning a Draft::JSON into that by
+        // value needs the explicit cast below, plain std::move() picks the wrong constructor.
+        auto put = [](JSON& obj, const char* key, const auto& value){
+            JSON child;
+            Serializer::serialize(value, child);
+            obj[key] = static_cast<nlohmann::json&&>(child);
+        };
+
+        JSON shapesJson = JSON::array();
+
+        for(auto& shape : collider.shapes){
+            JSON shapeJson;
+            put(shapeJson, "type", shape->type);
+            put(shapeJson, "friction", shape->friction);
+            put(shapeJson, "restitution", shape->restitution);
+            put(shapeJson, "density", shape->density);
+            put(shapeJson, "isSensor", shape->isSensor);
+            put(shapeJson, "isConvex", shape->isConvex);
+
+            switch(shape->type){
+                case ShapeType::CIRCLE: {
+                    auto* circle = static_cast<CircleShape*>(shape.get());
+                    put(shapeJson, "position", circle->get_position());
+                    put(shapeJson, "radius", circle->get_radius());
+                    break;
+                }
+
+                case ShapeType::POLYGON: {
+                    auto* polygon = static_cast<PolygonShape*>(shape.get());
+                    put(shapeJson, "vertices", polygon->get_vertices());
+                    break;
+                }
+
+                case ShapeType::EDGE: {
+                    auto* edge = static_cast<EdgeShape*>(shape.get());
+                    put(shapeJson, "start", edge->get_start());
+                    put(shapeJson, "end", edge->get_end());
+                    break;
+                }
+
+                case ShapeType::CHAIN: {
+                    auto* chain = static_cast<ChainShape*>(shape.get());
+                    put(shapeJson, "chainType", chain->get_chain_type());
+                    put(shapeJson, "points", chain->get_points());
+                    put(shapeJson, "previous", chain->get_previous());
+                    put(shapeJson, "next", chain->get_next());
+                    break;
+                }
+            }
+
+            shapesJson.push_back(std::move(shapeJson));
+        }
+
+        json["shapes"] = static_cast<nlohmann::json&&>(shapesJson);
+        put(json, "position", collider.position);
+        put(json, "origin", collider.origin);
+        put(json, "scale", collider.scale);
+        put(json, "rotation", collider.rotation);
+    }
+
+    void Collider::deserialize(Collider& collider, JSON& json){
+        collider.clear();
+
+        // json.at(key) returns a base nlohmann::json&, which can't bind to a JSON& parameter,
+        // so copy into a real JSON first (same reasoning as the reflect tier's JSON deserialize).
+        auto get = [](JSON& obj, const char* key, auto& value){
+            JSON child = obj.at(key);
+            Serializer::deserialize(value, child);
+        };
+
+        JSON shapesJson = json.at("shapes");
+
+        for(JSON shapeJson : shapesJson){
+            ShapeType type{};
+            float friction = 0.f, restitution = 0.f, density = 0.f;
+            bool isSensor = false, isConvex = true;
+
+            get(shapeJson, "type", type);
+            get(shapeJson, "friction", friction);
+            get(shapeJson, "restitution", restitution);
+            get(shapeJson, "density", density);
+            get(shapeJson, "isSensor", isSensor);
+            get(shapeJson, "isConvex", isConvex);
+
+            Shape* added = nullptr;
+
+            switch(type){
+                case ShapeType::CIRCLE: {
+                    CircleShape shape;
+                    Vector2f position{};
+                    float radius = 0.f;
+                    get(shapeJson, "position", position);
+                    get(shapeJson, "radius", radius);
+                    shape.set_position(position);
+                    shape.set_radius(radius);
+                    added = collider.add_shape(shape);
+                    break;
+                }
+
+                case ShapeType::POLYGON: {
+                    PolygonShape shape;
+                    std::vector<Vector2f> vertices;
+                    get(shapeJson, "vertices", vertices);
+                    for(auto& vertex : vertices)
+                        shape.add_vertex(vertex);
+                    added = collider.add_shape(shape);
+                    break;
+                }
+
+                case ShapeType::EDGE: {
+                    Vector2f start{}, end{};
+                    get(shapeJson, "start", start);
+                    get(shapeJson, "end", end);
+                    EdgeShape shape(start, end);
+                    added = collider.add_shape(shape);
+                    break;
+                }
+
+                case ShapeType::CHAIN: {
+                    ChainShape::ChainType chainType{};
+                    get(shapeJson, "chainType", chainType);
+
+                    std::vector<Vector2f> points;
+                    Vector2f previous{}, next{};
+                    get(shapeJson, "points", points);
+                    get(shapeJson, "previous", previous);
+                    get(shapeJson, "next", next);
+
+                    ChainShape shape(chainType);
+                    for(auto& point : points)
+                        shape.add(point);
+                    shape.set_previous(previous);
+                    shape.set_next(next);
+
+                    added = collider.add_shape(shape);
+                    break;
+                }
+            }
+
+            if(added){
+                added->friction = friction;
+                added->restitution = restitution;
+                added->density = density;
+                added->isSensor = isSensor;
+                added->isConvex = isConvex;
+            }
+        }
+
+        get(json, "position", collider.position);
+        get(json, "origin", collider.origin);
+        get(json, "scale", collider.scale);
+        get(json, "rotation", collider.rotation);
+    }
 }
