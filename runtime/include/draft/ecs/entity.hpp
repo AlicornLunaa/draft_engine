@@ -1,6 +1,8 @@
 #pragma once
 
 #include "draft/ecs/scene.hpp"
+#include "draft/util/json.hpp"
+#include "draft/util/serialization/binary.hpp"
 #include "entt/entt.hpp"
 
 #include <cassert>
@@ -103,6 +105,13 @@ namespace Draft {
          * entities from different scenes can otherwise share the same numeric ID.
          */
         bool operator==(const Entity& other) const { return m_context == other.m_context && m_entityID == other.m_entityID; }
+
+        // Tier-1 (de)serialization, writing/reading only the sequential id assigned by the
+        // active Serializer::context<SceneSerializationContext>()
+        static void serialize(const Entity& entity, Binary::ByteArray& out);
+        static void deserialize(Entity& entity, Binary::ByteView span);
+        static void serialize(const Entity& entity, JSON& json);
+        static void deserialize(Entity& entity, const JSON& json);
     };
 
     /**

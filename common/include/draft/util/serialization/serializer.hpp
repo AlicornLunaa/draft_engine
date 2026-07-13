@@ -39,17 +39,6 @@ namespace Draft {
         };
 
         /**
-         * @brief Satisfied by types that support both Binary and JSON (de)serialization.
-         */
-        template<typename T>
-        concept Serializable = requires(T object, Binary::ByteArray& buffer, Binary::ByteView& span, Draft::JSON& json, const Draft::JSON& constJson){
-            { T::serialize(object, buffer) } -> std::convertible_to<void>;
-            { T::deserialize(object, span) } -> std::convertible_to<void>;
-            { T::serialize(object, json) } -> std::convertible_to<void>;
-            { T::deserialize(object, constJson) } -> std::convertible_to<void>;
-        };
-
-        /**
          * @brief Satisfied when a BinarySerializable T also supplies its own
          * deserialize_and_advance, needed for a variable-length T::serialize encoding where the default "consumed exactly sizeof(T)
          * bytes" assumption used for fixed-size explicit types would be wrong.
@@ -170,6 +159,19 @@ namespace Draft {
         template<JsonTrivial T, JsonLike J> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         void deserialize(T& value, J&& json);
         ///@}
+
+        /**
+         * @brief Satisfied by any T that Serializer::serialize()/deserialize() can actually
+         * handle end to end, through whichever tier applies (explicit T::serialize,
+         * CustomSerializer<T>, Reflectable, or trivial)
+         */
+        template<typename T>
+        concept Serializable = requires(T object, Binary::ByteArray& buffer, Binary::ByteView& span, Draft::JSON& json, const Draft::JSON& constJson){
+            { serialize(object, buffer) } -> std::convertible_to<void>;
+            { deserialize(object, span) } -> std::convertible_to<void>;
+            { serialize(object, json) } -> std::convertible_to<void>;
+            { deserialize(object, constJson) } -> std::convertible_to<void>;
+        };
 
         // Default for complex types with explicit binary functions
         template<BinarySerializable T>

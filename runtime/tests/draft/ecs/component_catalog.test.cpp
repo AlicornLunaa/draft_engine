@@ -181,3 +181,50 @@ TEST(ComponentCatalog, CloneIsANoOpWhenTheSourceLacksTheComponent)
     catalog.by_type<Position>()->clone(src, dst);
     ASSERT_FALSE(dst.has_component<Position>());
 }
+
+TEST(ComponentCatalog, GenericJsonSerializeRoundTripsThroughComponentTypeInterface)
+{
+    Scene scene;
+    Entity src = scene.create_entity();
+    src.add_component<Position>(Position{3.f, 4.f});
+
+    Entity dst = scene.create_entity();
+
+    ComponentCatalog catalog;
+    catalog.register_component<Position>();
+    ComponentTypeInterface* entry = catalog.by_type<Position>();
+
+    JSON json;
+    entry->serialize(src, json);
+
+    // dst doesn't have Position yet, deserialize() should add it rather than asserting.
+    ASSERT_FALSE(dst.has_component<Position>());
+    entry->deserialize(dst, json);
+
+    ASSERT_TRUE(dst.has_component<Position>());
+    ASSERT_FLOAT_EQ(dst.get_component<Position>().x, 3.f);
+    ASSERT_FLOAT_EQ(dst.get_component<Position>().y, 4.f);
+}
+
+TEST(ComponentCatalog, GenericBinarySerializeRoundTripsThroughComponentTypeInterface)
+{
+    Scene scene;
+    Entity src = scene.create_entity();
+    src.add_component<Position>(Position{5.f, 6.f});
+
+    Entity dst = scene.create_entity();
+    dst.add_component<Position>(); // pre-existing component, deserialize() should overwrite it
+
+    ComponentCatalog catalog;
+    catalog.register_component<Position>();
+    ComponentTypeInterface* entry = catalog.by_type<Position>();
+
+    Binary::ByteArray buffer;
+    entry->serialize(src, buffer);
+
+    Binary::ByteView view(buffer);
+    entry->deserialize(dst, view);
+
+    ASSERT_FLOAT_EQ(dst.get_component<Position>().x, 5.f);
+    ASSERT_FLOAT_EQ(dst.get_component<Position>().y, 6.f);
+}

@@ -2,6 +2,7 @@
 
 #include "draft/ecs/entity.hpp"
 #include "draft/util/reflectable.hpp"
+#include "draft/util/serialization/serializer.hpp"
 
 #include <algorithm>
 #include <memory>
@@ -46,6 +47,19 @@ namespace Draft {
          * @p dst. No-op if @p src doesn't have this component.
          */
         virtual void clone(Entity src, Entity dst) const = 0;
+
+        /**
+         * @brief Serializes this component off @p entity, which must already have(entity).
+         */
+        virtual void serialize(Entity entity, JSON& json) const = 0;
+        virtual void serialize(Entity entity, Binary::ByteArray& out) const = 0;
+
+        /**
+         * @brief Deserializes this component onto @p entity, adding a default instance first if
+         * @p entity doesn't already have(entity).
+         */
+        virtual void deserialize(Entity entity, JSON& json) const = 0;
+        virtual void deserialize(Entity entity, Binary::ByteView data) const = 0;
     };
 
     /**
@@ -67,6 +81,19 @@ namespace Draft {
         void clone(Entity src, Entity dst) const override {
             if(T* source = src.try_get_component<T>())
                 dst.add_component<T>(*source);
+        }
+
+        void serialize(Entity entity, JSON& json) const override { Serializer::serialize(entity.get_component<T>(), json); }
+        void serialize(Entity entity, Binary::ByteArray& out) const override { Serializer::serialize(entity.get_component<T>(), out); }
+
+        void deserialize(Entity entity, JSON& json) const override {
+            T& component = entity.has_component<T>() ? entity.get_component<T>() : entity.add_component<T>();
+            Serializer::deserialize(component, json);
+        }
+
+        void deserialize(Entity entity, Binary::ByteView data) const override {
+            T& component = entity.has_component<T>() ? entity.get_component<T>() : entity.add_component<T>();
+            Serializer::deserialize(component, data);
         }
 
     private:
@@ -96,6 +123,7 @@ namespace Draft {
             static_assert(Reflectable<T>, "ComponentCatalog::register_component<T>(): T must be Reflectable (see DRAFT_REFLECTABLE)");
             static_assert(std::is_default_constructible_v<T>, "ComponentCatalog::register_component<T>(): T must be default-constructible");
             static_assert(std::is_copy_constructible_v<T>, "ComponentCatalog::register_component<T>(): T must be copy-constructible");
+            static_assert(Serializer::Serializable<T>, "ComponentCatalog::register_component<T>(): T must be Serializable (see Serializer::Serializable)");
 
             auto type = std::type_index(typeid(T));
             std::string name(T::reflect_name());
