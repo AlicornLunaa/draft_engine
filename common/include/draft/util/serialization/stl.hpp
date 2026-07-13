@@ -71,7 +71,7 @@ struct Draft::Serializer::CustomSerializer<std::vector<K>> {
         }
     }
 
-    static void deserialize(std::vector<K>& array, Draft::JSON& json){
+    static void deserialize(std::vector<K>& array, const Draft::JSON& json){
         array.reserve(json.size());
 
         for(auto& item : json){

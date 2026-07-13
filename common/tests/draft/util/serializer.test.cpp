@@ -114,9 +114,9 @@ namespace {
             json["value"] = l.value;
         }
 
-        static void deserialize(Label& l, JSON& json) {
-            l.name = json["name"];
-            l.value = json["value"];
+        static void deserialize(Label& l, const JSON& json) {
+            l.name = json.at("name").get<std::string>();
+            l.value = json.at("value").get<int>();
         }
     };
 
@@ -322,7 +322,7 @@ struct Draft::Serializer::CustomSerializer<ForeignPoint> {
         json = {p.x, p.y};
     }
 
-    static void deserialize(ForeignPoint& p, JSON& json){
+    static void deserialize(ForeignPoint& p, const JSON& json){
         p.x = json[0];
         p.y = json[1];
     }
@@ -363,4 +363,28 @@ TEST(SerializerCustomSerializer, JsonRoundTrip)
 
     ASSERT_EQ(restored.x, 9);
     ASSERT_EQ(restored.y, 10);
+}
+
+TEST(SerializerJsonLike, DeserializeAcceptsAnRvalueJson)
+{
+    Path restored;
+    Serializer::deserialize(restored, JSON{{"name", "trail"}, {"waypoints", {1, 2, 3}}});
+
+    ASSERT_EQ(restored.name, "trail");
+    ASSERT_EQ(restored.waypoints, (std::vector<int>{1, 2, 3}));
+}
+
+TEST(SerializerJsonLike, BinaryByteArrayNeedsNoCastToPickTheBinaryTier)
+{
+    // Binary::ByteArray (std::vector<std::byte>) happens to also be constructible into a JSON
+    Point original{3, 4};
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(original, buffer);
+
+    Point restored;
+    Serializer::deserialize(restored, buffer);
+
+    ASSERT_EQ(restored.x, 3);
+    ASSERT_EQ(restored.y, 4);
 }

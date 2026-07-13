@@ -30,22 +30,23 @@ namespace Draft {
 
         /**
          * @brief Satisfied by types with their own static JSON (de)serialization functions.
+         * deserialize() only reads from its JSON, so it takes it by const reference.
          */
         template<typename T>
-        concept JsonSerializable = requires(T object, Draft::JSON& json){
+        concept JsonSerializable = requires(T object, Draft::JSON& json, const Draft::JSON& constJson){
             { T::serialize(object, json) } -> std::convertible_to<void>;
-            { T::deserialize(object, json) } -> std::convertible_to<void>;
+            { T::deserialize(object, constJson) } -> std::convertible_to<void>;
         };
 
         /**
          * @brief Satisfied by types that support both Binary and JSON (de)serialization.
          */
         template<typename T>
-        concept Serializable = requires(T object, Binary::ByteArray& buffer, Binary::ByteView& span, Draft::JSON& json){
+        concept Serializable = requires(T object, Binary::ByteArray& buffer, Binary::ByteView& span, Draft::JSON& json, const Draft::JSON& constJson){
             { T::serialize(object, buffer) } -> std::convertible_to<void>;
             { T::deserialize(object, span) } -> std::convertible_to<void>;
             { T::serialize(object, json) } -> std::convertible_to<void>;
-            { T::deserialize(object, json) } -> std::convertible_to<void>;
+            { T::deserialize(object, constJson) } -> std::convertible_to<void>;
         };
 
         /**
@@ -61,9 +62,9 @@ namespace Draft {
          * @brief Satisfied once CustomSerializer<T> has been specialized with JSON methods.
          */
         template<typename T>
-        concept CustomJsonSerializable = requires(T object, Draft::JSON& json){
+        concept CustomJsonSerializable = requires(T object, Draft::JSON& json, const Draft::JSON& constJson){
             { CustomSerializer<T>::serialize(object, json) } -> std::convertible_to<void>;
-            { CustomSerializer<T>::deserialize(object, json) } -> std::convertible_to<void>;
+            { CustomSerializer<T>::deserialize(object, constJson) } -> std::convertible_to<void>;
         };
 
         /**
@@ -92,6 +93,14 @@ namespace Draft {
         concept JsonTrivial = std::is_arithmetic_v<T> || std::is_enum_v<T> || std::is_same_v<T, std::string>;
 
         /**
+         * @brief Satisfied only by JSON itself, in any value category, not by anything merely
+         * convertible to it. The JSON tiers below deduce their json parameter through this rather
+         * than taking a plain JSON&/const JSON&
+         */
+        template<typename J>
+        concept JsonLike = std::same_as<std::remove_cvref_t<J>, JSON>;
+
+        /**
          * @name Forward declarations
          * The tiers below are mutually recursive, a reflectable type's fields, or a vector's
          * elements, can themselves be trivial, reflectable, vector, or explicitly-serializable.
@@ -105,8 +114,8 @@ namespace Draft {
         template<BinarySerializable T> void deserialize(T& value, Binary::ByteView span);
         template<BinarySerializable T> void deserialize_and_advance(T& value, Binary::ByteView& span);
 
-        template<JsonSerializable T> void serialize(const T& value, JSON& json);
-        template<JsonSerializable T> void deserialize(T& value, JSON& json);
+        template<JsonSerializable T, JsonLike J> void serialize(const T& value, J&& json);
+        template<JsonSerializable T, JsonLike J> void deserialize(T& value, J&& json);
 
         // Explicit tier: out-of-line via a CustomSerializer<T> specialization
         template<typename T> requires CustomBinarySerializable<T> && (!BinarySerializable<T>)
@@ -118,10 +127,10 @@ namespace Draft {
         template<typename T> requires CustomBinarySerializable<T> && (!CustomBinarySerializableWithAdvance<T>) && (!BinarySerializable<T>)
         void deserialize_and_advance(T& value, Binary::ByteView& span);
 
-        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
-        void serialize(const T& value, JSON& json);
-        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
-        void deserialize(T& value, JSON& json);
+        template<typename T, JsonLike J> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
+        void serialize(const T& value, J&& json);
+        template<typename T, JsonLike J> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
+        void deserialize(T& value, J&& json);
 
         // Reflectable tier
         template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
@@ -131,10 +140,10 @@ namespace Draft {
         template<typename T> requires Reflectable<T> && (!BinarySerializable<T>) && (!CustomBinarySerializable<T>)
         void deserialize_and_advance(T& value, Binary::ByteView& span);
 
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
-        void serialize(const T& value, JSON& json);
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
-        void deserialize(T& value, JSON& json);
+        template<typename T, JsonLike J> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
+        void serialize(const T& value, J&& json);
+        template<typename T, JsonLike J> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
+        void deserialize(T& value, J&& json);
 
         // Trivial tier
         template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
@@ -144,10 +153,10 @@ namespace Draft {
         template<TriviallySerializable T> requires (!BinarySerializable<T>) && (!CustomBinarySerializable<T>) && (!Reflectable<T>)
         void deserialize_and_advance(T& value, Binary::ByteView& span);
 
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
-        void serialize(const T& value, JSON& json);
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
-        void deserialize(T& value, JSON& json);
+        template<JsonTrivial T, JsonLike J> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
+        void serialize(const T& value, J&& json);
+        template<JsonTrivial T, JsonLike J> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
+        void deserialize(T& value, J&& json);
         ///@}
 
         // Default for complex types with explicit binary functions
@@ -169,11 +178,11 @@ namespace Draft {
         }
 
         // Default for explicit JSON-serializable complex types
-        template<JsonSerializable T>
-        inline void serialize(const T& value, JSON& json){ T::serialize(value, json); }
+        template<JsonSerializable T, JsonLike J>
+        inline void serialize(const T& value, J&& json){ T::serialize(value, json); }
 
-        template<JsonSerializable T>
-        inline void deserialize(T& value, JSON& json){ T::deserialize(value, json); }
+        template<JsonSerializable T, JsonLike J>
+        inline void deserialize(T& value, J&& json){ T::deserialize(value, json); }
 
 
         // Default for types with a CustomSerializer<T> specialization
@@ -205,11 +214,11 @@ namespace Draft {
             span = span.subspan(sizeof(T));
         }
 
-        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
-        inline void serialize(const T& value, JSON& json){ CustomSerializer<T>::serialize(value, json); }
+        template<typename T, JsonLike J> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
+        inline void serialize(const T& value, J&& json){ CustomSerializer<T>::serialize(value, json); }
 
-        template<typename T> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
-        inline void deserialize(T& value, JSON& json){ CustomSerializer<T>::deserialize(value, json); }
+        template<typename T, JsonLike J> requires CustomJsonSerializable<T> && (!JsonSerializable<T>)
+        inline void deserialize(T& value, J&& json){ CustomSerializer<T>::deserialize(value, json); }
 
 
         // Default for reflectable types (wins over trivial, loses to explicit methods above)
@@ -234,22 +243,17 @@ namespace Draft {
         }
 
         // Default for reflectable JSON types
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
-        inline void serialize(const T& value, JSON& json){
+        template<typename T, JsonLike J> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
+        inline void serialize(const T& value, J&& json){
             for_each_field(value, [&](std::string_view name, const auto& field){
-                JSON child;
-                serialize(field, child);
-                json[std::string(name)] = static_cast<nlohmann::json&&>(child);
+                serialize(field, json[std::string(name)]);
             });
         }
 
-        template<typename T> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
-        inline void deserialize(T& value, JSON& json){
+        template<typename T, JsonLike J> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
+        inline void deserialize(T& value, J&& json){
             for_each_field(value, [&](std::string_view name, auto& field){
-                // json.at() returns a base nlohmann::json&, which can't bind to the JSON&
-                // (Draft::JSON&) parameter below, copy into a real JSON first.
-                JSON child = json.at(std::string(name));
-                deserialize(field, child);
+                deserialize(field, json.at(std::string(name)));
             });
         }
 
@@ -268,11 +272,11 @@ namespace Draft {
         }
 
         // Default for JSON-serializable trivials
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
-        inline void serialize(const T& value, JSON& json){ json = value; }
+        template<JsonTrivial T, JsonLike J> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
+        inline void serialize(const T& value, J&& json){ json = value; }
 
-        template<JsonTrivial T> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
-        inline void deserialize(T& value, JSON& json){ value = json.template get<T>(); }
+        template<JsonTrivial T, JsonLike J> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
+        inline void deserialize(T& value, J&& json){ value = json.template get<T>(); }
     };
 };
 

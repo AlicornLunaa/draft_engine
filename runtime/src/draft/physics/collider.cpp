@@ -5,6 +5,7 @@
 #include "draft/physics/shapes/circle_shape.hpp"
 #include "draft/physics/shapes/edge_shape.hpp"
 #include "draft/physics/shapes/polygon_shape.hpp"
+#include "draft/util/serialization/serializer.hpp"
 #include <algorithm>
 #include <cassert>
 
@@ -87,29 +88,6 @@ namespace Draft {
     }
 
     // Constructors
-    Collider::Collider(const JSON& json){
-        // JSON loader for collider
-        for(JSON shapeData : json){
-            PolygonShape shape;
-            JSON indices = shapeData["indices"];
-            JSON vertices = shapeData["vertices"];
-            
-            for(int index : indices){
-                float x = vertices[index * 2];
-                float y = vertices[index * 2 + 1];
-                shape.add_vertex({x, y});
-            }
-
-            shape.restitution = shapeData["restitution"];
-            shape.density = shapeData["density"];
-            shape.friction = shapeData["friction"];
-            shape.isSensor = shapeData["sensor"];
-            shape.isConvex = shapeData["convex"];
-
-            add_shape(shape);
-        }
-    }
-    
     Collider::Collider(const Collider& other){
         copy_collider(other);
     }
@@ -366,52 +344,44 @@ namespace Draft {
     }
 
     void Collider::serialize(const Collider& collider, JSON& json){
-        // json[key] returns a base nlohmann::json&, and assigning a Draft::JSON into that by
-        // value needs the explicit cast below, plain std::move() picks the wrong constructor.
-        auto put = [](JSON& obj, const char* key, const auto& value){
-            JSON child;
-            Serializer::serialize(value, child);
-            obj[key] = static_cast<nlohmann::json&&>(child);
-        };
-
         JSON shapesJson = JSON::array();
 
         for(auto& shape : collider.shapes){
             JSON shapeJson;
-            put(shapeJson, "type", shape->type);
-            put(shapeJson, "friction", shape->friction);
-            put(shapeJson, "restitution", shape->restitution);
-            put(shapeJson, "density", shape->density);
-            put(shapeJson, "isSensor", shape->isSensor);
-            put(shapeJson, "isConvex", shape->isConvex);
+            Serializer::serialize(shape->type, shapeJson["type"]);
+            Serializer::serialize(shape->friction, shapeJson["friction"]);
+            Serializer::serialize(shape->restitution, shapeJson["restitution"]);
+            Serializer::serialize(shape->density, shapeJson["density"]);
+            Serializer::serialize(shape->isSensor, shapeJson["isSensor"]);
+            Serializer::serialize(shape->isConvex, shapeJson["isConvex"]);
 
             switch(shape->type){
                 case ShapeType::CIRCLE: {
                     auto* circle = static_cast<CircleShape*>(shape.get());
-                    put(shapeJson, "position", circle->get_position());
-                    put(shapeJson, "radius", circle->get_radius());
+                    Serializer::serialize(circle->get_position(), shapeJson["position"]);
+                    Serializer::serialize(circle->get_radius(), shapeJson["radius"]);
                     break;
                 }
 
                 case ShapeType::POLYGON: {
                     auto* polygon = static_cast<PolygonShape*>(shape.get());
-                    put(shapeJson, "vertices", polygon->get_vertices());
+                    Serializer::serialize(polygon->get_vertices(), shapeJson["vertices"]);
                     break;
                 }
 
                 case ShapeType::EDGE: {
                     auto* edge = static_cast<EdgeShape*>(shape.get());
-                    put(shapeJson, "start", edge->get_start());
-                    put(shapeJson, "end", edge->get_end());
+                    Serializer::serialize(edge->get_start(), shapeJson["start"]);
+                    Serializer::serialize(edge->get_end(), shapeJson["end"]);
                     break;
                 }
 
                 case ShapeType::CHAIN: {
                     auto* chain = static_cast<ChainShape*>(shape.get());
-                    put(shapeJson, "chainType", chain->get_chain_type());
-                    put(shapeJson, "points", chain->get_points());
-                    put(shapeJson, "previous", chain->get_previous());
-                    put(shapeJson, "next", chain->get_next());
+                    Serializer::serialize(chain->get_chain_type(), shapeJson["chainType"]);
+                    Serializer::serialize(chain->get_points(), shapeJson["points"]);
+                    Serializer::serialize(chain->get_previous(), shapeJson["previous"]);
+                    Serializer::serialize(chain->get_next(), shapeJson["next"]);
                     break;
                 }
             }
@@ -419,36 +389,29 @@ namespace Draft {
             shapesJson.push_back(std::move(shapeJson));
         }
 
-        json["shapes"] = static_cast<nlohmann::json&&>(shapesJson);
-        put(json, "position", collider.position);
-        put(json, "origin", collider.origin);
-        put(json, "scale", collider.scale);
-        put(json, "rotation", collider.rotation);
+        json["shapes"] = std::move(shapesJson);
+        Serializer::serialize(collider.position, json["position"]);
+        Serializer::serialize(collider.origin, json["origin"]);
+        Serializer::serialize(collider.scale, json["scale"]);
+        Serializer::serialize(collider.rotation, json["rotation"]);
     }
 
-    void Collider::deserialize(Collider& collider, JSON& json){
+    void Collider::deserialize(Collider& collider, const JSON& json){
         collider.clear();
 
-        // json.at(key) returns a base nlohmann::json&, which can't bind to a JSON& parameter,
-        // so copy into a real JSON first (same reasoning as the reflect tier's JSON deserialize).
-        auto get = [](JSON& obj, const char* key, auto& value){
-            JSON child = obj.at(key);
-            Serializer::deserialize(value, child);
-        };
-
-        JSON shapesJson = json.at("shapes");
+        const JSON& shapesJson = json.at("shapes");
 
         for(JSON shapeJson : shapesJson){
             ShapeType type{};
             float friction = 0.f, restitution = 0.f, density = 0.f;
             bool isSensor = false, isConvex = true;
 
-            get(shapeJson, "type", type);
-            get(shapeJson, "friction", friction);
-            get(shapeJson, "restitution", restitution);
-            get(shapeJson, "density", density);
-            get(shapeJson, "isSensor", isSensor);
-            get(shapeJson, "isConvex", isConvex);
+            Serializer::deserialize(type, shapeJson.at("type"));
+            Serializer::deserialize(friction, shapeJson.at("friction"));
+            Serializer::deserialize(restitution, shapeJson.at("restitution"));
+            Serializer::deserialize(density, shapeJson.at("density"));
+            Serializer::deserialize(isSensor, shapeJson.at("isSensor"));
+            Serializer::deserialize(isConvex, shapeJson.at("isConvex"));
 
             Shape* added = nullptr;
 
@@ -457,8 +420,8 @@ namespace Draft {
                     CircleShape shape;
                     Vector2f position{};
                     float radius = 0.f;
-                    get(shapeJson, "position", position);
-                    get(shapeJson, "radius", radius);
+                    Serializer::deserialize(position, shapeJson.at("position"));
+                    Serializer::deserialize(radius, shapeJson.at("radius"));
                     shape.set_position(position);
                     shape.set_radius(radius);
                     added = collider.add_shape(shape);
@@ -468,7 +431,7 @@ namespace Draft {
                 case ShapeType::POLYGON: {
                     PolygonShape shape;
                     std::vector<Vector2f> vertices;
-                    get(shapeJson, "vertices", vertices);
+                    Serializer::deserialize(vertices, shapeJson.at("vertices"));
                     for(auto& vertex : vertices)
                         shape.add_vertex(vertex);
                     added = collider.add_shape(shape);
@@ -477,8 +440,8 @@ namespace Draft {
 
                 case ShapeType::EDGE: {
                     Vector2f start{}, end{};
-                    get(shapeJson, "start", start);
-                    get(shapeJson, "end", end);
+                    Serializer::deserialize(start, shapeJson.at("start"));
+                    Serializer::deserialize(end, shapeJson.at("end"));
                     EdgeShape shape(start, end);
                     added = collider.add_shape(shape);
                     break;
@@ -486,13 +449,13 @@ namespace Draft {
 
                 case ShapeType::CHAIN: {
                     ChainShape::ChainType chainType{};
-                    get(shapeJson, "chainType", chainType);
+                    Serializer::deserialize(chainType, shapeJson.at("chainType"));
 
                     std::vector<Vector2f> points;
                     Vector2f previous{}, next{};
-                    get(shapeJson, "points", points);
-                    get(shapeJson, "previous", previous);
-                    get(shapeJson, "next", next);
+                    Serializer::deserialize(points, shapeJson.at("points"));
+                    Serializer::deserialize(previous, shapeJson.at("previous"));
+                    Serializer::deserialize(next, shapeJson.at("next"));
 
                     ChainShape shape(chainType);
                     for(auto& point : points)
@@ -514,9 +477,9 @@ namespace Draft {
             }
         }
 
-        get(json, "position", collider.position);
-        get(json, "origin", collider.origin);
-        get(json, "scale", collider.scale);
-        get(json, "rotation", collider.rotation);
+        Serializer::deserialize(collider.position, json.at("position"));
+        Serializer::deserialize(collider.origin, json.at("origin"));
+        Serializer::deserialize(collider.scale, json.at("scale"));
+        Serializer::deserialize(collider.rotation, json.at("rotation"));
     }
 }

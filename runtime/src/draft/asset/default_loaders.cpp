@@ -19,7 +19,9 @@ namespace Draft {
         void register_default_loader<Collider>(AssetManager& assets){
             assets.register_loader<Collider>(
                 [](const FileHandle& handle){
-                    return Collider(JSON::parse(handle.read_string()));
+                    Collider collider;
+                    Collider::deserialize(collider, JSON::parse(handle.read_string()));
+                    return collider;
                 },
                 [](std::any data, AssetManager&){
                     auto collider = std::any_cast<Collider>(data);

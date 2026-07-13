@@ -21,6 +21,7 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 - [ ] Shader pipeline
 - [ ] Animation editor
 - [ ] Particle editor
+- [ ] Collider physics editor (overlaid texture)
 - [ ] Hot-reload of the game module
 - [ ] Prefab system
 - [ ] Asset dependency graph

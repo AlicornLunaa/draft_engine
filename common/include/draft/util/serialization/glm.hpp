@@ -13,7 +13,7 @@ struct Draft::Serializer::CustomSerializer<Draft::Math::vec<L, T, Q>> {
             json.push_back(v[i]);
     }
 
-    static void deserialize(Draft::Math::vec<L, T, Q>& v, JSON& json){
+    static void deserialize(Draft::Math::vec<L, T, Q>& v, const JSON& json){
         for(glm::length_t i = 0; i < L; i++)
             v[i] = json[i].template get<T>();
     }
