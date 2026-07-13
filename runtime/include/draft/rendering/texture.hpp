@@ -9,6 +9,7 @@
 #include "draft/math/rect.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/util/files/file_handle.hpp"
+#include "draft/util/reflectable.hpp"
 
 #include <array>
 #include <map>
@@ -100,5 +101,7 @@ namespace Draft {
             auto const& size = texture->get_properties().size;
             return {{bounds.x / size.x, bounds.y / size.y}, {(bounds.x + bounds.width) / size.x, (bounds.y + bounds.height) / size.y}};
         }
+
+        DRAFT_REFLECTABLE(TextureRegion, texture, bounds)
     };
 }

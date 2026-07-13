@@ -110,6 +110,7 @@ set(HEADERS
     include/draft/ecs/relationship_system.hpp
     include/draft/ecs/render_system.hpp
     include/draft/ecs/scene.hpp
+    include/draft/ecs/scene_serialization_context.hpp
     include/draft/ecs/system.hpp
     include/draft/input/action.hpp
     include/draft/input/event.hpp
@@ -174,6 +175,7 @@ set(HEADERS
     include/draft/rendering/texture_packer.hpp
     include/draft/rendering/vertex_array.hpp
     include/draft/rendering/window.hpp
+    include/draft/util/serialization/resource_serializer.hpp
 )
 
 set(SOURCES

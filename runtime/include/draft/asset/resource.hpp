@@ -1,5 +1,8 @@
 #pragma once
 
+#include "draft/util/json.hpp"
+#include "draft/util/serialization/binary.hpp"
+
 #include <atomic>
 #include <memory>
 
@@ -73,6 +76,22 @@ namespace Draft {
         T* get() const { return get_shared().get(); }
         T& operator*() const { return *get_shared(); }
         T* operator->() const { return get_shared().get(); }
+
+        /**
+         * @brief An opaque identity for this handle's slot, stable across get()/reload() and
+         * shared by every Resource<T> handed out for the same key. Two Resource<T>s refer to the
+         * same asset iff slot_id() matches. Used by AssetManager::key_for() to recover the key a
+         * Resource<T> was loaded from, e.g. for scene serialization.
+         */
+        const void* slot_id() const { return m_slot.get(); }
+
+        // Tier-1 (de)serialization, resolving through the active
+        // Serializer::context<SceneSerializationContext>() see resource_serializer.hpp.
+        static void serialize(const Resource<T>& resource, Binary::ByteArray& out);
+        static void deserialize(Resource<T>& resource, Binary::ByteView span);
+        static void deserialize_and_advance(Resource<T>& resource, Binary::ByteView& span);
+        static void serialize(const Resource<T>& resource, JSON& json);
+        static void deserialize(Resource<T>& resource, const JSON& json);
 
     private:
         std::shared_ptr<AssetSlot<T>> m_slot;

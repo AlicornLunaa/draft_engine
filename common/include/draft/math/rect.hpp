@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/math/bounds.hpp"
+#include "draft/util/reflectable.hpp"
 
 namespace Draft {
     /**
@@ -17,6 +18,8 @@ namespace Draft {
         // Constructors
         Rect(T x = 0, T y = 0, T width = 0, T height = 0) : x(x), y(y), width(width), height(height) {}
         Rect(const Vector2<T>& pos, const Vector2<T>& size) : x(pos.x), y(pos.y), width(size.x), height(size.y) {}
+
+        DRAFT_REFLECTABLE(Rect, x, y, width, height)
 
         /**
          * @brief Converts this rect to its four corners, wound clockwise from (x, y).

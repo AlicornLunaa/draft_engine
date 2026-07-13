@@ -50,6 +50,16 @@ namespace Draft {
         };
 
         /**
+         * @brief Satisfied when a BinarySerializable T also supplies its own
+         * deserialize_and_advance, needed for a variable-length T::serialize encoding where the default "consumed exactly sizeof(T)
+         * bytes" assumption used for fixed-size explicit types would be wrong.
+         */
+        template<typename T>
+        concept BinarySerializableWithAdvance = BinarySerializable<T> && requires(T object, Binary::ByteView& span){
+            { T::deserialize_and_advance(object, span) } -> std::convertible_to<void>;
+        };
+
+        /**
          * @brief Satisfied once CustomSerializer<T> has been specialized with Binary methods.
          */
         template<typename T>
@@ -112,7 +122,9 @@ namespace Draft {
         // Explicit tier: member functions on T
         template<BinarySerializable T> void serialize(const T& value, Binary::ByteArray& out);
         template<BinarySerializable T> void deserialize(T& value, Binary::ByteView span);
-        template<BinarySerializable T> void deserialize_and_advance(T& value, Binary::ByteView& span);
+        template<BinarySerializableWithAdvance T> void deserialize_and_advance(T& value, Binary::ByteView& span);
+        template<typename T> requires BinarySerializable<T> && (!BinarySerializableWithAdvance<T>)
+        void deserialize_and_advance(T& value, Binary::ByteView& span);
 
         template<JsonSerializable T, JsonLike J> void serialize(const T& value, J&& json);
         template<JsonSerializable T, JsonLike J> void deserialize(T& value, J&& json);
@@ -167,11 +179,19 @@ namespace Draft {
         inline void deserialize(T& value, Binary::ByteView span){ T::deserialize(value, span); }
 
         /**
-         * @brief Deserializes a BinarySerializable @p value and advances @p span past it.
-         * Assumes T::deserialize consumes exactly sizeof(T) bytes; a type with a variable-length
-         * binary encoding needs to advance its own span manually instead of using this helper.
+         * @brief Prefers T's own deserialize_and_advance when it has one, for a variable-length
+         * T::serialize encoding (e.g. Resource<T>) where "consumed exactly sizeof(T) bytes"
+         * would be wrong.
          */
-        template<BinarySerializable T>
+        template<BinarySerializableWithAdvance T>
+        inline void deserialize_and_advance(T& value, Binary::ByteView& span){ T::deserialize_and_advance(value, span); }
+
+        /**
+         * @brief Fallback for fixed-size explicit types: assumes T::deserialize consumed exactly
+         * sizeof(T) bytes. A variable-length type needs to give itself its own
+         * deserialize_and_advance instead (see BinarySerializableWithAdvance above).
+         */
+        template<typename T> requires BinarySerializable<T> && (!BinarySerializableWithAdvance<T>)
         inline void deserialize_and_advance(T& value, Binary::ByteView& span){
             T::deserialize(value, span);
             span = span.subspan(sizeof(T));

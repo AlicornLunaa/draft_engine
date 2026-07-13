@@ -9,6 +9,7 @@
 #include <exception>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <typeindex>
 #include <unordered_map>
@@ -309,6 +310,27 @@ namespace Draft {
             it->second->set(reg.placeholder ? reg.placeholder->get() : nullptr);
             reg.resources.erase(it);
             return true;
+        }
+
+        /**
+         * @brief Reverse lookup: the key @p resource was loaded under for T, if it's still
+         * loaded under one. Used by scene serialization to turn a live Resource<T> back into a
+         * string key. Doesn't create a registry for T if one doesn't already exist.
+         */
+        template<typename T>
+        std::optional<std::string> key_for(const Resource<T>& resource) const {
+            auto it = m_registries.find(typeid(T));
+            if(it == m_registries.end())
+                return std::nullopt;
+
+            const auto& reg = static_cast<const TypeRegistry<T>&>(*it->second);
+            const void* id = resource.slot_id();
+
+            for(const auto& [key, slot] : reg.resources)
+                if(slot.get() == id)
+                    return key;
+
+            return std::nullopt;
         }
 
         /**
