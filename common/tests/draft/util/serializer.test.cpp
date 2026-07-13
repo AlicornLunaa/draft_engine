@@ -153,3 +153,147 @@ TEST(SerializerCustomType, JsonRoundTrip)
     ASSERT_EQ(restored.name, "health");
     ASSERT_EQ(restored.value, 100);
 }
+
+namespace {
+    // Plain reflectable struct with no explicit serialize/deserialize of its own, must be
+    // picked up by the reflect tier, not the trivial tier's overload (even though it happens to
+    // also be trivially copyable).
+    struct Point {
+        DRAFT_REFLECTED(int, x) = 0;
+        DRAFT_REFLECTED(int, y) = 0;
+
+        DRAFT_REFLECTABLE(Point, x, y)
+    };
+
+    // A reflectable struct with a variable-length field (a vector), forcing the reflect tier's
+    // binary encoding to actually advance between fields instead of assuming sizeof(T).
+    struct Path {
+        DRAFT_REFLECTED(std::string, name);
+        DRAFT_REFLECTED(std::vector<int>, waypoints);
+
+        DRAFT_REFLECTABLE(Path, name, waypoints)
+    };
+
+    // A reflectable struct nesting another reflectable struct, to exercise recursive dispatch.
+    struct Line {
+        DRAFT_REFLECTED(Point, start);
+        DRAFT_REFLECTED(Point, end);
+
+        DRAFT_REFLECTABLE(Line, start, end)
+    };
+
+    static_assert(Reflectable<Point>);
+    static_assert(!Serializer::BinarySerializable<Point>);
+    static_assert(!Serializer::JsonSerializable<Point>);
+}
+
+TEST(SerializerReflectable, BinaryRoundTrip)
+{
+    Point original{3, 4};
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(original, buffer);
+
+    Binary::ByteView view(buffer);
+    Point restored;
+    Serializer::deserialize(restored, view);
+
+    ASSERT_EQ(restored.x, 3);
+    ASSERT_EQ(restored.y, 4);
+}
+
+TEST(SerializerReflectable, JsonRoundTrip)
+{
+    Point original{5, 6};
+
+    JSON json;
+    Serializer::serialize(original, json);
+
+    Point restored;
+    Serializer::deserialize(restored, json);
+
+    ASSERT_EQ(restored.x, 5);
+    ASSERT_EQ(restored.y, 6);
+}
+
+TEST(SerializerReflectable, BinaryRoundTripVariableLength)
+{
+    Path original{"trail", {1, 2, 3, 4}};
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(original, buffer);
+
+    // Two Paths back-to-back must not overlap, proves fields advance the span correctly.
+    Serializer::serialize(original, buffer);
+
+    Binary::ByteView view(buffer);
+    Path first, second;
+    Serializer::deserialize_and_advance(first, view);
+    Serializer::deserialize_and_advance(second, view);
+
+    ASSERT_EQ(first.name, "trail");
+    ASSERT_EQ(first.waypoints, (std::vector<int>{1, 2, 3, 4}));
+    ASSERT_EQ(second.name, "trail");
+    ASSERT_EQ(second.waypoints, (std::vector<int>{1, 2, 3, 4}));
+    ASSERT_TRUE(view.empty());
+}
+
+TEST(SerializerReflectable, JsonRoundTripVariableLength)
+{
+    Path original{"trail", {1, 2, 3, 4}};
+
+    JSON json;
+    Serializer::serialize(original, json);
+
+    Path restored;
+    Serializer::deserialize(restored, json);
+
+    ASSERT_EQ(restored.name, "trail");
+    ASSERT_EQ(restored.waypoints, (std::vector<int>{1, 2, 3, 4}));
+}
+
+TEST(SerializerReflectable, BinaryRoundTripNested)
+{
+    Line original{{0, 0}, {10, 20}};
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(original, buffer);
+
+    Binary::ByteView view(buffer);
+    Line restored;
+    Serializer::deserialize(restored, view);
+
+    ASSERT_EQ(restored.start.x, 0);
+    ASSERT_EQ(restored.start.y, 0);
+    ASSERT_EQ(restored.end.x, 10);
+    ASSERT_EQ(restored.end.y, 20);
+}
+
+TEST(SerializerReflectable, JsonRoundTripNested)
+{
+    Line original{{0, 0}, {10, 20}};
+
+    JSON json;
+    Serializer::serialize(original, json);
+
+    Line restored;
+    Serializer::deserialize(restored, json);
+
+    ASSERT_EQ(restored.start.x, 0);
+    ASSERT_EQ(restored.start.y, 0);
+    ASSERT_EQ(restored.end.x, 10);
+    ASSERT_EQ(restored.end.y, 20);
+}
+
+TEST(SerializerVector, JsonRoundTrip)
+{
+    std::vector<int> values = {1, 2, 3, 4, 5};
+
+    JSON json;
+    Serializer::serialize(values, json);
+
+    std::vector<int> restored;
+    Serializer::deserialize(restored, json);
+
+    ASSERT_EQ(restored, values);
+}

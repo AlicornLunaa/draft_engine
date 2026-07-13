@@ -14,7 +14,7 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 
 ## Current Todo/Future Ideas
 - [x] AssetManager::register_loader<T> for all previous types
-- [ ] Component registry
+- [x] Component registry
 - [ ] Scene serialization
 - [ ] BuildTools
 - [ ] Proper editor
