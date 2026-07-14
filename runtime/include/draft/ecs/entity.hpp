@@ -101,7 +101,7 @@ namespace Draft {
 
         /**
          * @brief Two handles are equal only if they refer to the same entity ID *and* the same
-         * scene - entt::entity values are small, scene-local, recycled integers, so two
+         * scene, entt::entity values are small, scene-local, recycled integers, so two
          * entities from different scenes can otherwise share the same numeric ID.
          */
         bool operator==(const Entity& other) const { return m_context == other.m_context && m_entityID == other.m_entityID; }
@@ -115,7 +115,7 @@ namespace Draft {
     };
 
     /**
-     * @brief A named, explicit null entity - equivalent to a default-constructed Entity{}, kept
+     * @brief A named, explicit null entity equivalent to a default-constructed Entity{}, kept
      * around as a readable sentinel for comparisons (`entity == NULL_ENTITY`) and defaults.
      */
     const Entity NULL_ENTITY = Entity(nullptr, entt::null);

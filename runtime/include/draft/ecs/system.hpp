@@ -123,7 +123,7 @@ namespace Draft {
         T& emplace(std::unique_ptr<AbstractSystem>&& systemPtr){
             static_assert(std::is_base_of_v<AbstractSystem, T>, "SystemRegistry::emplace<T>(): T must derive from AbstractSystem");
 
-            T& ref = *systemPtr;
+            T& ref = static_cast<T&>(*systemPtr);
 
             auto type = std::type_index(typeid(T));
             if(!m_systems.contains(type))
@@ -144,6 +144,20 @@ namespace Draft {
                 throw std::logic_error("SystemRegistry::get(): no system of the requested type is registered");
 
             return static_cast<T&>(*it->second);
+        }
+
+        /**
+         * @brief Gets the registered T. Const counterpart of get<T>(), for a read-only caller
+         * (e.g. serializing a system's own reflected fields) that only has a const SystemRegistry.
+         * @throws std::logic_error if no T is registered.
+         */
+        template<typename T>
+        const T& get() const {
+            auto it = m_systems.find(std::type_index(typeid(T)));
+            if(it == m_systems.end())
+                throw std::logic_error("SystemRegistry::get(): no system of the requested type is registered");
+
+            return static_cast<const T&>(*it->second);
         }
 
         /**
@@ -175,6 +189,13 @@ namespace Draft {
             std::erase(m_order, type);
             return true;
         }
+
+        /**
+         * @brief Every registered system's type, in the order each was first added. Meant for a
+         * generic caller (e.g. scene saving) that needs to enumerate what's attached without
+         * already knowing each type, unlike get<T>()/try_get<T>()/has<T>().
+         */
+        const std::vector<std::type_index>& registered_types() const { return m_order; }
 
         /**
          * @brief Calls update(dt) on every registered system, in the order each was first

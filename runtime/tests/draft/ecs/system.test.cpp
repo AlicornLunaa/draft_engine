@@ -143,6 +143,32 @@ TEST(SystemRegistry, DistinctSystemTypesRunInTheOrderTheyWereFirstAdded)
     ASSERT_EQ(log, (std::vector<std::string>{"B", "A"}));
 }
 
+TEST(SystemRegistry, RegisteredTypesListsEveryTypeInRegistrationOrder)
+{
+    std::vector<std::string> log;
+    SystemRegistry systems;
+    systems.add<SystemB>(log);
+    systems.add<SystemA>(log);
+
+    ASSERT_EQ(systems.registered_types(), (std::vector<std::type_index>{
+        std::type_index(typeid(SystemB)),
+        std::type_index(typeid(SystemA)),
+    }));
+}
+
+TEST(SystemRegistry, RegisteredTypesDropsAnEntryOnRemove)
+{
+    std::vector<std::string> log;
+    SystemRegistry systems;
+    systems.add<SystemB>(log);
+    systems.add<SystemA>(log);
+    systems.remove<SystemB>();
+
+    ASSERT_EQ(systems.registered_types(), (std::vector<std::type_index>{
+        std::type_index(typeid(SystemA)),
+    }));
+}
+
 TEST(SystemRegistry, ReplacingASystemKeepsItsOriginalPositionInOrder)
 {
     std::vector<std::string> log;

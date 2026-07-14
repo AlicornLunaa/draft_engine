@@ -2,6 +2,7 @@
 
 #include "draft/ecs/system.hpp"
 #include "draft/util/reflectable.hpp"
+#include "draft/util/serialization/serializer.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -42,6 +43,23 @@ namespace Draft {
          * @brief True if @p entity currently has this component type.
          */
         virtual bool has(const SystemRegistry& registry) const = 0;
+
+        /**
+         * @brief Serializes this system's own reflected fields off the instance already attached
+         * to @p registry, which must already have(registry). A system's construction dependencies
+         * (World&, Renderer&, ...) live in its factory closure instead, see add(), and are never part of this.
+         */
+        virtual void serialize(const SystemRegistry& registry, JSON& json) const = 0;
+        virtual void serialize(const SystemRegistry& registry, Binary::ByteArray& out) const = 0;
+
+        /**
+         * @brief Deserializes onto the instance already attached to @p registry (see add(),
+         * which must be called first, unlike a component, a system can't be default-constructed
+         * on demand here, its real dependencies only exist in the factory closure).
+         * @throws std::logic_error if @p registry doesn't already have this system.
+         */
+        virtual void deserialize(SystemRegistry& registry, JSON& json) const = 0;
+        virtual void deserialize(SystemRegistry& registry, Binary::ByteView data) const = 0;
     };
 
     /**
@@ -59,6 +77,12 @@ namespace Draft {
         void add(SystemRegistry& registry) const override { registry.emplace<T>(std::move(m_factory())); }
         void remove(SystemRegistry& registry) const override { registry.remove<T>(); }
         bool has(const SystemRegistry& registry) const override { return registry.has<T>(); }
+
+        void serialize(const SystemRegistry& registry, JSON& json) const override { Serializer::serialize(registry.get<T>(), json); }
+        void serialize(const SystemRegistry& registry, Binary::ByteArray& out) const override { Serializer::serialize(registry.get<T>(), out); }
+
+        void deserialize(SystemRegistry& registry, JSON& json) const override { Serializer::deserialize(registry.get<T>(), json); }
+        void deserialize(SystemRegistry& registry, Binary::ByteView data) const override { Serializer::deserialize(registry.get<T>(), data); }
 
     private:
         std::string m_name;
