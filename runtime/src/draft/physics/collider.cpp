@@ -256,6 +256,10 @@ namespace Draft {
     }
 
     void Collider::deserialize(Collider& collider, Binary::ByteView span){
+        deserialize_and_advance(collider, span);
+    }
+
+    void Collider::deserialize_and_advance(Collider& collider, Binary::ByteView& span){
         collider.clear();
 
         size_t shapeCount = 0;

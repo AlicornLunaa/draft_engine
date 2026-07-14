@@ -76,5 +76,8 @@ namespace Draft {
         static void deserialize(Collider& collider, Binary::ByteView span);
         static void serialize(const Collider& collider, JSON& json);
         static void deserialize(Collider& collider, const JSON& json);
+
+        // Binary encoding is variable-length (shape count, then per-shape data)
+        static void deserialize_and_advance(Collider& collider, Binary::ByteView& span);
     };
 }

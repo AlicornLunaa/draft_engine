@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "draft/components/collider_component.hpp"
 #include "draft/physics/shapes/circle_shape.hpp"
+#include "draft/physics/shapes/polygon_shape.hpp"
 #include "draft/util/serialization/serializer.hpp"
 
 using namespace Draft;
@@ -64,4 +65,34 @@ TEST(ColliderComponent, JsonRoundTripReachesTheUnderlyingCollider)
 
     ASSERT_EQ(restored.collider.get_shape_count(), 1);
     EXPECT_EQ(restored.collider.get_shapes()[0]->type, ShapeType::CIRCLE);
+}
+
+// Regression test: ColliderComponent's Binary encoding goes through the reflect tier's
+// deserialize_and_advance, which needs Collider's own deserialize_and_advance (variable-length,
+// see collider.hpp) rather than the sizeof(Collider)-assuming default. Two components back to
+// back is what catches a wrong advance corrupting the second one's read.
+TEST(ColliderComponent, BinaryRoundTripOfTwoComponentsInARowReachesTheUnderlyingCollider)
+{
+    CircleShape circle;
+    circle.set_radius(2.f);
+    ColliderComponent first(circle);
+
+    PolygonShape box;
+    box.set_as_box(3.f, 4.f);
+    ColliderComponent second(box);
+
+    Binary::ByteArray out;
+    Serializer::serialize(first, out);
+    Serializer::serialize(second, out);
+
+    Binary::ByteView span(out);
+    ColliderComponent restoredFirst, restoredSecond;
+    Serializer::deserialize_and_advance(restoredFirst, span);
+    Serializer::deserialize_and_advance(restoredSecond, span);
+
+    ASSERT_EQ(restoredFirst.collider.get_shape_count(), 1);
+    EXPECT_EQ(restoredFirst.collider.get_shapes()[0]->type, ShapeType::CIRCLE);
+
+    ASSERT_EQ(restoredSecond.collider.get_shape_count(), 1);
+    EXPECT_EQ(restoredSecond.collider.get_shapes()[0]->type, ShapeType::POLYGON);
 }
