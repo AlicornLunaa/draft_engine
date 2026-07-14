@@ -91,7 +91,7 @@ namespace Draft {
             if(!entry)
                 continue;
 
-            entry->add(scene.get_systems());
+            entry->add(scene);
             entry->deserialize(scene.get_systems(), systemJson.at("data"));
         }
 

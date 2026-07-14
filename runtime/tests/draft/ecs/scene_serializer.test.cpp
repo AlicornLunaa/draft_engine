@@ -46,7 +46,7 @@ namespace {
 TEST(SceneSerializer, RoundTripsEntitiesComponentsAndSystemData)
 {
     Engine engine;
-    engine.systems().register_system<GravitySystem>([]{ return std::make_unique<GravitySystem>(); });
+    engine.systems().register_system<GravitySystem>([](Scene&){ return std::make_unique<GravitySystem>(); });
 
     AssetManager assets;
 
@@ -128,12 +128,11 @@ TEST(SceneSerializer, PhysicsBodyAndColliderMaterializeAutomaticallyOnLoad)
     World world({0.f, -9.8f});
     Scene scene;
 
-    // PhysicsSystem's construction dependencies (Scene&, World&) live in this factory closure,
-    // captured once, see system_catalog.hpp/SystemFactory. This means load_scene() below must
-    // target this same scene/world, not a separately-constructed one (Scene isn't copyable or
-    // reassignable anyway), mirroring a real game's single long-lived Scene/World.
-    engine.systems().register_system<PhysicsSystem>([&scene, &world]{ return std::make_unique<PhysicsSystem>(scene, world); });
-    engine.systems().by_type<PhysicsSystem>()->add(scene.get_systems());
+    // PhysicsSystem's Scene& comes from whichever scene add() is called for (see
+    // system_catalog.hpp/SystemFactory), but World& is still captured here. This means
+    // load_scene()
+    engine.systems().register_system<PhysicsSystem>([&world](Scene& scene){ return std::make_unique<PhysicsSystem>(scene, world); });
+    engine.systems().by_type<PhysicsSystem>()->add(scene);
 
     Entity entity = scene.create_entity();
     entity.add_component<TransformComponent>(TransformComponent{{3.f, 4.f}, 0.f});

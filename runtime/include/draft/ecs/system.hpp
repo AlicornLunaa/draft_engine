@@ -191,6 +191,14 @@ namespace Draft {
         }
 
         /**
+         * @brief Clears all the systems currently registered
+         */
+        void clear(){
+            m_order.clear();
+            m_systems.clear();
+        }
+
+        /**
          * @brief Every registered system's type, in the order each was first added. Meant for a
          * generic caller (e.g. scene saving) that needs to enumerate what's attached without
          * already knowing each type, unlike get<T>()/try_get<T>()/has<T>().

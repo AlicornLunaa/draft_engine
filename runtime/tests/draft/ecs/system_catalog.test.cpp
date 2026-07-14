@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "draft/ecs/scene.hpp"
 #include "draft/ecs/system_catalog.hpp"
 
 #include <memory>
@@ -23,11 +24,11 @@ namespace {
     };
 
     SystemFactory gravity_factory(){
-        return []{ return std::make_unique<GravitySystem>(); };
+        return [](Scene&){ return std::make_unique<GravitySystem>(); };
     }
 
     SystemFactory other_factory(){
-        return []{ return std::make_unique<OtherSystem>(); };
+        return [](Scene&){ return std::make_unique<OtherSystem>(); };
     }
 
     // Hand-written (not DRAFT_REFLECTABLE) Reflectable types that deliberately share a
@@ -115,20 +116,20 @@ TEST(SystemCatalog, ReRegisteringKeepsItsOriginalPositionInOrder)
 TEST(SystemCatalog, RegisteringADifferentTypeUnderAnAlreadyUsedNameThrows)
 {
     SystemCatalog catalog;
-    catalog.register_system<SharedNameA>([]{ return std::make_unique<SharedNameA>(); });
-    ASSERT_THROW(catalog.register_system<SharedNameB>([]{ return std::make_unique<SharedNameB>(); }), std::logic_error);
+    catalog.register_system<SharedNameA>([](Scene&){ return std::make_unique<SharedNameA>(); });
+    ASSERT_THROW(catalog.register_system<SharedNameB>([](Scene&){ return std::make_unique<SharedNameB>(); }), std::logic_error);
 }
 
 TEST(SystemCatalog, AddConstructsViaTheFactoryAndAttachesIt)
 {
-    SystemRegistry registry;
+    Scene scene;
 
     SystemCatalog catalog;
     catalog.register_system<GravitySystem>(gravity_factory());
 
-    catalog.by_type<GravitySystem>()->add(registry);
-    ASSERT_TRUE(registry.has<GravitySystem>());
-    ASSERT_FLOAT_EQ(registry.get<GravitySystem>().strength, 9.8f);
+    catalog.by_type<GravitySystem>()->add(scene);
+    ASSERT_TRUE(scene.get_systems().has<GravitySystem>());
+    ASSERT_FLOAT_EQ(scene.get_systems().get<GravitySystem>().strength, 9.8f);
 }
 
 TEST(SystemCatalog, RemoveRemovesTheSystemFromTheRegistry)

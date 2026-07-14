@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/ecs/scene.hpp"
 #include "draft/ecs/system.hpp"
 #include "draft/util/reflectable.hpp"
 #include "draft/util/serialization/serializer.hpp"
@@ -15,8 +16,8 @@
 #include <vector>
 
 namespace Draft {
-    /** @brief Used to construct a system using closures */
-    typedef std::function<std::unique_ptr<AbstractSystem>()> SystemFactory;
+    /** @brief Used to construct a system using closures. Returns the system for the given scene. */
+    typedef std::function<std::unique_ptr<AbstractSystem>(Scene&)> SystemFactory;
 
     /**
      * @brief Type-erased base of SystemTypeCatalogEntry<T>, letting SystemCatalog hold a
@@ -30,9 +31,10 @@ namespace Draft {
         virtual std::type_index type() const = 0;
 
         /**
-         * @brief Adds a system type to the @p registry.
+         * @brief Constructs this system via its factory (see SystemFactory) for @p scene and
+         * adds it to scene.get_systems().
          */
-        virtual void add(SystemRegistry& registry) const = 0;
+        virtual void add(Scene& scene) const = 0;
 
         /**
          * @brief Removes this system type from @p registry.
@@ -74,7 +76,7 @@ namespace Draft {
         const std::string& name() const override { return m_name; }
         std::type_index type() const override { return std::type_index(typeid(T)); }
 
-        void add(SystemRegistry& registry) const override { registry.emplace<T>(std::move(m_factory())); }
+        void add(Scene& scene) const override { scene.get_systems().emplace<T>(m_factory(scene)); }
         void remove(SystemRegistry& registry) const override { registry.remove<T>(); }
         bool has(const SystemRegistry& registry) const override { return registry.has<T>(); }
 
