@@ -115,4 +115,137 @@ namespace Draft {
             }
         }
     }
+
+    void save_scene_binary(const Scene& scene, const Engine& engine, AssetManager& assets, const FileHandle& file){
+        SceneSerializationContext ctx;
+        ctx.assets = &assets;
+
+        // Same ordering as save_scene(), see there for why it's kept as its own vector.
+        std::vector<entt::entity> orderedEntities;
+        if(const auto* entityStorage = scene.get_registry().storage<entt::entity>()){
+            for(entt::entity raw : *entityStorage){
+                ctx.entityToId[raw] = static_cast<uint32_t>(orderedEntities.size());
+                orderedEntities.push_back(raw);
+            }
+        }
+
+        Serializer::ScopedContext<SceneSerializationContext> scope(ctx);
+        Binary::ByteArray out;
+
+        // Pass 2: systems, in attach order. Each entry is name + byte length + blob, so a reader
+        // that doesn't recognize the name can still skip the blob without decoding it.
+        uint32_t systemCount = 0;
+        for(const std::type_index& type : scene.get_systems().registered_types()){
+            if(engine.systems().by_type(type))
+                systemCount++;
+        }
+        Serializer::serialize(systemCount, out);
+
+        for(const std::type_index& type : scene.get_systems().registered_types()){
+            SystemTypeInterface* entry = engine.systems().by_type(type);
+            if(!entry)
+                continue;
+
+            Serializer::serialize(entry->name(), out);
+
+            Binary::ByteArray data;
+            entry->serialize(scene.get_systems(), data);
+            Serializer::serialize(static_cast<uint64_t>(data.size()), out);
+            out.insert(out.end(), data.begin(), data.end());
+        }
+
+        // Pass 3: per-entity component data, same skip-if-unregistered framing as systems above.
+        Serializer::serialize(static_cast<uint32_t>(orderedEntities.size()), out);
+
+        for(entt::entity raw : orderedEntities){
+            Entity entity(const_cast<Scene*>(&scene), raw);
+
+            uint32_t componentCount = 0;
+            for(ComponentTypeInterface* entry : engine.components().all()){
+                if(entry->has(entity))
+                    componentCount++;
+            }
+            Serializer::serialize(componentCount, out);
+
+            for(ComponentTypeInterface* entry : engine.components().all()){
+                if(!entry->has(entity))
+                    continue;
+
+                Serializer::serialize(entry->name(), out);
+
+                Binary::ByteArray data;
+                entry->serialize(entity, data);
+                Serializer::serialize(static_cast<uint64_t>(data.size()), out);
+                out.insert(out.end(), data.begin(), data.end());
+            }
+        }
+
+        file.write_bytes(out);
+    }
+
+    void load_scene_binary(Scene& scene, const Engine& engine, AssetManager& assets, const FileHandle& file){
+        Binary::ByteArray bytes = file.read_bytes();
+        Binary::ByteView span(bytes);
+
+        SceneSerializationContext ctx;
+        ctx.assets = &assets;
+
+        Serializer::ScopedContext<SceneSerializationContext> scope(ctx);
+
+        // Load pass 1: attach systems via their registered factory, in file (original attach)
+        // order, then restore each one's own reflected data onto the instance just attached.
+        uint32_t systemCount = 0;
+        Serializer::deserialize_and_advance(systemCount, span);
+
+        for(uint32_t i = 0; i < systemCount; i++){
+            std::string name;
+            Serializer::deserialize_and_advance(name, span);
+
+            uint64_t dataSize = 0;
+            Serializer::deserialize_and_advance(dataSize, span);
+
+            Binary::ByteView data = span.subspan(0, dataSize);
+            span = span.subspan(dataSize);
+
+            SystemTypeInterface* entry = engine.systems().by_name(name);
+            if(!entry)
+                continue;
+
+            entry->add(scene);
+            entry->deserialize(scene.get_systems(), data);
+        }
+
+        // Load pass 2: create every saved entity up front, same reasoning as load_scene().
+        uint32_t entityCount = 0;
+        Serializer::deserialize_and_advance(entityCount, span);
+        ctx.idToEntity.reserve(entityCount);
+
+        for(uint32_t i = 0; i < entityCount; i++)
+            ctx.idToEntity.push_back(scene.create_entity());
+
+        // Load pass 3: restore each entity's component data.
+        for(uint32_t i = 0; i < entityCount; i++){
+            Entity entity = ctx.idToEntity[i];
+
+            uint32_t componentCount = 0;
+            Serializer::deserialize_and_advance(componentCount, span);
+
+            for(uint32_t c = 0; c < componentCount; c++){
+                std::string name;
+                Serializer::deserialize_and_advance(name, span);
+
+                uint64_t dataSize = 0;
+                Serializer::deserialize_and_advance(dataSize, span);
+
+                Binary::ByteView data = span.subspan(0, dataSize);
+                span = span.subspan(dataSize);
+
+                ComponentTypeInterface* entry = engine.components().by_name(name);
+                if(!entry)
+                    continue;
+
+                entry->deserialize(entity, data);
+            }
+        }
+    }
 }

@@ -112,6 +112,11 @@ namespace Draft {
         static void deserialize(Entity& entity, Binary::ByteView span);
         static void serialize(const Entity& entity, JSON& json);
         static void deserialize(Entity& entity, const JSON& json);
+
+        // The encoded id is a fixed-size uint32_t, but sizeof(Entity) itself is a Scene* plus an
+        // entt::entity, so the default BinarySerializableWithAdvance-less fallback (which assumes
+        // deserialize() consumed sizeof(Entity) bytes) would over-advance the span.
+        static void deserialize_and_advance(Entity& entity, Binary::ByteView& span);
     };
 
     /**

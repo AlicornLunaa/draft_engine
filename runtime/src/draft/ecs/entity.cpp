@@ -40,6 +40,13 @@ namespace Draft {
         entity = id == UINT32_MAX ? NULL_ENTITY : Serializer::context<SceneSerializationContext>().idToEntity.at(id);
     }
 
+    void Entity::deserialize_and_advance(Entity& entity, Binary::ByteView& span){
+        uint32_t id;
+        Serializer::deserialize_and_advance(id, span);
+
+        entity = id == UINT32_MAX ? NULL_ENTITY : Serializer::context<SceneSerializationContext>().idToEntity.at(id);
+    }
+
     void Entity::serialize(const Entity& entity, JSON& json){
         uint32_t id = entity == NULL_ENTITY ? UINT32_MAX : Serializer::context<SceneSerializationContext>().entityToId.at(entity.m_entityID);
         Serializer::serialize(id, json);

@@ -34,4 +34,17 @@ namespace Draft {
      * which entity in the file defines it, or whether it appears earlier or later in the file.
      */
     void load_scene(Scene& scene, const Engine& engine, AssetManager& assets, const FileHandle& file);
+
+    /**
+     * @brief Same three-pass algorithm and skip-if-unregistered semantics as save_scene(), but
+     * writes a length-prefixed binary format to @p file instead of JSON: system/entity/component
+     * counts, each system/component blob preceded by its name and byte length. The length prefix
+     * is what lets an unknown/removed type be skipped on load without knowing how to decode it.
+     */
+    void save_scene_binary(const Scene& scene, const Engine& engine, AssetManager& assets, const FileHandle& file);
+
+    /**
+     * @brief Binary counterpart to load_scene(), reading the format written by save_scene_binary().
+     */
+    void load_scene_binary(Scene& scene, const Engine& engine, AssetManager& assets, const FileHandle& file);
 }

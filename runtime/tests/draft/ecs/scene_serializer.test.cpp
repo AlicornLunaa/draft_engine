@@ -89,6 +89,83 @@ TEST(SceneSerializer, RoundTripsEntitiesComponentsAndSystemData)
     EXPECT_EQ(loadedParent.get_component<ParentComponent>().children[0], loadedChild);
 }
 
+TEST(SceneSerializer, BinaryRoundTripsEntitiesComponentsAndSystemData)
+{
+    Engine engine;
+    engine.systems().register_system<GravitySystem>([](Scene&){ return std::make_unique<GravitySystem>(); });
+
+    AssetManager assets;
+
+    Scene scene;
+    scene.get_systems().add<GravitySystem>().strength = 12.5f;
+
+    Entity parent = scene.create_entity();
+    parent.add_component<TagComponent>(TagComponent{"Parent"});
+    parent.add_component<TransformComponent>(TransformComponent{{1.f, 2.f}, 0.5f});
+
+    Entity child = scene.create_entity();
+    child.add_component<TagComponent>(TagComponent{"Child"});
+    child.add_component<ChildComponent>(ChildComponent{parent});
+
+    FileHandle file = DiskFileProvider().open("scene_serializer_round_trip.bin");
+    save_scene_binary(scene, engine, assets, file);
+
+    Scene loaded;
+    load_scene_binary(loaded, engine, assets, file);
+    file.remove();
+
+    ASSERT_TRUE(loaded.get_systems().has<GravitySystem>());
+    EXPECT_FLOAT_EQ(loaded.get_systems().get<GravitySystem>().strength, 12.5f);
+
+    Entity loadedParent = find_by_tag(loaded, "Parent");
+    Entity loadedChild = find_by_tag(loaded, "Child");
+    ASSERT_TRUE(loadedParent.is_valid());
+    ASSERT_TRUE(loadedChild.is_valid());
+
+    ASSERT_TRUE(loadedParent.has_component<TransformComponent>());
+    EXPECT_FLOAT_EQ(loadedParent.get_component<TransformComponent>().position.x, 1.f);
+    EXPECT_FLOAT_EQ(loadedParent.get_component<TransformComponent>().position.y, 2.f);
+    EXPECT_FLOAT_EQ(loadedParent.get_component<TransformComponent>().rotation, 0.5f);
+
+    ASSERT_TRUE(loadedChild.has_component<ChildComponent>());
+    EXPECT_EQ(loadedChild.get_component<ChildComponent>().parent, loadedParent);
+
+    ASSERT_TRUE(loadedParent.has_component<ParentComponent>());
+    ASSERT_EQ(loadedParent.get_component<ParentComponent>().children.size(), 1u);
+    EXPECT_EQ(loadedParent.get_component<ParentComponent>().children[0], loadedChild);
+}
+
+TEST(SceneSerializer, BinaryUnregisteredSystemsAndComponentsAreSkippedRatherThanThrowing)
+{
+    Engine engine; // TransformComponent registered, TagComponent is not exercised here
+    AssetManager assets;
+
+    Scene scene;
+    scene.get_systems().add<GravitySystem>(); // attached directly, never registered in engine.systems()
+
+    Entity entity = scene.create_entity();
+    entity.add_component<TransformComponent>(TransformComponent{{7.f, 8.f}, 0.f});
+
+    FileHandle file = DiskFileProvider().open("scene_serializer_unregistered.bin");
+    ASSERT_NO_THROW(save_scene_binary(scene, engine, assets, file));
+
+    Scene loaded;
+    ASSERT_NO_THROW(load_scene_binary(loaded, engine, assets, file));
+    file.remove();
+
+    EXPECT_FALSE(loaded.get_systems().has<GravitySystem>()); // never in the file, GravitySystem has no catalog entry
+
+    Entity loadedEntity;
+    for(entt::entity raw : loaded.get_registry().storage<entt::entity>()){
+        Entity e(&loaded, raw);
+        if(e.has_component<TransformComponent>())
+            loadedEntity = e;
+    }
+
+    ASSERT_TRUE(loadedEntity.is_valid());
+    EXPECT_FLOAT_EQ(loadedEntity.get_component<TransformComponent>().position.x, 7.f);
+}
+
 TEST(SceneSerializer, UnregisteredSystemsAndComponentsAreSkippedRatherThanThrowing)
 {
     Engine engine; // TransformComponent registered, TagComponent is not exercised here
