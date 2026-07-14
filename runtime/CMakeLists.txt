@@ -194,6 +194,7 @@ set(SOURCES
     src/draft/ecs/relationship_system.cpp
     src/draft/ecs/render_system.cpp
     src/draft/ecs/scene.cpp
+    src/draft/ecs/scene_serializer.cpp
     src/draft/ecs/system.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp

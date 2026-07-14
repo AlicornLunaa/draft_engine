@@ -3,6 +3,7 @@
 #include "draft/ecs/registry.hpp"
 #include "draft/ecs/system.hpp"
 #include "draft/rendering/pipeline/renderer.hpp"
+#include "draft/util/reflectable.hpp"
 
 namespace Draft {
     /**
@@ -23,5 +24,10 @@ namespace Draft {
         // Functions
         void render(Time dt, RenderLayer layer) override;
         RenderLayer get_render_layers() const override { return RenderLayer::Geometry; }
+
+        // No fields of its own to save, registryRef/rendererRef are construction dependencies
+        // (see SystemFactory), not tunable state. Empty so RenderSystem can still be registered
+        // via SystemCatalog::register_system<T>() (requires Reflectable<T>).
+        DRAFT_REFLECTABLE(RenderSystem)
     };
 }

@@ -6,6 +6,7 @@
 #include "draft/ecs/scene.hpp"
 #include "draft/ecs/system.hpp"
 #include "draft/physics/world.hpp"
+#include "draft/util/reflectable.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -337,5 +338,10 @@ namespace Draft {
 
         // Functions
         void update(Time dt) override;
+
+        // No fields of its own to save, m_registryRef/m_sceneRef/m_worldRef are construction
+        // dependencies (see SystemFactory), not tunable state. Empty so PhysicsSystem can still
+        // be registered via SystemCatalog::register_system<T>() (requires Reflectable<T>).
+        DRAFT_REFLECTABLE(PhysicsSystem)
     };
 };
