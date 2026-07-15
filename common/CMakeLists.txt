@@ -94,8 +94,14 @@ cmrc_add_resource_library(
     ${RESOURCES}
 )
 
-add_library(${PROJECT_NAME} STATIC)
+# SHARED in Debug, STATIC in Release.
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_library(${PROJECT_NAME} SHARED)
+else()
+    add_library(${PROJECT_NAME} STATIC)
+endif()
 add_library(draft::common ALIAS ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCES} ${HEADERS})
 

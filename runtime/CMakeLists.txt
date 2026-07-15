@@ -246,8 +246,16 @@ set(SOURCES
     src/draft/rendering/window.cpp
 )
 
-add_library(${PROJECT_NAME} STATIC)
+# SHARED in Debug, STATIC in Release. This matters a lot for debugging, as the module is meant to be hot reloadable.
+# The module needs shared pointers for glfw, gl, glad, etc which is only possible with either fully statically linked
+# or fully dynamic.
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_library(${PROJECT_NAME} SHARED)
+else()
+    add_library(${PROJECT_NAME} STATIC)
+endif()
 add_library(draft::runtime ALIAS ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCES} ${HEADERS})
 
