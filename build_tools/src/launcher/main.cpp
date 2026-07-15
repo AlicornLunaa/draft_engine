@@ -35,12 +35,13 @@ namespace {
 }
 
 int main(int argc, char** argv){
-    if(argc != 2){
-        std::fprintf(stderr, "Usage: %s <manifest.json>\n", argv[0]);
-        return 1;
-    }
-
     #if !defined(DRAFT_STATIC_GAME_MODULE)
+        // Argument only needed if not Release build
+        if(argc != 2){
+            std::fprintf(stderr, "Usage: %s <manifest.json>\n", argv[0]);
+            return 1;
+        }
+        
         std::unique_ptr<GameModuleLoader> module;
 
         try {
