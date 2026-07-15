@@ -251,6 +251,14 @@ set(SOURCES
 # or fully dynamic.
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_library(${PROJECT_NAME} SHARED)
+    if(MINGW)
+        # WINDOWS_EXPORT_ALL_SYMBOLS below exports everything, including GCC's own internal
+        # unwind symbols (_Unwind_Resume). Anything that statically embeds its own copy of
+        # libgcc/libstdc++ (the MinGW default) and also links this DLL's import lib ends up
+        # with two definitions of those symbols. Sharing one copy of the runtime instead of
+        # each target embedding its own avoids the clash.
+        target_link_options(${PROJECT_NAME} PUBLIC -shared-libgcc -shared-libstdc++)
+    endif()
 else()
     add_library(${PROJECT_NAME} STATIC)
 endif()
