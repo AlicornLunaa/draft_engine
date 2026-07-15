@@ -6,10 +6,23 @@
 
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <typeindex>
 #include <unordered_map>
 
 namespace Draft {
+    /**
+     * @brief A game's own fixed identity/defaults, exported via DRAFT_GAME_INFO (game_module.hpp)
+     * and read by the launcher before Application exists, since Application needs a title and
+     * size to construct. width/height are just the initial defaults; an options system can still
+     * override them later at runtime.
+     */
+    struct GameInfo {
+        std::string title = "Draft Game";
+        unsigned int width = 1280;
+        unsigned int height = 720;
+    };
+
     namespace detail {
         struct PersistentSlotInterface {
             virtual ~PersistentSlotInterface() = default;

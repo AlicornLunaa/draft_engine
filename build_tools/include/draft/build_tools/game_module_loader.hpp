@@ -17,7 +17,8 @@ namespace Draft {
     class GameModuleLoader {
     public:
         /**
-         * @throws std::runtime_error if @p path can't be loaded or doesn't export draft_register_game().
+         * @throws std::runtime_error if @p path can't be loaded or doesn't export
+         * draft_register_game()/draft_game_info().
          */
         explicit GameModuleLoader(const std::filesystem::path& path);
 
@@ -27,14 +28,21 @@ namespace Draft {
         ~GameModuleLoader();
 
         /**
+         * @brief Calls the module's DRAFT_GAME_INFO function.
+         */
+        GameInfo game_info() const;
+
+        /**
          * @brief Calls the module's registration function with @p context and @p scene.
          */
         void register_game(GameContext& context, Scene& scene) const;
 
     private:
+        using GameInfoFn = void(*)(GameInfo&);
         using RegisterGameFn = void(*)(GameContext&, Scene&);
 
         void* m_handle = nullptr;
+        GameInfoFn m_gameInfo = nullptr;
         RegisterGameFn m_registerGame = nullptr;
     };
 }

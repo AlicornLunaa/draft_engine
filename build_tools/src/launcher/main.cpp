@@ -9,11 +9,14 @@
 
 #include <cstdio>
 #include <filesystem>
+#include <memory>
 #include <string>
 
 #if defined(DRAFT_STATIC_GAME_MODULE)
-    // Release: the game's DRAFT_GAME_MODULE is compiled into this same executable, so its exported
-    // function is just an ordinary symbol to call directly, no module file, no dynamic loading.
+    // Release: the game's DRAFT_GAME_INFO/DRAFT_GAME_MODULE are compiled into this same
+    // executable, so their exported functions are just ordinary symbols to call directly, no
+    // module file, no dynamic loading.
+    extern "C" void draft_game_info(Draft::GameInfo& info);
     extern "C" void draft_register_game(Draft::GameContext& context, Draft::Scene& scene);
 #else
     #include "draft/build_tools/game_module_loader.hpp"
@@ -22,24 +25,12 @@
 using namespace Draft;
 
 namespace {
-    struct LaunchManifest {
-        std::string title = "Draft Game";
-        unsigned int width = 1280;
-        unsigned int height = 720;
-        std::string module;
-    };
-
-    // Reads the small JSON manifest a project's build points the launcher at: window title and
-    // size, and (Debug only) where to find the compiled game module to load.
-    LaunchManifest load_manifest(const std::string& path){
+    // Reads the tiny JSON manifest a project's build points the launcher at: (Debug only) where
+    // to find the compiled game module to load. Title/window size come from the module itself
+    // (DRAFT_GAME_INFO), not from here.
+    std::string load_module_path(const std::string& path){
         JSON json(HostFileSystem().open(path));
-
-        LaunchManifest manifest;
-        manifest.title = json.value("title", manifest.title);
-        manifest.width = json.value("width", manifest.width);
-        manifest.height = json.value("height", manifest.height);
-        manifest.module = json.value("module", manifest.module);
-        return manifest;
+        return json.value("module", std::string());
     }
 }
 
@@ -49,35 +40,38 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    LaunchManifest manifest;
+    #if !defined(DRAFT_STATIC_GAME_MODULE)
+        std::unique_ptr<GameModuleLoader> module;
 
-    try {
-        manifest = load_manifest(argv[1]);
-    } catch(const std::exception& e){
-        Logger::println(LogLevel::Critical, "Launcher", std::string("Failed to read manifest: ") + e.what());
-        return 1;
-    }
+        try {
+            std::string modulePathStr = load_module_path(argv[1]);
+            // The module path in the manifest is relative to the manifest itself, resolved to an absolute path here.
+            std::filesystem::path modulePath = std::filesystem::absolute(std::filesystem::path(argv[1]).parent_path() / modulePathStr);
+            module = std::make_unique<GameModuleLoader>(modulePath);
+        } catch(const std::exception& e){
+            Logger::println(LogLevel::Critical, "Launcher", std::string("Failed to load game module: ") + e.what());
+            return 1;
+        }
+    #endif
+
+    #if defined(DRAFT_STATIC_GAME_MODULE)
+        GameInfo info;
+        draft_game_info(info);
+    #else
+        GameInfo info = module->game_info();
+    #endif
 
     Engine engine;
-    Application app(manifest.title, manifest.width, manifest.height);
+    Application app(info.title, info.width, info.height);
     AssetManager assets;
     GameContext context{engine, app, assets};
     Scene scene;
 
-    try {
-        #if defined(DRAFT_STATIC_GAME_MODULE)
-            draft_register_game(context, scene);
-        #else
-            // The module path in the manifest is relative to the manifest itself, resolved to an
-            // absolute path here.
-            std::filesystem::path modulePath = std::filesystem::absolute(std::filesystem::path(argv[1]).parent_path() / manifest.module);
-            GameModuleLoader module(modulePath);
-            module.register_game(context, scene);
-        #endif
-    } catch(const std::exception& e){
-        Logger::println(LogLevel::Critical, "Launcher", std::string("Failed to load game module: ") + e.what());
-        return 1;
-    }
+    #if defined(DRAFT_STATIC_GAME_MODULE)
+        draft_register_game(context, scene);
+    #else
+        module->register_game(context, scene);
+    #endif
 
     app.set_scene(&scene);
     app.run();
