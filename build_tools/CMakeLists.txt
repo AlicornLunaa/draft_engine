@@ -44,6 +44,13 @@ function(draft_add_game_module target)
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
         )
+
+        # The manifest draft_launcher reads to find this module. Generated at build time so the
+        # module filename always matches whatever this platform actually names the shared library.
+        file(GENERATE
+            OUTPUT "$<TARGET_FILE_DIR:${target}>/game.json"
+            CONTENT "{\n  \"module\": \"$<TARGET_FILE_NAME:${target}>\"\n}\n"
+        )
     else()
         add_executable(${target} ${sources} ${DRAFT_LAUNCHER_SOURCE})
         target_compile_definitions(${target} PRIVATE DRAFT_STATIC_GAME_MODULE)
