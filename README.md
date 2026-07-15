@@ -13,9 +13,6 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 * Intentionally lightweight engine, where main logic is all compiled in with C++.
 
 ## Current Todo/Future Ideas
-- [x] AssetManager::register_loader<T> for all previous types
-- [x] Component registry
-- [ ] Scene serialization
 - [ ] BuildTools
 - [ ] Proper editor
 - [ ] Shader pipeline
@@ -30,9 +27,8 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 
 - [ ] Create a localization system
 - [ ] Profiler system to standardize calls to RAM across systems
-- [ ] Serializable colliders
-- [ ] Crash logs
 - [ ] Math utils for map, lerp, slerp, and other graphs
+- [ ] Crash logs
 
 
 ## Project Structure
@@ -94,20 +90,27 @@ The editor does **not** replace VS Code or CMake.
 
 ### Build Tools
 Shared build/export functionality.
+This will be a single CLI tool which the editor will make calls to, instead of compiling against the build_tools itself.
+This CMake subproject should also contain the launcher executable. This is the program that in
+- DEBUG: will load the game executable DLL/shared object and launch the game.
+- RELEASE: will statically link the game library and launch the game.
 
-**Responsible for**:
+Responsibilities:
 * Pack project assets
+    - Takes all loose assets (JSON/Binary), loads them to confirm valid, saves into temp packing folder (binary format)
+    - After all assets validated and resaved, zip the whole assets folder into a .apak (asset pack)
+    - Implement file provider for AssetFileSystem which takes in an assetpak filehandle
+    - AssetFileSystem decompresses in memory, and then the assetpackfileprovider will supply the data as requested
+    - Keep log in console for progress
 * Export projects
+    - Instructs CMake to build Release type and make the launcher statically link against the game
 * Asset validation
+    - Just makes sure it loads
 * Dependency analysis (future)
 * Asset importing/conversion (future)
 
-The BuildTools library is used by both:
-* CLI tools
-* Editor
-
-There should only be one implementation of project export logic.  
-This should ALSO have an executable target for the CLI.
+The BuildTools is a CLI used by the user or editor.
+There should only be one implementation of project export logic.
 
 
 ## Development Workflow
