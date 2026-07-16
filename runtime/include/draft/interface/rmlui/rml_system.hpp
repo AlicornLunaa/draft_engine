@@ -2,6 +2,7 @@
 
 #include "draft/ecs/system.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/util/reflectable.hpp"
 
 #include <memory>
 #include <vector>
@@ -48,5 +49,7 @@ namespace Draft {
         RenderLayer get_render_layers() const override { return RenderLayer::Overlay; }
         void render(Time dt, RenderLayer layer) override;
         bool on_event(const Event& event) override;
+
+        DRAFT_REFLECTABLE(RmlUiSystem);
     };
 }
