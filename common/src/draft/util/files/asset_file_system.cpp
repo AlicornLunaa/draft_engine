@@ -1,7 +1,9 @@
 #include "draft/util/files/asset_file_system.hpp"
+#include "draft/util/files/archive_file_provider.hpp"
 #include "draft/util/files/disk_file_provider.hpp"
 #include "draft/util/files/embedded_file_provider.hpp"
 
+#include <memory>
 #include <stdexcept>
 
 namespace fs = std::filesystem;
@@ -9,6 +11,12 @@ namespace fs = std::filesystem;
 namespace Draft {
     AssetFileSystem::AssetFileSystem() {
         m_providers.push_back(std::make_unique<DiskFileProvider>());
+
+        DiskFileProvider fs;
+        if(fs.is_file("assets.apak")){
+            m_providers.push_back(std::make_unique<ArchiveFileProvider>(fs.open("assets.apak")));
+        }
+
         m_providers.push_back(std::make_unique<EmbeddedFileProvider>());
     }
 
