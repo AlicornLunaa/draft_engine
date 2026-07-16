@@ -10,6 +10,8 @@ FetchContent_MakeAvailable(nlohmann_json)
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 1.0.1)
 FetchContent_MakeAvailable(glm)
 
+add_subdirectory(vendor/miniz)
+
 set(HEADERS
     include/draft/math/bounds.hpp
     include/draft/math/color.hpp
@@ -18,6 +20,7 @@ set(HEADERS
     include/draft/math/rect.hpp
     include/draft/util/circular_buffer.hpp
     include/draft/util/clock.hpp
+    include/draft/util/files/archive_file_provider.hpp
     include/draft/util/files/asset_file_system.hpp
     include/draft/util/files/disk_file_provider.hpp
     include/draft/util/files/embedded_file_provider.hpp
@@ -43,6 +46,7 @@ set(SOURCES
     src/draft/math/color.cpp
     src/draft/math/glm.cpp
     src/draft/util/clock.cpp
+    src/draft/util/files/archive_file_provider.cpp
     src/draft/util/files/asset_file_system.cpp
     src/draft/util/files/disk_file_provider.cpp
     src/draft/util/files/embedded_file_provider.cpp
@@ -122,6 +126,7 @@ target_link_libraries(${PROJECT_NAME}
         glm::glm
     PRIVATE
         ${PROJECT_NAME}::rc
+        miniz
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
@@ -147,6 +152,7 @@ if(DRAFT_COMMON_BUILD_TESTS)
         PRIVATE
         GTest::gtest_main
         ${PROJECT_NAME}
+        miniz
     )
 
     include(GoogleTest)

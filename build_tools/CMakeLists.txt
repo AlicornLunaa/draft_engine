@@ -1,14 +1,24 @@
 cmake_minimum_required(VERSION 3.11)
 project("draft_build_tools" VERSION 0.1.0 LANGUAGES CXX)
 
+option(DRAFT_BUILD_TOOLS_BUILD_TESTS "Build the tests for draft_build_tools" ON)
+
 set(HEADERS
+    include/draft/build_tools/apak_writer.hpp
+    include/draft/build_tools/asset_pipeline.hpp
     include/draft/build_tools/game_context.hpp
     include/draft/build_tools/game_module.hpp
     include/draft/build_tools/game_module_loader.hpp
+    include/draft/build_tools/project_exporter.hpp
+    include/draft/build_tools/project_packer.hpp
 )
 
 set(SOURCES
+    src/draft/build_tools/apak_writer.cpp
+    src/draft/build_tools/asset_pipeline.cpp
     src/draft/build_tools/game_module_loader.cpp
+    src/draft/build_tools/project_exporter.cpp
+    src/draft/build_tools/project_packer.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC)
@@ -21,7 +31,10 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC draft::common draft::runtime ${CMAKE_DL_LIBS})
+# glfw: project_packer.cpp needs a hidden GL context (glfwInit/glfwWindowHint) the same way the
+# CLI mains used to before that logic moved into the library - draft::runtime only links glfw
+# PRIVATE, so anything calling raw GLFW functions directly still needs its own link to it.
+target_link_libraries(${PROJECT_NAME} PUBLIC draft::common draft::runtime ${CMAKE_DL_LIBS} PRIVATE miniz glfw)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 # Exposed so draft_add_game_module can compile the launcher's main() straight into a Release
@@ -54,6 +67,16 @@ function(draft_add_game_module target)
     else()
         add_executable(${target} ${sources} ${DRAFT_LAUNCHER_SOURCE})
         target_compile_definitions(${target} PRIVATE DRAFT_STATIC_GAME_MODULE)
+
+        # Lets Phase 6's export_project() find this binary generically (`cmake --install
+        # <build-dir> --prefix <output-dir> --component DraftGameLauncher`) without needing to
+        # know `target`'s name - every project using draft_add_game_module gets this for free,
+        # no per-project CMake needed. A named COMPONENT matters here, not just convenience:
+        # without one, `cmake --install` with no --component installs every default-component
+        # rule in the whole dependency tree (glfw, EnTT headers, SFML's pkgconfig files, ...),
+        # some of which (SFML) hardcode absolute /usr/local paths and fail outright without
+        # root - found by actually running export end to end, not just reading the docs.
+        install(TARGETS ${target} RUNTIME DESTINATION . COMPONENT DraftGameLauncher)
     endif()
 
     target_link_libraries(${target} PRIVATE draft::build_tools draft::runtime)
@@ -68,8 +91,39 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     draft_copy_openal_dll(draft_launcher)
 endif()
 
-# Standalone asset-pipeline CLI
-add_executable(draft_buildtools src/validate/main.cpp)
+# Standalone asset-pipeline CLI - src/cli/main.cpp dispatches to each subcommand's own
+# src/<name>/main.cpp (run_<name>()), sharing the walk/classify/validate/pack/export logic in
+# draft::build_tools's own headers rather than duplicating it per subcommand.
+add_executable(draft_buildtools src/cli/main.cpp src/validate/main.cpp src/pack/main.cpp src/export/main.cpp)
 target_link_libraries(draft_buildtools PRIVATE ${PROJECT_NAME} draft::runtime glfw)
 target_compile_features(draft_buildtools PRIVATE cxx_std_23)
 draft_copy_openal_dll(draft_buildtools)
+
+if(DRAFT_BUILD_TOOLS_BUILD_TESTS)
+    message(STATUS "Building draft_build_tools tests")
+    enable_testing()
+
+    include(FetchContent)
+    FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip SYSTEM)
+    FetchContent_MakeAvailable(googletest)
+
+    file(GLOB_RECURSE BUILD_TOOLS_TEST_SOURCES "tests/**/*.cpp")
+
+    add_executable(
+        draft_build_tools_tests
+        ${BUILD_TOOLS_TEST_SOURCES}
+    )
+
+    target_link_libraries(
+        draft_build_tools_tests
+        PRIVATE
+        GTest::gtest_main
+        ${PROJECT_NAME}
+        draft::common
+    )
+
+    target_compile_features(draft_build_tools_tests PRIVATE cxx_std_23)
+
+    include(GoogleTest)
+    gtest_discover_tests(draft_build_tools_tests)
+endif()
