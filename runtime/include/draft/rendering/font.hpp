@@ -71,6 +71,7 @@ namespace Draft {
         Font(const FileHandle& handle);
         Font(const std::vector<std::byte>& rawData);
         Font(const Font& other) = delete;
+        Font(Font&& other) noexcept;
         ~Font();
 
         // Operators

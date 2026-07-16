@@ -7,6 +7,7 @@
 #include "stb_image.h"
 
 #include <cassert>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -156,6 +157,11 @@ namespace Draft {
         int width, height, channels;
         unsigned char* pixelData = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(arr.data()), arr.size(), &width, &height, &channels, 0);
 
+        // stbi returns null on malformed/unrecognized data instead of throwing, so a corrupt
+        // asset has to be caught here or it segfaults on the null pixelData dereference below
+        if(!pixelData)
+            throw std::runtime_error(std::string("Image: failed to decode image data (") + stbi_failure_reason() + ")");
+
         // Remove the old data pointer and its assosciated memory if it exists
         if(dataPtr)
             delete[] dataPtr;
@@ -179,7 +185,8 @@ namespace Draft {
             break;
 
         default:
-            assert(false && "Unhandled channel count when loading image");
+            stbi_image_free(pixelData);
+            throw std::runtime_error("Image: unhandled channel count " + std::to_string(channels) + " when loading image");
         }
 
         size = { width, height };

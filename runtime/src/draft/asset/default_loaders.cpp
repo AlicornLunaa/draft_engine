@@ -4,12 +4,12 @@
 #include "draft/physics/collider.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/image.hpp"
+#include "draft/rendering/model.hpp"
 #include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/texture_packer.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/json.hpp"
-#include "draft/util/serialization/serializer.hpp"
 #include <any>
 #include <utility>
 
@@ -63,6 +63,17 @@ namespace Draft {
                 },
                 [](std::any data, AssetManager&){
                     return std::any_cast<JSON>(data);
+                }
+            );
+        }
+
+        template<>
+        void register_default_loader<Model>(AssetManager& assets){
+            // Model(FileHandle) already does its own GL upload internally (embedded textures,
+            // vertex buffers, ...), so there's no separable off-thread stage
+            assets.register_loader<Model>(
+                [](const FileHandle& handle, AssetManager&){
+                    return Model(handle);
                 }
             );
         }

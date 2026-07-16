@@ -137,8 +137,18 @@ namespace Draft {
         load_font();
     }
 
+    Font::Font(Font&& other) noexcept
+        : rawData(std::move(other.rawData)),
+          fontSizeToTextureMap(std::move(other.fontSizeToTextureMap)),
+          fontTypes(std::move(other.fontTypes)),
+          fontSize(other.fontSize),
+          ptr(std::move(other.ptr))
+    {}
+
     Font::~Font(){
-        clear();
+        // ptr is null after being moved from, clear() dereferences it unconditionally
+        if(ptr)
+            clear();
     }
 
     // Functions

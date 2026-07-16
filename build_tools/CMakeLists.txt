@@ -67,3 +67,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_features(draft_launcher PRIVATE cxx_std_23)
     draft_copy_openal_dll(draft_launcher)
 endif()
+
+# Standalone asset-pipeline CLI
+add_executable(draft_buildtools src/validate/main.cpp)
+target_link_libraries(draft_buildtools PRIVATE ${PROJECT_NAME} draft::runtime glfw)
+target_compile_features(draft_buildtools PRIVATE cxx_std_23)
+draft_copy_openal_dll(draft_buildtools)
