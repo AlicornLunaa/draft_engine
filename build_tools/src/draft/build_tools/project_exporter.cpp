@@ -51,7 +51,7 @@ namespace Draft {
 
         fs::remove_all(buildDir); // scratch, not part of the exported output
 
-        fs::path apakPath = outputDir / (projectRoot.filename().string() + ".apak");
+        fs::path apakPath = outputDir / "assets.apak";
         Logger::println(LogLevel::Info, "Export", "Packing assets...");
         if (!pack_project(projectRoot, apakPath))
             throw std::runtime_error("Export: asset packing failed, see Pack log above");
