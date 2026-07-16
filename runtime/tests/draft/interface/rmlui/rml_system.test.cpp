@@ -45,7 +45,7 @@ TEST_F(RmlUiSystemTest, GetRenderLayersIsOverlayOnly)
 TEST_F(RmlUiSystemTest, RenderWithARegisteredContextProducesNoGLError)
 {
     RmlUiSystem rml(*window);
-    RmlContext context(rml, "rml_system_test_context", Vector2i{64, 64});
+    RmlContext& context = rml.add_context("rml_system_test_context", Vector2i{64, 64});
 
     glGetError();
     EXPECT_NO_THROW(rml.render(Time::seconds(0), RenderLayer::Overlay));
@@ -61,7 +61,7 @@ TEST_F(RmlUiSystemTest, RenderWithNoContextsDoesNotThrow)
 TEST_F(RmlUiSystemTest, OnEventStopsAtTheFirstContextThatConsumesIt)
 {
     RmlUiSystem rml(*window);
-    RmlContext context(rml, "rml_system_test_event_context", Vector2i{64, 64});
+    RmlContext& context = rml.add_context("rml_system_test_event_context", Vector2i{64, 64});
 
     Event event;
     event.type = Event::MouseMoved;
@@ -77,7 +77,7 @@ TEST(RmlContextTest, HandleEventResizeAlwaysReturnsFalseAndNeverConsumes)
 {
     RenderWindow window(64, 64, "rml_context_test");
     RmlUiSystem rml(window);
-    RmlContext context(rml, "rml_context_test_resize", Vector2i{64, 64});
+    RmlContext& context = rml.add_context("rml_context_test_resize", Vector2i{64, 64});
 
     Event event;
     event.type = Event::Resized;

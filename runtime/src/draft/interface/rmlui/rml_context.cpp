@@ -1,5 +1,4 @@
 #include "draft/interface/rmlui/rml_context.hpp"
-#include "draft/interface/rmlui/RmlUi_Renderer_GL3.h"
 #include "draft/input/keyboard.hpp"
 #include "draft/math/glm.hpp"
 
@@ -108,29 +107,16 @@ namespace Draft {
     }
 
     // Constructors
-    RmlContext::RmlContext(RmlUiSystem& engine, const std::string& name, const Vector2i& size){
-        // Save the engine for later rendering
-        m_engine = &engine;
-        m_engine->register_context(*this);
-
+    RmlContext::RmlContext(const std::string& name, const Vector2i& size){
         // Create context
         m_context = Rml::CreateContext(name, {size.x, size.y});
     }
 
-    RmlContext::RmlContext(RmlContext&& other) : m_engine(other.m_engine), m_context(other.m_context) {
-        other.m_engine = nullptr;
+    RmlContext::RmlContext(RmlContext&& other) : m_context(other.m_context) {
         other.m_context = nullptr;
-
-        if(m_engine){
-            m_engine->unregister_context(other);
-            m_engine->register_context(*this);
-        }
     }
 
     RmlContext::~RmlContext(){
-        if(m_engine)
-            m_engine->unregister_context(*this);
-
         if(m_context)
             Rml::RemoveContext(m_context->GetName());
     }
@@ -138,18 +124,8 @@ namespace Draft {
     // Operators
     RmlContext& RmlContext::operator=(RmlContext&& other){
         if(this != &other){
-            if(m_engine)
-                m_engine->unregister_context(*this);
-
-            m_engine = other.m_engine;
             m_context = other.m_context;
-            other.m_engine = nullptr;
             other.m_context = nullptr;
-
-            if(m_engine){
-                m_engine->unregister_context(other);
-                m_engine->register_context(*this);
-            }
         }
 
         return *this;
@@ -205,14 +181,11 @@ namespace Draft {
     void RmlContext::render() const {
         // Render this context
         assert(is_valid() && "Trying to render an invalid context is prohibited");
-
-        RmlUiSystem::s_renderInterface->BeginFrame();
         m_context->Update();
         m_context->Render();
-        RmlUiSystem::s_renderInterface->EndFrame();
     }
 
     bool RmlContext::is_valid() const {
-        return m_context != nullptr && m_engine != nullptr;
+        return m_context != nullptr;
     }
 }

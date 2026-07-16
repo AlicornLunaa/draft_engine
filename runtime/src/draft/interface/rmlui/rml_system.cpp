@@ -2,11 +2,11 @@
 #include "draft/interface/rmlui/RmlUi_Platform_GLFW.h"
 #include "draft/interface/rmlui/RmlUi_Renderer_GL3.h"
 #include "draft/interface/rmlui/rml_context.hpp"
+#include "draft/interface/rmlui/rml_debugger.hpp"
 #include "draft/rendering/render_window.hpp"
 
 #include "RmlUi/Core/Core.h"
 
-#include <algorithm>
 #include <cassert>
 
 namespace Draft {
@@ -36,6 +36,8 @@ namespace Draft {
     }
 
     RmlUiSystem::~RmlUiSystem(){
+        m_contextPtrs.clear();
+
         s_backendCount--;
 
         if(s_backendCount <= 0){
@@ -48,23 +50,39 @@ namespace Draft {
         }
     }
 
-    // Private functions
-    void RmlUiSystem::register_context(RmlContext& context){
-        m_contexts.push_back(&context);
-    }
-
-    void RmlUiSystem::unregister_context(RmlContext& context){
-        std::erase(m_contexts, &context);
-    }
-
     // Functions
+    RmlDebugger& RmlUiSystem::add_debugger(const Vector2i& size){
+        auto debuggerPtr = std::make_unique<RmlDebugger>(size);
+        auto& debuggerRef = *debuggerPtr;
+        m_contextPtrs.push_back(std::move(debuggerPtr));
+        return debuggerRef;
+    }
+
+    RmlContext& RmlUiSystem::add_context(const std::string& name, const Vector2i& size){
+        m_contextPtrs.push_back(std::make_unique<RmlContext>(name, size));
+        return *m_contextPtrs.back();
+    }
+
+    void RmlUiSystem::remove_context(RmlContext& context){
+        for(auto it = m_contextPtrs.begin(); it != m_contextPtrs.end(); ++it){
+            if(it->get() == &context){
+                m_contextPtrs.erase(it);
+                break;
+            }
+        }
+    }
+    
     void RmlUiSystem::render(Time, RenderLayer){
-        for(RmlContext* context : m_contexts)
+        s_renderInterface->BeginFrame();
+
+        for(auto& context : m_contextPtrs)
             context->render();
+
+        s_renderInterface->EndFrame();
     }
 
     bool RmlUiSystem::on_event(const Event& event){
-        for(RmlContext* context : m_contexts){
+        for(auto& context : m_contextPtrs){
             if(context->handle_event(event))
                 return true;
         }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "draft/input/event.hpp"
 #include "draft/interface/rmlui/rml_system.hpp"
+#include "draft/input/event.hpp"
 #include "draft/math/glm.hpp"
 
 #include "RmlUi/Core/ElementDocument.h"
@@ -12,14 +12,11 @@
 namespace Draft {
     /**
      * @brief One Rml::Context, independently constructible so more than one can coexist (e.g.
-     * one per viewport). Self-registers with @p engine on construction and unregisters on
-     * destruction, so the owning RmlUiSystem's render()/on_event() reach every live context
-     * without needing to be told about it separately.
+     * one per viewport).
      */
     class RmlContext {
     private:
         // Variables
-        RmlUiSystem* m_engine = nullptr;
         Rml::Context* m_context = nullptr;
 
         // Private functions
@@ -28,7 +25,7 @@ namespace Draft {
 
     public:
         // Constructors
-        RmlContext(RmlUiSystem& engine, const std::string& name, const Vector2i& size);
+        RmlContext(const std::string& name, const Vector2i& size);
         RmlContext(const RmlContext& other) = delete;
         RmlContext(RmlContext&& other);
         virtual ~RmlContext();

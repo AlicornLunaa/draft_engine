@@ -12,7 +12,7 @@ namespace Draft {
     bool RmlDebugger::s_debuggerExists = false;
 
     // Constructors
-    RmlDebugger::RmlDebugger(RmlUiSystem& engine, const Vector2i& size) : RmlContext(engine, "debugger", size) {
+    RmlDebugger::RmlDebugger(const Vector2i& size) : RmlContext("debugger", size) {
         // Error check
         if(s_debuggerExists)
             throw std::runtime_error("Only one RML debugger can exist at one moment");
