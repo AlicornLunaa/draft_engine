@@ -99,7 +99,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_library(${PROJECT_NAME} SHARED)
     if(MINGW)
         # See the same block in engine/runtime/CMakeLists.txt for why.
-        target_link_options(${PROJECT_NAME} PUBLIC -shared-libgcc -shared-libstdc++)
+        target_link_options(${PROJECT_NAME} PUBLIC -shared-libgcc)
     endif()
 else()
     add_library(${PROJECT_NAME} STATIC)

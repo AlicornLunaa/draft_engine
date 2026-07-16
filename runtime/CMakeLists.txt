@@ -15,7 +15,15 @@ FetchContent_MakeAvailable(glfw)
 
 # Only the Audio module, Runtime has its own GLFW-based Window, and no use for SFML's Window/Graphics/Network modules.
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-option(SFML_USE_STATIC_STD_LIBS "Use static libraries" ON)
+
+# In the MinGW Debug config, draft_common/draft_runtime are SHARED and rely on one shared copy of
+# libgcc/libstdc++ across the whole process (see the MINGW block below).
+if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    option(SFML_USE_STATIC_STD_LIBS "Use static libraries" OFF)
+else()
+    option(SFML_USE_STATIC_STD_LIBS "Use static libraries" ON)
+endif()
+
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_BUILD_AUDIO ON CACHE BOOL "" FORCE)
 set(SFML_BUILD_WINDOW OFF CACHE BOOL "" FORCE)
@@ -68,7 +76,11 @@ add_subdirectory(vendor/opensimplexnoise)
 find_package(Threads REQUIRED)
 
 if(WIN32)
-    set(SFML_FLAGS sfml-audio user32 gdi32 -static)
+    if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(SFML_FLAGS sfml-audio user32 gdi32)
+    else()
+        set(SFML_FLAGS sfml-audio user32 gdi32 -static)
+    endif()
     add_compile_definitions(WINDOWS)
 elseif(LINUX)
     set(SFML_FLAGS sfml-audio X11 pthread dl)
@@ -257,7 +269,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         # libgcc/libstdc++ (the MinGW default) and also links this DLL's import lib ends up
         # with two definitions of those symbols. Sharing one copy of the runtime instead of
         # each target embedding its own avoids the clash.
-        target_link_options(${PROJECT_NAME} PUBLIC -shared-libgcc -shared-libstdc++)
+        target_link_options(${PROJECT_NAME} PUBLIC -shared-libgcc)
     endif()
 else()
     add_library(${PROJECT_NAME} STATIC)
@@ -302,7 +314,9 @@ if(WIN32)
     else()
         set(DRAFT_OPENAL_ARCH "x86")
     endif()
-    set(DRAFT_OPENAL_DLL "${sfml_SOURCE_DIR}/extlibs/bin/${DRAFT_OPENAL_ARCH}/openal32.dll")
+    # CACHE INTERNAL so draft_copy_openal_dll (called from other directory scopes, e.g.
+    # build_tools/CMakeLists.txt for draft_launcher) can still see it.
+    set(DRAFT_OPENAL_DLL "${sfml_SOURCE_DIR}/extlibs/bin/${DRAFT_OPENAL_ARCH}/openal32.dll" CACHE INTERNAL "")
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_link_options(${PROJECT_NAME} PRIVATE "-mwindows")

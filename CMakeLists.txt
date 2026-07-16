@@ -16,6 +16,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
+if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    get_filename_component(DRAFT_MINGW_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
+    file(GLOB DRAFT_MINGW_RUNTIME_DLLS
+        "${DRAFT_MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
+        "${DRAFT_MINGW_BIN_DIR}/libstdc++-6.dll"
+        "${DRAFT_MINGW_BIN_DIR}/libwinpthread-1.dll"
+    )
+    file(COPY ${DRAFT_MINGW_RUNTIME_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+
 add_subdirectory(common)
 add_subdirectory(runtime)
 add_subdirectory(build_tools)
