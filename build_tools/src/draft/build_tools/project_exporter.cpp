@@ -38,7 +38,7 @@ namespace Draft {
             "Configuring " + projectRoot.string() + " (Release)"
         );
         run_cmake_step(
-            "cmake --build " + quote(buildDir) + " --config Release",
+            "cmake --build " + quote(buildDir) + " -j --config Release",
             "Building"
         );
         // Relies on draft_add_game_module's install(TARGETS ... COMPONENT DraftGameLauncher)
