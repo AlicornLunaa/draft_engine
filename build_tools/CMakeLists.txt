@@ -120,6 +120,7 @@ if(DRAFT_BUILD_TOOLS_BUILD_TESTS)
         GTest::gtest_main
         ${PROJECT_NAME}
         draft::common
+        glfw
     )
 
     target_compile_features(draft_build_tools_tests PRIVATE cxx_std_23)
