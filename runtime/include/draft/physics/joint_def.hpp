@@ -72,4 +72,17 @@ namespace Draft {
         WheelJointDef(RigidBody* body1, RigidBody* body2, bool collide = false)
             : JointDef(Joint::Type::WHEEL, body1, body2, collide) {}
     };
+
+    // Traits
+    template<typename JointDataT> struct JointDefFor;
+    template<> struct JointDefFor<DistanceJointData> { using Type = DistanceJointDef; };
+    template<> struct JointDefFor<FrictionJointData> { using Type = FrictionJointDef; };
+    template<> struct JointDefFor<GearJointData> { using Type = GearJointDef; };
+    template<> struct JointDefFor<MotorJointData> { using Type = MotorJointDef; };
+    template<> struct JointDefFor<MouseJointData> { using Type = MouseJointDef; };
+    template<> struct JointDefFor<PrismaticJointData> { using Type = PrismaticJointDef; };
+    template<> struct JointDefFor<PulleyJointData> { using Type = PulleyJointDef; };
+    template<> struct JointDefFor<RevoluteJointData> { using Type = RevoluteJointDef; };
+    template<> struct JointDefFor<WeldJointData> { using Type = WeldJointDef; };
+    template<> struct JointDefFor<WheelJointData> { using Type = WheelJointDef; };
 };

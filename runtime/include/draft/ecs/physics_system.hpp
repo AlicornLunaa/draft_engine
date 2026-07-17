@@ -152,104 +152,11 @@ namespace Draft {
             // Copy common data to the delta at the native handler
             static_cast<typename T::JointDataType&>(nativeHandle.delta) = *data;
 
-            // TODO: Flatten this into static polymorphism using overloading, now that its templated
-            if(auto* ptr = dynamic_cast<DistanceJointData*>(data)){
-                DistanceJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.anchorA = ptr->anchorA;
-                definition.anchorB = ptr->anchorB;
-                definition.length = ptr->length;
-                definition.minLength = ptr->minLength;
-                definition.maxLength = ptr->maxLength;
-                definition.stiffness = ptr->stiffness;
-                definition.damping = ptr->damping;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<RevoluteJointData*>(data)){
-                RevoluteJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.localAnchorA = ptr->localAnchorA;
-                definition.localAnchorB = ptr->localAnchorB;
-                definition.referenceAngle = ptr->referenceAngle;
-                definition.lowerAngle = ptr->lowerAngle;
-                definition.upperAngle = ptr->upperAngle;
-                definition.maxMotorTorque = ptr->maxMotorTorque;
-                definition.motorSpeed = ptr->motorSpeed;
-                definition.enableLimit = ptr->enableLimit;
-                definition.enableMotor = ptr->enableMotor;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<PrismaticJointData*>(data)){
-                PrismaticJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.anchorA = ptr->anchorA;
-                definition.anchorB = ptr->anchorB;
-                definition.localAxisA = ptr->localAxisA;
-                definition.referenceAngle = ptr->referenceAngle;
-                definition.lowerTranslation = ptr->lowerTranslation;
-                definition.upperTranslation = ptr->upperTranslation;
-                definition.maxMotorForce = ptr->maxMotorForce;
-                definition.motorSpeed = ptr->motorSpeed;
-                definition.enableLimit = ptr->enableLimit;
-                definition.enableMotor = ptr->enableMotor;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<PulleyJointData*>(data)){
-                PulleyJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.groundAnchorA = ptr->groundAnchorA;
-                definition.groundAnchorB = ptr->groundAnchorB;
-                definition.localAnchorA = ptr->localAnchorA;
-                definition.localAnchorB = ptr->localAnchorB;
-                definition.lengthA = ptr->lengthA;
-                definition.lengthB = ptr->lengthB;
-                definition.ratio = ptr->ratio;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<GearJointData*>(data)){
-                GearJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.joint1 = ptr->joint1;
-                definition.joint2 = ptr->joint2;
-                definition.ratio = ptr->ratio;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<MouseJointData*>(data)){
-                MouseJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.target = ptr->target;
-                definition.maxForce = ptr->maxForce;
-                definition.stiffness = ptr->stiffness;
-                definition.damping = ptr->damping;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<WheelJointData*>(data)){
-                WheelJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.anchorA = ptr->anchorA;
-                definition.anchorB = ptr->anchorB;
-                definition.localAxis = ptr->localAxis;
-                definition.lowerTranslation = ptr->lowerTranslation;
-                definition.upperTranslation = ptr->upperTranslation;
-                definition.maxMotorTorque = ptr->maxMotorTorque;
-                definition.motorSpeed = ptr->motorSpeed;
-                definition.stiffness = ptr->stiffness;
-                definition.damping = ptr->damping;
-                definition.enableLimit = ptr->enableLimit;
-                definition.enableMotor = ptr->enableMotor;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<WeldJointData*>(data)){
-                WeldJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.anchorA = ptr->anchorA;
-                definition.anchorB = ptr->anchorB;
-                definition.referenceAngle = ptr->referenceAngle;
-                definition.stiffness = ptr->stiffness;
-                definition.damping = ptr->damping;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<FrictionJointData*>(data)){
-                FrictionJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.anchorA = ptr->anchorA;
-                definition.anchorB = ptr->anchorB;
-                definition.maxForce = ptr->maxForce;
-                definition.maxTorque = ptr->maxTorque;
-                joint = m_worldRef.create_joint(definition);
-            } else if(auto* ptr = dynamic_cast<MotorJointData*>(data)){
-                MotorJointDef definition(bodyA, bodyB, data->collideConnected);
-                definition.linearOffset = ptr->linearOffset;
-                definition.angularOffset = ptr->angularOffset;
-                definition.maxForce = ptr->maxForce;
-                definition.maxTorque = ptr->maxTorque;
-                definition.correctionFactor = ptr->correctionFactor;
-                joint = m_worldRef.create_joint(definition);
-            }
-
+            // Create the joint from the given definition
+            using JointDefT = typename JointDefFor<typename T::JointDataType>::Type;
+            JointDefT definition(bodyA, bodyB, data->collideConnected);
+            static_cast<typename T::JointDataType&>(definition) = *data;
+            joint = m_worldRef.create_joint(definition);
             assert(joint && "Something went wrong with a joint");
 
             // Add a handle to the entity so it can be referenced later
