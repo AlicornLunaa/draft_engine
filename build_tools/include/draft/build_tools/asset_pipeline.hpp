@@ -12,7 +12,7 @@ namespace Draft {
     /**
      * @brief The asset types draft_buildtools knows how to validate/pack, by extension (see classify_asset()).
      */
-    enum class AssetKind { Texture, Font, Model, Sound, Scene, Unknown };
+    enum class AssetKind { Texture, Font, Model, Sound, Scene, RML, RCSS, Animation, Unknown };
 
     const char* asset_kind_name(AssetKind kind);
 

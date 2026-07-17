@@ -3,6 +3,7 @@
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/ecs/scene.hpp"
 #include "draft/ecs/scene_serializer.hpp"
+#include "draft/rendering/animation.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/model.hpp"
 #include "draft/rendering/texture.hpp"
@@ -47,6 +48,9 @@ namespace Draft {
             case AssetKind::Model: return "Model";
             case AssetKind::Sound: return "Sound";
             case AssetKind::Scene: return "Scene";
+            case AssetKind::RML: return "Rml Document";
+            case AssetKind::RCSS: return "Rml Stylesheet";
+            case AssetKind::Animation: return "Animation";
             default: return "Unknown";
         }
     }
@@ -59,7 +63,10 @@ namespace Draft {
         if (ext == ".ttf") return AssetKind::Font;
         if (ext == ".glb" || ext == ".gltf") return AssetKind::Model;
         if (ext == ".wav" || ext == ".ogg") return AssetKind::Sound;
-        if (ext == ".json" && is_scene_json(projectRelativePath)) return AssetKind::Scene;
+        if (ext == ".rml") return AssetKind::RML;
+        if (ext == ".rcss") return AssetKind::RCSS;
+        if (ext == ".anim") return AssetKind::Animation;
+        if (ext == ".scenejson" && is_scene_json(projectRelativePath)) return AssetKind::Scene;
 
         return AssetKind::Unknown;
     }
@@ -88,6 +95,7 @@ namespace Draft {
         Loaders::register_default_loader<Font>(assets);
         Loaders::register_default_loader<Model>(assets);
         Loaders::register_default_loader<SoundBuffer>(assets);
+        Loaders::register_default_loader<Animation>(assets);
 
         for (const AssetTask& task : tasks) {
             switch (task.kind) {
@@ -95,7 +103,10 @@ namespace Draft {
                 case AssetKind::Font: assets.queue<Font>(task.key); break;
                 case AssetKind::Model: assets.queue<Model>(task.key); break;
                 case AssetKind::Sound: assets.queue<SoundBuffer>(task.key); break;
+                case AssetKind::Animation: assets.queue<Animation>(task.key); break;
                 case AssetKind::Scene: break; // validated separately below, load_scene() doesn't go through AssetManager's loader registry
+                case AssetKind::RML: break; // not validated, only packed
+                case AssetKind::RCSS: break; // not validated, only packed
                 default: break;
             }
         }
