@@ -51,6 +51,7 @@ namespace Draft {
             case AssetKind::RML: return "Rml Document";
             case AssetKind::RCSS: return "Rml Stylesheet";
             case AssetKind::Animation: return "Animation";
+            case AssetKind::Language: return "Language";
             default: return "Unknown";
         }
     }
@@ -66,6 +67,7 @@ namespace Draft {
         if (ext == ".rml") return AssetKind::RML;
         if (ext == ".rcss") return AssetKind::RCSS;
         if (ext == ".anim") return AssetKind::Animation;
+        if (ext == ".lang") return AssetKind::Language;
         if (ext == ".scenejson" && is_scene_json(projectRelativePath)) return AssetKind::Scene;
 
         return AssetKind::Unknown;
@@ -104,6 +106,7 @@ namespace Draft {
                 case AssetKind::Model: assets.queue<Model>(task.key); break;
                 case AssetKind::Sound: assets.queue<SoundBuffer>(task.key); break;
                 case AssetKind::Animation: assets.queue<Animation>(task.key); break;
+                case AssetKind::Language: break; // not validated, only packed
                 case AssetKind::Scene: break; // validated separately below, load_scene() doesn't go through AssetManager's loader registry
                 case AssetKind::RML: break; // not validated, only packed
                 case AssetKind::RCSS: break; // not validated, only packed
