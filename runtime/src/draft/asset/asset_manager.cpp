@@ -9,6 +9,7 @@
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture_packer.hpp"
 #include "draft/util/json.hpp"
+#include "draft/util/localization.hpp"
 
 #include <condition_variable>
 #include <deque>
@@ -138,6 +139,7 @@ namespace Draft {
         Loaders::register_default_loader<Shader>(*this);
         Loaders::register_default_loader<SoundBuffer>(*this);
         Loaders::register_default_loader<Texture>(*this);
+        Loaders::register_default_loader<Localization>(*this);
     }
 
     AssetManager::~AssetManager() = default;

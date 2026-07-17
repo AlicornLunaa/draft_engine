@@ -38,6 +38,7 @@ set(HEADERS
     include/draft/util/serialization/custom.hpp
     include/draft/util/serialization/stl.hpp
     include/draft/util/serialization/glm.hpp
+    include/draft/util/localization.hpp
     include/draft/util/time.hpp
 )
 
@@ -55,6 +56,7 @@ set(SOURCES
     src/draft/util/files/host_file_system.cpp
     src/draft/util/files/memory_file_provider.cpp
     src/draft/util/files/virtual_file_system.cpp
+    src/draft/util/localization.cpp
     src/draft/util/json.cpp
     src/draft/util/logger.cpp
     src/draft/util/time.cpp

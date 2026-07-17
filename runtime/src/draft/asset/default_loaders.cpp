@@ -12,7 +12,9 @@
 #include "draft/rendering/texture_packer.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/json.hpp"
+#include "draft/util/localization.hpp"
 #include <any>
+#include <stdexcept>
 #include <utility>
 
 namespace Draft {
@@ -181,6 +183,29 @@ namespace Draft {
                 },
                 [](std::any data, AssetManager&){
                     return Texture(std::any_cast<Image>(data));
+                }
+            );
+        }
+
+        template<>
+        void register_default_loader<Localization>(AssetManager& assets){
+            assets.register_loader<Localization>(
+                [](const FileHandle& handle){
+                    if(!handle.is_directory()){
+                        throw std::runtime_error("Localization loader takes a directory.");
+                    }
+
+                    Localization localization;
+
+                    for(auto& file : handle.list()){
+                        if(file.is_directory()) continue;
+                        localization.load_language(file);
+                    }
+
+                    return localization;
+                },
+                [](std::any data, AssetManager&){
+                    return std::any_cast<Localization>(data);
                 }
             );
         }
