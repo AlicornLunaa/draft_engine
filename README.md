@@ -13,16 +13,6 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 * Intentionally lightweight engine, where main logic is all compiled in with C++.
 
 ## Current Todo/Future Ideas
-- [x] Localization system
-    * This should be a class with a load function that takes a JSON filehandle such that the JSON contains map data for Identifier -> Content
-    * This way a ".lang" is loaded into the class and provides all the translations. This should also default/fallback to english then just the identifier.
-    * Support for std::format for {} with a templated function with variadic arguments.
-    * get_content(const std::string& language, const std::string& identifier, Args...&& args)
-    * Loading multiple language packs should work too
-- [ ] Rebindable buttons
-    * Instead of changing how keyboard works, create an InputManager which is how a game gets 'controls'
-    * Stuff like "getAxis(Inputs::Vertical)" for up and down. The input enum should be user defineable.
-    * Input manager gets setup from a JSON or manually adding or removing binds/axises/buttons/etc
 - [ ] Proper editor
 - [ ] Shader pipeline
 - [ ] Animation editor

@@ -127,6 +127,7 @@ set(HEADERS
     include/draft/ecs/system.hpp
     include/draft/input/action.hpp
     include/draft/input/event.hpp
+    include/draft/input/input_manager.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
     include/draft/interface/imgui/imgui_system.hpp
@@ -210,6 +211,7 @@ set(SOURCES
     src/draft/ecs/scene.cpp
     src/draft/ecs/scene_serializer.cpp
     src/draft/ecs/system.cpp
+    src/draft/input/input_manager.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
     src/draft/interface/imgui/imgui_system.cpp
