@@ -149,6 +149,7 @@ namespace Draft {
 
         /**
          * @brief Gets the catalog entry for T, or nullptr if T isn't registered.
+         * Beware when using this in a manner that crosses ABI. MSVC isnt guaranteed to work well with across DLLs.
          */
         template<typename T>
         ComponentTypeInterface* by_type() const {

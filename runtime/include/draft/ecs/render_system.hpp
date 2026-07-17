@@ -8,7 +8,7 @@
 namespace Draft {
     /**
      * @brief Submits every <SpriteComponent, TransformComponent> entity into the owning
-     * Renderer's sprite batch every frame.
+     * Renderer's sprite batch every frame. Handles AnimationComponent overrides for SpriteComponent
      */
     class RenderSystem : public AbstractSystem {
     private:

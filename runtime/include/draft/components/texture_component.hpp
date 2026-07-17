@@ -15,7 +15,7 @@ namespace Draft {
         std::vector<Resource<Texture>> textures{};
 
         // Constructors
-        TextureComponent(const TextureComponent& transform) = default;
+        TextureComponent() = default;
 
         template<std::same_as<Resource<Texture>> ...Args>
         TextureComponent(Args... args) : textures(args...) {}

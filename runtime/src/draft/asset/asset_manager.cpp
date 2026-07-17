@@ -2,6 +2,7 @@
 #include "draft/asset/default_loaders.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/physics/collider.hpp"
+#include "draft/rendering/animation.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/particle_system.hpp"
@@ -126,6 +127,7 @@ namespace Draft {
         : m_fileSystem(std::move(fileSystem)), m_jobRunner(std::make_unique<detail::JobRunner>(workerThreads))
     {
         // Default loader implementations
+        Loaders::register_default_loader<Animation>(*this);
         Loaders::register_default_loader<Collider>(*this);
         Loaders::register_default_loader<Font>(*this);
         Loaders::register_default_loader<Image>(*this);

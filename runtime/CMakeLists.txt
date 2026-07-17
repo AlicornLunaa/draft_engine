@@ -110,6 +110,7 @@ set(HEADERS
     include/draft/components/tag_component.hpp
     include/draft/components/transform_component.hpp
     include/draft/components/texture_component.hpp
+    include/draft/components/animation_component.hpp
     include/draft/core/application.hpp
     include/draft/core/engine.hpp
     include/draft/ecs/audio_system.hpp

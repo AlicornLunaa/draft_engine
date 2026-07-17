@@ -2,6 +2,7 @@
 #include "draft/asset/asset_manager.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/physics/collider.hpp"
+#include "draft/rendering/animation.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/model.hpp"
@@ -15,6 +16,17 @@
 
 namespace Draft {
     namespace Loaders {
+        template<>
+        void register_default_loader<Animation>(AssetManager& assets){
+            // Animation resolves its own spritesheet texture from the JSON's meta.image field,
+            // so (like Model) there's no separable off-thread stage.
+            assets.register_loader<Animation>(
+                [](const FileHandle& handle, AssetManager& assets){
+                    return Animation(handle, assets);
+                }
+            );
+        }
+
         template<>
         void register_default_loader<Collider>(AssetManager& assets){
             assets.register_loader<Collider>(
