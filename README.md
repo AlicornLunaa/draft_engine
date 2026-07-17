@@ -13,7 +13,6 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 * Intentionally lightweight engine, where main logic is all compiled in with C++.
 
 ## Current Todo/Future Ideas
-- [ ] Fully implement RmlUI using engine architecture not glfw. Also add add_context to the RmlUISystem.
 - [ ] Localization system
 - [ ] Rebindable buttons
 - [ ] Proper editor

@@ -86,7 +86,7 @@ namespace Draft {
 
         // Functions
         template<typename T> requires Reflectable<T>
-        Rml::DataModelHandle create_data_model(const std::string& name, const T& data) const {
+        Rml::DataModelHandle create_data_model(const std::string& name, T& data){
             auto constructor = create_data_model(name);
             recursive_data_model(constructor, data);
             return constructor.GetModelHandle();
