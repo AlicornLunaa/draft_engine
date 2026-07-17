@@ -80,13 +80,13 @@ TEST(Localization, ReloadingLanguageMergesKeys)
     provider.remove("en-us.lang");
 }
 
-TEST(Localization, GetContentThrowsOnMissingLanguage)
+TEST(Localization, GetContentFallsBackToIdentifierWhenFallbackLanguageMissing)
 {
     Localization loc;
-    ASSERT_THROW(loc.get_content("en-us", "greeting"), std::out_of_range);
+    ASSERT_EQ(loc.get_content("en-us", "greeting"), "greeting");
 }
 
-TEST(Localization, GetContentThrowsOnMissingIdentifier)
+TEST(Localization, GetContentFallsBackToIdentifierWhenIdentifierMissing)
 {
     DiskFileProvider provider;
     provider.write_string("en-us.lang", R"({"greeting":"Hello"})");
@@ -94,7 +94,35 @@ TEST(Localization, GetContentThrowsOnMissingIdentifier)
     Localization loc;
     loc.load_language(provider.open("en-us.lang"));
 
-    ASSERT_THROW(loc.get_content("en-us", "missing"), std::out_of_range);
+    ASSERT_EQ(loc.get_content("en-us", "missing"), "missing");
+
+    provider.remove("en-us.lang");
+}
+
+TEST(Localization, GetContentFallsBackToFallbackLanguageWhenLanguageMissing)
+{
+    DiskFileProvider provider;
+    provider.write_string("en-us.lang", R"({"greeting":"Hello"})");
+
+    Localization loc;
+    loc.load_language(provider.open("en-us.lang"));
+
+    ASSERT_EQ(loc.get_content("fr-fr", "greeting"), "Hello");
+
+    provider.remove("en-us.lang");
+}
+
+TEST(Localization, HasLanguageReflectsLoadedLanguages)
+{
+    DiskFileProvider provider;
+    provider.write_string("en-us.lang", R"({"greeting":"Hello"})");
+
+    Localization loc;
+    ASSERT_FALSE(loc.has_language("en-us"));
+
+    loc.load_language(provider.open("en-us.lang"));
+    ASSERT_TRUE(loc.has_language("en-us"));
+    ASSERT_FALSE(loc.has_language("fr-fr"));
 
     provider.remove("en-us.lang");
 }
@@ -108,7 +136,8 @@ TEST(Localization, UnloadLanguageRemovesIt)
     loc.load_language(provider.open("en-us.lang"));
     loc.unload_language("en-us");
 
-    ASSERT_THROW(loc.get_content("en-us", "greeting"), std::out_of_range);
+    ASSERT_FALSE(loc.has_language("en-us"));
+    ASSERT_EQ(loc.get_content("en-us", "greeting"), "greeting");
 
     provider.remove("en-us.lang");
 }

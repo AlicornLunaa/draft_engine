@@ -21,4 +21,8 @@ namespace Draft {
             throw std::logic_error("Localization::unload_language(...): Language does not exist");
         }
     }
+
+    bool Localization::has_language(const std::string& language) const {
+        return m_languageDb.contains(language);
+    }
 }

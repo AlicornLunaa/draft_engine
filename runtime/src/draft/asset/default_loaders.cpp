@@ -13,6 +13,7 @@
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/json.hpp"
 #include "draft/util/localization.hpp"
+#include "draft/util/logger.hpp"
 #include <any>
 #include <stdexcept>
 #include <utility>
@@ -199,7 +200,13 @@ namespace Draft {
 
                     for(auto& file : handle.list()){
                         if(file.is_directory()) continue;
-                        localization.load_language(file);
+
+                        try {
+                            localization.load_language(file);
+                        } catch(...){
+                            Logger::println(LogLevel::Warning, "Localization", "Failed to load language pack " + file.stem());
+                            continue;
+                        }
                     }
 
                     return localization;

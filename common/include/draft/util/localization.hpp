@@ -34,6 +34,15 @@ namespace Draft {
         void unload_language(const std::string& language);
 
         /**
+         * @brief Returns if the localization system has a specific language
+         * 
+         * @param language 
+         * @return true 
+         * @return false 
+         */
+        bool has_language(const std::string& language) const;
+
+        /**
          * @brief Get the content of an identifier
          * 
          * @tparam Args 
@@ -44,9 +53,28 @@ namespace Draft {
          */
         template<typename ...Args>
         std::string get_content(const std::string& language, const std::string& identifier, Args&&... args) const {
-            const auto& languageMap = m_languageDb.at(language);
-            const auto& content = languageMap.at(identifier);
-            return std::vformat(content, std::make_format_args(args...));
+            // Find the specific language
+            auto dbIter = m_languageDb.find(language);
+
+            if(dbIter == m_languageDb.end()){
+                // No language found, fallback
+                if(language == m_fallbackLanguage){
+                    return identifier;
+                } else {
+                    return get_content(m_fallbackLanguage, identifier, args...);
+                }
+            }
+
+            const auto& languageMap = dbIter->second;
+
+            // Find the specific content
+            auto mapIter = languageMap.find(identifier);
+
+            if(mapIter == languageMap.end()){
+                return identifier;
+            }
+
+            return std::vformat(mapIter->second, std::make_format_args(args...));
         }
 
     private:
