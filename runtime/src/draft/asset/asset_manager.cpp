@@ -6,6 +6,7 @@
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/particle_system.hpp"
+#include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture_packer.hpp"
 #include "draft/util/json.hpp"
 
@@ -134,6 +135,7 @@ namespace Draft {
         Loaders::register_default_loader<JSON>(*this);
         Loaders::register_default_loader<TexturePacker>(*this);
         Loaders::register_default_loader<ParticleProps>(*this);
+        Loaders::register_default_loader<Shader>(*this);
         Loaders::register_default_loader<SoundBuffer>(*this);
         Loaders::register_default_loader<Texture>(*this);
     }

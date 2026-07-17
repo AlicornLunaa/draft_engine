@@ -122,9 +122,11 @@ namespace Draft {
         // Constructors
         Animation(const FileHandle& handle, AssetManager& assets);
         Animation(const Animation& other) = delete;
+        Animation(Animation&& other) noexcept = default;
 
         // Operators
         Animation& operator=(const Animation& other) = delete;
+        Animation& operator=(Animation&& other) noexcept = default;
 
         // Functions
         /**

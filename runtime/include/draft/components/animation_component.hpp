@@ -15,7 +15,7 @@ namespace Draft {
         float frameTime = 0.f;
 
         // Constructors
-        AnimationComponent(Resource<Animation> animation, const std::string& tag) : animation(animation), tag(tag) {}
+        AnimationComponent(Resource<Animation> animation = {}, const std::string& tag = "") : animation(animation), tag(tag) {}
 
         // Functions
         DRAFT_REFLECTABLE(AnimationComponent, animation, tag)

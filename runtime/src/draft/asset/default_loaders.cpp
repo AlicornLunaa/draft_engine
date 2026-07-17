@@ -7,6 +7,7 @@
 #include "draft/rendering/image.hpp"
 #include "draft/rendering/model.hpp"
 #include "draft/rendering/particle_system.hpp"
+#include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/rendering/texture_packer.hpp"
 #include "draft/util/files/host_file_system.hpp"
@@ -145,6 +146,17 @@ namespace Draft {
                     auto [props, texturePath] = std::any_cast<std::pair<ParticleProps, std::string>>(data);
                     props.texture = assets.get<Texture>(texturePath);
                     return props;
+                }
+            );
+        }
+
+        template<>
+        void register_default_loader<Shader>(AssetManager& assets){
+            // Shader(FileHandle) already does its own GL upload internally, so (like Model)
+            // there's no separable off-thread stage.
+            assets.register_loader<Shader>(
+                [](const FileHandle& handle, AssetManager&){
+                    return Shader(handle);
                 }
             );
         }

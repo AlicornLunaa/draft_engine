@@ -97,7 +97,7 @@ TEST_F(RenderSystemTest, RenderSubmitsSpriteEntitiesIntoTheRendererBatchWithoutE
     Entity entity = scene.create_entity();
     entity.add_component<TransformComponent>(TransformComponent{{5.f, 7.f}, 0.f});
     SpriteComponent& sprite = entity.add_component<SpriteComponent>(Resource<Texture>{}, Vector2f{10.f, 10.f});
-    sprite.shader = shader.get();
+    sprite.shader = shader;
 
     scene.render(Time::seconds(0), RenderLayer::Geometry);
 

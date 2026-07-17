@@ -110,6 +110,13 @@ namespace Draft {
         load_shaders(reinterpret_cast<const char*>(vertexSrc.data()), reinterpret_cast<const char*>(fragmentSrc.data()));
     }
 
+    Shader::Shader(Shader&& other) noexcept
+        : shaderId(other.shaderId), reloadable(other.reloadable), handle(std::move(other.handle)), memo(std::move(other.memo))
+    {
+        // Stop the r-value from deleting the program when it's destroyed
+        other.shaderId = 0;
+    }
+
     Shader::~Shader(){
         cleanup();
     }

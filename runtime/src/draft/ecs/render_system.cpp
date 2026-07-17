@@ -17,14 +17,14 @@ namespace Draft {
                 sprite.texture = animation.animation->get_frame(animation.tag, animation.frameTime);
             }
 
-            animation.frameTime += dt.as_seconds();
+            animation.frameTime += dt.as_milliseconds();
         }
 
         // Actually rendering the sprite
         for(const auto& [entity, spriteComponent, transformComponent] : registryRef.view<SpriteComponent, TransformComponent>().each()){
             Material2D mat;
             mat.baseTexture = spriteComponent.texture.texture.get();
-            mat.shader = spriteComponent.shader;
+            mat.shader = spriteComponent.shader ? spriteComponent.shader->get() : nullptr;
 
             rendererRef.batch.draw({
                 transformComponent.position,

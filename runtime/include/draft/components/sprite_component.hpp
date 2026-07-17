@@ -6,6 +6,8 @@
 #include "draft/rendering/texture.hpp"
 #include "draft/util/reflectable.hpp"
 
+#include <optional>
+
 namespace Draft {
     /**
      * @brief A texture region plus a world-space size/origin/z-index. Rendered by RenderSystem
@@ -17,8 +19,8 @@ namespace Draft {
         DRAFT_REFLECTED(Vector2f, origin) = { 0, 0 };
         DRAFT_REFLECTED(float, zIndex) = 0.f;
 
-        // Nullptr means use SpriteCollection's shared default shader
-        Shader* shader = nullptr;
+        // None means use SpriteCollection's shared default shader
+        std::optional<Resource<Shader>> shader;
 
         SpriteComponent() = default;
         SpriteComponent(Resource<Texture> texture, const Vector2f& size, const Vector2f& origin = {}) : texture(TextureRegion{texture, {}}), size(size), origin(origin) {}

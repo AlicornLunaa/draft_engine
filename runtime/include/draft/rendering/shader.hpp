@@ -54,6 +54,7 @@ namespace Draft {
         Shader(const FileHandle& vertexHandle, const FileHandle& fragmentHandle);
         Shader(const FileHandle& handle);
         Shader(const Shader& other) = delete;
+        Shader(Shader&& other) noexcept;
         ~Shader();
 
         // Operators
