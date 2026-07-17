@@ -5,8 +5,10 @@
 #include "RmlUi/Core/Types.h"
 #include "RmlUi/Core/Input.h"
 #include "RmlUi/Core/Core.h"
+#include "draft/util/files/file_handle.hpp"
 
 #include <cassert>
+#include <stdexcept>
 
 namespace Draft {
     // Private functions
@@ -132,13 +134,22 @@ namespace Draft {
     }
 
     // Functions
+    Rml::DataModelConstructor RmlContext::create_data_model(const std::string& name) const {
+        auto constructor = m_context->CreateDataModel(name);
+
+        if(!constructor)
+            throw std::runtime_error("RmlContext::create_data_model(...): Failed to create data model");
+
+        return constructor;
+    }
+
     Rml::ElementDocument* RmlContext::create_document(const std::string& name) const {
         Rml::ElementDocument* document = m_context->CreateDocument(name);
         return document;
     }
 
-    Rml::ElementDocument* RmlContext::load_document(const std::string& path) const {
-        Rml::ElementDocument* document = m_context->LoadDocument(path);
+    Rml::ElementDocument* RmlContext::load_document(const FileHandle& path) const {
+        Rml::ElementDocument* document = m_context->LoadDocumentFromMemory(path.read_string(), path.get_path());
         return document;
     }
 

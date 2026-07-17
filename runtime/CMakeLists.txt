@@ -135,6 +135,7 @@ set(HEADERS
     include/draft/interface/rmlui/RmlUi_Renderer_GL3.h
     include/draft/interface/rmlui/rml_context.hpp
     include/draft/interface/rmlui/rml_debugger.hpp
+    include/draft/interface/rmlui/rml_file_interface.hpp
     include/draft/interface/rmlui/rml_layout.hpp
     include/draft/interface/rmlui/rml_listener.hpp
     include/draft/interface/rmlui/rml_system.hpp
@@ -216,6 +217,7 @@ set(SOURCES
     src/draft/interface/rmlui/RmlUi_Renderer_GL3.cpp
     src/draft/interface/rmlui/rml_context.cpp
     src/draft/interface/rmlui/rml_debugger.cpp
+    src/draft/interface/rmlui/rml_file_interface.cpp
     src/draft/interface/rmlui/rml_listener.cpp
     src/draft/interface/rmlui/rml_system.cpp
     src/draft/physics/b2_raycast_proxy.cpp

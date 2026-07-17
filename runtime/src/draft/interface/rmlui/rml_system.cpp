@@ -3,6 +3,7 @@
 #include "draft/interface/rmlui/RmlUi_Renderer_GL3.h"
 #include "draft/interface/rmlui/rml_context.hpp"
 #include "draft/interface/rmlui/rml_debugger.hpp"
+#include "draft/interface/rmlui/rml_file_interface.hpp"
 #include "draft/rendering/render_window.hpp"
 
 #include "RmlUi/Core/Core.h"
@@ -14,6 +15,7 @@ namespace Draft {
     int RmlUiSystem::s_backendCount = 0;
     SystemInterface_GLFW* RmlUiSystem::s_systemInterface = nullptr;
     RenderInterface_GL3* RmlUiSystem::s_renderInterface = nullptr;
+    RmlFileInterface* RmlUiSystem::s_fileInterface = nullptr;
 
     // Constructors
     RmlUiSystem::RmlUiSystem(RenderWindow& window){
@@ -21,9 +23,11 @@ namespace Draft {
         if(s_backendCount <= 0){
             s_renderInterface = new RenderInterface_GL3();
             s_systemInterface = new SystemInterface_GLFW();
+            s_fileInterface = new RmlFileInterface();
 
             Rml::SetRenderInterface(s_renderInterface);
             Rml::SetSystemInterface(s_systemInterface);
+            Rml::SetFileInterface(s_fileInterface);
             Rml::Initialise();
         }
 
@@ -45,8 +49,10 @@ namespace Draft {
 
             delete s_renderInterface;
             delete s_systemInterface;
+            delete s_fileInterface;
             s_renderInterface = nullptr;
             s_systemInterface = nullptr;
+            s_fileInterface = nullptr;
         }
     }
 
