@@ -230,6 +230,15 @@ namespace Draft {
 
         void handle_bodies();
         void handle_forces();
+
+        template<typename T>
+        void sync_joint_type();
+
+        template<typename... Ts>
+        void sync_joint_types(){
+            (sync_joint_type<Ts>(), ...);
+        }
+
         void handle_joints();
 
     public:

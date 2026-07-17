@@ -6,6 +6,20 @@
 
 #include <cassert>
 
+// Field syncing
+#define DRAFT_SET_IF_CHANGE(realValue, deltaValue, setFunc, getFunc) \
+    if(deltaValue != realValue) setFunc; \
+    realValue = getFunc; \
+    deltaValue = realValue;
+
+// Additive fields: external code (or the body itself, e.g. via forces) may have nudged
+// the value since last sync, so only the difference since the last delta is pushed
+#define DRAFT_SYNC_ADDITIVE(realValue, deltaValue, setFunc, getFunc) \
+    deltaValue = realValue - deltaValue; \
+    setFunc; \
+    realValue = getFunc; \
+    deltaValue = realValue;
+
 namespace Draft {
     // Helper functions
     template<typename ComponentType>
@@ -227,42 +241,17 @@ namespace Draft {
             nativeHandle.deltaR = transform.rotation;
         }
 
-        // Sync rigidbody state
         auto view2 = m_registryRef.view<RigidBodyComponent, NativeBodyComponent>();
 
         for(auto entity : view2){
             RigidBodyComponent& bodyComponent = view2.get<RigidBodyComponent>(entity);
             NativeBodyComponent& handle = view2.get<NativeBodyComponent>(entity);
 
-            if(handle.deltaType != bodyComponent.type){
-                handle->set_type(bodyComponent.type);
-            }
-            bodyComponent.type = handle->get_type();
-            handle.deltaType = bodyComponent.type;
-
-            handle.deltaLinearVelocity = bodyComponent.linearVelocity - handle.deltaLinearVelocity;
-            if(Math::abs(handle.deltaLinearVelocity.x) >= 0.f || Math::abs(handle.deltaLinearVelocity.y) >= 0.f)
-                handle->set_linear_velocity(handle->get_linear_velocity() + handle.deltaLinearVelocity);
-            bodyComponent.linearVelocity = handle->get_linear_velocity();
-            handle.deltaLinearVelocity = bodyComponent.linearVelocity;
-
-            handle.deltaAngularVelocity = bodyComponent.angularVelocity - handle.deltaAngularVelocity;
-            if(Math::abs(handle.deltaAngularVelocity) >= 0.f)
-                handle->set_angular_velocity(handle->get_angular_velocity() + handle.deltaAngularVelocity);
-            bodyComponent.angularVelocity = handle->get_angular_velocity();
-            handle.deltaAngularVelocity = bodyComponent.angularVelocity;
-
-            handle.deltaLinearDamping = bodyComponent.linearDamping - handle.deltaLinearDamping;
-            if(Math::abs(handle.deltaLinearDamping) >= 0.f)
-                handle->set_linear_damping(handle->get_linear_damping() + handle.deltaLinearDamping);
-            bodyComponent.linearDamping = handle->get_linear_damping();
-            handle.deltaLinearDamping = bodyComponent.linearDamping;
-
-            handle.deltaAngularDamping = bodyComponent.angularDamping - handle.deltaAngularDamping;
-            if(Math::abs(handle.deltaAngularDamping) >= 0.f)
-                handle->set_angular_damping(handle->get_angular_damping() + handle.deltaAngularDamping);
-            bodyComponent.angularDamping = handle->get_angular_damping();
-            handle.deltaAngularDamping = bodyComponent.angularDamping;
+            DRAFT_SET_IF_CHANGE(bodyComponent.type, handle.deltaType, handle->set_type(bodyComponent.type), handle->get_type());
+            DRAFT_SYNC_ADDITIVE(bodyComponent.linearVelocity, handle.deltaLinearVelocity, handle->set_linear_velocity(handle->get_linear_velocity() + handle.deltaLinearVelocity), handle->get_linear_velocity());
+            DRAFT_SYNC_ADDITIVE(bodyComponent.angularVelocity, handle.deltaAngularVelocity, handle->set_angular_velocity(handle->get_angular_velocity() + handle.deltaAngularVelocity), handle->get_angular_velocity());
+            DRAFT_SYNC_ADDITIVE(bodyComponent.linearDamping, handle.deltaLinearDamping, handle->set_linear_damping(handle->get_linear_damping() + handle.deltaLinearDamping), handle->get_linear_damping());
+            DRAFT_SYNC_ADDITIVE(bodyComponent.angularDamping, handle.deltaAngularDamping, handle->set_angular_damping(handle->get_angular_damping() + handle.deltaAngularDamping), handle->get_angular_damping());
 
             if(handle.deltaAwake != bodyComponent.awake){
                 if(bodyComponent.awake){
@@ -274,326 +263,220 @@ namespace Draft {
             bodyComponent.awake = handle->is_awake();
             handle.deltaAwake = bodyComponent.awake;
 
-            if(handle.deltaAllowSleep != bodyComponent.allowSleep)
-                handle->set_sleep_allowed(bodyComponent.allowSleep);
-            bodyComponent.allowSleep = handle->is_sleep_allowed();
-            handle.deltaAllowSleep = bodyComponent.allowSleep;
+            DRAFT_SET_IF_CHANGE(bodyComponent.allowSleep, handle.deltaAllowSleep, handle->set_sleep_allowed(bodyComponent.allowSleep), handle->is_sleep_allowed());
+            DRAFT_SET_IF_CHANGE(bodyComponent.fixedRotation, handle.deltaFixedRotation, handle->set_fixed_rotation(bodyComponent.fixedRotation), handle->is_fixed_rotation());
+            DRAFT_SET_IF_CHANGE(bodyComponent.bullet, handle.deltaBullet, handle->set_bullet(bodyComponent.bullet), handle->is_bullet());
+            DRAFT_SET_IF_CHANGE(bodyComponent.enabled, handle.deltaEnabled, handle->set_enabled(bodyComponent.enabled), handle->is_enabled());
+            DRAFT_SYNC_ADDITIVE(bodyComponent.gravityScale, handle.deltaGravityScale, handle->set_gravity_scale(handle->get_gravity_scale() + handle.deltaGravityScale), handle->get_gravity_scale());
+        }
+    }
 
-            if(handle.deltaFixedRotation != bodyComponent.fixedRotation)
-                handle->set_fixed_rotation(bodyComponent.fixedRotation);
-            bodyComponent.fixedRotation = handle->is_fixed_rotation();
-            handle.deltaFixedRotation = bodyComponent.fixedRotation;
+    // One-shot force/torque/impulse requests are applied once then removed from the entity
+    template<typename T, typename ApplyFn>
+    static void apply_one_shot(Registry& reg, ApplyFn&& apply){
+        auto view = reg.view<T, NativeBodyComponent>();
 
-            if(handle.deltaBullet != bodyComponent.bullet)
-                handle->set_bullet(bodyComponent.bullet);
-            bodyComponent.bullet = handle->is_bullet();
-            handle.deltaBullet = bodyComponent.bullet;
+        for(auto entity : view){
+            apply(view.template get<NativeBodyComponent>(entity), view.template get<T>(entity));
+            reg.remove<T>(entity);
+        }
+    }
 
-            if(handle.deltaEnabled != bodyComponent.enabled)
-                handle->set_enabled(bodyComponent.enabled);
-            bodyComponent.enabled = handle->is_enabled();
-            handle.deltaEnabled = bodyComponent.enabled;
+    // Continuous variants keep applying every step while `enabled` is true
+    template<typename T, typename ApplyFn>
+    static void apply_continuous(Registry& reg, ApplyFn&& apply){
+        auto view = reg.view<T, NativeBodyComponent>();
 
-            handle.deltaGravityScale = bodyComponent.gravityScale - handle.deltaGravityScale;
-            if(Math::abs(handle.deltaGravityScale) >= 0.f)
-                handle->set_gravity_scale(handle->get_gravity_scale() + handle.deltaGravityScale);
-            bodyComponent.gravityScale = handle->get_gravity_scale();
-            handle.deltaGravityScale = bodyComponent.gravityScale;
+        for(auto entity : view){
+            T& component = view.template get<T>(entity);
+
+            if(component.enabled)
+                apply(view.template get<NativeBodyComponent>(entity), component);
         }
     }
 
     void PhysicsSystem::handle_forces(){
-        // Handle forces
-        // Torques
-        auto view3 = m_registryRef.view<TorqueComponent, NativeBodyComponent>();
+        apply_one_shot<TorqueComponent>(m_registryRef, [](RigidBody* body, TorqueComponent& c){ body->apply_torque(c.torque, c.wake); });
+        apply_one_shot<ForceComponent>(m_registryRef, [](RigidBody* body, ForceComponent& c){ body->apply_force(c.force, c.point, c.wake); });
+        apply_one_shot<ImpulseComponent>(m_registryRef, [](RigidBody* body, ImpulseComponent& c){
+            body->apply_linear_impulse(c.force, c.point, c.wake);
+            body->apply_angular_impulse(c.angular, c.wake);
+        });
 
-        for(auto entity : view3){
-            TorqueComponent& physComponent = view3.get<TorqueComponent>(entity);
-            RigidBody* body = view3.get<NativeBodyComponent>(entity);
-            body->apply_torque(physComponent.torque, physComponent.wake);
-            m_registryRef.remove<TorqueComponent>(entity);
-        }
+        apply_continuous<ContinuousTorqueComponent>(m_registryRef, [](RigidBody* body, ContinuousTorqueComponent& c){ body->apply_torque(c.torque, c.wake); });
+        apply_continuous<ContinuousForceComponent>(m_registryRef, [](RigidBody* body, ContinuousForceComponent& c){ body->apply_force(c.force, c.point, c.wake); });
+        apply_continuous<ContinuousImpulseComponent>(m_registryRef, [](RigidBody* body, ContinuousImpulseComponent& c){
+            body->apply_linear_impulse(c.force, c.point, c.wake);
+            body->apply_angular_impulse(c.angular, c.wake);
+        });
+    }
 
-        // Forces
-        auto view4 = m_registryRef.view<ForceComponent, NativeBodyComponent>();
+    static void sync_joint(DistanceJointComponent& jointData, DistanceJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<DistanceJoint>();
 
-        for(auto entity : view4){
-            ForceComponent& physComponent = view4.get<ForceComponent>(entity);
-            RigidBody* body = view4.get<NativeBodyComponent>(entity);
-            body->apply_force(physComponent.force, physComponent.point, physComponent.wake);
-            m_registryRef.remove<ForceComponent>(entity);
-        }
+        if(handle.delta.anchorA != jointData.anchorA)
+            jointData.anchorA = handle.delta.anchorA;
 
-        // Impulses
-        auto view5 = m_registryRef.view<ImpulseComponent, NativeBodyComponent>();
+        if(handle.delta.anchorB != jointData.anchorB)
+            jointData.anchorB = handle.delta.anchorB;
 
-        for(auto entity : view5){
-            ImpulseComponent& physComponent = view5.get<ImpulseComponent>(entity);
-            RigidBody* body = view5.get<NativeBodyComponent>(entity);
-            body->apply_linear_impulse(physComponent.force, physComponent.point, physComponent.wake);
-            body->apply_angular_impulse(physComponent.angular, physComponent.wake);
-            m_registryRef.remove<ImpulseComponent>(entity);
-        }
+        DRAFT_SET_IF_CHANGE(jointData.length, handle.delta.length, ptr->set_length(jointData.length), ptr->get_length());
+        DRAFT_SET_IF_CHANGE(jointData.minLength, handle.delta.minLength, ptr->set_min_length(jointData.minLength), ptr->get_min_length());
+        DRAFT_SET_IF_CHANGE(jointData.maxLength, handle.delta.maxLength, ptr->set_max_length(jointData.maxLength), ptr->get_max_length());
+        DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
+        DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
+    }
 
-        // Continuous torque
-        auto view6 = m_registryRef.view<ContinuousTorqueComponent, NativeBodyComponent>();
+    static void sync_joint(FrictionJointComponent& jointData, FrictionJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<FrictionJoint>();
 
-        for(auto entity : view6){
-            ContinuousTorqueComponent& physComponent = view6.get<ContinuousTorqueComponent>(entity);
-            RigidBody* body = view6.get<NativeBodyComponent>(entity);
+        if(handle.delta.anchorA != jointData.anchorA)
+            jointData.anchorA = handle.delta.anchorA;
 
-            if(physComponent.enabled)
-                body->apply_torque(physComponent.torque, physComponent.wake);
-        }
+        if(handle.delta.anchorB != jointData.anchorB)
+            jointData.anchorB = handle.delta.anchorB;
 
-        // Continuous force
-        auto view7 = m_registryRef.view<ContinuousForceComponent, NativeBodyComponent>();
+        DRAFT_SET_IF_CHANGE(jointData.maxForce, handle.delta.maxForce, ptr->set_max_force(jointData.maxForce), ptr->get_max_force());
+        DRAFT_SET_IF_CHANGE(jointData.maxTorque, handle.delta.maxTorque, ptr->set_max_torque(jointData.maxTorque), ptr->get_max_torque());
+    }
 
-        for(auto entity : view7){
-            ContinuousForceComponent& physComponent = view7.get<ContinuousForceComponent>(entity);
-            RigidBody* body = view7.get<NativeBodyComponent>(entity);
+    static void sync_joint(GearJointComponent& jointData, GearJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<GearJoint>();
+        DRAFT_SET_IF_CHANGE(jointData.ratio, handle.delta.ratio, ptr->set_ratio(jointData.ratio), ptr->get_ratio());
+    }
 
-            if(physComponent.enabled)
-                body->apply_force(physComponent.force, physComponent.point, physComponent.wake);
-        }
+    static void sync_joint(MotorJointComponent& jointData, MotorJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<MotorJoint>();
 
-        // Continuous impulse
-        auto view8 = m_registryRef.view<ContinuousImpulseComponent, NativeBodyComponent>();
+        DRAFT_SET_IF_CHANGE(jointData.linearOffset, handle.delta.linearOffset, ptr->set_linear_offset(jointData.linearOffset), ptr->get_linear_offset());
+        DRAFT_SET_IF_CHANGE(jointData.angularOffset, handle.delta.angularOffset, ptr->set_angular_offset(jointData.angularOffset), ptr->get_angular_offset());
+        DRAFT_SET_IF_CHANGE(jointData.maxForce, handle.delta.maxForce, ptr->set_max_force(jointData.maxForce), ptr->get_max_force());
+        DRAFT_SET_IF_CHANGE(jointData.maxTorque, handle.delta.maxTorque, ptr->set_max_torque(jointData.maxTorque), ptr->get_max_torque());
+        DRAFT_SET_IF_CHANGE(jointData.correctionFactor, handle.delta.correctionFactor, ptr->set_correction_factor(jointData.correctionFactor), ptr->get_correction_factor());
+    }
 
-        for(auto entity : view8){
-            ContinuousImpulseComponent& physComponent = view8.get<ContinuousImpulseComponent>(entity);
-            RigidBody* body = view8.get<NativeBodyComponent>(entity);
+    static void sync_joint(MouseJointComponent& jointData, MouseJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<MouseJoint>();
 
-            if(physComponent.enabled){
-                body->apply_linear_impulse(physComponent.force, physComponent.point, physComponent.wake);
-                body->apply_angular_impulse(physComponent.angular, physComponent.wake);
-            }
+        DRAFT_SET_IF_CHANGE(jointData.target, handle.delta.target, ptr->set_target(jointData.target), ptr->get_target());
+        DRAFT_SET_IF_CHANGE(jointData.maxForce, handle.delta.maxForce, ptr->set_max_force(jointData.maxForce), ptr->get_max_force());
+        DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
+        DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
+    }
+
+    static void sync_joint(PrismaticJointComponent& jointData, PrismaticJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<PrismaticJoint>();
+
+        if(handle.delta.anchorA != jointData.anchorA)
+            jointData.anchorA = handle.delta.anchorA;
+
+        if(handle.delta.anchorB != jointData.anchorB)
+            jointData.anchorB = handle.delta.anchorB;
+
+        if(handle.delta.localAxisA != jointData.localAxisA)
+            jointData.localAxisA = handle.delta.localAxisA;
+
+        if(handle.delta.referenceAngle != jointData.referenceAngle)
+            jointData.referenceAngle = handle.delta.referenceAngle;
+
+        DRAFT_SET_IF_CHANGE(jointData.lowerTranslation, handle.delta.lowerTranslation, ptr->set_limits(jointData.lowerTranslation, ptr->get_upper_limit()), ptr->get_lower_limit());
+        DRAFT_SET_IF_CHANGE(jointData.upperTranslation, handle.delta.upperTranslation, ptr->set_limits(ptr->get_lower_limit(), jointData.upperTranslation), ptr->get_upper_limit());
+        DRAFT_SET_IF_CHANGE(jointData.maxMotorForce, handle.delta.maxMotorForce, ptr->set_max_motor_force(jointData.maxMotorForce), ptr->get_max_motor_force());
+        DRAFT_SET_IF_CHANGE(jointData.motorSpeed, handle.delta.motorSpeed, ptr->set_motor_speed(jointData.motorSpeed), ptr->get_motor_speed());
+        DRAFT_SET_IF_CHANGE(jointData.enableLimit, handle.delta.enableLimit, ptr->enable_limit(jointData.enableLimit), ptr->is_limit_enabled());
+        DRAFT_SET_IF_CHANGE(jointData.enableMotor, handle.delta.enableMotor, ptr->enable_motor(jointData.enableMotor), ptr->is_motor_enabled());
+    }
+
+    static void sync_joint(PulleyJointComponent& jointData, PulleyJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<PulleyJoint>();
+
+        if(handle.delta.groundAnchorA != jointData.groundAnchorA)
+            jointData.groundAnchorA = handle.delta.groundAnchorA;
+
+        if(handle.delta.groundAnchorB != jointData.groundAnchorB)
+            jointData.groundAnchorB = handle.delta.groundAnchorB;
+
+        if(handle.delta.localAnchorA != jointData.localAnchorA)
+            jointData.localAnchorA = handle.delta.localAnchorA;
+
+        if(handle.delta.localAnchorB != jointData.localAnchorB)
+            jointData.localAnchorB = handle.delta.localAnchorB;
+
+        jointData.lengthA = ptr->get_length_a();
+        jointData.lengthB = ptr->get_length_b();
+        jointData.ratio = ptr->get_ratio();
+    }
+
+    static void sync_joint(RevoluteJointComponent& jointData, RevoluteJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<RevoluteJoint>();
+
+        if(handle.delta.localAnchorA != jointData.localAnchorA)
+            jointData.localAnchorA = handle.delta.localAnchorA;
+
+        if(handle.delta.localAnchorB != jointData.localAnchorB)
+            jointData.localAnchorB = handle.delta.localAnchorB;
+
+        if(handle.delta.referenceAngle != jointData.referenceAngle)
+            jointData.referenceAngle = handle.delta.referenceAngle;
+
+        DRAFT_SET_IF_CHANGE(jointData.lowerAngle, handle.delta.lowerAngle, ptr->set_limits(jointData.lowerAngle, ptr->get_upper_limit()), ptr->get_lower_limit());
+        DRAFT_SET_IF_CHANGE(jointData.upperAngle, handle.delta.upperAngle, ptr->set_limits(ptr->get_lower_limit(), jointData.upperAngle), ptr->get_upper_limit());
+        DRAFT_SET_IF_CHANGE(jointData.maxMotorTorque, handle.delta.maxMotorTorque, ptr->set_max_motor_torque(jointData.maxMotorTorque), ptr->get_max_motor_torque());
+        DRAFT_SET_IF_CHANGE(jointData.motorSpeed, handle.delta.motorSpeed, ptr->set_motor_speed(jointData.motorSpeed), ptr->get_motor_speed());
+        DRAFT_SET_IF_CHANGE(jointData.enableLimit, handle.delta.enableLimit, ptr->enable_limit(jointData.enableLimit), ptr->is_limit_enabled());
+        DRAFT_SET_IF_CHANGE(jointData.enableMotor, handle.delta.enableMotor, ptr->enable_motor(jointData.enableMotor), ptr->is_motor_enabled());
+    }
+
+    static void sync_joint(WeldJointComponent& jointData, WeldJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<WeldJoint>();
+
+        if(handle.delta.anchorA != jointData.anchorA)
+            jointData.anchorA = handle.delta.anchorA;
+
+        if(handle.delta.anchorB != jointData.anchorB)
+            jointData.anchorB = handle.delta.anchorB;
+
+        if(handle.delta.referenceAngle != jointData.referenceAngle)
+            jointData.referenceAngle = handle.delta.referenceAngle;
+
+        DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
+        DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
+    }
+
+    static void sync_joint(WheelJointComponent& jointData, WheelJointComponent::NativeType& handle){
+        auto* ptr = handle.get_as<WheelJoint>();
+
+        if(handle.delta.anchorA != jointData.anchorA)
+            jointData.anchorA = handle.delta.anchorA;
+
+        if(handle.delta.anchorB != jointData.anchorB)
+            jointData.anchorB = handle.delta.anchorB;
+
+        if(handle.delta.localAxis != jointData.localAxis)
+            jointData.localAxis = handle.delta.localAxis;
+
+        DRAFT_SET_IF_CHANGE(jointData.lowerTranslation, handle.delta.lowerTranslation, ptr->set_limits(jointData.lowerTranslation, ptr->get_upper_limit()), ptr->get_lower_limit());
+        DRAFT_SET_IF_CHANGE(jointData.upperTranslation, handle.delta.upperTranslation, ptr->set_limits(ptr->get_lower_limit(), jointData.upperTranslation), ptr->get_upper_limit());
+        DRAFT_SET_IF_CHANGE(jointData.maxMotorTorque, handle.delta.maxMotorTorque, ptr->set_max_motor_torque(jointData.maxMotorTorque), ptr->get_max_motor_torque());
+        DRAFT_SET_IF_CHANGE(jointData.motorSpeed, handle.delta.motorSpeed, ptr->set_motor_speed(jointData.motorSpeed), ptr->get_motor_speed());
+        DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
+        DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
+        DRAFT_SET_IF_CHANGE(jointData.enableLimit, handle.delta.enableLimit, ptr->enable_limit(jointData.enableLimit), ptr->is_limit_enabled());
+        DRAFT_SET_IF_CHANGE(jointData.enableMotor, handle.delta.enableMotor, ptr->enable_motor(jointData.enableMotor), ptr->is_motor_enabled());
+    }
+
+    template<typename T>
+    void PhysicsSystem::sync_joint_type(){
+        auto view = m_registryRef.view<T, typename T::NativeType>();
+
+        for(auto entity : view){
+            sync_joint(view.template get<T>(entity), view.template get<typename T::NativeType>(entity));
         }
     }
 
     void PhysicsSystem::handle_joints(){
         // Loops through every kind of joint and runs logic to keep the native and data components syncronized
-        #define DRAFT_SET_IF_CHANGE(realValue, deltaValue, setFunc, getFunc) \
-            if(deltaValue != realValue) setFunc; \
-            realValue = getFunc; \
-            deltaValue = realValue;
-
-        {
-            // Distance joints
-            auto view = m_registryRef.view<DistanceJointComponent, DistanceJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<DistanceJointComponent>(entity);
-                auto& handle = view.get<DistanceJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<DistanceJoint>();
-
-                if(handle.delta.anchorA != jointData.anchorA)
-                    jointData.anchorA = handle.delta.anchorA;
-
-                if(handle.delta.anchorB != jointData.anchorB)
-                    jointData.anchorB = handle.delta.anchorB;
-
-                DRAFT_SET_IF_CHANGE(jointData.length, handle.delta.length, ptr->set_length(jointData.length), ptr->get_length());
-                DRAFT_SET_IF_CHANGE(jointData.minLength, handle.delta.minLength, ptr->set_min_length(jointData.minLength), ptr->get_min_length());
-                DRAFT_SET_IF_CHANGE(jointData.maxLength, handle.delta.maxLength, ptr->set_max_length(jointData.maxLength), ptr->get_max_length());
-                DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
-                DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
-            }
-        }
-        {
-            // Friction joints
-            auto view = m_registryRef.view<FrictionJointComponent, FrictionJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<FrictionJointComponent>(entity);
-                auto& handle = view.get<FrictionJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<FrictionJoint>();
-
-                if(handle.delta.anchorA != jointData.anchorA)
-                    jointData.anchorA = handle.delta.anchorA;
-
-                if(handle.delta.anchorB != jointData.anchorB)
-                    jointData.anchorB = handle.delta.anchorB;
-
-                DRAFT_SET_IF_CHANGE(jointData.maxForce, handle.delta.maxForce, ptr->set_max_force(jointData.maxForce), ptr->get_max_force());
-                DRAFT_SET_IF_CHANGE(jointData.maxTorque, handle.delta.maxTorque, ptr->set_max_torque(jointData.maxTorque), ptr->get_max_torque());
-            }
-        }
-        {
-            // Gear joints
-            auto view = m_registryRef.view<GearJointComponent, GearJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<GearJointComponent>(entity);
-                auto& handle = view.get<GearJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<GearJoint>();
-                DRAFT_SET_IF_CHANGE(jointData.ratio, handle.delta.ratio, ptr->set_ratio(jointData.ratio), ptr->get_ratio());
-            }
-        }
-        {
-            // Motor joints
-            auto view = m_registryRef.view<MotorJointComponent, MotorJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<MotorJointComponent>(entity);
-                auto& handle = view.get<MotorJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<MotorJoint>();
-
-                DRAFT_SET_IF_CHANGE(jointData.linearOffset, handle.delta.linearOffset, ptr->set_linear_offset(jointData.linearOffset), ptr->get_linear_offset());
-                DRAFT_SET_IF_CHANGE(jointData.angularOffset, handle.delta.angularOffset, ptr->set_angular_offset(jointData.angularOffset), ptr->get_angular_offset());
-                DRAFT_SET_IF_CHANGE(jointData.maxForce, handle.delta.maxForce, ptr->set_max_force(jointData.maxForce), ptr->get_max_force());
-                DRAFT_SET_IF_CHANGE(jointData.maxTorque, handle.delta.maxTorque, ptr->set_max_torque(jointData.maxTorque), ptr->get_max_torque());
-                DRAFT_SET_IF_CHANGE(jointData.correctionFactor, handle.delta.correctionFactor, ptr->set_correction_factor(jointData.correctionFactor), ptr->get_correction_factor());
-            }
-        }
-        {
-            // Mouse joints
-            auto view = m_registryRef.view<MouseJointComponent, MouseJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<MouseJointComponent>(entity);
-                auto& handle = view.get<MouseJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<MouseJoint>();
-
-                DRAFT_SET_IF_CHANGE(jointData.target, handle.delta.target, ptr->set_target(jointData.target), ptr->get_target());
-                DRAFT_SET_IF_CHANGE(jointData.maxForce, handle.delta.maxForce, ptr->set_max_force(jointData.maxForce), ptr->get_max_force());
-                DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
-                DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
-            }
-        }
-        {
-            // Prismatic joints
-            auto view = m_registryRef.view<PrismaticJointComponent, PrismaticJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<PrismaticJointComponent>(entity);
-                auto& handle = view.get<PrismaticJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<PrismaticJoint>();
-
-                if(handle.delta.anchorA != jointData.anchorA)
-                    jointData.anchorA = handle.delta.anchorA;
-
-                if(handle.delta.anchorB != jointData.anchorB)
-                    jointData.anchorB = handle.delta.anchorB;
-
-                if(handle.delta.localAxisA != jointData.localAxisA)
-                    jointData.localAxisA = handle.delta.localAxisA;
-
-                if(handle.delta.referenceAngle != jointData.referenceAngle)
-                    jointData.referenceAngle = handle.delta.referenceAngle;
-
-                DRAFT_SET_IF_CHANGE(jointData.lowerTranslation, handle.delta.lowerTranslation, ptr->set_limits(jointData.lowerTranslation, ptr->get_upper_limit()), ptr->get_lower_limit());
-                DRAFT_SET_IF_CHANGE(jointData.upperTranslation, handle.delta.upperTranslation, ptr->set_limits(ptr->get_lower_limit(), jointData.upperTranslation), ptr->get_upper_limit());
-                DRAFT_SET_IF_CHANGE(jointData.maxMotorForce, handle.delta.maxMotorForce, ptr->set_max_motor_force(jointData.maxMotorForce), ptr->get_max_motor_force());
-                DRAFT_SET_IF_CHANGE(jointData.motorSpeed, handle.delta.motorSpeed, ptr->set_motor_speed(jointData.motorSpeed), ptr->get_motor_speed());
-                DRAFT_SET_IF_CHANGE(jointData.enableLimit, handle.delta.enableLimit, ptr->enable_limit(jointData.enableLimit), ptr->is_limit_enabled());
-                DRAFT_SET_IF_CHANGE(jointData.enableMotor, handle.delta.enableMotor, ptr->enable_motor(jointData.enableMotor), ptr->is_motor_enabled());
-            }
-        }
-        {
-            // Pulley joints
-            auto view = m_registryRef.view<PulleyJointComponent, PulleyJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<PulleyJointComponent>(entity);
-                auto& handle = view.get<PulleyJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<PulleyJoint>();
-
-                if(handle.delta.groundAnchorA != jointData.groundAnchorA)
-                    jointData.groundAnchorA = handle.delta.groundAnchorA;
-
-                if(handle.delta.groundAnchorB != jointData.groundAnchorB)
-                    jointData.groundAnchorB = handle.delta.groundAnchorB;
-
-                if(handle.delta.localAnchorA != jointData.localAnchorA)
-                    jointData.localAnchorA = handle.delta.localAnchorA;
-
-                if(handle.delta.localAnchorB != jointData.localAnchorB)
-                    jointData.localAnchorB = handle.delta.localAnchorB;
-
-                jointData.lengthA = ptr->get_length_a();
-                jointData.lengthB = ptr->get_length_b();
-                jointData.ratio = ptr->get_ratio();
-            }
-        }
-        {
-            // Revolute joints
-            auto view = m_registryRef.view<RevoluteJointComponent, RevoluteJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<RevoluteJointComponent>(entity);
-                auto& handle = view.get<RevoluteJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<RevoluteJoint>();
-
-                if(handle.delta.localAnchorA != jointData.localAnchorA)
-                    jointData.localAnchorA = handle.delta.localAnchorA;
-
-                if(handle.delta.localAnchorB != jointData.localAnchorB)
-                    jointData.localAnchorB = handle.delta.localAnchorB;
-
-                if(handle.delta.referenceAngle != jointData.referenceAngle)
-                    jointData.referenceAngle = handle.delta.referenceAngle;
-
-                DRAFT_SET_IF_CHANGE(jointData.lowerAngle, handle.delta.lowerAngle, ptr->set_limits(jointData.lowerAngle, ptr->get_upper_limit()), ptr->get_lower_limit());
-                DRAFT_SET_IF_CHANGE(jointData.upperAngle, handle.delta.upperAngle, ptr->set_limits(ptr->get_lower_limit(), jointData.upperAngle), ptr->get_upper_limit());
-                DRAFT_SET_IF_CHANGE(jointData.maxMotorTorque, handle.delta.maxMotorTorque, ptr->set_max_motor_torque(jointData.maxMotorTorque), ptr->get_max_motor_torque());
-                DRAFT_SET_IF_CHANGE(jointData.motorSpeed, handle.delta.motorSpeed, ptr->set_motor_speed(jointData.motorSpeed), ptr->get_motor_speed());
-                DRAFT_SET_IF_CHANGE(jointData.enableLimit, handle.delta.enableLimit, ptr->enable_limit(jointData.enableLimit), ptr->is_limit_enabled());
-                DRAFT_SET_IF_CHANGE(jointData.enableMotor, handle.delta.enableMotor, ptr->enable_motor(jointData.enableMotor), ptr->is_motor_enabled());
-            }
-        }
-        {
-            // Weld joints
-            auto view = m_registryRef.view<WeldJointComponent, WeldJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<WeldJointComponent>(entity);
-                auto& handle = view.get<WeldJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<WeldJoint>();
-
-                if(handle.delta.anchorA != jointData.anchorA)
-                    jointData.anchorA = handle.delta.anchorA;
-
-                if(handle.delta.anchorB != jointData.anchorB)
-                    jointData.anchorB = handle.delta.anchorB;
-
-                if(handle.delta.referenceAngle != jointData.referenceAngle)
-                    jointData.referenceAngle = handle.delta.referenceAngle;
-
-                DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
-                DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
-            }
-        }
-        {
-            // Wheel joints
-            auto view = m_registryRef.view<WheelJointComponent, WheelJointComponent::NativeType>();
-
-            for(auto entity : view){
-                auto& jointData = view.get<WheelJointComponent>(entity);
-                auto& handle = view.get<WheelJointComponent::NativeType>(entity);
-                auto* ptr = handle.get_as<WheelJoint>();
-
-                if(handle.delta.anchorA != jointData.anchorA)
-                    jointData.anchorA = handle.delta.anchorA;
-
-                if(handle.delta.anchorB != jointData.anchorB)
-                    jointData.anchorB = handle.delta.anchorB;
-
-                if(handle.delta.localAxis != jointData.localAxis)
-                    jointData.localAxis = handle.delta.localAxis;
-
-                DRAFT_SET_IF_CHANGE(jointData.lowerTranslation, handle.delta.lowerTranslation, ptr->set_limits(jointData.lowerTranslation, ptr->get_upper_limit()), ptr->get_lower_limit());
-                DRAFT_SET_IF_CHANGE(jointData.upperTranslation, handle.delta.upperTranslation, ptr->set_limits(ptr->get_lower_limit(), jointData.upperTranslation), ptr->get_upper_limit());
-                DRAFT_SET_IF_CHANGE(jointData.maxMotorTorque, handle.delta.maxMotorTorque, ptr->set_max_motor_torque(jointData.maxMotorTorque), ptr->get_max_motor_torque());
-                DRAFT_SET_IF_CHANGE(jointData.motorSpeed, handle.delta.motorSpeed, ptr->set_motor_speed(jointData.motorSpeed), ptr->get_motor_speed());
-                DRAFT_SET_IF_CHANGE(jointData.stiffness, handle.delta.stiffness, ptr->set_stiffness(jointData.stiffness), ptr->get_stiffness());
-                DRAFT_SET_IF_CHANGE(jointData.damping, handle.delta.damping, ptr->set_damping(jointData.damping), ptr->get_damping());
-                DRAFT_SET_IF_CHANGE(jointData.enableLimit, handle.delta.enableLimit, ptr->enable_limit(jointData.enableLimit), ptr->is_limit_enabled());
-                DRAFT_SET_IF_CHANGE(jointData.enableMotor, handle.delta.enableMotor, ptr->enable_motor(jointData.enableMotor), ptr->is_motor_enabled());
-            }
-        }
-
-        #undef DRAFT_SET_IF_CHANGE
+        sync_joint_types<DRAFT_ALL_JOINT_TYPES>();
     }
 
     // Constructors
