@@ -27,5 +27,16 @@ namespace Draft {
 
         if(p_renderer)
             p_renderer->resize(size);
+
+        // Mirrors Application::trigger_resize(): a nested ImGuiSystem/RmlUiSystem has no real
+        // window to read a live size from every frame (that's what the old GLFW-backed versions
+        // did for free), so it only learns about a resize by way of this event reaching its
+        // on_event() - nothing else calls it since target/p_renderer above cover the Framebuffer/
+        // Renderer side of a resize but not the active scene's own systems.
+        Event event;
+        event.type = Event::Resized;
+        event.size.width = size.x;
+        event.size.height = size.y;
+        dispatch(event);
     }
 }

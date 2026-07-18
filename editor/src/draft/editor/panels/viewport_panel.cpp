@@ -21,14 +21,7 @@ namespace Draft {
         ImVec2 avail = ImGui::GetContentRegionAvail();
         ImVec2 imagePos = ImGui::GetCursorScreenPos();
 
-        // Display gameApp's current output texture as-is. Actually resizing it here would
-        // reallocate its GL storage (undefined contents) before this same texture gets actually
-        // sampled by ImGui's real draw call later this frame (RenderLayer::Overlay, which runs
-        // after every system's Default-layer render() - including this one - across the whole
-        // scene). Recording the desired size and letting EditorApplication::step() apply it after
-        // application.step() fully returns (see that function's ordering comment) keeps this
-        // frame's draw sampling valid, already-rendered data - only the *next* gameApp.step()
-        // renders at the new size.
+        // Display gameApp's current output texture as-is.
         if(avail.x >= 1.f && avail.y >= 1.f)
             m_app.pendingViewportSize = {(unsigned int)avail.x, (unsigned int)avail.y};
 
@@ -45,11 +38,6 @@ namespace Draft {
     }
 
     void ViewportPanelSystem::forward_input(const Vector2d& localPos, bool hovered){
-        // Read every bit of real (editor-context) ImGui input state up front, before injecting
-        // anything into gameApp. inject_event() can reach a nested ImGuiSystem::on_event(),
-        // which switches ImGui's *global* current context to its own and never restores it - any
-        // ImGui:: read attempted after that point (even later in this same function) would
-        // silently see the game's io instead of the editor's real one.
         const ImGuiIO& io = ImGui::GetIO();
         Vector2d scroll{io.MouseWheelH, io.MouseWheel};
         bool buttonDown[MouseButtonCount];
