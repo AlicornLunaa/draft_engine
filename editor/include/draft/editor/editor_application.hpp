@@ -8,6 +8,7 @@
 #include "draft/ecs/scene.hpp"
 #include "draft/editor/game_module_watcher.hpp"
 #include "draft/editor/project.hpp"
+#include "draft/editor/selection.hpp"
 
 #include <filesystem>
 #include <optional>
@@ -38,11 +39,17 @@ namespace Draft {
         void request_play();
         void request_stop();
 
-        Application application;
         Engine engine;
+        Application application;
         AssetManager assets;
         GameContext context;
         Scene editScene;
+
+        Engine subengine;
+        EmbeddedApplication subapp;
+        GameContext subcontext{subengine, subapp};
+
+        EditorSelection selection;
 
     private:
         enum class PendingAction {

@@ -5,14 +5,18 @@ set(HEADERS
     include/draft/editor/editor_application.hpp
     include/draft/editor/game_module_watcher.hpp
     include/draft/editor/project.hpp
+    include/draft/editor/selection.hpp
     include/draft/editor/panels/dockspace_panel.hpp
+    include/draft/editor/panels/hierarchy_panel.hpp
 )
 
 set(SOURCES
     src/draft/editor/editor_application.cpp
     src/draft/editor/game_module_watcher.cpp
     src/draft/editor/project.cpp
+    src/draft/editor/selection.cpp
     src/draft/editor/panels/dockspace_panel.cpp
+    src/draft/editor/panels/hierarchy_panel.cpp
     src/main.cpp
 )
 

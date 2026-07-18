@@ -1,6 +1,7 @@
 #include "draft/editor/editor_application.hpp"
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
+#include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/interface/imgui/imgui_system.hpp"
 #include "draft/util/files/file_handle.hpp"
 #include "draft/util/files/host_file_system.hpp"
@@ -79,6 +80,7 @@ namespace Draft {
         std::filesystem::current_path(m_project->module_manifest_path().parent_path());
 
         application.simulationPaused = true;
+        selection.clear();
         editScene.get_registry().clear();
         editScene.get_systems().clear();
 
@@ -98,6 +100,7 @@ namespace Draft {
             editScene.get_systems().add<ImGuiSystem>(application.window);
 
         editScene.get_systems().add<DockspacePanelSystem>(*this);
+        editScene.get_systems().add<HierarchyPanelSystem>(*this);
     }
 
     void EditorApplication::play(){
@@ -120,6 +123,7 @@ namespace Draft {
         if(!snapshot.exists())
             return;
 
+        selection.clear();
         editScene.get_registry().clear();
         editScene.get_systems().clear();
         load_scene(editScene, engine, assets, snapshot);
