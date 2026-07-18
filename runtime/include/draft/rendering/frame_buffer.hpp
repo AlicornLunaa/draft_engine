@@ -81,6 +81,7 @@ namespace Draft {
         void unbind();
         void generate();
         void cleanup();
+        void validate_complete(); // Throws std::runtime_error if this fbo isn't GL_FRAMEBUFFER_COMPLETE
 
     public:
         // Constructors

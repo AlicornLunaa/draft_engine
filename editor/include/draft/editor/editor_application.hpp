@@ -59,6 +59,15 @@ namespace Draft {
          */
         bool viewportFocused = false;
 
+        /**
+         * @brief The "Viewport" panel's content region size this frame, updated by
+         * ViewportPanelSystem::render() but deliberately not applied to gameApp until step()
+         * calls gameApp.resize() itself, after application.step() (and the real GPU draw of this
+         * frame's ImGui::Image() referencing gameApp's *current* output texture) has already
+         * finished - see step()'s ordering comment for why applying it any earlier flickers.
+         */
+        Vector2u pendingViewportSize;
+
     private:
         enum class PendingAction {
             None,

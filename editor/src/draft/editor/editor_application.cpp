@@ -13,7 +13,8 @@
 
 namespace Draft {
     EditorApplication::EditorApplication(const std::string& title, unsigned int width, unsigned int height)
-        : application(title, width, height), gameView({.size={width, height}}), gameApp({width, height}, application.keyboard, application.mouse)
+        : application(title, width, height), gameView({.size={width, height}}), gameApp({width, height}, application.keyboard, application.mouse),
+          pendingViewportSize(width, height)
     {
         gameApp.simulationPaused = true;
         RmlUiSystem::set_clipboard_window(application.window);
@@ -60,8 +61,19 @@ namespace Draft {
         if(m_watcher && m_watcher->poll())
             m_pending = PendingAction::ReloadModule;
 
+        // application.step() renders editScene (Default then Overlay layers), which is where
+        // ImGui actually draws the "Viewport" panel's Image - sampling gameApp's *current*
+        // output texture. Resizing gameApp (which reallocates that same texture's GL storage,
+        // leaving it with undefined contents) must not happen until that draw has actually been
+        // issued, or this frame would sample the just-emptied texture instead - hence resizing
+        // here, after application.step() returns, rather than inside
+        // ViewportPanelSystem::render() itself (which runs during the Default layer, before
+        // Overlay's real draw call within this same application.step()).
         bool open = application.step();
+
+        gameApp.resize(pendingViewportSize);
         gameApp.step(application.deltaTime);
+
         process_pending();
         return open;
     }

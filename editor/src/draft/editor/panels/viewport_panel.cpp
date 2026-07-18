@@ -2,13 +2,10 @@
 
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/editor/editor_application.hpp"
-#include "draft/util/logger.hpp"
 
-#include "GLFW/glfw3.h"
 #include "imgui.h"
 
 #include <cstdint>
-#include <string>
 
 namespace Draft {
     ViewportPanelSystem::ViewportPanelSystem(EditorApplication& app) : m_app(app) {}
@@ -22,13 +19,19 @@ namespace Draft {
         m_app.viewportFocused = ImGui::IsWindowFocused();
 
         ImVec2 avail = ImGui::GetContentRegionAvail();
-        if(avail.x >= 1.f && avail.y >= 1.f)
-            m_app.gameApp.resize({(unsigned int)avail.x, (unsigned int)avail.y});
-
         ImVec2 imagePos = ImGui::GetCursorScreenPos();
 
-        // The Framebuffer's color attachment is upright in GL texture space, ImGui expects
-        // top-left origin, hence the flipped v coordinates.
+        // Display gameApp's current output texture as-is. Actually resizing it here would
+        // reallocate its GL storage (undefined contents) before this same texture gets actually
+        // sampled by ImGui's real draw call later this frame (RenderLayer::Overlay, which runs
+        // after every system's Default-layer render() - including this one - across the whole
+        // scene). Recording the desired size and letting EditorApplication::step() apply it after
+        // application.step() fully returns (see that function's ordering comment) keeps this
+        // frame's draw sampling valid, already-rendered data - only the *next* gameApp.step()
+        // renders at the new size.
+        if(avail.x >= 1.f && avail.y >= 1.f)
+            m_app.pendingViewportSize = {(unsigned int)avail.x, (unsigned int)avail.y};
+
         auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
         ImGui::Image(textureId, avail, ImVec2(0, 1), ImVec2(1, 0));
 

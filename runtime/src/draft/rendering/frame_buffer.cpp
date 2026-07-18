@@ -1,6 +1,9 @@
 #include "draft/rendering/frame_buffer.hpp"
 #include "draft/rendering/texture.hpp"
 
+#include <stdexcept>
+#include <string>
+
 namespace Draft {
     // Static data
     uint Framebuffer::currentFbo = 0;
@@ -46,6 +49,7 @@ namespace Draft {
                 m_drawBuffers.push_back(attachment.attachment);
         }
 
+        validate_complete();
         unbind();
     }
 
@@ -53,6 +57,13 @@ namespace Draft {
         m_drawBuffers.clear();
         m_textures.clear();
         glDeleteFramebuffers(1, &fbo);
+    }
+
+    void Framebuffer::validate_complete(){
+        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+        if(status != GL_FRAMEBUFFER_COMPLETE)
+            throw std::runtime_error("Framebuffer is incomplete, glCheckFramebufferStatus() returned " + std::to_string(status));
     }
 
     // Constructors
@@ -84,16 +95,23 @@ namespace Draft {
     }
 
     void Framebuffer::set_size(const Vector2u& size){
-        // Resize all attached colors
+        if(size == m_properties.size)
+            return;
+
         m_properties.size = size;
+
+        // Reuse the existing fbo/texture objects, just reallocate each attachment's GL storage
+        // at the new size in place (Texture::set_properties() re-uploads via glTexImage2D on
+        // the same texture id).
+        bind();
 
         for(auto& attachment : m_properties.attachments){
             attachment.textureProperties.size = size;
+            m_textures[attachment.attachment].set_properties(attachment.textureProperties);
         }
 
-        // Resize the framebuffer by regenerating it
-        cleanup();
-        generate();
+        validate_complete();
+        unbind();
     }
 
     void Framebuffer::begin(const Vector4f& clearColor){
