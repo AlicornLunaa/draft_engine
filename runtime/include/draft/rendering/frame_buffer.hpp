@@ -92,11 +92,11 @@ namespace Draft {
         void write_depth_stencil();
         
         // RenderTarget
-        void resize(const Vector2u& size) override;
+        const Vector2u& get_size() const override;
+        void set_size(const Vector2u& size) override;
         void begin(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1}) override;
         void end() override;
 
-        inline const Vector2u& get_size() const { return m_properties.size; }
         inline const Texture& get_texture(FramebufferAttachment attachment = COLOR) const { return m_textures.at(attachment); }
         inline const Texture& get_depth_texture() const { return m_textures.at(DEPTH); }
     };

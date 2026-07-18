@@ -76,7 +76,7 @@ TEST_F(FramebufferTest, BeginEndNestsCorrectlyAgainstAPreviouslyBoundFramebuffer
 TEST_F(FramebufferTest, ResizeRegeneratesAttachmentsAtTheNewSize)
 {
     Framebuffer fb({{8, 8}});
-    fb.resize({32, 24});
+    fb.set_size({32, 24});
 
     EXPECT_EQ(fb.get_size().x, 32u);
     EXPECT_EQ(fb.get_size().y, 24u);

@@ -24,6 +24,11 @@ namespace Draft {
         /**
          * @brief Resizes the target
          */
-        virtual void resize(const Vector2u& size) = 0;
+        virtual void set_size(const Vector2u& size) = 0;
+
+        /**
+         * @brief Gets the size of the render target
+         */
+        virtual const Vector2u& get_size() const = 0;
     };
 }

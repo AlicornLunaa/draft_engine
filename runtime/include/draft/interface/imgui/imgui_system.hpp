@@ -1,17 +1,15 @@
 #pragma once
 
 #include "draft/ecs/system.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/util/reflectable.hpp"
 
 #include "imgui.h"
 
 namespace Draft {
-    /// Forward decls
-    class RenderWindow;
-
     /**
-     * @brief Owns an ImGui context plus its GLFW+OpenGL3 backends. Must be constructed AFTER this window's
-     * Keyboard/Mouse (it installs GLFW callbacks that chain onto whatever was already registered).
+     * @brief Owns an ImGui context plus its OpenGL3 rendering backend. Input arrives entirely
+     * through on_event().
      *
      * RenderLayer::Default's render() call starts this frame's ImGui frame (ImGui::NewFrame())
      * before any other system runs, so any other system regardless of registration order can
@@ -24,10 +22,11 @@ namespace Draft {
     private:
         // Variables
         ImGuiContext* ctx = nullptr;
+        Vector2u m_size;
 
     public:
         // Constructors
-        ImGuiSystem(RenderWindow& window);
+        ImGuiSystem(const Vector2u& size);
         ImGuiSystem(const ImGuiSystem& other) = delete;
         ImGuiSystem(ImGuiSystem&& other) = delete;
         ~ImGuiSystem() override;
@@ -40,6 +39,7 @@ namespace Draft {
         RenderLayer get_render_layers() const override { return RenderLayer::Default | RenderLayer::Overlay; }
         void render(Time dt, RenderLayer layer) override;
         bool on_event(const Event& event) override;
+        void resize(const Vector2u& size);
         bool wants_keyboard_capture() const; // Wraps ImGuiIO::WantCaptureKeyboard
         bool wants_mouse_capture() const; // Wraps ImGuiIO::WantCaptureMouse
 

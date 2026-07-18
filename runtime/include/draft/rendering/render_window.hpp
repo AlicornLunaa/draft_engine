@@ -19,8 +19,12 @@ namespace Draft {
         void display();
 
         // RenderTarget
-        void resize(const Vector2u& size) override;
+        const Vector2u& get_size() const override;
+        void set_size(const Vector2u& size) override;
         void begin(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1}) override;
         void end() override;
+
+    private:
+        mutable Vector2u m_size;
     };
 }

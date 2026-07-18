@@ -1,27 +1,10 @@
-#define GLFW_INCLUDE_NONE
-
 #include "draft/core/sub_application.hpp"
 
-#include "GLFW/glfw3.h"
-
-namespace {
-    Draft::GLFWProperties hidden_window_properties(){
-        Draft::GLFWProperties props = Draft::Window::get_default_properties();
-        props.push_back({GLFW_VISIBLE, GLFW_FALSE});
-        return props;
-    }
-}
-
 namespace Draft {
-    SubApplication::SubApplication(RenderWindow& sharedContext, const Vector2u& renderSize)
-        : ApplicationInterface(m_window, m_keyboard, m_mouse),
-          m_sharedContext(sharedContext),
-          m_window(renderSize.x, renderSize.y, "", hidden_window_properties(), sharedContext.get_glfw_handle()),
-          m_keyboard(m_window),
-          m_mouse(m_window),
-          m_target({renderSize})
+    SubApplication::SubApplication(const Vector2u& size, Keyboard& keyboard, Mouse& mouse)
+        : ApplicationInterface(m_target, keyboard, mouse), m_target({.size = size})
     {
-        p_renderer = std::make_unique<DefaultRenderer>(renderSize);
+        p_renderer = std::make_unique<DefaultRenderer>(target.get_size());
     }
 
     void SubApplication::step(Time dt){
@@ -36,11 +19,11 @@ namespace Draft {
             scene_change();
 
         tick();
-        frame_into(m_target);
+        frame_into(target);
     }
 
     void SubApplication::resize(const Vector2u& size){
-        m_target.resize(size);
+        target.set_size(size);
 
         if(p_renderer)
             p_renderer->resize(size);

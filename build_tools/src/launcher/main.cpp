@@ -3,6 +3,7 @@
 #include "draft/core/application.hpp"
 #include "draft/core/engine.hpp"
 #include "draft/ecs/scene.hpp"
+#include "draft/interface/rmlui/rml_system.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/json.hpp"
 #include "draft/util/logger.hpp"
@@ -64,6 +65,7 @@ int main(int argc, char** argv){
 
     Engine engine;
     Application app(info.title, info.width, info.height);
+    RmlUiSystem::set_clipboard_window(app.window);
     AssetManager assets;
     GameContext context{engine, app, assets};
     Scene scene;

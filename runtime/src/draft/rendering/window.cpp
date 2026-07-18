@@ -196,23 +196,23 @@ namespace Draft {
         glfwSetWindowIcon(m_window, 0, nullptr);
     }
 
-    const std::string Window::get_title() const {
+    std::string Window::get_title() const {
         return glfwGetWindowTitle(m_window);
     }
 
-    const Vector2i Window::get_position() const {
+    Vector2i Window::get_position() const {
         Vector2i pos(0, 0);
         glfwGetWindowPos(m_window, &pos.x, &pos.y);
         return pos;
     }
 
-    const Vector2u Window::get_size() const {
+    Vector2u Window::get_size() const {
         Vector2i size(0, 0);
         glfwGetWindowSize(m_window, &size.x, &size.y);
         return size;
     }
 
-    const Vector2u Window::get_frame_size() const {
+    Vector2u Window::get_frame_size() const {
         Vector2i size(0, 0);
         glfwGetFramebufferSize(m_window, &size.x, &size.y);
         return size;

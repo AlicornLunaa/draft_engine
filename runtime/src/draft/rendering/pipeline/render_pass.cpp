@@ -6,6 +6,6 @@ namespace Draft {
     }
 
     void BufferedPass::resize(const Vector2u& size){
-        p_frameBuffer.resize(size);
+        p_frameBuffer.set_size(size);
     }
 }

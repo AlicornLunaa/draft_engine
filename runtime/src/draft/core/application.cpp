@@ -4,10 +4,10 @@
 namespace Draft {
     // Constructors
     Application::Application(const std::string& title, unsigned int width, unsigned int height)
-        : ApplicationInterface(m_window, m_keyboard, m_mouse),
-          m_window(width, height, title),
-          m_keyboard(m_window),
-          m_mouse(m_window)
+        : ApplicationInterface(window, m_keyboard, m_mouse),
+          window(width, height, title),
+          m_keyboard(window),
+          m_mouse(window)
     {
         window.frameSizeCallback = [this](unsigned int w, unsigned int h){ framebuffer_resized(w, h); };
         window.focusCallback = [this](bool focused){ window_focus(focused); };

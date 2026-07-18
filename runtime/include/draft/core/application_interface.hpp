@@ -6,7 +6,6 @@
 #include "draft/input/mouse.hpp"
 #include "draft/rendering/pipeline/renderer.hpp"
 #include "draft/rendering/render_target.hpp"
-#include "draft/rendering/render_window.hpp"
 #include "draft/util/clock.hpp"
 
 #include <memory>
@@ -21,7 +20,7 @@ namespace Draft {
     class ApplicationInterface {
     public:
         // Public variables
-        RenderWindow& window;
+        RenderTarget& target;
         Keyboard& keyboard;
         Mouse& mouse;
 
@@ -46,12 +45,14 @@ namespace Draft {
         EventCallback eventCallback = nullptr;
 
         // Constructors
-        ApplicationInterface(RenderWindow& window, Keyboard& keyboard, Mouse& mouse);
+        ApplicationInterface(RenderTarget& target, Keyboard& keyboard, Mouse& mouse);
         ApplicationInterface(const ApplicationInterface& other) = delete;
         ApplicationInterface& operator=(const ApplicationInterface& other) = delete;
         virtual ~ApplicationInterface() = default;
 
         // Functions
+        virtual void close(); // End the application
+
         void set_scene(Scene* scene);
         inline Scene* get_scene() const { return p_activeScene; }
 

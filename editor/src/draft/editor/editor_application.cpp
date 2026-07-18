@@ -1,21 +1,60 @@
+#define GLFW_INCLUDE_NONE
+
 #include "draft/editor/editor_application.hpp"
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/interface/imgui/imgui_system.hpp"
+#include "draft/interface/rmlui/rml_system.hpp"
 #include "draft/util/files/file_handle.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/logger.hpp"
 
 namespace Draft {
     EditorApplication::EditorApplication(const std::string& title, unsigned int width, unsigned int height)
-        : application(title, width, height), gameApp(application.window, {width, height})
+        : application(title, width, height), gameView({.size={width, height}}), gameApp({width, height}, application.keyboard, application.mouse)
     {
         gameApp.simulationPaused = true;
+        RmlUiSystem::set_clipboard_window(application.window);
         application.set_scene(&editScene);
+        gameApp.set_scene(&gameScene);
         attach_chrome();
+
+        // Mouse input is remapped/forwarded per-frame by ViewportPanelSystem itself (it needs
+        // the panel's screen-space rect). Keyboard/text has no per-frame coordinates to remap,
+        // so it's simplest forwarded straight from here, gated on viewportFocused.
+        // application.eventCallback = [this](const Event& event){ return forward_keyboard_event(event); };
     }
+
+    // bool EditorApplication::forward_keyboard_event(const Event& event){
+    //     if(!viewportFocused){
+    //         if(event.type == Event::TextEntered || event.type == Event::KeyPressed)
+    //             Logger::println(LogLevel::Info, "Editor", "forward_keyboard_event: dropped, viewport not focused");
+    //         return false;
+    //     }
+
+    //     switch(event.type){
+    //         case Event::KeyPressed:
+    //         case Event::KeyReleased:
+    //         case Event::KeyHold: {
+    //             gameApp.keyboard.inject_key(event.key.code, event.type == Event::KeyPressed ? GLFW_PRESS : event.type == Event::KeyReleased ? GLFW_RELEASE : GLFW_REPEAT, event.key.mods);
+    //             bool consumed = gameApp.inject_event(event);
+    //             Logger::println(LogLevel::Info, "Editor", "forward_keyboard_event: key code=" + std::to_string(event.key.code) + " consumed=" + std::to_string(consumed));
+    //             return false;
+    //         }
+
+    //         case Event::TextEntered: {
+    //             gameApp.keyboard.inject_char(event.text.unicode);
+    //             bool consumed = gameApp.inject_event(event);
+    //             Logger::println(LogLevel::Info, "Editor", "forward_keyboard_event: text unicode=" + std::to_string(event.text.unicode) + " consumed=" + std::to_string(consumed));
+    //             return false;
+    //         }
+
+    //         default:
+    //             return false;
+    //     }
+    // }
 
     bool EditorApplication::step(){
         if(m_watcher && m_watcher->poll())
@@ -87,7 +126,15 @@ namespace Draft {
         gameScene.get_systems().clear();
 
         m_gameModule.emplace(modulePath);
+
+        // register_game() constructs systems that create GL objects tied to gameApp's own
+        // window/context (RmlUiSystem's VAOs, ImGuiSystem's font texture, ...). Those need to be
+        // created with gameApp's own context current, not whatever's current at this point in
+        // EditorApplication::step() (the shared/main one, since this runs from process_pending()
+        // after gameApp.step() already restored it).
+        // gameApp.make_current();
         m_gameModule->register_game(gameContext, gameScene);
+        // gameApp.restore_shared_context();
 
         m_watcher.emplace(modulePath);
 
@@ -95,7 +142,7 @@ namespace Draft {
     }
 
     void EditorApplication::attach_chrome(){
-        editScene.get_systems().add<ImGuiSystem>(application.window);
+        editScene.get_systems().add<ImGuiSystem>(application.target.get_size());
         editScene.get_systems().add<DockspacePanelSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<ViewportPanelSystem>(*this);
@@ -124,7 +171,12 @@ namespace Draft {
         selection.clear();
         gameScene.get_registry().clear();
         gameScene.get_systems().clear();
+
+        // Same reasoning as load_game_module(): load_scene() attaches systems through the same
+        // factories register_game() uses, which create GL objects tied to gameApp's own context.
+        // gameApp.make_current();
         load_scene(gameScene, gameEngine, assets, snapshot);
+        // gameApp.restore_shared_context();
     }
 
     std::filesystem::path EditorApplication::snapshot_path() const {

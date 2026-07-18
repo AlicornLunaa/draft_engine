@@ -16,9 +16,10 @@ namespace Draft {
     SystemInterface_GLFW* RmlUiSystem::s_systemInterface = nullptr;
     RenderInterface_GL3* RmlUiSystem::s_renderInterface = nullptr;
     RmlFileInterface* RmlUiSystem::s_fileInterface = nullptr;
+    RenderWindow* RmlUiSystem::s_clipboardWindow = nullptr;
 
     // Constructors
-    RmlUiSystem::RmlUiSystem(RenderWindow& window){
+    RmlUiSystem::RmlUiSystem(const Vector2u& size){
         // Initialize RML if this is the first object
         if(s_backendCount <= 0){
             s_renderInterface = new RenderInterface_GL3();
@@ -29,11 +30,11 @@ namespace Draft {
             Rml::SetSystemInterface(s_systemInterface);
             Rml::SetFileInterface(s_fileInterface);
             Rml::Initialise();
+
+            if(s_clipboardWindow)
+                s_systemInterface->SetWindow(s_clipboardWindow->get_glfw_handle());
         }
 
-        // Initialize interfaces
-        auto size = window.get_frame_size();
-        s_systemInterface->SetWindow(window.get_glfw_handle());
         s_renderInterface->SetViewport(size.x, size.y);
 
         s_backendCount++;
@@ -57,6 +58,13 @@ namespace Draft {
     }
 
     // Functions
+    void RmlUiSystem::set_clipboard_window(RenderWindow& window){
+        s_clipboardWindow = &window;
+
+        if(s_systemInterface)
+            s_systemInterface->SetWindow(window.get_glfw_handle());
+    }
+
     RmlDebugger& RmlUiSystem::add_debugger(const Vector2i& size){
         auto debuggerPtr = std::make_unique<RmlDebugger>(size);
         auto& debuggerRef = *debuggerPtr;
@@ -88,12 +96,19 @@ namespace Draft {
     }
 
     bool RmlUiSystem::on_event(const Event& event){
+        if(event.type == Event::Resized)
+            resize({event.size.width, event.size.height});
+
         for(auto& context : m_contextPtrs){
             if(context->handle_event(event))
                 return true;
         }
 
         return false;
+    }
+
+    void RmlUiSystem::resize(const Vector2u& size){
+        s_renderInterface->SetViewport(size.x, size.y);
     }
 
     bool RmlUiSystem::wants_keyboard_capture() const {

@@ -10,6 +10,7 @@
 #include "draft/editor/game_module_watcher.hpp"
 #include "draft/editor/project.hpp"
 #include "draft/editor/selection.hpp"
+#include "draft/rendering/frame_buffer.hpp"
 
 #include <filesystem>
 #include <optional>
@@ -44,12 +45,19 @@ namespace Draft {
         AssetManager assets;
         Scene editScene;
 
+        Framebuffer gameView;
         Engine gameEngine;
         SubApplication gameApp;
         GameContext gameContext{gameEngine, gameApp, assets};
         Scene gameScene;
 
         EditorSelection selection;
+
+        /**
+         * @brief Whether the "Viewport" panel currently has ImGui focus, updated once per frame
+         * by ViewportPanelSystem.
+         */
+        bool viewportFocused = false;
 
     private:
         enum class PendingAction {

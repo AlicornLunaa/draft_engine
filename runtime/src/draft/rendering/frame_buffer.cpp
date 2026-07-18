@@ -79,17 +79,11 @@ namespace Draft {
             unbind();
     }
 
-    void Framebuffer::begin(const Vector4f& clearColor){
-        // Begin this rendering
-        bind();
-        clear(clearColor);
+    const Vector2u& Framebuffer::get_size() const {
+        return m_properties.size;
     }
 
-    void Framebuffer::end(){
-        unbind();
-    }
-
-    void Framebuffer::resize(const Vector2u& size){
+    void Framebuffer::set_size(const Vector2u& size){
         // Resize all attached colors
         m_properties.size = size;
 
@@ -100,6 +94,16 @@ namespace Draft {
         // Resize the framebuffer by regenerating it
         cleanup();
         generate();
+    }
+
+    void Framebuffer::begin(const Vector4f& clearColor){
+        // Begin this rendering
+        bind();
+        clear(clearColor);
+    }
+
+    void Framebuffer::end(){
+        unbind();
     }
 
     void Framebuffer::write_depth_stencil(){

@@ -3,7 +3,7 @@
 #include <algorithm>
 
 namespace Draft {
-    ApplicationInterface::ApplicationInterface(RenderWindow& window, Keyboard& keyboard, Mouse& mouse) : window(window), keyboard(keyboard), mouse(mouse) {}
+    ApplicationInterface::ApplicationInterface(RenderTarget& target, Keyboard& keyboard, Mouse& mouse) : target(target), keyboard(keyboard), mouse(mouse) {}
 
     bool ApplicationInterface::dispatch(const Event& event){
         if(eventCallback && eventCallback(event))
@@ -63,6 +63,10 @@ namespace Draft {
         }
 
         target.end();
+    }
+
+    void ApplicationInterface::close(){
+        // No operation
     }
 
     void ApplicationInterface::set_scene(Scene* scene){

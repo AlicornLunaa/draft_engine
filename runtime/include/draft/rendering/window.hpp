@@ -80,10 +80,10 @@ namespace Draft {
         void set_icon(const Image& image);
         void reset_icon();
 
-        const std::string get_title() const;
-        const Vector2i get_position() const;
-        const Vector2u get_size() const;
-        const Vector2u get_frame_size() const;
+        std::string get_title() const;
+        Vector2i get_position() const;
+        Vector2u get_size() const;
+        Vector2u get_frame_size() const;
         bool is_fullscreen() const;
         bool is_vsync() const;
         bool is_open() const;

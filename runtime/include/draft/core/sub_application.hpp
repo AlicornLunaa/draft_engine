@@ -1,26 +1,11 @@
 #pragma once
 
 #include "draft/core/application_interface.hpp"
-#include "draft/input/keyboard.hpp"
-#include "draft/input/mouse.hpp"
-#include "draft/rendering/frame_buffer.hpp"
-#include "draft/rendering/render_window.hpp"
 
 namespace Draft {
-    /**
-     * @brief Runs a Scene the same way Application does, same window/keyboard/mouse types,
-     * same fixed-timestep tick(), same swappable Renderer/simulationPaused, but renders into an
-     * owned offscreen Framebuffer instead of a real backbuffer, and binds to its own hidden
-     * window that shares a GL context with @p sharedContext (so textures/shaders the host
-     * application's AssetManager already loaded through that context just work here too, with no
-     * copying).
-     *
-     * Driven manually via step(dt) rather than its own run() loop, nothing here calls
-     * poll_events(), that's the real window's job, once per real frame.
-     */
     class SubApplication : public ApplicationInterface {
     public:
-        SubApplication(RenderWindow& sharedContext, const Vector2u& renderSize);
+        SubApplication(const Vector2u& size, Keyboard& keyboard, Mouse& mouse);
         SubApplication(const SubApplication& other) = delete;
         SubApplication& operator=(const SubApplication& other) = delete;
         ~SubApplication() = default;
@@ -38,16 +23,13 @@ namespace Draft {
          */
         void resize(const Vector2u& size);
 
+        /**
+         * @brief Get the output object from the render target
+         * @return const Texture& 
+         */
         inline const Texture& get_output() const { return m_target.get_texture(); }
 
     private:
-        // Declaration order matters, see Application's own m_window/m_keyboard/m_mouse comment.
-        // m_sharedContext is only ever read (never constructed through), so its position doesn't
-        // matter the same way.
-        RenderWindow& m_sharedContext;
-        RenderWindow m_window;
-        Keyboard m_keyboard;
-        Mouse m_mouse;
         Framebuffer m_target;
     };
 }

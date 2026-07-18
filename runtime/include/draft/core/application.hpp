@@ -14,6 +14,9 @@ namespace Draft {
      */
     class Application : public ApplicationInterface {
     public:
+        // Public variables
+        RenderWindow window;
+
         // Constructors
         Application(const std::string& title, unsigned int width, unsigned int height);
         Application(const Application& other) = delete;
@@ -50,7 +53,6 @@ namespace Draft {
 
         // Variables
         // Declaration order matters since keyboard and mouse create callbacks for the existing window
-        RenderWindow m_window;
         Keyboard m_keyboard;
         Mouse m_mouse;
 

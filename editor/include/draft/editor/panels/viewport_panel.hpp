@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/ecs/system.hpp"
+#include "draft/math/glm.hpp"
 #include "draft/util/reflectable.hpp"
 
 namespace Draft {
@@ -20,6 +21,14 @@ namespace Draft {
         DRAFT_REFLECTABLE(ViewportPanelSystem)
 
     private:
+        void forward_input(const Vector2d& localPos, bool hovered);
+
         EditorApplication& m_app;
+
+        // Edge-detection state for remapped mouse buttons/scroll, since gameApp's own hidden
+        // window never receives real OS input to detect edges from itself.
+        static constexpr int MouseButtonCount = 5;
+        bool m_lastButtonDown[MouseButtonCount] = {};
+        bool m_wasHovered = false;
     };
 }

@@ -28,13 +28,14 @@ namespace Draft {
         static SystemInterface_GLFW* s_systemInterface;
         static RenderInterface_GL3* s_renderInterface;
         static RmlFileInterface* s_fileInterface;
+        static RenderWindow* s_clipboardWindow;
 
         // Variables
         std::vector<std::unique_ptr<RmlContext>> m_contextPtrs;
 
     public:
         // Constructors
-        RmlUiSystem(RenderWindow& window);
+        RmlUiSystem(const Vector2u& size);
         RmlUiSystem(const RmlUiSystem& other) = delete;
         RmlUiSystem(RmlUiSystem&& other) = delete;
         ~RmlUiSystem() override;
@@ -44,6 +45,13 @@ namespace Draft {
         RmlUiSystem& operator=(RmlUiSystem&& other) = delete;
 
         // Functions
+        /**
+         * @brief Registers the process's one real OS window for clipboard/cursor-shape
+         * integration. Called once by whoever owns that real window (the launcher, or the
+         * editor for its own top-level window).
+         */
+        static void set_clipboard_window(RenderWindow& window);
+
         RmlDebugger& add_debugger(const Vector2i& size);
         RmlContext& add_context(const std::string& name, const Vector2i& size);
         void remove_context(RmlContext& context);
@@ -51,6 +59,7 @@ namespace Draft {
         RenderLayer get_render_layers() const override { return RenderLayer::Overlay; }
         void render(Time dt, RenderLayer layer) override;
         bool on_event(const Event& event) override;
+        void resize(const Vector2u& size);
         bool wants_keyboard_capture() const; // True if any owned context has a text-editable element focused
         bool wants_mouse_capture() const; // True if the mouse is hovering an element in any owned context
 
