@@ -1,8 +1,8 @@
 #include "draft/core/sub_application.hpp"
 
 namespace Draft {
-    SubApplication::SubApplication(const Vector2u& size, Keyboard& keyboard, Mouse& mouse)
-        : ApplicationInterface(m_target, keyboard, mouse), m_target({.size = size})
+    SubApplication::SubApplication(const Vector2u& size)
+        : ApplicationInterface(m_target, fakeKeyboard, fakeMouse), fakeMouse(size), m_target({.size = size})
     {
         p_renderer = std::make_unique<DefaultRenderer>(target.get_size());
     }
@@ -24,19 +24,20 @@ namespace Draft {
 
     void SubApplication::resize(const Vector2u& size){
         target.set_size(size);
+        fakeMouse.set_window_size(size);
 
         if(p_renderer)
             p_renderer->resize(size);
 
-        // Mirrors Application::trigger_resize(): a nested ImGuiSystem/RmlUiSystem has no real
-        // window to read a live size from every frame (that's what the old GLFW-backed versions
-        // did for free), so it only learns about a resize by way of this event reaching its
-        // on_event() - nothing else calls it since target/p_renderer above cover the Framebuffer/
-        // Renderer side of a resize but not the active scene's own systems.
+        // Mirrors Application::trigger_resize()
         Event event;
         event.type = Event::Resized;
         event.size.width = size.x;
         event.size.height = size.y;
         dispatch(event);
+    }
+
+    bool SubApplication::inject_event(const Event& event){
+        return dispatch(event);
     }
 }

@@ -2,6 +2,7 @@
 
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/input/action.hpp"
 
 #include "imgui.h"
 
@@ -14,107 +15,100 @@ namespace Draft {
         if(layer != RenderLayer::Default)
             return;
 
-        ImGui::Begin("Viewport");
+        // Draws a viewport and lets the engine know if this special widget is currently focused
+        // when it IS focused, all inputs should be forwarded to the game engine and skip the editor engine.
+        if(ImGui::Begin("Viewport")){
+            ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
+            ImVec2 cursorPosition = ImGui::GetCursorScreenPos();
+            ImVec2 mousePosition = ImGui::GetMousePos();
 
-        m_app.viewportFocused = ImGui::IsWindowFocused();
+            // Display gameApp's current output texture as-is.
+            if(regionAvailable.x >= 1.f && regionAvailable.y >= 1.f)
+                m_app.pendingViewportSize = {(unsigned int)regionAvailable.x, (unsigned int)regionAvailable.y};
 
-        ImVec2 avail = ImGui::GetContentRegionAvail();
-        ImVec2 imagePos = ImGui::GetCursorScreenPos();
+            auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
+            ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
 
-        // Display gameApp's current output texture as-is.
-        if(avail.x >= 1.f && avail.y >= 1.f)
-            m_app.pendingViewportSize = {(unsigned int)avail.x, (unsigned int)avail.y};
+            m_app.viewportFocused = ImGui::IsWindowFocused();
+            m_regionHovered = ImGui::IsItemHovered();
+            m_regionCusorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};
+            m_regionScreenPosition = {cursorPosition.x, cursorPosition.y};
+            m_regionAvailable = Math::max({regionAvailable.x, regionAvailable.y}, Vector2u(1, 1));
 
-        auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
-        ImGui::Image(textureId, avail, ImVec2(0, 1), ImVec2(1, 0));
+            // Dispatch event for mouse hover/focus events
+            if(m_regionHovered && !m_regionHoveredLast){
+                // Region has just been hovered
+                m_app.gameApp.fakeMouse.mouse_entered(1);
+            } else if(!m_regionHovered && m_regionHoveredLast){
+                // Region just left hover
+                m_app.gameApp.fakeMouse.mouse_entered(0);
+            }
+            if(m_app.viewportFocused && !m_regionFocusedLast){
+                // Region has just been focused
+                m_app.gameApp.inject_event(Event{.type = Event::GainedFocus});
+            } else if(!m_app.viewportFocused && m_regionFocusedLast){
+                // Region just left focused
+                m_app.gameApp.inject_event(Event{.type = Event::LostFocus});
+            }
 
-        bool hovered = ImGui::IsItemHovered();
-        ImVec2 mousePos = ImGui::GetMousePos();
-        Vector2d localPos{mousePos.x - imagePos.x, mousePos.y - imagePos.y};
+            m_regionHoveredLast = m_regionHovered;
+            m_regionFocusedLast = m_app.viewportFocused;
 
-        forward_input(localPos, hovered);
-
-        ImGui::End();
+            ImGui::End();
+        }
     }
 
-    void ViewportPanelSystem::forward_input(const Vector2d& localPos, bool hovered){
-        const ImGuiIO& io = ImGui::GetIO();
-        Vector2d scroll{io.MouseWheelH, io.MouseWheel};
-        bool buttonDown[MouseButtonCount];
-        for(int button = 0; button < MouseButtonCount; button++)
-            buttonDown[button] = ImGui::IsMouseDown(button);
-
-        Mouse& mouse = m_app.gameApp.mouse;
-
-        bool dragging = false;
-        for(int button = 0; button < MouseButtonCount; button++)
-            dragging |= m_lastButtonDown[button];
-
-        if(hovered != m_wasHovered){
-            // mouse.inject_hover(hovered);
-
-            Event event;
-            event.type = hovered ? Event::MouseEntered : Event::MouseLeft;
-            // m_app.gameApp.inject_event(event);
-
-            m_wasHovered = hovered;
+    bool ViewportPanelSystem::on_event(const Event& event){
+        if(event.type == Event::Resized){
+            // The subapp resize is handled in the editor application
+            return false; // Never consume a resize, everything should know about it
         }
 
-        // A real window keeps receiving move/release for a button held past its own bounds -
-        // without matching that here, dragging a nested window's title bar (or a slider) even
-        // slightly past the viewport's edge would freeze mid-drag the moment IsItemHovered()
-        // goes false.
-        if(hovered || dragging){
-            // mouse.inject_position(localPos);
+        // Other events should only be shuttled through if this item is hovered
+        if(m_app.viewportFocused){
+            // Translate screen-space coordinates to be relative to the viewport image's origin
+            Event localEvent = event;
+            FakeMouse& mouse = m_app.gameApp.fakeMouse;
+            FakeKeyboard& keyboard = m_app.gameApp.fakeKeyboard;
 
-            Event moveEvent;
-            moveEvent.type = Event::MouseMoved;
-            moveEvent.mouseMove.x = (int)localPos.x;
-            moveEvent.mouseMove.y = (int)localPos.y;
-            // bool moveConsumed = m_app.gameApp.inject_event(moveEvent);
+            switch(event.type){
+                case Event::MouseMoved:
+                    if(!m_regionHovered) return false; // Bail out even when focused
+                    localEvent.mouseMove.x = (int)(event.mouseMove.x - m_regionScreenPosition.x);
+                    localEvent.mouseMove.y = (int)(event.mouseMove.y - m_regionScreenPosition.y);
+                    mouse.position_changed(localEvent.mouseMove.x, localEvent.mouseMove.y);
+                    break;
 
-            if(dragging){
-                // Logger::println(LogLevel::Info, "Viewport",
-                //     "drag move at=(" + std::to_string((int)localPos.x) + "," + std::to_string((int)localPos.y) + ")" +
-                //     " hovered=" + std::to_string(hovered) + " consumed=" + std::to_string(moveConsumed));
+                case Event::MouseButtonPressed:
+                case Event::MouseButtonReleased:
+                    if(!m_regionHovered) return false; // Bail out even when focused
+                    localEvent.mouseButton.x = (int)(event.mouseButton.x - m_regionScreenPosition.x);
+                    localEvent.mouseButton.y = (int)(event.mouseButton.y - m_regionScreenPosition.y);
+                    mouse.button_pressed(localEvent.mouseButton.button, event.type == Event::MouseButtonPressed ? Action::PRESS : Action::RELEASE, localEvent.mouseButton.mods);
+                    break;
+
+                case Event::MouseWheelScrolled:
+                    if(!m_regionHovered) return false; // Bail out even when focused
+                    mouse.mouse_scrolled(localEvent.mouseWheelScroll.x, localEvent.mouseWheelScroll.y);
+                    break;
+
+                case Event::KeyPressed:
+                case Event::KeyReleased:
+                case Event::KeyHold:
+                    keyboard.key_press(localEvent.key.code, event.type == Event::KeyPressed ? Action::PRESS : event.type == Event::KeyReleased ? Action::RELEASE : Action::HOLD, localEvent.key.mods);
+                    break;
+
+                case Event::TextEntered:
+                    keyboard.text_entered(localEvent.text.unicode);
+                    break;
+
+                default:
+                    break;
             }
 
-            if(scroll.x != 0.0 || scroll.y != 0.0){
-                // mouse.inject_scroll(scroll);
-
-                Event scrollEvent;
-                scrollEvent.type = Event::MouseWheelScrolled;
-                scrollEvent.mouseWheelScroll.x = scroll.x;
-                scrollEvent.mouseWheelScroll.y = scroll.y;
-                // m_app.gameApp.inject_event(scrollEvent);
-            }
+            return true; // Any other event that doesn't bail out should be consumed
         }
 
-        for(int button = 0; button < MouseButtonCount; button++){
-            bool down = buttonDown[button];
-            if(down == m_lastButtonDown[button])
-                continue;
-
-            // Only start tracking a press that began while hovering the viewport, but always
-            // forward the matching release (supports dragging out before releasing).
-            if(down && !hovered)
-                continue;
-
-            m_lastButtonDown[button] = down;
-            // mouse.inject_button(button, down ? GLFW_PRESS : GLFW_RELEASE, 0);
-
-            Event buttonEvent;
-            buttonEvent.type = down ? Event::MouseButtonPressed : Event::MouseButtonReleased;
-            buttonEvent.mouseButton.button = button;
-            buttonEvent.mouseButton.x = (int)localPos.x;
-            buttonEvent.mouseButton.y = (int)localPos.y;
-            buttonEvent.mouseButton.mods = 0;
-            // bool consumed = m_app.gameApp.inject_event(buttonEvent);
-
-            // Logger::println(LogLevel::Info, "Viewport",
-            //     std::string(down ? "press" : "release") + " button=" + std::to_string(button) +
-            //     " at=(" + std::to_string((int)localPos.x) + "," + std::to_string((int)localPos.y) + ")" +
-            //     " consumed=" + std::to_string(consumed));
-        }
+        return false;
     }
 }

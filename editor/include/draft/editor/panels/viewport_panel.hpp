@@ -17,18 +17,18 @@ namespace Draft {
         explicit ViewportPanelSystem(EditorApplication& app);
 
         void render(Time dt, RenderLayer layer) override;
+        bool on_event(const Event& event) override;
 
         DRAFT_REFLECTABLE(ViewportPanelSystem)
 
     private:
-        void forward_input(const Vector2d& localPos, bool hovered);
-
         EditorApplication& m_app;
+        Vector2u m_regionAvailable{};
+        Vector2d m_regionCusorPosition{};
+        Vector2d m_regionScreenPosition{};
+        bool m_regionHovered = false;
 
-        // Edge-detection state for remapped mouse buttons/scroll, since gameApp's own hidden
-        // window never receives real OS input to detect edges from itself.
-        static constexpr int MouseButtonCount = 5;
-        bool m_lastButtonDown[MouseButtonCount] = {};
-        bool m_wasHovered = false;
+        bool m_regionHoveredLast = false;
+        bool m_regionFocusedLast = false;
     };
 }

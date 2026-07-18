@@ -10,7 +10,6 @@
 #include "draft/editor/game_module_watcher.hpp"
 #include "draft/editor/project.hpp"
 #include "draft/editor/selection.hpp"
-#include "draft/rendering/frame_buffer.hpp"
 
 #include <filesystem>
 #include <optional>
@@ -45,7 +44,6 @@ namespace Draft {
         AssetManager assets;
         Scene editScene;
 
-        Framebuffer gameView;
         Engine gameEngine;
         SubApplication gameApp;
         GameContext gameContext{gameEngine, gameApp, assets};
@@ -53,19 +51,7 @@ namespace Draft {
 
         EditorSelection selection;
 
-        /**
-         * @brief Whether the "Viewport" panel currently has ImGui focus, updated once per frame
-         * by ViewportPanelSystem.
-         */
         bool viewportFocused = false;
-
-        /**
-         * @brief The "Viewport" panel's content region size this frame, updated by
-         * ViewportPanelSystem::render() but deliberately not applied to gameApp until step()
-         * calls gameApp.resize() itself, after application.step() (and the real GPU draw of this
-         * frame's ImGui::Image() referencing gameApp's *current* output texture) has already
-         * finished - see step()'s ordering comment for why applying it any earlier flickers.
-         */
         Vector2u pendingViewportSize;
 
     private:
