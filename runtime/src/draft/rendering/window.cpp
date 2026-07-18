@@ -2,6 +2,7 @@
 #include "draft/input/keyboard.hpp"
 #include "draft/input/mouse.hpp"
 #include "draft/rendering/image.hpp"
+#include "draft/rendering/render_window.hpp"
 #include "draft/util/logger.hpp"
 
 #include "GLFW/glfw3.h"

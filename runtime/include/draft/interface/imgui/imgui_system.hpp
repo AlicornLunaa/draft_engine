@@ -26,7 +26,11 @@ namespace Draft {
 
     public:
         // Constructors
-        ImGuiSystem(const Vector2u& size);
+        /**
+         * @brief @p iniFilename is passed straight through to ImGuiIO::IniFilename disables ImGui's
+         * own layout persistence entirely.
+         */
+        ImGuiSystem(const Vector2u& size, const char* iniFilename = nullptr);
         ImGuiSystem(const ImGuiSystem& other) = delete;
         ImGuiSystem(ImGuiSystem&& other) = delete;
         ~ImGuiSystem() override;

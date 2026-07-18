@@ -53,8 +53,8 @@ namespace Draft {
 
         // Variables
         // Declaration order matters since keyboard and mouse create callbacks for the existing window
-        Keyboard m_keyboard;
-        Mouse m_mouse;
+        GlfwKeyboard m_keyboard;
+        GlfwMouse m_mouse;
 
         bool m_pendingResize = false;
     };

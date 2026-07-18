@@ -137,7 +137,7 @@ namespace {
 
 namespace Draft {
     // Constructors
-    ImGuiSystem::ImGuiSystem(const Vector2u& size)
+    ImGuiSystem::ImGuiSystem(const Vector2u& size, const char* iniFilename)
         : m_size(size)
     {
         IMGUI_CHECKVERSION();
@@ -149,10 +149,8 @@ namespace Draft {
         ImGui::SetCurrentContext(ctx);
 
         auto& io = ImGui::GetIO();
-        #ifndef DEBUG
-        io.IniFilename = nullptr;
+        io.IniFilename = iniFilename;
         io.LogFilename = nullptr;
-        #endif
         io.BackendPlatformName = "draft";
 
         ImGui::StyleColorsDark();

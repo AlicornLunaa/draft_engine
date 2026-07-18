@@ -154,7 +154,7 @@ namespace Draft {
     }
 
     void EditorApplication::attach_chrome(){
-        editScene.get_systems().add<ImGuiSystem>(application.target.get_size());
+        editScene.get_systems().add<ImGuiSystem>(application.target.get_size(), "imgui_editor.ini");
         editScene.get_systems().add<DockspacePanelSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<ViewportPanelSystem>(*this);

@@ -1,19 +1,18 @@
 #pragma once
 
-#include "draft/rendering/render_window.hpp"
-
 #include <functional>
 #include <unordered_map>
 
 class GLFWwindow;
 
 namespace Draft {
+    class Window;
+
     typedef std::function<void(int key, int action, int modifier)> KeyCallback;
     typedef std::function<void(unsigned int codepoint)> TextCallback;
 
     /**
-     * @brief Installs GLFW keyboard callbacks on a `RenderWindow` and exposes both an immediate
-     * (`is_pressed`) and edge-triggered (`is_just_pressed`) query interface.
+     * @brief Keyboard interface which doesn't care about the backend implementation
      */
     class Keyboard {
     public:
@@ -148,31 +147,65 @@ namespace Draft {
             NUM_LOCK = 0x0020
         };
 
+        KeyCallback keyCallback = nullptr;
+        TextCallback textCallback = nullptr;
+
+        Keyboard() = default;
+        Keyboard(const Keyboard& other) = delete;
+        Keyboard(Keyboard&& other) = delete;
+        virtual ~Keyboard() = default;
+
+        Keyboard& operator=(const Keyboard& other) = delete;
+        Keyboard& operator=(Keyboard&& other) = delete;
+
+        virtual bool is_pressed(int key) const = 0;
+        virtual bool is_just_pressed(int key) const = 0;
+        virtual int get_modifiers() const = 0;
+        virtual bool is_valid() const = 0;
+    };
+
+    /**
+     * @brief Installs GLFW keyboard callbacks on a `RenderWindow`
+     */
+    class GlfwKeyboard : public Keyboard {
+    public:
+        GlfwKeyboard(Window& window);
+        ~GlfwKeyboard();
+
+        friend class Window;
+
+        bool is_pressed(int key) const override;
+        bool is_just_pressed(int key) const override;
+        int get_modifiers() const override;
+        bool is_valid() const override;
+
     private:
         mutable std::unordered_map<int, bool> m_lastPressedKeys;
-        RenderWindow* m_window = nullptr;
+        Window* m_window = nullptr;
 
         static void cleanup_callbacks(GLFWwindow* window);
         static void key_press(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void text_entered(GLFWwindow* window, unsigned int codepoint);
+    };
 
+    /**
+     * @brief A fake keyboard interface controlled by software.
+     */
+    class FakeKeyboard : public Keyboard {
     public:
-        KeyCallback keyCallback = nullptr;
-        TextCallback textCallback = nullptr;
+        FakeKeyboard() = default;
+        ~FakeKeyboard() = default;
 
-        Keyboard(RenderWindow& window);
-        Keyboard(const Keyboard& other) = delete;
-        Keyboard(Keyboard&& other);
-        ~Keyboard();
+        bool is_pressed(int key) const override;
+        bool is_just_pressed(int key) const override;
+        int get_modifiers() const override;
+        bool is_valid() const override;
 
-        Keyboard& operator=(const Keyboard& other) = delete;
-        Keyboard& operator=(Keyboard&& other);
+        void key_press(int key, int action, int mods);
+        void text_entered(unsigned int codepoint);
 
-        friend class Window;
-
-        bool is_pressed(int key) const;
-        bool is_just_pressed(int key) const;
-        int get_modifiers() const;
-        bool is_valid() const; // Returns false if the window was closed and the keyboard exists
+    private:
+        mutable std::unordered_map<int, bool> m_lastPressedKeys;
+        mutable std::unordered_map<int, bool> m_pressedKeys;
     };
 }

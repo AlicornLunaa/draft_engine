@@ -1,5 +1,7 @@
 #pragma once
 
+#include "draft/input/keyboard.hpp"
+#include "draft/input/mouse.hpp"
 #include "draft/math/glm.hpp"
 
 #include <functional>
@@ -11,8 +13,6 @@ class GLFWwindow;
 
 namespace Draft {
     class Image;
-    class Keyboard;
-    class Mouse;
 
     /**
      * @brief GLFW window hints, as (hint, value) pairs.
@@ -34,8 +34,8 @@ namespace Draft {
         static bool s_glfwErrorCallback;
 
         GLFWwindow* m_window = nullptr;
-        Keyboard* m_keyboard = nullptr;
-        Mouse* m_mouse = nullptr;
+        GlfwKeyboard* m_keyboard = nullptr;
+        GlfwMouse* m_mouse = nullptr;
         bool m_vsyncEnabled = true;
 
         static void window_resize_callback(GLFWwindow* window, int width, int height);
@@ -64,8 +64,8 @@ namespace Draft {
         Window& operator=(const Window& other) = delete;
         Window& operator=(Window&& other) noexcept;
 
-        friend class Keyboard;
-        friend class Mouse;
+        friend class GlfwKeyboard;
+        friend class GlfwMouse;
 
         void poll_events() const;
         void swap_buffers() const;

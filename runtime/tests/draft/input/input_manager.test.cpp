@@ -34,8 +34,8 @@ RenderWindow* InputManagerTest::window = nullptr;
 
 TEST_F(InputManagerTest, BindDefaultSeedsCurrentBindings)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     input.bind_default("Jump", {InputSource::Keyboard, Keyboard::SPACE});
@@ -48,8 +48,8 @@ TEST_F(InputManagerTest, BindDefaultSeedsCurrentBindings)
 
 TEST_F(InputManagerTest, BindDefaultDoesNotClobberAnAlreadyRebindAction)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     input.bind_default("Jump", {InputSource::Keyboard, Keyboard::SPACE});
@@ -65,8 +65,8 @@ TEST_F(InputManagerTest, BindDefaultDoesNotClobberAnAlreadyRebindAction)
 
 TEST_F(InputManagerTest, NothingIsPressedInAFreshHeadlessWindow)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     input.bind_default("Jump", {InputSource::Keyboard, Keyboard::SPACE});
@@ -77,8 +77,8 @@ TEST_F(InputManagerTest, NothingIsPressedInAFreshHeadlessWindow)
 
 TEST_F(InputManagerTest, UnknownActionReportsNotPressed)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     EXPECT_FALSE(input.has_action("Missing"));
@@ -89,8 +89,8 @@ TEST_F(InputManagerTest, UnknownActionReportsNotPressed)
 
 TEST_F(InputManagerTest, AddAndRemoveBindingMutateTheCurrentSetOnly)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     input.bind_default("Fire", {InputSource::Mouse, Mouse::LEFT_BUTTON});
@@ -110,8 +110,8 @@ TEST_F(InputManagerTest, AddAndRemoveBindingMutateTheCurrentSetOnly)
 
 TEST_F(InputManagerTest, ClearBindingsEmptiesTheCurrentSetOnly)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     input.bind_default("Jump", {InputSource::Keyboard, Keyboard::SPACE});
@@ -123,8 +123,8 @@ TEST_F(InputManagerTest, ClearBindingsEmptiesTheCurrentSetOnly)
 
 TEST_F(InputManagerTest, ResetToDefaultsRestoresASingleAction)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     input.bind_default("Jump", {InputSource::Keyboard, Keyboard::SPACE});
@@ -138,8 +138,8 @@ TEST_F(InputManagerTest, ResetToDefaultsRestoresASingleAction)
 
 TEST_F(InputManagerTest, ResetToDefaultsRestoresEveryAction)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager input(keyboard, mouse);
 
     input.bind_default("Jump", {InputSource::Keyboard, Keyboard::SPACE});
@@ -155,8 +155,8 @@ TEST_F(InputManagerTest, ResetToDefaultsRestoresEveryAction)
 
 TEST_F(InputManagerTest, SaveBindingsRoundTripsThroughLoadOverrides)
 {
-    Keyboard keyboard(*window);
-    Mouse mouse(*window);
+    GlfwKeyboard keyboard(*window);
+    GlfwMouse mouse(*window);
     InputManager source(keyboard, mouse);
 
     source.bind_default("Jump", {InputSource::Keyboard, Keyboard::SPACE});
