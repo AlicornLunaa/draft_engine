@@ -89,12 +89,12 @@ namespace Draft {
 
         // Functions
         void clear(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1});
-        void resize(const Vector2u& size);
-
+        void write_depth_stencil();
+        
         // RenderTarget
+        void resize(const Vector2u& size) override;
         void begin(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1}) override;
         void end() override;
-        void write_depth_stencil();
 
         inline const Vector2u& get_size() const { return m_properties.size; }
         inline const Texture& get_texture(FramebufferAttachment attachment = COLOR) const { return m_textures.at(attachment); }

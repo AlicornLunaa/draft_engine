@@ -178,7 +178,7 @@ namespace Draft {
                 return !m_context->ProcessKeyUp(get_key(event.key.code), get_modifiers(event.key.mods));
 
             case Event::TextEntered:
-                return !m_context->ProcessTextInput(Rml::Character(event.key.code));
+                return !m_context->ProcessTextInput(Rml::Character(event.text.unicode));
 
             case Event::Resized:
                 m_context->SetDimensions({static_cast<int>(event.size.width), static_cast<int>(event.size.height)});

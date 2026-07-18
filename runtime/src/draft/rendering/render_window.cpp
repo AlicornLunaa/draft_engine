@@ -27,6 +27,10 @@ namespace Draft {
         swap_buffers();
     }
 
+    void RenderWindow::resize(const Vector2u& size){
+        // Nothing to do, a render window should be explicitly resized using set_size()
+    }
+
     void RenderWindow::begin(const Vector4f& clearColor){
         clear(clearColor);
     }

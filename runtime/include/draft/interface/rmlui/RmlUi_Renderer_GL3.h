@@ -181,6 +181,8 @@ private:
 	RenderLayerStack render_layers;
 
 	struct GLStateBackup {
+		int bound_framebuffer;
+
 		bool enable_cull_face;
 		bool enable_blend;
 		bool enable_stencil_test;

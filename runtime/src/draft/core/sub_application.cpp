@@ -22,12 +22,9 @@ namespace Draft {
           m_target({renderSize})
     {
         p_renderer = std::make_unique<DefaultRenderer>(renderSize);
-        glfwMakeContextCurrent(m_sharedContext.get_glfw_handle());
     }
 
     void SubApplication::step(Time dt){
-        glfwMakeContextCurrent(m_window.get_glfw_handle());
-
         deltaTime = dt;
 
         if(p_newRenderer){
@@ -40,8 +37,6 @@ namespace Draft {
 
         tick();
         frame_into(m_target);
-
-        glfwMakeContextCurrent(m_sharedContext.get_glfw_handle());
     }
 
     void SubApplication::resize(const Vector2u& size){

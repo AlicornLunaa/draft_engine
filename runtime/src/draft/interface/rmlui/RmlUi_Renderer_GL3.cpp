@@ -821,6 +821,10 @@ void RenderInterface_GL3::BeginFrame()
 	RMLUI_ASSERT(viewport_width >= 1 && viewport_height >= 1);
 
 	// Backup GL state.
+	// bound_framebuffer: EndFrame() must draw its final composite back onto whatever was bound
+	// here, not a hardcoded default framebuffer (0)
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &glstate_backup.bound_framebuffer);
+
 	glstate_backup.enable_cull_face = glIsEnabled(GL_CULL_FACE);
 	glstate_backup.enable_blend = glIsEnabled(GL_BLEND);
 	glstate_backup.enable_stencil_test = glIsEnabled(GL_STENCIL_TEST);
@@ -911,8 +915,8 @@ void RenderInterface_GL3::EndFrame()
 
 	glBlitFramebuffer(0, 0, fb_active.width, fb_active.height, 0, 0, fb_postprocess.width, fb_postprocess.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-	// Draw to backbuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// Draw back onto whatever was bound in BeginFrame(), not always the real backbuffer.
+	glBindFramebuffer(GL_FRAMEBUFFER, glstate_backup.bound_framebuffer);
 
 	// Assuming we have an opaque background, we can just write to it with the premultiplied alpha blend mode and we'll get the correct result.
 	// Instead, if we had a transparent destination that didn't use premultiplied alpha, we would need to perform a manual un-premultiplication step.

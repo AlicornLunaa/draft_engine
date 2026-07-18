@@ -20,5 +20,10 @@ namespace Draft {
          * buffers; an offscreen Framebuffer just restores whatever was bound before it).
          */
         virtual void end() = 0;
+
+        /**
+         * @brief Resizes the target
+         */
+        virtual void resize(const Vector2u& size) = 0;
     };
 }
