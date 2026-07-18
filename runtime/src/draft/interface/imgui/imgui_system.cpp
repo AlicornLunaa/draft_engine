@@ -65,4 +65,12 @@ namespace Draft {
                 return false;
         }
     }
+
+    bool ImGuiSystem::wants_keyboard_capture() const {
+        return ImGui::GetIO().WantCaptureKeyboard;
+    }
+
+    bool ImGuiSystem::wants_mouse_capture() const {
+        return ImGui::GetIO().WantCaptureMouse;
+    }
 }

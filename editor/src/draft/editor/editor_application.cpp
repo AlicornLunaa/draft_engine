@@ -92,8 +92,7 @@ namespace Draft {
     }
 
     void EditorApplication::attach_chrome(){
-        // A loaded game may already have added its own ImGuiSystem (test_bench does, for its
-        // own debug overlays). Only add one if the scene doesn't already have one, constructing
+        // A loaded game may already have added its own ImGuiSystem. Only add one if the scene doesn't already have one, constructing
         // a second one on the same window while the first is still alive aborts.
         if(!editScene.get_systems().has<ImGuiSystem>())
             editScene.get_systems().add<ImGuiSystem>(application.window);

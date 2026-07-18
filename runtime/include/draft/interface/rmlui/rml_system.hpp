@@ -51,6 +51,8 @@ namespace Draft {
         RenderLayer get_render_layers() const override { return RenderLayer::Overlay; }
         void render(Time dt, RenderLayer layer) override;
         bool on_event(const Event& event) override;
+        bool wants_keyboard_capture() const; // True if any owned context has a text-editable element focused
+        bool wants_mouse_capture() const; // True if the mouse is hovering an element in any owned context
 
         DRAFT_REFLECTABLE(RmlUiSystem);
     };

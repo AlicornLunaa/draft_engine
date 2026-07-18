@@ -40,6 +40,8 @@ namespace Draft {
         RenderLayer get_render_layers() const override { return RenderLayer::Default | RenderLayer::Overlay; }
         void render(Time dt, RenderLayer layer) override;
         bool on_event(const Event& event) override;
+        bool wants_keyboard_capture() const; // Wraps ImGuiIO::WantCaptureKeyboard
+        bool wants_mouse_capture() const; // Wraps ImGuiIO::WantCaptureMouse
 
         DRAFT_REFLECTABLE(ImGuiSystem)
     };

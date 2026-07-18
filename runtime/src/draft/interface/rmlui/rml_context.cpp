@@ -199,4 +199,17 @@ namespace Draft {
     bool RmlContext::is_valid() const {
         return m_context != nullptr;
     }
+
+    bool RmlContext::wants_keyboard_capture() const {
+        Rml::Element* focus = m_context->GetFocusElement();
+        if(!focus)
+            return false;
+
+        const Rml::String& tag = focus->GetTagName();
+        return tag == "input" || tag == "textarea" || tag == "select";
+    }
+
+    bool RmlContext::wants_mouse_capture() const {
+        return m_context->GetHoverElement() != nullptr;
+    }
 }

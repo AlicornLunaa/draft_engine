@@ -95,4 +95,22 @@ namespace Draft {
 
         return false;
     }
+
+    bool RmlUiSystem::wants_keyboard_capture() const {
+        for(auto& context : m_contextPtrs){
+            if(context->wants_keyboard_capture())
+                return true;
+        }
+
+        return false;
+    }
+
+    bool RmlUiSystem::wants_mouse_capture() const {
+        for(auto& context : m_contextPtrs){
+            if(context->wants_mouse_capture())
+                return true;
+        }
+
+        return false;
+    }
 }

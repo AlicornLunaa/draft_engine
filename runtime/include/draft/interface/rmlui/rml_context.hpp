@@ -98,6 +98,8 @@ namespace Draft {
         virtual bool handle_event(const Event& event); // Returns true if this context used an event, false if it should continue to others
         void render() const;
         bool is_valid() const;
+        bool wants_keyboard_capture() const; // True if a text-editable element (input/textarea/select) has focus
+        bool wants_mouse_capture() const; // True if the mouse is hovering an element in this context
         inline Rml::Context* get_context() const { return m_context; }
     };
 }
