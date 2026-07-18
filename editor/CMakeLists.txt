@@ -8,6 +8,7 @@ set(HEADERS
     include/draft/editor/selection.hpp
     include/draft/editor/panels/dockspace_panel.hpp
     include/draft/editor/panels/hierarchy_panel.hpp
+    include/draft/editor/panels/viewport_panel.hpp
 )
 
 set(SOURCES
@@ -17,6 +18,7 @@ set(SOURCES
     src/draft/editor/selection.cpp
     src/draft/editor/panels/dockspace_panel.cpp
     src/draft/editor/panels/hierarchy_panel.cpp
+    src/draft/editor/panels/viewport_panel.cpp
     src/main.cpp
 )
 

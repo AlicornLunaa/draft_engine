@@ -1,7 +1,7 @@
 #pragma once
 
 #include "draft/asset/asset_manager.hpp"
-#include "draft/core/application.hpp"
+#include "draft/core/application_interface.hpp"
 #include "draft/core/engine.hpp"
 
 #include <memory>
@@ -93,7 +93,7 @@ namespace Draft {
      */
     struct GameContext {
         Engine& engine;
-        Application& application;
+        ApplicationInterface& application;
         AssetManager& assets;
         PersistentStore persistent;
     };

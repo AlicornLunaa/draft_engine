@@ -5,6 +5,7 @@
 #include "draft/aliasing/format.hpp"
 #include "draft/aliasing/framebuffer.hpp"
 #include "draft/aliasing/parameter.hpp"
+#include "draft/rendering/render_target.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/math/glm.hpp"
 #include <map>
@@ -62,7 +63,7 @@ namespace Draft {
      * @brief OpenGL framebuffer object wrapping one Texture per attachment (COLOR/DEPTH/...).
      * Do not construct before an OpenGL context was established.
      */
-    class Framebuffer {
+    class Framebuffer : public RenderTarget {
     private:
         // Static data
         static uint currentFbo;
@@ -88,10 +89,11 @@ namespace Draft {
 
         // Functions
         void clear(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1});
-        void begin(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1});
-        void begin(bool clear);
-        void end();
         void resize(const Vector2u& size);
+
+        // RenderTarget
+        void begin(const Vector4f& clearColor = {0.05, 0.05, 0.05, 1}) override;
+        void end() override;
         void write_depth_stencil();
 
         inline const Vector2u& get_size() const { return m_properties.size; }

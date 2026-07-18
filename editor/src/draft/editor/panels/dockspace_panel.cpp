@@ -61,7 +61,7 @@ namespace Draft {
     void DockspacePanelSystem::draw_play_controls(){
         ImGui::BeginDisabled(!m_app.has_project());
 
-        if(m_app.application.simulationPaused){
+        if(m_app.gameApp.simulationPaused){
             if(ImGui::MenuItem("Play"))
                 m_app.request_play();
         } else {

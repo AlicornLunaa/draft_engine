@@ -48,7 +48,7 @@ namespace Draft {
         return m_window;
     }
 
-    Window::Window(unsigned int width, unsigned int height, const std::string& title, const GLFWProperties& props){
+    Window::Window(unsigned int width, unsigned int height, const std::string& title, const GLFWProperties& props, GLFWwindow* shareContext){
         if(!s_glfwErrorCallback){
             glfwSetErrorCallback([](int errorCode, const char* errorDesc){
                 Logger::println(LogLevel::Critical, "GLFW", std::string(errorDesc) + ", code: " + std::to_string(errorCode));
@@ -71,7 +71,7 @@ namespace Draft {
             glfwWindowHint(hint, value);
         }
 
-        m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+        m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, shareContext);
 
         if(!m_window){
             throw std::runtime_error("Failed to create GLFW window");

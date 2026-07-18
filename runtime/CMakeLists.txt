@@ -112,7 +112,9 @@ set(HEADERS
     include/draft/components/texture_component.hpp
     include/draft/components/animation_component.hpp
     include/draft/core/application.hpp
+    include/draft/core/application_interface.hpp
     include/draft/core/engine.hpp
+    include/draft/core/sub_application.hpp
     include/draft/ecs/audio_system.hpp
     include/draft/ecs/system_catalog.hpp
     include/draft/ecs/component_catalog.hpp
@@ -183,6 +185,7 @@ set(HEADERS
     include/draft/rendering/pipeline/renderer.hpp
     include/draft/rendering/render_layer.hpp
     include/draft/rendering/render_state.hpp
+    include/draft/rendering/render_target.hpp
     include/draft/rendering/render_window.hpp
     include/draft/rendering/shader.hpp
     include/draft/rendering/shader_buffer.hpp
@@ -202,7 +205,9 @@ set(SOURCES
     src/draft/audio/sound.cpp
     src/draft/audio/sound_buffer.cpp
     src/draft/core/application.cpp
+    src/draft/core/application_interface.cpp
     src/draft/core/engine.cpp
+    src/draft/core/sub_application.cpp
     src/draft/ecs/audio_system.cpp
     src/draft/ecs/entity.cpp
     src/draft/ecs/physics_system.cpp

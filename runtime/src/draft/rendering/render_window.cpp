@@ -9,7 +9,7 @@
 #include <string>
 
 namespace Draft {
-    RenderWindow::RenderWindow(unsigned int width, unsigned int height, const std::string& title) : Window(width, height, title) {
+    RenderWindow::RenderWindow(unsigned int width, unsigned int height, const std::string& title, const GLFWProperties& props, GLFWwindow* shareContext) : Window(width, height, title, props, shareContext) {
         if(!gladLoadGL(glfwGetProcAddress)){
             throw std::runtime_error("Failed to initialize GLAD");
         }
@@ -25,5 +25,13 @@ namespace Draft {
 
     void RenderWindow::display(){
         swap_buffers();
+    }
+
+    void RenderWindow::begin(const Vector4f& clearColor){
+        clear(clearColor);
+    }
+
+    void RenderWindow::end(){
+        display();
     }
 }

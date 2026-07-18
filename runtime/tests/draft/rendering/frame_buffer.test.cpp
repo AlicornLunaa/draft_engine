@@ -32,7 +32,7 @@ RenderWindow* FramebufferTest::window = nullptr;
 TEST_F(FramebufferTest, ConstructionProducesACompleteFramebuffer)
 {
     Framebuffer fb({{8, 8}});
-    fb.begin(false);
+    fb.begin();
     EXPECT_EQ(glCheckFramebufferStatus(GL_FRAMEBUFFER), GL_FRAMEBUFFER_COMPLETE);
     fb.end();
 }
@@ -55,11 +55,11 @@ TEST_F(FramebufferTest, BeginEndNestsCorrectlyAgainstAPreviouslyBoundFramebuffer
     Framebuffer outer({{8, 8}});
     Framebuffer inner({{4, 4}});
 
-    outer.begin(false);
+    outer.begin();
     GLint outerFbo = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &outerFbo);
 
-    inner.begin(false);
+    inner.begin();
     GLint innerFbo = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &innerFbo);
     EXPECT_NE(innerFbo, outerFbo);

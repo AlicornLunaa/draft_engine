@@ -2,6 +2,7 @@
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
+#include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/interface/imgui/imgui_system.hpp"
 #include "draft/util/files/file_handle.hpp"
 #include "draft/util/files/host_file_system.hpp"
@@ -9,9 +10,9 @@
 
 namespace Draft {
     EditorApplication::EditorApplication(const std::string& title, unsigned int width, unsigned int height)
-        : application(title, width, height), context{engine, application, assets}
+        : application(title, width, height), gameApp(application.window, {width, height})
     {
-        application.simulationPaused = true;
+        gameApp.simulationPaused = true;
         application.set_scene(&editScene);
         attach_chrome();
     }
@@ -21,6 +22,7 @@ namespace Draft {
             m_pending = PendingAction::ReloadModule;
 
         bool open = application.step();
+        gameApp.step(application.deltaTime);
         process_pending();
         return open;
     }
@@ -79,14 +81,13 @@ namespace Draft {
         // in.
         std::filesystem::current_path(m_project->module_manifest_path().parent_path());
 
-        application.simulationPaused = true;
+        gameApp.simulationPaused = true;
         selection.clear();
-        editScene.get_registry().clear();
-        editScene.get_systems().clear();
+        gameScene.get_registry().clear();
+        gameScene.get_systems().clear();
 
         m_gameModule.emplace(modulePath);
-        m_gameModule->register_game(context, editScene);
-        attach_chrome();
+        m_gameModule->register_game(gameContext, gameScene);
 
         m_watcher.emplace(modulePath);
 
@@ -94,13 +95,10 @@ namespace Draft {
     }
 
     void EditorApplication::attach_chrome(){
-        // A loaded game may already have added its own ImGuiSystem. Only add one if the scene doesn't already have one, constructing
-        // a second one on the same window while the first is still alive aborts.
-        if(!editScene.get_systems().has<ImGuiSystem>())
-            editScene.get_systems().add<ImGuiSystem>(application.window);
-
+        editScene.get_systems().add<ImGuiSystem>(application.window);
         editScene.get_systems().add<DockspacePanelSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
+        editScene.get_systems().add<ViewportPanelSystem>(*this);
     }
 
     void EditorApplication::play(){
@@ -109,25 +107,24 @@ namespace Draft {
 
         std::filesystem::path path = snapshot_path();
         HostFileSystem().create_directories(path);
-        save_scene(editScene, engine, assets, HostFileSystem().open(path));
-        application.simulationPaused = false;
+        save_scene(gameScene, gameEngine, assets, HostFileSystem().open(path));
+        gameApp.simulationPaused = false;
     }
 
     void EditorApplication::stop(){
         if(!m_project)
             return;
 
-        application.simulationPaused = true;
+        gameApp.simulationPaused = true;
 
         FileHandle snapshot = HostFileSystem().open(snapshot_path());
         if(!snapshot.exists())
             return;
 
         selection.clear();
-        editScene.get_registry().clear();
-        editScene.get_systems().clear();
-        load_scene(editScene, engine, assets, snapshot);
-        attach_chrome();
+        gameScene.get_registry().clear();
+        gameScene.get_systems().clear();
+        load_scene(gameScene, gameEngine, assets, snapshot);
     }
 
     std::filesystem::path EditorApplication::snapshot_path() const {

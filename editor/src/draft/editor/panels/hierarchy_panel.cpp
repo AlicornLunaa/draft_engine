@@ -23,10 +23,10 @@ namespace Draft {
             ImGui::EndPopup();
         }
 
-        Registry& registry = m_app.editScene.get_registry();
+        Registry& registry = m_app.gameScene.get_registry();
         std::vector<Entity> roots;
         for(entt::entity raw : registry.storage<entt::entity>()){
-            Entity entity(&m_app.editScene, raw);
+            Entity entity(&m_app.gameScene, raw);
             if(!entity.has_component<ChildComponent>())
                 roots.push_back(entity);
         }
@@ -49,7 +49,7 @@ namespace Draft {
     }
 
     void HierarchyPanelSystem::create_entity(){
-        Entity entity = m_app.editScene.create_entity();
+        Entity entity = m_app.gameScene.create_entity();
         entity.add_component<TagComponent>(TagComponent{"Entity"});
         entity.add_component<TransformComponent>();
         m_app.selection.set(entity);

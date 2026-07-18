@@ -73,7 +73,7 @@ TEST_F(CompositePassTest, RunBlitsTheGeometryTextureOntoTheCurrentFramebuffer)
     source.end();
 
     Framebuffer destination({{8, 8}});
-    destination.begin(true);
+    destination.begin();
 
     CompositePass pass(shaderResource);
     glGetError();

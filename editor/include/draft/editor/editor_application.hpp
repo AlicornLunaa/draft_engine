@@ -5,6 +5,7 @@
 #include "draft/build_tools/game_module_loader.hpp"
 #include "draft/core/application.hpp"
 #include "draft/core/engine.hpp"
+#include "draft/core/sub_application.hpp"
 #include "draft/ecs/scene.hpp"
 #include "draft/editor/game_module_watcher.hpp"
 #include "draft/editor/project.hpp"
@@ -16,9 +17,9 @@
 
 namespace Draft {
     /**
-     * @brief Owns the editor's own window/engine/assets and one long-lived edit Scene. Loads a
-     * project's compiled game module into that scene via GameModuleLoader, the same way
-     * draft_launcher does for a shipped game.
+     * @brief Owns the editor's own window/chrome (dockspace, hierarchy, ...) on `editScene`, and
+     * a `SubApplication` running the loaded project's own scene (`gameScene`) into an offscreen
+     * Framebuffer.
      *
      * Actions requested from a panel (open a project, reload the module, play, stop) don't run
      * immediately, they're deferred to the next step() so a system's render() can safely request
@@ -39,15 +40,14 @@ namespace Draft {
         void request_play();
         void request_stop();
 
-        Engine engine;
         Application application;
         AssetManager assets;
-        GameContext context;
         Scene editScene;
 
-        Engine subengine;
-        EmbeddedApplication subapp;
-        GameContext subcontext{subengine, subapp};
+        Engine gameEngine;
+        SubApplication gameApp;
+        GameContext gameContext{gameEngine, gameApp, assets};
+        Scene gameScene;
 
         EditorSelection selection;
 

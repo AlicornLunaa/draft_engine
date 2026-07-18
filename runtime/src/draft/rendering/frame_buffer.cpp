@@ -85,14 +85,6 @@ namespace Draft {
         clear(clearColor);
     }
 
-    void Framebuffer::begin(bool clear){
-        // Begin this rendering
-        bind();
-
-        if(clear)
-            this->clear();
-    }
-
     void Framebuffer::end(){
         unbind();
     }

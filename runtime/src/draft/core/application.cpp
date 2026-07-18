@@ -1,11 +1,14 @@
 #include "draft/core/application.hpp"
 #include "draft/input/action.hpp"
 
-#include <algorithm>
-
 namespace Draft {
     // Constructors
-    Application::Application(const std::string& title, unsigned int width, unsigned int height) : window(width, height, title), keyboard(window), mouse(window) {
+    Application::Application(const std::string& title, unsigned int width, unsigned int height)
+        : ApplicationInterface(m_window, m_keyboard, m_mouse),
+          m_window(width, height, title),
+          m_keyboard(m_window),
+          m_mouse(m_window)
+    {
         window.frameSizeCallback = [this](unsigned int w, unsigned int h){ framebuffer_resized(w, h); };
         window.focusCallback = [this](bool focused){ window_focus(focused); };
         window.closeCallback = [this](){ window_closed(); };
@@ -21,18 +24,8 @@ namespace Draft {
     }
 
     // Private functions
-    bool Application::dispatch(const Event& event){
-        if(eventCallback && eventCallback(event))
-            return true;
-
-        if(p_activeScene)
-            return p_activeScene->dispatch_event(event);
-
-        return false;
-    }
-
     void Application::framebuffer_resized(unsigned int width, unsigned int height){
-        p_pendingResize = true;
+        m_pendingResize = true;
     }
 
     void Application::window_focus(bool focused){
@@ -115,57 +108,11 @@ namespace Draft {
         event.size.height = height;
         dispatch(event);
 
-        p_pendingResize = false;
-    }
-
-    void Application::scene_change(){
-        if(p_activeScene)
-            p_activeScene->detach();
-
-        reset_timers();
-
-        p_activeScene = p_newScene;
-        p_newScene = nullptr;
-
-        if(p_activeScene)
-            p_activeScene->attach();
-    }
-
-    void Application::reset_timers(){
-        p_accumulator = 0.0;
-        p_deltaClock.restart();
-        deltaTime = Time();
-    }
-
-    void Application::tick(){
-        if(simulationPaused){
-            p_accumulator = 0.0;
-            return;
-        }
-
-        p_accumulator += deltaTime.as_seconds();
-        p_accumulator = std::min(p_accumulator, (double)maxAccumulator.as_seconds());
-
-        while(p_accumulator >= timeStep.as_seconds()){
-            if(p_activeScene)
-                p_activeScene->update(timeStep);
-
-            p_accumulator -= timeStep.as_seconds();
-        }
+        m_pendingResize = false;
     }
 
     void Application::frame(){
-        window.clear();
-
-        if(p_activeScene){
-            // Ordinary per-frame work always runs, even with no renderer set
-            p_activeScene->render(deltaTime, RenderLayer::Default);
-
-            if(p_renderer)
-                p_renderer->render_frame(deltaTime, p_activeScene->get_systems());
-        }
-
-        window.display();
+        frame_into(window);
     }
 
     // Functions
@@ -176,7 +123,7 @@ namespace Draft {
     bool Application::step(){
         deltaTime = p_deltaClock.restart();
 
-        if(p_pendingResize){
+        if(m_pendingResize){
             Vector2u size = window.get_frame_size();
             trigger_resize(size.x, size.y);
         }
@@ -195,13 +142,5 @@ namespace Draft {
         frame();
 
         return window.is_open();
-    }
-
-    void Application::set_scene(Scene* scene){
-        p_newScene = scene;
-    }
-
-    void Application::set_renderer(std::unique_ptr<Renderer> renderer){
-        p_newRenderer = std::move(renderer);
     }
 }

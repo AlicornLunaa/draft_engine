@@ -13,6 +13,10 @@ namespace Draft {
         GLFWwindow* handle = window.get_glfw_handle();
         ctx = ImGui::CreateContext();
 
+        // CreateContext() restores whatever context was current before it ran (if any), it
+        // doesn't leave the new one current. Every call below needs ctx current.
+        ImGui::SetCurrentContext(ctx);
+
         #ifndef DEBUG
         auto& io = ImGui::GetIO();
         io.IniFilename = nullptr;
@@ -26,6 +30,7 @@ namespace Draft {
     }
 
     ImGuiSystem::~ImGuiSystem(){
+        ImGui::SetCurrentContext(ctx);
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext(ctx);
@@ -33,6 +38,8 @@ namespace Draft {
 
     // Functions
     void ImGuiSystem::render(Time, RenderLayer layer){
+        ImGui::SetCurrentContext(ctx);
+
         if(layer == RenderLayer::Default){
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
@@ -44,6 +51,7 @@ namespace Draft {
     }
 
     bool ImGuiSystem::on_event(const Event& event){
+        ImGui::SetCurrentContext(ctx);
         const ImGuiIO& io = ImGui::GetIO();
 
         switch(event.type){
@@ -67,10 +75,12 @@ namespace Draft {
     }
 
     bool ImGuiSystem::wants_keyboard_capture() const {
+        ImGui::SetCurrentContext(ctx);
         return ImGui::GetIO().WantCaptureKeyboard;
     }
 
     bool ImGuiSystem::wants_mouse_capture() const {
+        ImGui::SetCurrentContext(ctx);
         return ImGui::GetIO().WantCaptureMouse;
     }
 }

@@ -43,16 +43,20 @@ namespace Draft {
         static void window_focus_callback(GLFWwindow* window, int focused);
         static void window_close_callback(GLFWwindow* window);
 
-    protected:
+    public:
         GLFWwindow* get_glfw_handle() const;
 
-    public:
         SizeCallback sizeCallback = nullptr;
         FrameSizeCallback frameSizeCallback = nullptr;
         FocusCallback focusCallback = nullptr;
         CloseCallback closeCallback = nullptr;
 
-        Window(unsigned int width, unsigned int height, const std::string& title, const GLFWProperties& props = get_default_properties());
+        /**
+         * @brief @p shareContext, if non-null, is passed straight to glfwCreateWindow() so this
+         * window's GL context shares texture/buffer/shader namespace with an already-existing
+         * one.
+         */
+        Window(unsigned int width, unsigned int height, const std::string& title, const GLFWProperties& props = get_default_properties(), GLFWwindow* shareContext = nullptr);
         Window(const Window& other) = delete;
         Window(Window&& other) noexcept;
         virtual ~Window();
@@ -62,8 +66,6 @@ namespace Draft {
 
         friend class Keyboard;
         friend class Mouse;
-        friend class ImGuiSystem;
-        friend class RmlUiSystem;
 
         void poll_events() const;
         void swap_buffers() const;
