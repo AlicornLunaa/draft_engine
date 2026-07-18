@@ -75,3 +75,40 @@ TEST(Logger, RawPrintIsUncoloredAndUntagged)
     EXPECT_EQ(out.cout_buffer.str(), "Raw Hello");
     EXPECT_EQ(out.cerr_buffer.str(), "");
 }
+
+TEST(Logger, SinkObservesEveryPrintCall)
+{
+    CapturedOutput out;
+
+    LogLevel seenLevel = LogLevel::Info;
+    std::string seenName;
+    std::string seenMessage;
+
+    std::size_t token = Logger::add_sink([&](LogLevel level, std::string_view name, std::string_view message){
+        seenLevel = level;
+        seenName = name;
+        seenMessage = message;
+    });
+
+    Logger::println(LogLevel::Warning, "Test", "Hello");
+    Logger::remove_sink(token);
+
+    EXPECT_EQ(seenLevel, LogLevel::Warning);
+    EXPECT_EQ(seenName, "Test");
+    EXPECT_EQ(seenMessage, "Hello\n");
+}
+
+TEST(Logger, RemovedSinkStopsReceivingMessages)
+{
+    CapturedOutput out;
+
+    int callCount = 0;
+    std::size_t token = Logger::add_sink([&](LogLevel, std::string_view, std::string_view){
+        callCount++;
+    });
+
+    Logger::remove_sink(token);
+    Logger::println(LogLevel::Info, "Test", "Hello");
+
+    EXPECT_EQ(callCount, 0);
+}

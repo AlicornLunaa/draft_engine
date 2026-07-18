@@ -28,6 +28,14 @@ namespace Draft {
         Time maxAccumulator = Time::seconds(1.0 / 5.0);
 
         /**
+         * @brief When true, tick() stops calling the active Scene's update() (and resets its
+         * accumulator so no burst of steps fires once unpaused). Rendering is unaffected, frame()
+         * always runs. Meant for freezing gameplay while still showing the scene, e.g. an editor
+         * in edit mode, or a game's own pause menu.
+         */
+        bool simulationPaused = false;
+
+        /**
          * @brief Called first for every translated Event, before the active Scene's systems see
          * it, for embedder-level concerns not tied to any particular Scene (e.g. an editor's
          * own global shortcuts). Returning true consumes the event, the same as a system's

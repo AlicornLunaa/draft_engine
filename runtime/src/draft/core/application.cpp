@@ -138,6 +138,11 @@ namespace Draft {
     }
 
     void Application::tick(){
+        if(simulationPaused){
+            p_accumulator = 0.0;
+            return;
+        }
+
         p_accumulator += deltaTime.as_seconds();
         p_accumulator = std::min(p_accumulator, (double)maxAccumulator.as_seconds());
 

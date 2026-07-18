@@ -68,7 +68,7 @@ namespace Draft {
         if (ext == ".rcss") return AssetKind::RCSS;
         if (ext == ".anim") return AssetKind::Animation;
         if (ext == ".lang") return AssetKind::Language;
-        if (ext == ".scenejson" && is_scene_json(projectRelativePath)) return AssetKind::Scene;
+        if (ext == ".json" && is_scene_json(projectRelativePath)) return AssetKind::Scene;
 
         return AssetKind::Unknown;
     }

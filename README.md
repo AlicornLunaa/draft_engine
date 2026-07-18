@@ -22,7 +22,7 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 - [ ] Prefab system
 - [ ] Visual debugging tools
 - [ ] Profiler system to standardize calls to RAM/CPU usage across systems
-- [ ] Math utils for map, lerp, slerp, and other graphs
+- [ ] Math utils for map, lerp, slerp, and other graphs. Maybe even a graph editor?
 - [ ] Crash logs
 
 
