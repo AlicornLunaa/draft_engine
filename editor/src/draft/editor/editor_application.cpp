@@ -1,5 +1,3 @@
-#define GLFW_INCLUDE_NONE
-
 #include "draft/editor/editor_application.hpp"
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
@@ -36,6 +34,10 @@ namespace Draft {
             FakeKeyboard& keyboard = gameApp.fakeKeyboard;
 
             switch(event.type){
+                case Event::Resized:
+                    gameApp.resize({event.size.width, event.size.height});
+                    break;
+
                 case Event::MouseMoved:
                     mouse.position_changed(event.mouseMove.x, event.mouseMove.y);
                     break;
@@ -150,7 +152,7 @@ namespace Draft {
         editScene.get_systems().add<ImGuiSystem>(application.target.get_size(), "imgui_editor.ini", false);
         editScene.get_systems().add<DockspacePanelSystem>(*this);
         editScene.get_systems().add<ViewportPanelSystem>(*this);
-        // editScene.get_systems().add<HierarchyPanelSystem>(*this);
+        editScene.get_systems().add<HierarchyPanelSystem>(*this);
     }
 
     void EditorApplication::play(){

@@ -14,49 +14,56 @@ namespace Draft {
 
         // Draws a viewport and lets the engine know if this special widget is currently focused
         // when it IS focused, all inputs should be forwarded to the game engine and skip the editor engine.
-        ImGui::Begin("Viewport###Viewport");
-        ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
-        ImVec2 cursorPosition = ImGui::GetCursorScreenPos();
-        ImVec2 mousePosition = ImGui::GetMousePos();
-
-        // Display gameApp's current output texture as-is.
-        auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
-        ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
-
-        m_app.viewportFocused = ImGui::IsWindowFocused();
-        m_regionHovered = ImGui::IsWindowHovered();
-        m_regionCusorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};
-        m_regionScreenPosition = {cursorPosition.x, cursorPosition.y};
-        m_regionAvailable = Math::max({regionAvailable.x, regionAvailable.y}, Vector2u(1, 1));
-
-        // Dispatch event for mouse hover/focus events
-        if(m_regionAvailable.x != m_regionAvailableLast.x || m_regionAvailable.y != m_regionAvailableLast.y){
-            Event event;
-            event.type = Event::Resized;
-            event.size.width = m_regionAvailable.x;
-            event.size.height = m_regionAvailable.y;
-            m_app.pendingViewportEvents.push(event);
+        ImGuiWindowFlags flags = ImGuiWindowFlags_None;
+        if(m_regionHovered && m_app.viewportFocused){
+            flags |= ImGuiWindowFlags_NoResize;
+            flags |= ImGuiWindowFlags_NoMove;
         }
+        
+        if(ImGui::Begin("Viewport###Viewport", nullptr, flags)){
+            ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
+            ImVec2 cursorPosition = ImGui::GetCursorScreenPos();
+            ImVec2 mousePosition = ImGui::GetMousePos();
 
-        if(m_regionHovered && !m_regionHoveredLast){
-            // Region has just been hovered
-            m_app.pendingViewportEvents.push({.type = Event::MouseEntered});
-        } else if(!m_regionHovered && m_regionHoveredLast){
-            // Region just left hover
-            m_app.pendingViewportEvents.push({.type = Event::MouseLeft});
+            // Display gameApp's current output texture as-is.
+            auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
+            ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
+
+            m_app.viewportFocused = ImGui::IsWindowFocused();
+            m_regionHovered = ImGui::IsItemHovered();
+            m_regionLocalCursorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};
+            m_regionScreenPosition = {cursorPosition.x, cursorPosition.y};
+            m_regionAvailable = Math::max({regionAvailable.x, regionAvailable.y}, Vector2u(1, 1));
+
+            // Dispatch event for mouse hover/focus events
+            if(m_regionAvailable.x != m_regionAvailableLast.x || m_regionAvailable.y != m_regionAvailableLast.y){
+                Event event;
+                event.type = Event::Resized;
+                event.size.width = m_regionAvailable.x;
+                event.size.height = m_regionAvailable.y;
+                m_app.pendingViewportEvents.push(event);
+            }
+
+            if(m_regionHovered && !m_regionHoveredLast){
+                // Region has just been hovered
+                m_app.pendingViewportEvents.push({.type = Event::MouseEntered});
+            } else if(!m_regionHovered && m_regionHoveredLast){
+                // Region just left hover
+                m_app.pendingViewportEvents.push({.type = Event::MouseLeft});
+            }
+
+            if(m_app.viewportFocused && !m_regionFocusedLast){
+                // Region has just been focused
+                m_app.pendingViewportEvents.push({.type = Event::GainedFocus});
+            } else if(!m_app.viewportFocused && m_regionFocusedLast){
+                // Region just left focused
+                m_app.pendingViewportEvents.push({.type = Event::LostFocus});
+            }
+
+            m_regionAvailableLast = m_regionAvailable;
+            m_regionHoveredLast = m_regionHovered;
+            m_regionFocusedLast = m_app.viewportFocused;
         }
-
-        if(m_app.viewportFocused && !m_regionFocusedLast){
-            // Region has just been focused
-            m_app.pendingViewportEvents.push({.type = Event::GainedFocus});
-        } else if(!m_app.viewportFocused && m_regionFocusedLast){
-            // Region just left focused
-            m_app.pendingViewportEvents.push({.type = Event::LostFocus});
-        }
-
-        m_regionAvailableLast = m_regionAvailable;
-        m_regionHoveredLast = m_regionHovered;
-        m_regionFocusedLast = m_app.viewportFocused;
 
         ImGui::End();
     }

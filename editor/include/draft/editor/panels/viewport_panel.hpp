@@ -24,7 +24,7 @@ namespace Draft {
     private:
         EditorApplication& m_app;
         Vector2d m_regionAvailable{};
-        Vector2d m_regionCusorPosition{};
+        Vector2d m_regionLocalCursorPosition{};
         Vector2d m_regionScreenPosition{};
         bool m_regionHovered = false;
 
