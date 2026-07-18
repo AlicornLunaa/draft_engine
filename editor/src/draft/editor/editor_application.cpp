@@ -10,10 +10,11 @@
 #include "draft/util/files/file_handle.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/logger.hpp"
+#include "draft/input/action.hpp"
 
 namespace Draft {
     EditorApplication::EditorApplication(const std::string& title, unsigned int width, unsigned int height)
-        : application(title, width, height), gameApp({width, height}), pendingViewportSize(width, height)
+        : application(title, width, height), gameApp({width, height})
     {
         gameApp.simulationPaused = true;
         RmlUiSystem::set_clipboard_window(application.window);
@@ -28,7 +29,51 @@ namespace Draft {
 
         bool open = application.step();
 
-        gameApp.resize(pendingViewportSize);
+        // Send any built up events to the sub app
+        while(!pendingViewportEvents.empty()){
+            Event& event = pendingViewportEvents.front();
+            FakeMouse& mouse = gameApp.fakeMouse;
+            FakeKeyboard& keyboard = gameApp.fakeKeyboard;
+
+            switch(event.type){
+                case Event::MouseMoved:
+                    mouse.position_changed(event.mouseMove.x, event.mouseMove.y);
+                    break;
+
+                case Event::MouseButtonPressed:
+                case Event::MouseButtonReleased:
+                    mouse.button_pressed(event.mouseButton.button, event.type == Event::MouseButtonPressed ? Action::PRESS : Action::RELEASE, event.mouseButton.mods);
+                    break;
+
+                case Event::MouseWheelScrolled:
+                    mouse.mouse_scrolled(event.mouseWheelScroll.x, event.mouseWheelScroll.y);
+                    break;
+
+                case Event::MouseEntered:
+                    mouse.mouse_entered(1);
+                    break;
+
+                case Event::MouseLeft:
+                    mouse.mouse_entered(0);
+                    break;
+
+                case Event::KeyPressed:
+                case Event::KeyReleased:
+                case Event::KeyHold:
+                    keyboard.key_press(event.key.code, event.type == Event::KeyPressed ? Action::PRESS : event.type == Event::KeyReleased ? Action::RELEASE : Action::HOLD, event.key.mods);
+                    break;
+
+                case Event::TextEntered:
+                    keyboard.text_entered(event.text.unicode);
+                    break;
+
+                default:
+                    break;
+            }
+
+            gameApp.inject_event(event); // Sub application doesnt have its own callback hooking
+            pendingViewportEvents.pop();
+        }
         gameApp.step(application.deltaTime);
 
         process_pending();
@@ -102,10 +147,10 @@ namespace Draft {
     }
 
     void EditorApplication::attach_chrome(){
-        editScene.get_systems().add<ImGuiSystem>(application.target.get_size(), "imgui_editor.ini");
-        editScene.get_systems().add<ViewportPanelSystem>(*this);
+        editScene.get_systems().add<ImGuiSystem>(application.target.get_size(), "imgui_editor.ini", false);
         editScene.get_systems().add<DockspacePanelSystem>(*this);
-        editScene.get_systems().add<HierarchyPanelSystem>(*this);
+        editScene.get_systems().add<ViewportPanelSystem>(*this);
+        // editScene.get_systems().add<HierarchyPanelSystem>(*this);
     }
 
     void EditorApplication::play(){

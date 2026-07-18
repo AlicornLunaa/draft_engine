@@ -25,12 +25,15 @@ namespace Draft {
         Vector2u m_size;
 
     public:
+        // Public settings
+        bool shouldBlockGameEvents = true; // If true, imgui will stop event propagation.
+
         // Constructors
         /**
          * @brief @p iniFilename is passed straight through to ImGuiIO::IniFilename disables ImGui's
          * own layout persistence entirely.
          */
-        ImGuiSystem(const Vector2u& size, const char* iniFilename = nullptr);
+        ImGuiSystem(const Vector2u& size, const char* iniFilename = nullptr, bool shouldBlockGameEvents = true);
         ImGuiSystem(const ImGuiSystem& other) = delete;
         ImGuiSystem(ImGuiSystem&& other) = delete;
         ~ImGuiSystem() override;

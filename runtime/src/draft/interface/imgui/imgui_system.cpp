@@ -137,8 +137,8 @@ namespace {
 
 namespace Draft {
     // Constructors
-    ImGuiSystem::ImGuiSystem(const Vector2u& size, const char* iniFilename)
-        : m_size(size)
+    ImGuiSystem::ImGuiSystem(const Vector2u& size, const char* iniFilename, bool shouldBlockGameEvents)
+        : m_size(size), shouldBlockGameEvents(shouldBlockGameEvents)
     {
         IMGUI_CHECKVERSION();
 
@@ -188,24 +188,24 @@ namespace Draft {
         switch(event.type){
             case Event::MouseMoved:
                 io.AddMousePosEvent((float)event.mouseMove.x, (float)event.mouseMove.y);
-                return io.WantCaptureMouse;
+                return io.WantCaptureMouse && shouldBlockGameEvents;
 
             case Event::MouseButtonPressed:
             case Event::MouseButtonReleased:
                 io.AddMouseButtonEvent(event.mouseButton.button, event.type == Event::MouseButtonPressed);
-                return io.WantCaptureMouse;
+                return io.WantCaptureMouse && shouldBlockGameEvents;
 
             case Event::MouseWheelScrolled:
                 io.AddMouseWheelEvent((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y);
-                return io.WantCaptureMouse;
+                return io.WantCaptureMouse && shouldBlockGameEvents;
 
             case Event::MouseLeft:
                 io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
-                return io.WantCaptureMouse;
+                return io.WantCaptureMouse && shouldBlockGameEvents;
 
             case Event::MouseEntered:
                 // The next MouseMoved event covers this, nothing to do until then.
-                return io.WantCaptureMouse;
+                return io.WantCaptureMouse && shouldBlockGameEvents;
 
             case Event::KeyPressed:
             case Event::KeyReleased:
@@ -217,12 +217,12 @@ namespace Draft {
 
                 ImGuiKey key = glfw_key_to_imgui_key(event.key.code);
                 io.AddKeyEvent(key, event.type != Event::KeyReleased);
-                return io.WantCaptureKeyboard;
+                return io.WantCaptureKeyboard && shouldBlockGameEvents;
             }
 
             case Event::TextEntered:
                 io.AddInputCharacter(event.text.unicode);
-                return io.WantCaptureKeyboard;
+                return io.WantCaptureKeyboard && shouldBlockGameEvents;
 
             case Event::GainedFocus:
             case Event::LostFocus:

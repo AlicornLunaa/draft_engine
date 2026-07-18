@@ -23,11 +23,12 @@ namespace Draft {
 
     private:
         EditorApplication& m_app;
-        Vector2u m_regionAvailable{};
+        Vector2d m_regionAvailable{};
         Vector2d m_regionCusorPosition{};
         Vector2d m_regionScreenPosition{};
         bool m_regionHovered = false;
 
+        Vector2d m_regionAvailableLast{};
         bool m_regionHoveredLast = false;
         bool m_regionFocusedLast = false;
     };

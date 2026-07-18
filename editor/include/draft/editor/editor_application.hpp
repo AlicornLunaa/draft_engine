@@ -13,6 +13,7 @@
 
 #include <filesystem>
 #include <optional>
+#include <queue>
 #include <string>
 
 namespace Draft {
@@ -52,7 +53,7 @@ namespace Draft {
         EditorSelection selection;
 
         bool viewportFocused = false;
-        Vector2u pendingViewportSize;
+        std::queue<Event> pendingViewportEvents;
 
     private:
         enum class PendingAction {

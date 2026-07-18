@@ -1,8 +1,5 @@
-#define GLFW_INCLUDE_NONE
-
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/editor/editor_application.hpp"
-#include "draft/input/action.hpp"
 
 #include "imgui.h"
 
@@ -17,45 +14,51 @@ namespace Draft {
 
         // Draws a viewport and lets the engine know if this special widget is currently focused
         // when it IS focused, all inputs should be forwarded to the game engine and skip the editor engine.
-        if(ImGui::Begin("Viewport")){
-            ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
-            ImVec2 cursorPosition = ImGui::GetCursorScreenPos();
-            ImVec2 mousePosition = ImGui::GetMousePos();
+        ImGui::Begin("Viewport###Viewport");
+        ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
+        ImVec2 cursorPosition = ImGui::GetCursorScreenPos();
+        ImVec2 mousePosition = ImGui::GetMousePos();
 
-            // Display gameApp's current output texture as-is.
-            if(regionAvailable.x >= 1.f && regionAvailable.y >= 1.f)
-                m_app.pendingViewportSize = {(unsigned int)regionAvailable.x, (unsigned int)regionAvailable.y};
+        // Display gameApp's current output texture as-is.
+        auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
+        ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
 
-            auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
-            ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
+        m_app.viewportFocused = ImGui::IsWindowFocused();
+        m_regionHovered = ImGui::IsWindowHovered();
+        m_regionCusorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};
+        m_regionScreenPosition = {cursorPosition.x, cursorPosition.y};
+        m_regionAvailable = Math::max({regionAvailable.x, regionAvailable.y}, Vector2u(1, 1));
 
-            m_app.viewportFocused = ImGui::IsWindowFocused();
-            m_regionHovered = ImGui::IsItemHovered();
-            m_regionCusorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};
-            m_regionScreenPosition = {cursorPosition.x, cursorPosition.y};
-            m_regionAvailable = Math::max({regionAvailable.x, regionAvailable.y}, Vector2u(1, 1));
-
-            // Dispatch event for mouse hover/focus events
-            if(m_regionHovered && !m_regionHoveredLast){
-                // Region has just been hovered
-                m_app.gameApp.fakeMouse.mouse_entered(1);
-            } else if(!m_regionHovered && m_regionHoveredLast){
-                // Region just left hover
-                m_app.gameApp.fakeMouse.mouse_entered(0);
-            }
-            if(m_app.viewportFocused && !m_regionFocusedLast){
-                // Region has just been focused
-                m_app.gameApp.inject_event(Event{.type = Event::GainedFocus});
-            } else if(!m_app.viewportFocused && m_regionFocusedLast){
-                // Region just left focused
-                m_app.gameApp.inject_event(Event{.type = Event::LostFocus});
-            }
-
-            m_regionHoveredLast = m_regionHovered;
-            m_regionFocusedLast = m_app.viewportFocused;
-
-            ImGui::End();
+        // Dispatch event for mouse hover/focus events
+        if(m_regionAvailable.x != m_regionAvailableLast.x || m_regionAvailable.y != m_regionAvailableLast.y){
+            Event event;
+            event.type = Event::Resized;
+            event.size.width = m_regionAvailable.x;
+            event.size.height = m_regionAvailable.y;
+            m_app.pendingViewportEvents.push(event);
         }
+
+        if(m_regionHovered && !m_regionHoveredLast){
+            // Region has just been hovered
+            m_app.pendingViewportEvents.push({.type = Event::MouseEntered});
+        } else if(!m_regionHovered && m_regionHoveredLast){
+            // Region just left hover
+            m_app.pendingViewportEvents.push({.type = Event::MouseLeft});
+        }
+
+        if(m_app.viewportFocused && !m_regionFocusedLast){
+            // Region has just been focused
+            m_app.pendingViewportEvents.push({.type = Event::GainedFocus});
+        } else if(!m_app.viewportFocused && m_regionFocusedLast){
+            // Region just left focused
+            m_app.pendingViewportEvents.push({.type = Event::LostFocus});
+        }
+
+        m_regionAvailableLast = m_regionAvailable;
+        m_regionHoveredLast = m_regionHovered;
+        m_regionFocusedLast = m_app.viewportFocused;
+
+        ImGui::End();
     }
 
     bool ViewportPanelSystem::on_event(const Event& event){
@@ -68,15 +71,12 @@ namespace Draft {
         if(m_app.viewportFocused){
             // Translate screen-space coordinates to be relative to the viewport image's origin
             Event localEvent = event;
-            FakeMouse& mouse = m_app.gameApp.fakeMouse;
-            FakeKeyboard& keyboard = m_app.gameApp.fakeKeyboard;
 
             switch(event.type){
                 case Event::MouseMoved:
                     if(!m_regionHovered) return false; // Bail out even when focused
                     localEvent.mouseMove.x = (int)(event.mouseMove.x - m_regionScreenPosition.x);
                     localEvent.mouseMove.y = (int)(event.mouseMove.y - m_regionScreenPosition.y);
-                    mouse.position_changed(localEvent.mouseMove.x, localEvent.mouseMove.y);
                     break;
 
                 case Event::MouseButtonPressed:
@@ -84,28 +84,17 @@ namespace Draft {
                     if(!m_regionHovered) return false; // Bail out even when focused
                     localEvent.mouseButton.x = (int)(event.mouseButton.x - m_regionScreenPosition.x);
                     localEvent.mouseButton.y = (int)(event.mouseButton.y - m_regionScreenPosition.y);
-                    mouse.button_pressed(localEvent.mouseButton.button, event.type == Event::MouseButtonPressed ? Action::PRESS : Action::RELEASE, localEvent.mouseButton.mods);
                     break;
 
                 case Event::MouseWheelScrolled:
                     if(!m_regionHovered) return false; // Bail out even when focused
-                    mouse.mouse_scrolled(localEvent.mouseWheelScroll.x, localEvent.mouseWheelScroll.y);
-                    break;
-
-                case Event::KeyPressed:
-                case Event::KeyReleased:
-                case Event::KeyHold:
-                    keyboard.key_press(localEvent.key.code, event.type == Event::KeyPressed ? Action::PRESS : event.type == Event::KeyReleased ? Action::RELEASE : Action::HOLD, localEvent.key.mods);
-                    break;
-
-                case Event::TextEntered:
-                    keyboard.text_entered(localEvent.text.unicode);
                     break;
 
                 default:
                     break;
             }
 
+            m_app.pendingViewportEvents.push(localEvent);
             return true; // Any other event that doesn't bail out should be consumed
         }
 
