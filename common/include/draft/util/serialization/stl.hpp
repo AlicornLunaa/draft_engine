@@ -2,7 +2,12 @@
 #include "draft/util/serialization/binary.hpp"
 #include "draft/util/serialization/custom.hpp"
 #include "draft/util/serialization/serializer.hpp"
+#include <cstddef>
+#include <optional>
+#include <stdexcept>
 #include <string>
+#include <utility>
+#include <variant>
 
 template<>
 struct Draft::Serializer::CustomSerializer<std::string> {
@@ -80,5 +85,103 @@ struct Draft::Serializer::CustomSerializer<std::vector<K>> {
             Serializer::deserialize(value, child);
             array.push_back(value);
         }
+    }
+};
+
+template<typename... Ts>
+struct Draft::Serializer::CustomSerializer<std::variant<Ts...>> {
+    using Variant = std::variant<Ts...>;
+
+    // Binary encoding: the active index (a size_t, mirroring how the vector<K> specialization
+    // above encodes its own size), followed by the active alternative's own serialized value.
+    static void serialize(const Variant& variant, Binary::ByteArray& out){
+        Serializer::serialize(variant.index(), out);
+        std::visit([&out](const auto& value){ Serializer::serialize(value, out); }, variant);
+    }
+
+    static void deserialize(Variant& variant, Binary::ByteView span){
+        deserialize_and_advance(variant, span);
+    }
+
+    static void deserialize_and_advance(Variant& variant, Binary::ByteView& span){
+        size_t index = 0;
+        Serializer::deserialize_and_advance(index, span);
+        emplace_alternative(variant, index, std::index_sequence_for<Ts...>{});
+
+        std::visit([&span](auto& value){ Serializer::deserialize_and_advance(value, span); }, variant);
+    }
+
+    static void serialize(const Variant& variant, Draft::JSON& json){
+        Serializer::serialize(variant.index(), json["index"]);
+        std::visit([&json](const auto& value){ Serializer::serialize(value, json["value"]); }, variant);
+    }
+
+    static void deserialize(Variant& variant, const Draft::JSON& json){
+        size_t index = json.at("index").template get<size_t>();
+        emplace_alternative(variant, index, std::index_sequence_for<Ts...>{});
+
+        std::visit([&json](auto& value){ Serializer::deserialize(value, json.at("value")); }, variant);
+    }
+
+private:
+    // Default-constructs whichever alternative `index` names (found by matching it against each
+    // compile-time Is in turn), since the runtime index has to select from a compile-time list of
+    // alternative types.
+    template<size_t... Is>
+    static void emplace_alternative(Variant& variant, size_t index, std::index_sequence<Is...>){
+        if(index >= sizeof...(Ts))
+            throw std::runtime_error("deserialize(std::variant) invalid index");
+
+        ((index == Is ? (void)variant.template emplace<Is>() : void()), ...);
+    }
+};
+
+template<typename T>
+struct Draft::Serializer::CustomSerializer<std::optional<T>> {
+    // Binary encoding: a has-value flag, then the value itself if present, mirroring
+    // CameraComponent's old hand-written "hasCamera" flag.
+    static void serialize(const std::optional<T>& value, Binary::ByteArray& out){
+        bool hasValue = value.has_value();
+        Serializer::serialize(hasValue, out);
+
+        if(hasValue)
+            Serializer::serialize(*value, out);
+    }
+
+    static void deserialize(std::optional<T>& value, Binary::ByteView span){
+        deserialize_and_advance(value, span);
+    }
+
+    static void deserialize_and_advance(std::optional<T>& value, Binary::ByteView& span){
+        bool hasValue = false;
+        Serializer::deserialize_and_advance(hasValue, span);
+
+        if(!hasValue){
+            value.reset();
+            return;
+        }
+
+        T inner{};
+        Serializer::deserialize_and_advance(inner, span);
+        value = std::move(inner);
+    }
+
+    // JSON encoding: null when empty, the value itself otherwise.
+    static void serialize(const std::optional<T>& value, Draft::JSON& json){
+        if(value)
+            Serializer::serialize(*value, json);
+        else
+            json = nullptr;
+    }
+
+    static void deserialize(std::optional<T>& value, const Draft::JSON& json){
+        if(json.is_null()){
+            value.reset();
+            return;
+        }
+
+        T inner{};
+        Serializer::deserialize(inner, json);
+        value = std::move(inner);
     }
 };

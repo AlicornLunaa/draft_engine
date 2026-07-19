@@ -19,7 +19,7 @@ namespace Draft {
 
         if(!m_app.gameApp.simulationPaused){
             // Playing, hand control back to whatever gameScene's own CameraComponent resolves to.
-            m_app.gameScene.set_active_camera_override(nullptr);
+            m_app.gameScene.set_active_camera_override(std::nullopt);
             return;
         }
 
@@ -52,10 +52,10 @@ namespace Draft {
         float halfHeight = size.y * m_zoom;
         float halfWidth = halfHeight * aspect;
 
-        auto camera = std::make_unique<OrthographicCamera>(OrthographicCamera{
+        Camera camera = Camera::make_orthographic(
             {m_position.x, m_position.y, 10.f}, {0.f, 0.f, -1.f},
             -halfWidth, halfWidth, halfHeight, -halfHeight
-        });
+        );
 
         m_app.gameScene.set_active_camera_override(std::move(camera));
     }

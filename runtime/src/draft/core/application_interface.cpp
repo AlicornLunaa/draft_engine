@@ -60,7 +60,7 @@ namespace Draft {
             p_activeScene->render(deltaTime, RenderLayer::Default);
             
             if(p_renderer){
-                OrthographicCamera defaultCamera{Vector3f{0, 0, 10}, Vector3f{0, 0, -1}, 0.f, (float)target.get_size().x, (float)target.get_size().y, 0.f};
+                Camera defaultCamera = Camera::make_orthographic(Vector3f{0, 0, 10}, Vector3f{0, 0, -1}, 0.f, (float)target.get_size().x, (float)target.get_size().y, 0.f);
                 auto* camera = p_activeScene->get_active_camera();
 
                 if(!camera)

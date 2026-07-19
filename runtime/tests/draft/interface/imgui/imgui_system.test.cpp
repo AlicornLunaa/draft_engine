@@ -66,7 +66,7 @@ TEST_F(ImGuiSystemTest, RenderReachableThroughARealDefaultRendererAndScene)
     DefaultRenderer renderer({64, 64});
 
     EXPECT_NO_THROW(scene.render(Time::seconds(0), RenderLayer::Default));
-    EXPECT_NO_THROW(renderer.render_frame(Time::seconds(0), scene.get_systems(), OrthographicCamera({0, 0, 0}, {0, 0, -1}, -1, 1, -1, 1)));
+    EXPECT_NO_THROW(renderer.render_frame(Time::seconds(0), scene.get_systems(), Camera::make_orthographic({0, 0, 0}, {0, 0, -1}, -1, 1, -1, 1)));
 }
 
 TEST_F(ImGuiSystemTest, OnEventReturnsFalseForResizedAndUpdatesSize)

@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 #include "draft/util/serialization/serializer.hpp"
 #include <cstdint>
+#include <optional>
 #include <stdexcept>
 #include <string>
+#include <variant>
 #include <vector>
 
 using namespace Draft;
@@ -296,6 +298,115 @@ TEST(SerializerVector, JsonRoundTrip)
     Serializer::deserialize(restored, json);
 
     ASSERT_EQ(restored, values);
+}
+
+TEST(SerializerVariant, BinaryRoundTripPreservesActiveAlternative)
+{
+    // Starts on the variant's default alternative (index 0, int), the encoded index must switch
+    // `restored` over to Point before deserializing its fields.
+    std::variant<int, Point> value = Point{3, 4};
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(value, buffer);
+
+    Binary::ByteView view(buffer);
+    std::variant<int, Point> restored;
+    Serializer::deserialize(restored, view);
+
+    ASSERT_EQ(restored.index(), 1u);
+    ASSERT_EQ(std::get<Point>(restored).x, 3);
+    ASSERT_EQ(std::get<Point>(restored).y, 4);
+}
+
+TEST(SerializerVariant, BinaryRoundTripSwitchesAwayFromTheOtherAlternative)
+{
+    // `restored` starts on Point (the opposite of the previous test), exercising the switch in
+    // the other direction.
+    std::variant<int, Point> value = 42;
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(value, buffer);
+
+    Binary::ByteView view(buffer);
+    std::variant<int, Point> restored{Point{}};
+    Serializer::deserialize(restored, view);
+
+    ASSERT_EQ(restored.index(), 0u);
+    ASSERT_EQ(std::get<int>(restored), 42);
+}
+
+TEST(SerializerVariant, JsonRoundTrip)
+{
+    std::variant<int, Point> value = Point{5, 6};
+
+    JSON json;
+    Serializer::serialize(value, json);
+
+    std::variant<int, Point> restored;
+    Serializer::deserialize(restored, json);
+
+    ASSERT_EQ(restored.index(), 1u);
+    ASSERT_EQ(std::get<Point>(restored).x, 5);
+    ASSERT_EQ(std::get<Point>(restored).y, 6);
+}
+
+TEST(SerializerOptional, BinaryRoundTripWithValue)
+{
+    std::optional<Point> value = Point{3, 4};
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(value, buffer);
+
+    Binary::ByteView view(buffer);
+    std::optional<Point> restored;
+    Serializer::deserialize(restored, view);
+
+    ASSERT_TRUE(restored.has_value());
+    ASSERT_EQ(restored->x, 3);
+    ASSERT_EQ(restored->y, 4);
+}
+
+TEST(SerializerOptional, BinaryRoundTripWithNoValueClearsAnExistingOne)
+{
+    std::optional<Point> value;
+
+    Binary::ByteArray buffer;
+    Serializer::serialize(value, buffer);
+
+    Binary::ByteView view(buffer);
+    std::optional<Point> restored = Point{1, 2}; // pre-existing value should be cleared
+    Serializer::deserialize(restored, view);
+
+    ASSERT_FALSE(restored.has_value());
+}
+
+TEST(SerializerOptional, JsonRoundTripWithValue)
+{
+    std::optional<Point> value = Point{5, 6};
+
+    JSON json;
+    Serializer::serialize(value, json);
+
+    std::optional<Point> restored;
+    Serializer::deserialize(restored, json);
+
+    ASSERT_TRUE(restored.has_value());
+    ASSERT_EQ(restored->x, 5);
+    ASSERT_EQ(restored->y, 6);
+}
+
+TEST(SerializerOptional, JsonRoundTripWithNoValueSerializesToNull)
+{
+    std::optional<Point> value;
+
+    JSON json;
+    Serializer::serialize(value, json);
+    ASSERT_TRUE(json.is_null());
+
+    std::optional<Point> restored = Point{1, 2};
+    Serializer::deserialize(restored, json);
+
+    ASSERT_FALSE(restored.has_value());
 }
 
 namespace {

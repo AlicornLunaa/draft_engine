@@ -21,7 +21,7 @@ namespace Draft {
     Camera* Scene::get_active_camera(){
         // If an override supplied, just use that
         if(m_cameraOverride){
-            return m_cameraOverride.get();
+            return &*m_cameraOverride;
         }
 
         // Find a camera component
@@ -29,7 +29,7 @@ namespace Draft {
         int bestPriority = std::numeric_limits<int>::min();
 
         for(auto&& [raw, cam] : m_registry.view<CameraComponent>().each()){
-            if(!cam.active || !cam.camera)
+            if(!cam.active)
                 continue;
 
             if(best != entt::null && cam.priority < bestPriority)
@@ -44,14 +44,14 @@ namespace Draft {
 
         CameraComponent& cam = m_registry.get<CameraComponent>(best);
         if(auto* transform = m_registry.try_get<TransformComponent>(best)){
-            cam.camera->set_position({transform->position.x, transform->position.y, cam.camera->get_position().z});
-            cam.camera->set_rotation(transform->rotation);
+            cam.camera.set_position({transform->position.x, transform->position.y, cam.camera.get_position().z});
+            cam.camera.set_rotation(transform->rotation);
         }
 
-        return cam.camera.get();
+        return &cam.camera;
     }
 
-    void Scene::set_active_camera_override(std::unique_ptr<Camera>&& camera) {
+    void Scene::set_active_camera_override(std::optional<Camera> camera) {
         m_cameraOverride = std::move(camera);
     }
 

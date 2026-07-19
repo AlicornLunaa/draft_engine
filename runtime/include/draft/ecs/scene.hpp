@@ -6,7 +6,7 @@
 #include "draft/input/event.hpp"
 #include "draft/rendering/camera.hpp"
 #include "draft/util/time.hpp"
-#include <memory>
+#include <optional>
 
 namespace Draft {
     class Entity;
@@ -45,7 +45,7 @@ namespace Draft {
          * @brief Set the active camera object
          * @param camera 
          */
-        void set_active_camera_override(std::unique_ptr<Camera>&& camera);
+        void set_active_camera_override(std::optional<Camera> camera);
 
         /**
          * @brief Advances every registered system by a fixed-size @p dt, in registration order.
@@ -87,6 +87,6 @@ namespace Draft {
         RelationshipSystem m_relationshipSystem;
         SystemRegistry m_systems;
 
-        std::unique_ptr<Camera> m_cameraOverride; // Used to override scene camera without an entity
+        std::optional<Camera> m_cameraOverride; // Used to override scene camera without an entity
     };
 }
