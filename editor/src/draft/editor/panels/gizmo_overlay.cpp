@@ -82,8 +82,10 @@ namespace Draft {
     }
 
     bool GizmoOverlaySystem::draw_center_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport){
+        // Hit-test against last frame's known position. Once a drag is already active, ImGui doesn't require the cursor to stay over
+        // that rect to keep going, so this doesn't need to be frame-accurate for that part.
         Vector2f screenPos = viewport.world_to_screen(transform.position);
-        HandleInteraction interaction = draw_circle_handle("GizmoCenter", screenPos, CENTER_HANDLE_RADIUS, CENTER_COLOR, CENTER_HOVER_COLOR);
+        HandleInteraction interaction = hit_test_handle("GizmoCenter", screenPos, CENTER_HANDLE_RADIUS);
 
         if(interaction.justActivated){
             ImVec2 mousePos = ImGui::GetMousePos();
@@ -102,15 +104,19 @@ namespace Draft {
             entity.modify_component<TransformComponent>([newPosition](TransformComponent& t){
                 t.position = newPosition;
             });
+
+            // transform is a reference into the live component, patched in place above, so
+            // re-reading it now reflects this frame's drag
+            screenPos = viewport.world_to_screen(transform.position);
         }
 
+        draw_handle_circle(screenPos, CENTER_HANDLE_RADIUS, interaction, CENTER_COLOR, CENTER_HOVER_COLOR);
         return interaction.active;
     }
 
     bool GizmoOverlaySystem::draw_axis_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& axisDir, bool isXAxis){
-        Vector2f tipWorld = transform.position + axisDir * AXIS_LENGTH;
         Vector2f pivotScreen = viewport.world_to_screen(transform.position);
-        Vector2f tipScreen = viewport.world_to_screen(tipWorld);
+        Vector2f tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH);
 
         HandleInteraction interaction = hit_test_handle(isXAxis ? "GizmoAxisX" : "GizmoAxisY", tipScreen, AXIS_HANDLE_RADIUS);
 
@@ -119,15 +125,6 @@ namespace Draft {
             m_dragPositionStart = transform.position;
             m_dragMouseWorldStart = viewport.screen_to_world({mousePos.x, mousePos.y});
         }
-
-        const Vector4f& color = isXAxis ? X_AXIS_COLOR : Y_AXIS_COLOR;
-        const Vector4f& hoverColor = isXAxis ? X_AXIS_HOVER_COLOR : Y_AXIS_HOVER_COLOR;
-        const Vector4f& drawColor = (interaction.hovered || interaction.active) ? hoverColor : color;
-        ImU32 packedColor = ImGui::ColorConvertFloat4ToU32(ImVec4(drawColor.r, drawColor.g, drawColor.b, drawColor.a));
-
-        ImDrawList* drawList = ImGui::GetWindowDrawList();
-        drawList->AddLine(ImVec2(pivotScreen.x, pivotScreen.y), ImVec2(tipScreen.x, tipScreen.y), packedColor, 3.f);
-        draw_arrowhead(drawList, tipScreen, pivotScreen, packedColor);
 
         if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mousePos = ImGui::GetMousePos();
@@ -142,7 +139,19 @@ namespace Draft {
             entity.modify_component<TransformComponent>([newPosition](TransformComponent& t){
                 t.position = newPosition;
             });
+
+            pivotScreen = viewport.world_to_screen(transform.position);
+            tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH);
         }
+
+        const Vector4f& color = isXAxis ? X_AXIS_COLOR : Y_AXIS_COLOR;
+        const Vector4f& hoverColor = isXAxis ? X_AXIS_HOVER_COLOR : Y_AXIS_HOVER_COLOR;
+        const Vector4f& drawColor = (interaction.hovered || interaction.active) ? hoverColor : color;
+        ImU32 packedColor = ImGui::ColorConvertFloat4ToU32(ImVec4(drawColor.r, drawColor.g, drawColor.b, drawColor.a));
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+        drawList->AddLine(ImVec2(pivotScreen.x, pivotScreen.y), ImVec2(tipScreen.x, tipScreen.y), packedColor, 3.f);
+        draw_arrowhead(drawList, tipScreen, pivotScreen, packedColor);
 
         return interaction.active;
     }
@@ -164,14 +173,6 @@ namespace Draft {
             m_dragRotationOffset = transform.rotation - Math::atan(toMouse.y, toMouse.x);
         }
 
-        const Vector4f& drawColor = (interaction.hovered || interaction.active) ? ROTATE_HOVER_COLOR : ROTATE_COLOR;
-        ImU32 packedColor = ImGui::ColorConvertFloat4ToU32(ImVec4(drawColor.r, drawColor.g, drawColor.b, drawColor.a));
-
-        ImDrawList* drawList = ImGui::GetWindowDrawList();
-        drawList->AddLine(ImVec2(xTipScreen.x, xTipScreen.y), ImVec2(cornerScreen.x, cornerScreen.y), IM_COL32(200, 200, 200, 150), 1.5f);
-        drawList->AddLine(ImVec2(yTipScreen.x, yTipScreen.y), ImVec2(cornerScreen.x, cornerScreen.y), IM_COL32(200, 200, 200, 150), 1.5f);
-        drawList->AddRectFilled(ImVec2(cornerScreen.x - ROTATE_HANDLE_RADIUS, cornerScreen.y - ROTATE_HANDLE_RADIUS), ImVec2(cornerScreen.x + ROTATE_HANDLE_RADIUS, cornerScreen.y + ROTATE_HANDLE_RADIUS), packedColor);
-
         if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mousePos = ImGui::GetMousePos();
             Vector2f toMouse = viewport.screen_to_world({mousePos.x, mousePos.y}) - transform.position;
@@ -183,7 +184,21 @@ namespace Draft {
             entity.modify_component<TransformComponent>([newRotation](TransformComponent& t){
                 t.rotation = newRotation;
             });
+
+            Vector2f freshXAxis = axis_x(transform.rotation);
+            Vector2f freshYAxis = axis_y(transform.rotation);
+            xTipScreen = viewport.world_to_screen(transform.position + freshXAxis * AXIS_LENGTH);
+            yTipScreen = viewport.world_to_screen(transform.position + freshYAxis * AXIS_LENGTH);
+            cornerScreen = viewport.world_to_screen(transform.position + freshXAxis * AXIS_LENGTH + freshYAxis * AXIS_LENGTH);
         }
+
+        const Vector4f& drawColor = (interaction.hovered || interaction.active) ? ROTATE_HOVER_COLOR : ROTATE_COLOR;
+        ImU32 packedColor = ImGui::ColorConvertFloat4ToU32(ImVec4(drawColor.r, drawColor.g, drawColor.b, drawColor.a));
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+        drawList->AddLine(ImVec2(xTipScreen.x, xTipScreen.y), ImVec2(cornerScreen.x, cornerScreen.y), IM_COL32(200, 200, 200, 150), 1.5f);
+        drawList->AddLine(ImVec2(yTipScreen.x, yTipScreen.y), ImVec2(cornerScreen.x, cornerScreen.y), IM_COL32(200, 200, 200, 150), 1.5f);
+        drawList->AddRectFilled(ImVec2(cornerScreen.x - ROTATE_HANDLE_RADIUS, cornerScreen.y - ROTATE_HANDLE_RADIUS), ImVec2(cornerScreen.x + ROTATE_HANDLE_RADIUS, cornerScreen.y + ROTATE_HANDLE_RADIUS), packedColor);
 
         return interaction.active;
     }

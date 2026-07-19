@@ -183,11 +183,10 @@ namespace Draft {
         size_t minCount = points.closed ? 3 : 2;
 
         for(size_t i = 0; i < count; i++){
-            Vector2f worldPos = world_of(i);
-            Vector2f screenPos = viewport.world_to_screen(worldPos);
+            Vector2f screenPos = viewport.world_to_screen(world_of(i));
 
             std::string id = "Point" + std::to_string(i);
-            HandleInteraction interaction = draw_circle_handle(id.c_str(), screenPos, POINT_HANDLE_RADIUS, POINT_COLOR, POINT_HOVER_COLOR);
+            HandleInteraction interaction = hit_test_handle(id.c_str(), screenPos, POINT_HANDLE_RADIUS);
             m_app.colliderGizmoActiveThisFrame |= interaction.active;
 
             if(interaction.rightClicked && points.remove && count > minCount)
@@ -195,7 +194,7 @@ namespace Draft {
 
             if(interaction.justActivated){
                 m_dragPointIndex = static_cast<int>(i);
-                m_dragPointWorldStart = worldPos;
+                m_dragPointWorldStart = world_of(i);
                 ImVec2 mousePos = ImGui::GetMousePos();
                 m_dragMouseWorldStart = viewport.screen_to_world({mousePos.x, mousePos.y});
             }
@@ -210,7 +209,11 @@ namespace Draft {
 
                 points.set(i, Vector2f(toLocal * Vector3f(newWorld, 1.f)));
                 changed = true;
+
+                screenPos = viewport.world_to_screen(newWorld);
             }
+
+            draw_handle_circle(screenPos, POINT_HANDLE_RADIUS, interaction, POINT_COLOR, POINT_HOVER_COLOR);
         }
 
         if(removeIndex >= 0){
@@ -231,7 +234,7 @@ namespace Draft {
 
             Vector2f midScreen = viewport.world_to_screen(midWorld);
             std::string id = "Midpoint" + std::to_string(i);
-            HandleInteraction interaction = draw_circle_handle(id.c_str(), midScreen, MIDPOINT_HANDLE_RADIUS, MIDPOINT_COLOR, MIDPOINT_HOVER_COLOR);
+            HandleInteraction interaction = hit_test_handle(id.c_str(), midScreen, MIDPOINT_HANDLE_RADIUS);
             m_app.colliderGizmoActiveThisFrame |= interaction.active;
 
             if(interaction.justActivated){
@@ -257,7 +260,11 @@ namespace Draft {
                 points.set(i, Vector2f(toLocal * Vector3f(newWorldA, 1.f)));
                 points.set(next, Vector2f(toLocal * Vector3f(newWorldB, 1.f)));
                 changed = true;
+
+                midScreen = viewport.world_to_screen((newWorldA + newWorldB) * 0.5f);
             }
+
+            draw_handle_circle(midScreen, MIDPOINT_HANDLE_RADIUS, interaction, MIDPOINT_COLOR, MIDPOINT_HOVER_COLOR);
         }
 
         // Ctrl+ghost insert with a preview point snapped to the closest edge, insert it there on
@@ -305,7 +312,7 @@ namespace Draft {
         Vector2f worldPos = Vector2f(toWorld * Vector3f(circle.get_position(), 1.f));
         Vector2f screenPos = viewport.world_to_screen(worldPos);
 
-        HandleInteraction interaction = draw_circle_handle("ColliderCirclePosition", screenPos, POINT_HANDLE_RADIUS, POINT_COLOR, POINT_HOVER_COLOR);
+        HandleInteraction interaction = hit_test_handle("ColliderCirclePosition", screenPos, POINT_HANDLE_RADIUS);
         m_app.colliderGizmoActiveThisFrame |= interaction.active;
 
         if(interaction.justActivated){
@@ -313,6 +320,8 @@ namespace Draft {
             ImVec2 mousePos = ImGui::GetMousePos();
             m_dragMouseWorldStart = viewport.screen_to_world({mousePos.x, mousePos.y});
         }
+
+        bool changed = false;
 
         if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mousePos = ImGui::GetMousePos();
@@ -323,9 +332,13 @@ namespace Draft {
                 newWorld = { snap_to_step(newWorld.x, POSITION_SNAP_STEP), snap_to_step(newWorld.y, POSITION_SNAP_STEP) };
 
             circle.set_position(Vector2f(Math::inverse(toWorld) * Vector3f(newWorld, 1.f)));
-            return true;
+            changed = true;
+
+            screenPos = viewport.world_to_screen(newWorld);
         }
 
-        return false;
+        draw_handle_circle(screenPos, POINT_HANDLE_RADIUS, interaction, POINT_COLOR, POINT_HOVER_COLOR);
+
+        return changed;
     }
 }

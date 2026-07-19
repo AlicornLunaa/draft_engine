@@ -31,6 +31,9 @@ namespace Draft {
             auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
             ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
 
+            if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+                ImGui::SetWindowFocus();
+
             m_app.viewportFocused = ImGui::IsWindowFocused();
             m_app.viewportHovered = ImGui::IsItemHovered();
             m_regionLocalCursorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};

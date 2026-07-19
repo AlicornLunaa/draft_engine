@@ -69,6 +69,12 @@ namespace Draft {
          * editor code.
          */
         virtual void visit_fields(Entity entity, FieldVisitor& visitor) const = 0;
+
+        /**
+         * @brief Fires this component type's entt on_update signal for @p entity, without
+         * otherwise touching it.
+         */
+        virtual void notify_modified(Entity entity) const = 0;
     };
 
     /**
@@ -109,6 +115,10 @@ namespace Draft {
             for_each_field(entity.get_component<T>(), [&](std::string_view name, auto& field){
                 visitor.visit(name, std::type_index(typeid(field)), const_cast<void*>(static_cast<const void*>(std::addressof(field))));
             });
+        }
+
+        void notify_modified(Entity entity) const override {
+            entity.modify_component<T>([](T&){});
         }
 
     private:

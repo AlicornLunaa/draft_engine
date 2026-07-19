@@ -26,16 +26,21 @@ namespace Draft {
                 bool usedJsonFallback = false;
                 bool changed = draw_typeerased_field(m_ctx, name, type, valuePtr, m_componentJson, usedJsonFallback);
 
-                if(changed && usedJsonFallback)
-                    m_changedFallbackKeys.emplace_back(name);
+                if(changed){
+                    m_anyChanged = true;
+                    if(usedJsonFallback)
+                        m_changedFallbackKeys.emplace_back(name);
+                }
             }
 
             const std::vector<std::string>& changed_fallback_keys() const { return m_changedFallbackKeys; }
+            bool any_changed() const { return m_anyChanged; }
 
         private:
             FieldContext& m_ctx;
             JSON& m_componentJson;
             std::vector<std::string> m_changedFallbackKeys;
+            bool m_anyChanged = false;
         };
     }
 
@@ -106,8 +111,6 @@ namespace Draft {
             FieldDrawVisitor visitor(ctx, componentJson);
             entry.visit_fields(entity, visitor);
 
-            // Typed widgets (float, Vector2f, Entity, ...) already wrote straight into the live
-            // component, nothing further needed for those.
             if(!visitor.changed_fallback_keys().empty()){
                 JSON freshJson;
                 entry.serialize(entity, freshJson);
@@ -122,6 +125,10 @@ namespace Draft {
                     Logger::println(LogLevel::Severe, "Inspector", std::string("Failed to apply edit to ") + entry.name() + ": " + e.what());
                 }
             }
+
+            // Fire ENTT's on modify hooks
+            if(visitor.any_changed())
+                entry.notify_modified(entity);
         }
 
         ImGui::PopID();
