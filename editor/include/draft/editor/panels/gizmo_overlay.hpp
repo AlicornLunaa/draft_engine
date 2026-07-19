@@ -43,5 +43,9 @@ namespace Draft {
         // Offset between the rotate handle's initial drag angle and the transform's rotation at
         // that moment, so grabbing the handle doesn't snap the object to point at the cursor.
         float m_dragRotationOffset = 0.f;
+
+        // Translate-drag reference point, captured once when the handle is grabbed.
+        Vector2f m_dragPositionStart{};
+        Vector2f m_dragMouseWorldStart{};
     };
 }

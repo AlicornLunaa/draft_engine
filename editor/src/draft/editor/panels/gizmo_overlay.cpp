@@ -11,6 +11,13 @@ namespace Draft {
         constexpr float TRANSLATE_HANDLE_RADIUS = 8.f;
         constexpr float ROTATE_HANDLE_RADIUS = 6.f;
         constexpr float ROTATE_HANDLE_DISTANCE = 40.f;
+
+        constexpr float POSITION_SNAP_STEP = 10.f; // world units
+        const float ROTATION_SNAP_STEP = Math::radians(15.f);
+
+        float snap_to_step(float value, float step){
+            return Math::round(value / step) * step;
+        }
     }
 
     GizmoOverlaySystem::GizmoOverlaySystem(EditorApplication& app) : m_app(app) {}
@@ -55,19 +62,24 @@ namespace Draft {
         ImGui::SetCursorScreenPos(ImVec2(screenPos.x - TRANSLATE_HANDLE_RADIUS, screenPos.y - TRANSLATE_HANDLE_RADIUS));
         ImGui::InvisibleButton("##handle", ImVec2(TRANSLATE_HANDLE_RADIUS * 2.f, TRANSLATE_HANDLE_RADIUS * 2.f));
 
+        if(ImGui::IsItemActivated()){
+            ImVec2 mousePos = ImGui::GetMousePos();
+            m_dragPositionStart = transform.position;
+            m_dragMouseWorldStart = screen_to_world(camera, {mousePos.x, mousePos.y});
+        }
+
         bool active = ImGui::IsItemActive();
 
         if(active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
-            ImVec2 mouseNow = ImGui::GetMousePos();
-            ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
-            ImVec2 mousePrev{mouseNow.x - mouseDelta.x, mouseNow.y - mouseDelta.y};
+            ImVec2 mousePos = ImGui::GetMousePos();
+            Vector2f mouseWorldNow = screen_to_world(camera, {mousePos.x, mousePos.y});
+            Vector2f newPosition = m_dragPositionStart + (mouseWorldNow - m_dragMouseWorldStart);
 
-            Vector2f worldNow = screen_to_world(camera, {mouseNow.x, mouseNow.y});
-            Vector2f worldPrev = screen_to_world(camera, {mousePrev.x, mousePrev.y});
-            Vector2f worldDelta = worldNow - worldPrev;
+            if(ImGui::GetIO().KeyShift)
+                newPosition = { snap_to_step(newPosition.x, POSITION_SNAP_STEP), snap_to_step(newPosition.y, POSITION_SNAP_STEP) };
 
-            entity.modify_component<TransformComponent>([worldDelta](TransformComponent& t){
-                t.position += worldDelta;
+            entity.modify_component<TransformComponent>([newPosition](TransformComponent& t){
+                t.position = newPosition;
             });
         }
 
@@ -102,6 +114,9 @@ namespace Draft {
             ImVec2 mousePos = ImGui::GetMousePos();
             Vector2f toMouse = screen_to_world(camera, {mousePos.x, mousePos.y}) - transform.position;
             float newRotation = Math::atan(toMouse.y, toMouse.x) + m_dragRotationOffset;
+
+            if(ImGui::GetIO().KeyShift)
+                newRotation = snap_to_step(newRotation, ROTATION_SNAP_STEP);
 
             entity.modify_component<TransformComponent>([newRotation](TransformComponent& t){
                 t.rotation = newRotation;
