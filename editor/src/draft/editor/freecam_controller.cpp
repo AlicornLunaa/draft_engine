@@ -24,6 +24,7 @@ namespace Draft {
         }
 
         if(m_app.viewportFocused){
+            Mouse& mouse = m_app.application.mouse;
             Keyboard& keyboard = m_app.application.keyboard;
             float distance = PAN_SPEED * m_zoom * dt.as_seconds();
 
@@ -35,6 +36,16 @@ namespace Draft {
                 m_position.x -= distance;
             if(keyboard.is_pressed(Keyboard::D) || keyboard.is_pressed(Keyboard::RIGHT))
                 m_position.x += distance;
+
+            if(mouse.is_pressed(Mouse::MIDDLE_BUTTON)){
+                if(!dragStart) dragStart = mouse.get_position();
+                if(!positionStart) positionStart = m_position;
+                Vector2d delta = mouse.get_position() - *dragStart;
+                m_position = *positionStart - delta * (double)m_zoom;
+            } else {
+                dragStart = std::nullopt;
+                positionStart = std::nullopt;
+            }
         }
 
         if(m_app.viewportHovered){

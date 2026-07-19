@@ -21,6 +21,9 @@ namespace Draft {
     private:
         EditorApplication& m_app;
 
+        std::optional<Vector2d> dragStart;
+        std::optional<Vector2d> positionStart;
+
         Vector2f m_position{0.f, 0.f};
         float m_zoom = 1.f;
         double m_lastScrollY = 0.0;
