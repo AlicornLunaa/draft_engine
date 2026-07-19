@@ -155,7 +155,7 @@ namespace Draft {
         return changed;
     }
 
-    bool draw_typeerased_field(FieldContext& ctx, std::string_view name, std::type_index type, void* valuePtr, const JSON& fallbackJson){
+    bool draw_typeerased_field(FieldContext& ctx, std::string_view name, std::type_index type, void* valuePtr, JSON& componentJson, bool& usedJsonFallback){
         if(type == typeid(float)) return draw_field(ctx, name, *static_cast<float*>(valuePtr));
         if(type == typeid(bool)) return draw_field(ctx, name, *static_cast<bool*>(valuePtr));
         if(type == typeid(int)) return draw_field(ctx, name, *static_cast<int*>(valuePtr));
@@ -173,17 +173,13 @@ namespace Draft {
         if(type == typeid(Resource<Animation>)) return draw_field(ctx, name, *static_cast<Resource<Animation>*>(valuePtr));
         if(type == typeid(Resource<Music>)) return draw_field(ctx, name, *static_cast<Resource<Music>*>(valuePtr));
 
-        // No live-editable widget registered for this field's type, show it read-only from the
-        // component's own JSON serialization instead of leaving it silently invisible.
+        // No typed pointer recovery for this field's type so it can't be edited in place like the cases above.
+        usedJsonFallback = true;
+
         std::string key(name);
-        ImGui::TextDisabled("%s:", key.c_str());
-        ImGui::SameLine();
+        if(!componentJson.contains(key))
+            componentJson[key] = JSON();
 
-        if(fallbackJson.contains(key))
-            ImGui::TextWrapped("%s", fallbackJson.at(key).dump(2).c_str());
-        else
-            ImGui::TextWrapped("<unavailable>");
-
-        return false;
+        return draw_json_editor(name, componentJson[key]);
     }
 }

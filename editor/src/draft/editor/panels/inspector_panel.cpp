@@ -12,20 +12,27 @@ namespace Draft {
         /**
          * @brief Bridges Runtime's type-erased FieldVisitor callback into field_widgets.hpp's
          * typed dispatch, holding just what one component's worth of field-drawing needs: the
-         * shared FieldContext, and that component's own JSON serialization for the fallback
-         * display of any field type not otherwise recognized.
+         * shared FieldContext, and that component's own JSON serialization used both as the
+         * generic JSON-subtree editor's backing store for any field type with no typed widget
          */
         class FieldDrawVisitor : public FieldVisitor {
         public:
-            FieldDrawVisitor(FieldContext& ctx, const JSON& fallbackJson) : m_ctx(ctx), m_fallbackJson(fallbackJson) {}
+            FieldDrawVisitor(FieldContext& ctx, JSON& componentJson) : m_ctx(ctx), m_componentJson(componentJson) {}
 
             void visit(std::string_view name, std::type_index type, void* valuePtr) override {
-                draw_typeerased_field(m_ctx, name, type, valuePtr, m_fallbackJson);
+                bool usedJsonFallback = false;
+                bool changed = draw_typeerased_field(m_ctx, name, type, valuePtr, m_componentJson, usedJsonFallback);
+
+                if(changed && usedJsonFallback)
+                    m_changedFallbackKeys.emplace_back(name);
             }
+
+            const std::vector<std::string>& changed_fallback_keys() const { return m_changedFallbackKeys; }
 
         private:
             FieldContext& m_ctx;
-            const JSON& m_fallbackJson;
+            JSON& m_componentJson;
+            std::vector<std::string> m_changedFallbackKeys;
         };
     }
 
@@ -89,12 +96,24 @@ namespace Draft {
         }
 
         if(open && !removed){
-            JSON fallbackJson;
-            entry.serialize(entity, fallbackJson);
+            JSON componentJson;
+            entry.serialize(entity, componentJson);
 
             FieldContext ctx{ m_app.gameScene, m_app.assets, m_app.selection };
-            FieldDrawVisitor visitor(ctx, fallbackJson);
+            FieldDrawVisitor visitor(ctx, componentJson);
             entry.visit_fields(entity, visitor);
+
+            // Typed widgets (float, Vector2f, Entity, ...) already wrote straight into the live
+            // component, nothing further needed for those.
+            if(!visitor.changed_fallback_keys().empty()){
+                JSON freshJson;
+                entry.serialize(entity, freshJson);
+
+                for(const std::string& key : visitor.changed_fallback_keys())
+                    freshJson[key] = componentJson[key];
+
+                entry.deserialize(entity, freshJson);
+            }
         }
 
         ImGui::PopID();

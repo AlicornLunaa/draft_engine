@@ -167,8 +167,17 @@ namespace Draft {
      * @brief Bridges Runtime's type-erased ComponentTypeInterface::visit_fields() callback into
      * draw_field<T>() for exactly the field types that appear as a direct field of a
      * registered component. Anything not listed here, including a type only a future
-     * game-specific component introduces, falls through to a read-only JSON dump sourced from
-     * @p fallbackJson instead of crashing or vanishing.
+     * game-specific component introduces, falls through to a generic, editable JSON subtree of
+     * @p componentJson (see draw_json_editor()) instead of vanishing. That edit isn't written
+     * back through this field alone (there's no typed pointer to deserialize into for an
+     * unrecognized type). The caller is expected to re-serialize + deserialize the *whole*
+     * component through ComponentTypeInterface (same virtual entry point load_scene() uses) when
+     * this returns true, exactly the way InspectorPanelSystem does.
+     * @param usedJsonFallback Set to true if this call went through the JSON subtree (so the
+     * caller knows it needs the re-serialize/overlay/deserialize write-back), left untouched
+     * (caller should default it false) if a typed widget handled and already live-applied the edit itself.
+     * @return True if the field was edited this frame, whether through a typed widget or the
+     * generic JSON subtree.
      */
-    bool draw_typeerased_field(FieldContext& ctx, std::string_view name, std::type_index type, void* valuePtr, const JSON& fallbackJson);
+    bool draw_typeerased_field(FieldContext& ctx, std::string_view name, std::type_index type, void* valuePtr, JSON& componentJson, bool& usedJsonFallback);
 }
