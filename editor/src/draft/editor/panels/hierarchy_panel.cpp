@@ -15,39 +15,52 @@ namespace Draft {
         if(layer != RenderLayer::Default)
             return;
 
+        std::vector<Entity> entitiesToRemove;
+
         ImGui::SetNextWindowSize({64, 480}, ImGuiCond_FirstUseEver);
 
-        ImGui::Begin("Hierarchy");
+        if(ImGui::Begin("Hierarchy")){
+            // Context popup for an entity on empty space
+            if(ImGui::BeginPopupContextWindow("HierarchyContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)){
+                if(ImGui::MenuItem("Create Entity"))
+                    create_entity();
 
-        if(ImGui::BeginPopupContextWindow("HierarchyContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)){
-            if(ImGui::MenuItem("Create Entity"))
-                create_entity();
-            ImGui::EndPopup();
-        }
-
-        Registry& registry = m_app.gameScene.get_registry();
-        std::vector<Entity> roots;
-        for(entt::entity raw : registry.storage<entt::entity>()){
-            Entity entity(&m_app.gameScene, raw);
-            if(!entity.has_component<ChildComponent>())
-                roots.push_back(entity);
-        }
-
-        for(Entity root : roots)
-            draw_entity_row(root);
-
-        // Fills the rest of the panel so dropping on empty space unparents (drops to root).
-        ImGui::Dummy(ImGui::GetContentRegionAvail());
-        if(ImGui::BeginDragDropTarget()){
-            if(const ImGuiPayload* incoming = ImGui::AcceptDragDropPayload("HierarchyEntity")){
-                Entity dragged = *static_cast<const Entity*>(incoming->Data);
-                if(dragged.is_valid() && dragged.has_component<ChildComponent>())
-                    dragged.remove_component<ChildComponent>();
+                ImGui::EndPopup();
             }
-            ImGui::EndDragDropTarget();
+    
+            Registry& registry = m_app.gameScene.get_registry();
+
+            std::vector<Entity> rootEntities;
+
+            // Collect all top level entities
+            for(entt::entity raw : registry.storage<entt::entity>()){
+                Entity entity(&m_app.gameScene, raw);
+
+                if(entity && !entity.has_component<ChildComponent>()){
+                    // Draw each root entity
+                    draw_entity_row(entity, entitiesToRemove);
+                }
+            }
+    
+            // Fills the rest of the panel so dropping on empty space unparents (drops to root).
+            ImGui::Dummy(ImGui::GetContentRegionAvail());
+            if(ImGui::BeginDragDropTarget()){
+                if(const ImGuiPayload* incoming = ImGui::AcceptDragDropPayload("HierarchyEntity")){
+                    Entity dragged = *static_cast<const Entity*>(incoming->Data);
+                    if(dragged.is_valid() && dragged.has_component<ChildComponent>())
+                        dragged.remove_component<ChildComponent>();
+                }
+
+                ImGui::EndDragDropTarget();
+            }
         }
 
         ImGui::End();
+
+        // Cleanup
+        for(auto entity : entitiesToRemove){
+            entity.destroy();
+        }
     }
 
     void HierarchyPanelSystem::create_entity(){
@@ -57,7 +70,7 @@ namespace Draft {
         m_app.selection.set(entity);
     }
 
-    void HierarchyPanelSystem::draw_entity_row(Entity entity){
+    void HierarchyPanelSystem::draw_entity_row(Entity entity, std::vector<Entity>& entitiesToRemove){
         if(!entity.is_valid())
             return;
 
@@ -68,10 +81,8 @@ namespace Draft {
         std::vector<Entity> children = hasChildren ? parentComp->children : std::vector<Entity>();
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-        if(!hasChildren)
-            flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-        if(m_app.selection.get() == entity)
-            flags |= ImGuiTreeNodeFlags_Selected;
+        if(!hasChildren) flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+        if(m_app.selection.get() == entity) flags |= ImGuiTreeNodeFlags_Selected;
 
         std::string label = label_for(entity);
         auto id = reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<entt::entity>(entity)));
@@ -92,28 +103,27 @@ namespace Draft {
                 Entity dragged = *static_cast<const Entity*>(incoming->Data);
                 reparent(dragged, entity);
             }
+
             ImGui::EndDragDropTarget();
         }
 
-        bool destroyed = false;
         if(ImGui::BeginPopupContextItem()){
             if(ImGui::MenuItem("Delete")){
                 bool wasSelected = m_app.selection.get() == entity;
-                entity.destroy();
-                destroyed = true;
+                entitiesToRemove.push_back(entity);
 
                 // Destroying entity may cascade-destroy descendants, clear the selection if it
                 // was the deleted row itself or if it was one of those descendants.
                 if(wasSelected || !m_app.selection.get().is_valid())
                     m_app.selection.clear();
             }
+
             ImGui::EndPopup();
         }
 
         if(open && hasChildren){
-            if(!destroyed)
-                for(Entity child : children)
-                    draw_entity_row(child);
+            for(Entity child : children)
+                draw_entity_row(child, entitiesToRemove);
 
             ImGui::TreePop();
         }

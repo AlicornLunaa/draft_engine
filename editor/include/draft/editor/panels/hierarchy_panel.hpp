@@ -24,7 +24,7 @@ namespace Draft {
 
     private:
         void create_entity();
-        void draw_entity_row(Entity entity);
+        void draw_entity_row(Entity entity, std::vector<Entity>& entitiesToRemove);
         void reparent(Entity child, Entity newParent);
         static std::string label_for(Entity entity);
 
