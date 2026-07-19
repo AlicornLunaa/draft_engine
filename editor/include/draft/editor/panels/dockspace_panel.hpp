@@ -23,8 +23,10 @@ namespace Draft {
     private:
         void draw_menu_bar();
         void draw_play_controls();
+        void build_initial_layout(unsigned int dockspaceId);
 
         EditorApplication& m_app;
         std::array<char, 512> m_projectPathBuffer{};
+        bool m_dockspaceBuilt = false;
     };
 }

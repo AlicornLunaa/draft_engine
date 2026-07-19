@@ -44,7 +44,7 @@ namespace Draft {
 
         CameraComponent& cam = m_registry.get<CameraComponent>(best);
         if(auto* transform = m_registry.try_get<TransformComponent>(best)){
-            cam.camera->set_position({transform->position.x, transform->position.y, 0.f});
+            cam.camera->set_position({transform->position.x, transform->position.y, cam.camera->get_position().z});
             cam.camera->set_rotation(transform->rotation);
         }
 

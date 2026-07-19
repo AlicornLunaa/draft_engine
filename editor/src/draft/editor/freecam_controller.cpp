@@ -49,12 +49,12 @@ namespace Draft {
         
         Vector2u size = Math::max(m_app.gameApp.get_output().get_properties().size, Vector2u(1, 1));
         float aspect = (float)size.x / (float)size.y;
-        float halfHeight = m_zoom;
+        float halfHeight = size.y * m_zoom;
         float halfWidth = halfHeight * aspect;
 
         auto camera = std::make_unique<OrthographicCamera>(OrthographicCamera{
             {m_position.x, m_position.y, 10.f}, {0.f, 0.f, -1.f},
-            -halfWidth, halfWidth, -halfHeight, halfHeight
+            -halfWidth, halfWidth, halfHeight, -halfHeight
         });
 
         m_app.gameScene.set_active_camera_override(std::move(camera));

@@ -2,6 +2,7 @@
 #include "draft/editor/editor_application.hpp"
 
 #include "imgui.h"
+#include "imgui_internal.h"
 
 #include <cstring>
 #include <filesystem>
@@ -20,7 +21,12 @@ namespace Draft {
         if(layer != RenderLayer::Default)
             return;
 
-        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+        ImGuiID dockspaceId = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
+        if(!m_dockspaceBuilt){
+            m_dockspaceBuilt = true;
+            build_initial_layout(dockspaceId);
+        }
 
         if(ImGui::BeginMainMenuBar()){
             draw_menu_bar();
@@ -73,5 +79,20 @@ namespace Draft {
 
         if(m_app.has_project())
             ImGui::Text("  %s", m_app.project()->root().string().c_str());
+    }
+
+    void DockspacePanelSystem::build_initial_layout(unsigned int dockspaceId){
+        ImGui::DockBuilderRemoveNode(dockspaceId);
+        ImGui::DockBuilderAddNode(dockspaceId, (ImGuiDockNodeFlags)ImGuiDockNodeFlags_PassthruCentralNode | (ImGuiDockNodeFlags)ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockspaceId, ImGui::GetMainViewport()->Size);
+
+        ImGuiID hierarchyId;
+        ImGuiID viewportId;
+        ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.3f, &hierarchyId, &viewportId);
+
+        ImGui::DockBuilderDockWindow("Hierarchy", hierarchyId);
+        ImGui::DockBuilderDockWindow("Viewport###Viewport", viewportId);
+
+        ImGui::DockBuilderFinish(dockspaceId);
     }
 }
