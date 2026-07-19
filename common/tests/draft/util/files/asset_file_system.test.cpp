@@ -2,6 +2,7 @@
 #include "draft/util/files/asset_file_system.hpp"
 #include "draft/util/files/disk_file_provider.hpp"
 #include "draft/util/files/embedded_file_provider.hpp"
+#include "draft/util/files/memory_file_provider.hpp"
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -36,12 +37,16 @@ TEST(AssetFileSystem, DiskTakesPrecedenceOverEmbedded)
         out << "disk override";
     }
 
-    AssetFileSystem fs;
-    ASSERT_EQ(fs.read_string("assets/fonts/default.ttf"), "disk override");
+    auto embeddedProvider = std::make_unique<EmbeddedFileProvider>();
+    auto memoryProvider = std::make_unique<MemoryFileProvider>();
+    memoryProvider->open("assets/fonts/default.ttf").write_string("disk override");
 
-    std::filesystem::remove("assets/fonts/default.ttf");
-    std::filesystem::remove("assets/fonts");
-    std::filesystem::remove("assets");
+    std::vector<std::unique_ptr<FileProvider>> vec;
+    vec.push_back(std::move(memoryProvider));
+    vec.push_back(std::move(embeddedProvider));
+
+    AssetFileSystem fs(std::move(vec));
+    ASSERT_EQ(fs.read_string("assets/fonts/default.ttf"), "disk override");
 }
 
 TEST(AssetFileSystem, ThrowsWhenNotFoundInAnyProvider)
