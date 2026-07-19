@@ -13,7 +13,11 @@ namespace Draft {
     /**
      * @brief Draws translate/rotate handles for the selected entity's TransformComponent, into
      * the same "Viewport" window ViewportPanelSystem draws (Overlay layer, so this runs after
-     * that Default-layer Image submission.
+     * that Default-layer Image submission - ImGui resolves overlapping click targets by
+     * submission order, so a click landing on a handle is claimed here rather than falling
+     * through to EntityPickerSystem's click-to-select). Edit-mode only, same as
+     * FreecamControllerSystem - dragging a gizmo while the simulation is actively ticking would
+     * fight with physics writing to the same fields every step.
      *
      * Writes go through Entity::modify_component() rather than a raw reference, so
      * PhysicsSystem's on_update<TransformComponent> hook fires and keeps any attached Collider in
@@ -29,22 +33,16 @@ namespace Draft {
         DRAFT_REFLECTABLE(GizmoOverlaySystem)
 
     private:
-        /**
-         * @return True if this handle is the active item this frame (being clicked/dragged)
-         */
-        bool draw_translate_handle(Entity entity, const TransformComponent& transform, const Camera& camera);
-        bool draw_rotate_handle(Entity entity, const TransformComponent& transform, const Camera& camera);
+        bool draw_center_handle(Entity entity, const TransformComponent& transform, const Camera& camera);
+        bool draw_axis_handle(Entity entity, const TransformComponent& transform, const Camera& camera, const Vector2f& axisDir, bool isXAxis);
+        bool draw_rotate_handle(Entity entity, const TransformComponent& transform, const Camera& camera, const Vector2f& xAxisDir, const Vector2f& yAxisDir);
 
         Vector2f world_to_screen(const Camera& camera, const Vector2f& worldPos) const;
         Vector2f screen_to_world(const Camera& camera, const Vector2f& screenPos) const;
 
         EditorApplication& m_app;
 
-        // Offset between the rotate handle's initial drag angle and the transform's rotation at
-        // that moment, so grabbing the handle doesn't snap the object to point at the cursor.
         float m_dragRotationOffset = 0.f;
-
-        // Translate-drag reference point, captured once when the handle is grabbed.
         Vector2f m_dragPositionStart{};
         Vector2f m_dragMouseWorldStart{};
     };
