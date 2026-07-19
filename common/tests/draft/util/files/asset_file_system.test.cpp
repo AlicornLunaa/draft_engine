@@ -3,8 +3,6 @@
 #include "draft/util/files/disk_file_provider.hpp"
 #include "draft/util/files/embedded_file_provider.hpp"
 #include "draft/util/files/memory_file_provider.hpp"
-#include <filesystem>
-#include <fstream>
 #include <memory>
 #include <vector>
 
@@ -28,15 +26,11 @@ TEST(AssetFileSystem, ReadsThroughToEmbeddedWhenNotOnDisk)
 
 TEST(AssetFileSystem, DiskTakesPrecedenceOverEmbedded)
 {
-    // "assets/fonts/default.ttf" is also embedded, so a disk copy at the same path proves the
-    // default search order (disk, then embedded) actually prefers disk rather than just
-    // happening to only ever find one or the other.
-    std::filesystem::create_directories("assets/fonts");
-    {
-        std::ofstream out("assets/fonts/default.ttf");
-        out << "disk override";
-    }
-
+    // "assets/fonts/default.ttf" is also embedded, so a matching entry earlier in the provider
+    // list proves the search order actually prefers it rather than just happening to only ever
+    // find one or the other. MemoryFileProvider stands in for "disk" here rather than actually
+    // touching disk, since nothing about this test cares which real provider wins, only that
+    // provider order is respected.
     auto embeddedProvider = std::make_unique<EmbeddedFileProvider>();
     auto memoryProvider = std::make_unique<MemoryFileProvider>();
     memoryProvider->open("assets/fonts/default.ttf").write_string("disk override");

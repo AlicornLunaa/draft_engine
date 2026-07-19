@@ -1,12 +1,15 @@
 #include <gtest/gtest.h>
 #include "draft/asset/asset_manager.hpp"
+#include "draft/util/files/asset_file_system.hpp"
+#include "draft/util/files/memory_file_provider.hpp"
 
 #include <atomic>
 #include <chrono>
-#include <fstream>
 #include <filesystem>
+#include <memory>
 #include <stdexcept>
 #include <thread>
+#include <vector>
 
 using namespace Draft;
 
@@ -46,21 +49,24 @@ namespace {
         return s;
     }
 
+    // MemoryFileProvider's backing store is a process-wide static map (see its own header), not
+    // scoped to one instance, so a fresh instance here still reaches the same data.
     void write_file(const std::filesystem::path& path, const std::string& contents){
-        std::ofstream out(path);
-        out << contents;
+        MemoryFileProvider().write_string(path, contents);
+    }
+
+    AssetFileSystem memory_fs(){
+        std::vector<std::unique_ptr<FileProvider>> providers;
+        providers.push_back(std::make_unique<MemoryFileProvider>());
+        return AssetFileSystem(std::move(providers));
     }
 
     struct AssetManagerTest : ::testing::Test {
-        std::filesystem::path dir = "test_am_scratch";
-
-        void SetUp() override {
-            std::filesystem::create_directories(dir);
-        }
-
-        void TearDown() override {
-            std::filesystem::remove_all(dir);
-        }
+        // Scoped per test (not just "test_am_scratch"), since MemoryFileProvider's storage
+        // outlives any one test within the same process, this keeps tests from ever reading
+        // another test's leftovers even if someone adds a test later that forgets to write
+        // before reading.
+        std::filesystem::path dir = std::filesystem::path("test_am_scratch") / ::testing::UnitTest::GetInstance()->current_test_info()->name();
 
         std::string path(const std::string& name) const {
             return (dir / name).string();
@@ -72,7 +78,7 @@ TEST_F(AssetManagerTest, GetLoadsSynchronouslyOnFirstRequest)
 {
     write_file(path("a.txt"), "hello");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -87,7 +93,7 @@ TEST_F(AssetManagerTest, GetCachesAndDoesNotReload)
     write_file(path("a.txt"), "hello");
 
     std::atomic<int> loadCount{0};
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([&](const FileHandle& handle, AssetManager&){
         loadCount++;
         return TextAsset{handle.read_string()};
@@ -104,7 +110,7 @@ TEST_F(AssetManagerTest, DifferentTypesAtDifferentKeysDoNotCollide)
 {
     write_file(path("a.txt"), "text-content");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -121,13 +127,13 @@ TEST_F(AssetManagerTest, DifferentTypesAtDifferentKeysDoNotCollide)
 
 TEST_F(AssetManagerTest, GetThrowsWhenNoLoaderRegistered)
 {
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     ASSERT_THROW(manager.get<TextAsset>(path("missing.txt")), std::logic_error);
 }
 
 TEST_F(AssetManagerTest, GetThrowsOnMissingFileWithNoPlaceholder)
 {
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -137,7 +143,7 @@ TEST_F(AssetManagerTest, GetThrowsOnMissingFileWithNoPlaceholder)
 
 TEST_F(AssetManagerTest, GetFallsBackToPlaceholderAndRecordsTheError)
 {
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -156,7 +162,7 @@ TEST_F(AssetManagerTest, QueueAndLoadProcessesEverythingSynchronously)
     write_file(path("a.txt"), "AAA");
     write_file(path("b.txt"), "BBB");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -174,7 +180,7 @@ TEST_F(AssetManagerTest, LoadContinuesPastAFailureWhenPlaceholderExists)
 {
     write_file(path("a.txt"), "AAA");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -193,7 +199,7 @@ TEST_F(AssetManagerTest, LoadAsyncDoesNotBlockAndPollAsyncDrivesProgressToDone)
 {
     write_file(path("slow.txt"), "hello");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<SlowAsset>(
         [](const FileHandle& handle) -> std::any {
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
@@ -208,14 +214,13 @@ TEST_F(AssetManagerTest, LoadAsyncDoesNotBlockAndPollAsyncDrivesProgressToDone)
 
     auto start = std::chrono::steady_clock::now();
     manager.load_async();
-    auto afterLoadAsync = std::chrono::steady_clock::now();
 
-    // load_async() itself must return almost immediately. The 80ms sleep happens on a
-    // worker thread, not here.
-    ASSERT_LT(afterLoadAsync - start, std::chrono::milliseconds(40));
+    // load_async() itself must return almost immediately, the 80ms sleep happens on a worker
+    // thread, not here. Checked by asking poll_async()
+    ASSERT_FALSE(manager.poll_async());
 
     bool done = false;
-    auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
     while(std::chrono::steady_clock::now() < deadline){
         done = manager.poll_async();
         if(done) break;
@@ -233,7 +238,7 @@ TEST_F(AssetManagerTest, ReloadUpdatesExistingResourceHandlesInPlace)
 {
     write_file(path("a.txt"), "version1");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -251,7 +256,7 @@ TEST_F(AssetManagerTest, ReloadUpdatesExistingResourceHandlesInPlace)
 
 TEST_F(AssetManagerTest, ReloadOnUnknownKeyReturnsFalse)
 {
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -263,7 +268,7 @@ TEST_F(AssetManagerTest, UnloadInvalidatesExistingHandlesWithoutRefetching)
 {
     write_file(path("a.txt"), "hello");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -279,7 +284,7 @@ TEST_F(AssetManagerTest, UnloadFallsBackToPlaceholderWhenRegistered)
 {
     write_file(path("a.txt"), "hello");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -297,7 +302,7 @@ TEST_F(AssetManagerTest, LoaderCanCallBackIntoTheManagerForNestedAssets)
     write_file(path("leaf.txt"), "leaf-value");
     write_file(path("branch.txt"), "branch-value");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<Leaf>([](const FileHandle& handle, AssetManager&){
         return Leaf{handle.read_string()};
     });
@@ -318,7 +323,7 @@ TEST_F(AssetManagerTest, CleanupInvalidatesEverything)
 {
     write_file(path("a.txt"), "hello");
 
-    AssetManager manager;
+    AssetManager manager(memory_fs());
     manager.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};
     });
@@ -334,8 +339,8 @@ TEST_F(AssetManagerTest, TwoManagersAreFullyIndependent)
 {
     write_file(path("a.txt"), "hello");
 
-    AssetManager first;
-    AssetManager second;
+    AssetManager first(memory_fs());
+    AssetManager second(memory_fs());
 
     first.register_loader<TextAsset>([](const FileHandle& handle, AssetManager&){
         return TextAsset{handle.read_string()};

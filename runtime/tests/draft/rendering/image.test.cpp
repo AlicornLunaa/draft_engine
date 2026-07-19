@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "draft/rendering/image.hpp"
-#include "draft/util/files/host_file_system.hpp"
+#include "draft/util/files/virtual_file_system.hpp"
 
 using namespace Draft;
 
@@ -170,9 +170,9 @@ TEST(Image, CopyAndMoveConstructorsAreIndependentCopies)
     ASSERT_FLOAT_EQ(moved.get_pixel({0, 0}).g, 1.f);
 }
 
-TEST(Image, SaveThenLoadRoundTripsThroughARealFile)
+TEST(Image, SaveThenLoadRoundTripsThroughAFileHandle)
 {
-    HostFileSystem fs;
+    VirtualFileSystem fs;
 
     Image original({2, 2}, {0.f, 0.f, 1.f, 1.f}, ColorFormat::RGBA);
     original.save(fs.open("test_image_roundtrip.png"));
@@ -183,6 +183,4 @@ TEST(Image, SaveThenLoadRoundTripsThroughARealFile)
     ASSERT_EQ(loaded.get_size().x, 2u);
     ASSERT_EQ(loaded.get_size().y, 2u);
     ASSERT_NEAR(loaded.get_pixel({0, 0}).b, 1.f, 0.02f);
-
-    fs.remove("test_image_roundtrip.png");
 }

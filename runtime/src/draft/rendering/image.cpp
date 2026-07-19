@@ -208,13 +208,24 @@ namespace Draft {
     }
 
     void Image::save(FileHandle handle) const {
-        // Save this image to a text file. STB takes chars instead of bytes so cast it. and save it.
+        // STB takes chars instead of bytes so cast it
         std::vector<char> out(pixelCount);
 
         for(size_t i = 0; i < pixelCount; i++)
             out[i] = reinterpret_cast<unsigned char&>(dataPtr[i]);
 
-        stbi_write_png(handle.get_path().c_str(), size.x, size.y, color_format_to_bytes(format), out.data(), 0);
+        // Encode into memory rather than calling stbi_write_png() with a raw path, which would
+        // write straight to disk and ignore handle's actual provider entirely.
+        std::vector<std::byte> encoded;
+
+        auto writeCallback = [](void* context, void* data, int size){
+            auto* buffer = static_cast<std::vector<std::byte>*>(context);
+            const std::byte* bytes = static_cast<const std::byte*>(data);
+            buffer->insert(buffer->end(), bytes, bytes + size);
+        };
+
+        stbi_write_png_to_func(writeCallback, &encoded, size.x, size.y, color_format_to_bytes(format), out.data(), 0);
+        handle.write_bytes(encoded);
     }
 
     // Manipulation functions
