@@ -9,24 +9,24 @@ namespace Draft {
 
     // Functions
     void RenderSystem::render(Time dt, RenderLayer){
-        // Setting the texture for the sprite via an animation
-        for(auto&& [entity, sprite, animation] : registryRef.view<SpriteComponent, AnimationComponent>().each()){
-            if(!animation.animation || animation.animation->get_frames().empty())
-                continue;
+        for(const auto& [entity, spriteComponent, transformComponent] : registryRef.view<SpriteComponent, TransformComponent>().each()){
+            TextureRegion region = spriteComponent.texture;
 
-            if(animation.tag.empty()){
-                sprite.texture = animation.animation->get_frame(animation.frameTime);
-            } else {
-                sprite.texture = animation.animation->get_frame(animation.tag, animation.frameTime);
+            if(auto* animComp = registryRef.try_get<AnimationComponent>(entity)){
+                // Animation component exists, it should take precedence over the sprite
+                if(animComp->animation && !animComp->animation->get_frames().empty() && (animComp->animation->has_tag(animComp->tag) || animComp->tag.empty())){
+                    if(animComp->tag.empty()){
+                        region = animComp->animation->get_frame(animComp->frameTime);
+                    } else {
+                        region = animComp->animation->get_frame(animComp->tag, animComp->frameTime);
+                    }
+
+                    animComp->frameTime += dt.as_milliseconds();
+                }
             }
 
-            animation.frameTime += dt.as_milliseconds();
-        }
-
-        // Actually rendering the sprite
-        for(const auto& [entity, spriteComponent, transformComponent] : registryRef.view<SpriteComponent, TransformComponent>().each()){
             Material2D mat;
-            mat.baseTexture = spriteComponent.texture.texture.get();
+            mat.baseTexture = region.texture.get();
             mat.shader = spriteComponent.shader ? spriteComponent.shader->get() : nullptr;
 
             rendererRef.batch.draw({
@@ -35,7 +35,7 @@ namespace Draft {
                 spriteComponent.size,
                 spriteComponent.origin,
                 spriteComponent.zIndex,
-                spriteComponent.texture.bounds,
+                region.bounds,
                 mat
             });
         }
