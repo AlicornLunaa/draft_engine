@@ -190,13 +190,14 @@ namespace Draft {
             bodyComponent.gravityScale = body->get_gravity_scale();
         }
 
-        // Remove joints
+        // Remove joints. Copy the list first since destroying a joint entity cleans up
+        // ConstrainedComponent on both its endpoints, including this entity's own list.
         if(reg.all_of<ConstrainedComponent>(rawEnt)){
-            auto& constraints = reg.get<ConstrainedComponent>(rawEnt).constraints;
+            std::vector<Entity> constraints = reg.get<ConstrainedComponent>(rawEnt).constraints;
 
             for(Entity jointEntity : constraints){
-                // Check for the native joint and remove it
-                remove_for_each_component<DRAFT_ALL_JOINT_TYPES>(jointEntity);
+                if(jointEntity.is_valid())
+                    jointEntity.destroy();
             }
         }
 

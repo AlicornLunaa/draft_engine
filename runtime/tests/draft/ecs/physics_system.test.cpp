@@ -170,3 +170,45 @@ TEST(PhysicsSystem, ModifyingTransformForceSyncsTheNativeBodyImmediately)
     EXPECT_FLOAT_EQ(body->get_position().x, 5.f);
     EXPECT_FLOAT_EQ(body->get_position().y, 6.f);
 }
+
+TEST(PhysicsSystem, ScratchDestroyingOneUnrelatedBodyDoesNotAffectOthers)
+{
+    World world({0.f, 0.f});
+    Scene scene;
+    scene.get_systems().add<PhysicsSystem>(scene, world);
+
+    Entity circle0 = scene.create_entity();
+    circle0.add_component<TransformComponent>(TransformComponent{{0.f, 0.f}, 0.f});
+    circle0.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+    circle0.add_component<ColliderComponent>(ColliderComponent(CircleShape()));
+
+    Entity circle1 = scene.create_entity();
+    circle1.add_component<TransformComponent>(TransformComponent{{1.f, 0.f}, 0.f});
+    circle1.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+    circle1.add_component<ColliderComponent>(ColliderComponent(CircleShape()));
+
+    Entity circle2 = scene.create_entity();
+    circle2.add_component<TransformComponent>(TransformComponent{{2.f, 0.f}, 0.f});
+    circle2.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+    circle2.add_component<ColliderComponent>(ColliderComponent(CircleShape()));
+
+    ASSERT_EQ(world.get_body_count(), 3u);
+
+    circle0.destroy();
+    ASSERT_EQ(world.get_body_count(), 2u);
+    ASSERT_TRUE(circle1.is_valid());
+    ASSERT_TRUE(circle1.has_component<NativeBodyComponent>());
+    ASSERT_TRUE(circle2.is_valid());
+    ASSERT_TRUE(circle2.has_component<NativeBodyComponent>());
+
+    circle1.destroy();
+
+    EXPECT_EQ(world.get_body_count(), 1u);
+    EXPECT_TRUE(circle2.is_valid());
+    EXPECT_TRUE(circle2.has_component<RigidBodyComponent>());
+    EXPECT_TRUE(circle2.has_component<NativeBodyComponent>());
+    if(circle2.has_component<NativeBodyComponent>()){
+        RigidBody* body = circle2.get_component<NativeBodyComponent>();
+        EXPECT_TRUE(body->is_valid());
+    }
+}

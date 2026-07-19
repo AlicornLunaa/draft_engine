@@ -20,6 +20,9 @@ namespace Draft {
         std::vector<entt::entity> orderedEntities;
         if(const auto* entityStorage = scene.get_registry().storage<entt::entity>()){
             for(entt::entity raw : *entityStorage){
+                if(!scene.get_registry().valid(raw))
+                    continue;
+
                 ctx.entityToId[raw] = static_cast<uint32_t>(orderedEntities.size());
                 orderedEntities.push_back(raw);
             }
@@ -124,6 +127,9 @@ namespace Draft {
         std::vector<entt::entity> orderedEntities;
         if(const auto* entityStorage = scene.get_registry().storage<entt::entity>()){
             for(entt::entity raw : *entityStorage){
+                if(!scene.get_registry().valid(raw))
+                    continue;
+
                 ctx.entityToId[raw] = static_cast<uint32_t>(orderedEntities.size());
                 orderedEntities.push_back(raw);
             }
