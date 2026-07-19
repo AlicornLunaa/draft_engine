@@ -80,7 +80,7 @@ namespace Draft {
         // Snapshot the children now
         std::vector<Entity> children = hasChildren ? parentComp->children : std::vector<Entity>();
 
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DrawLinesToNodes;
         if(!hasChildren) flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
         if(m_app.selection.get() == entity) flags |= ImGuiTreeNodeFlags_Selected;
 

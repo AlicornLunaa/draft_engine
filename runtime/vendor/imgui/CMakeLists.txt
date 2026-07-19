@@ -7,7 +7,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 include(FetchContent)
 FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
-FetchContent_Declare(imgui_git GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG v1.91.5-docking SYSTEM)
+FetchContent_Declare(imgui_git GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG v1.92.8-docking SYSTEM)
 FetchContent_MakeAvailable(glfw)
 FetchContent_MakeAvailable(imgui_git)
 
