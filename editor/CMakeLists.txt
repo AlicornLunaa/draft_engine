@@ -9,6 +9,7 @@ set(HEADERS
     include/draft/editor/project.hpp
     include/draft/editor/selection.hpp
     include/draft/editor/field_widgets/camera_widget.hpp
+    include/draft/editor/field_widgets/collider_widget.hpp
     include/draft/editor/panels/dockspace_panel.hpp
     include/draft/editor/panels/entity_picker.hpp
     include/draft/editor/panels/gizmo_overlay.hpp
@@ -25,6 +26,7 @@ set(SOURCES
     src/draft/editor/project.cpp
     src/draft/editor/selection.cpp
     src/draft/editor/field_widgets/camera_widget.cpp
+    src/draft/editor/field_widgets/collider_widget.cpp
     src/draft/editor/panels/dockspace_panel.cpp
     src/draft/editor/panels/entity_picker.cpp
     src/draft/editor/panels/gizmo_overlay.cpp

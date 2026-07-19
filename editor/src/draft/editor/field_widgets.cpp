@@ -1,6 +1,7 @@
 #include "draft/editor/field_widgets.hpp"
 #include "draft/components/tag_component.hpp"
 #include "draft/editor/field_widgets/camera_widget.hpp" // IWYU pragma: keep
+#include "draft/editor/field_widgets/collider_widget.hpp" // IWYU pragma: keep
 #include "draft/editor/selection.hpp"
 #include "draft/physics/body_type.hpp"
 #include "draft/physics/collider.hpp"
