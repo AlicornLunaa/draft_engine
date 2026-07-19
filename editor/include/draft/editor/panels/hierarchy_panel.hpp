@@ -26,6 +26,8 @@ namespace Draft {
         void create_entity();
         void draw_entity_row(Entity entity, std::vector<Entity>& entitiesToRemove);
         void reparent(Entity child, Entity newParent);
+        Entity duplicate_entity(Entity source);
+        Entity clone_subtree(Entity source, Entity parent);
         static std::string label_for(Entity entity);
 
         EditorApplication& m_app;

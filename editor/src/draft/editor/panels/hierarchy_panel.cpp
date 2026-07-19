@@ -1,11 +1,13 @@
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/components/tag_component.hpp"
 #include "draft/components/transform_component.hpp"
+#include "draft/ecs/component_catalog.hpp"
 #include "draft/ecs/relationship_components.hpp"
 #include "draft/editor/editor_application.hpp"
 
 #include "imgui.h"
 
+#include <typeindex>
 #include <vector>
 
 namespace Draft {
@@ -108,6 +110,9 @@ namespace Draft {
         }
 
         if(ImGui::BeginPopupContextItem()){
+            if(ImGui::MenuItem("Duplicate"))
+                m_app.selection.set(duplicate_entity(entity));
+
             if(ImGui::MenuItem("Delete")){
                 bool wasSelected = m_app.selection.get() == entity;
                 entitiesToRemove.push_back(entity);
@@ -146,6 +151,40 @@ namespace Draft {
             child.remove_component<ChildComponent>();
 
         child.add_component<ChildComponent>(ChildComponent{newParent});
+    }
+
+    Entity HierarchyPanelSystem::duplicate_entity(Entity source){
+        if(!source.is_valid())
+            return Entity();
+
+        auto* childComp = source.try_get_component<ChildComponent>();
+        return clone_subtree(source, childComp ? childComp->parent : Entity());
+    }
+
+    Entity HierarchyPanelSystem::clone_subtree(Entity source, Entity parent){
+        Entity duplicate = m_app.gameScene.create_entity();
+
+        // ChildComponent/ParentComponent point at specific entities, so a generic clone() would
+        // link the duplicate to the original's relationships instead of its own.
+        std::type_index childType(typeid(ChildComponent));
+        std::type_index parentType(typeid(ParentComponent));
+
+        for(ComponentTypeInterface* entry : m_app.gameEngine.components().all()){
+            if(entry->type() == childType || entry->type() == parentType)
+                continue;
+
+            if(entry->has(source))
+                entry->clone(source, duplicate);
+        }
+
+        if(parent.is_valid())
+            duplicate.add_component<ChildComponent>(ChildComponent{parent});
+
+        if(auto* parentComp = source.try_get_component<ParentComponent>())
+            for(Entity child : parentComp->children)
+                clone_subtree(child, duplicate);
+
+        return duplicate;
     }
 
     std::string HierarchyPanelSystem::label_for(Entity entity){
