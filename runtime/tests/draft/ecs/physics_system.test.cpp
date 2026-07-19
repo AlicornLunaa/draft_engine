@@ -5,8 +5,10 @@
 #include "draft/components/collider_component.hpp"
 #include "draft/components/joint_component.hpp"
 #include "draft/components/rigid_body_component.hpp"
+#include "draft/components/tag_component.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/physics/shapes/circle_shape.hpp"
+#include "draft/physics/shapes/polygon_shape.hpp"
 #include "draft/physics/world.hpp"
 
 using namespace Draft;
@@ -171,7 +173,7 @@ TEST(PhysicsSystem, ModifyingTransformForceSyncsTheNativeBodyImmediately)
     EXPECT_FLOAT_EQ(body->get_position().y, 6.f);
 }
 
-TEST(PhysicsSystem, ScratchDestroyingOneUnrelatedBodyDoesNotAffectOthers)
+TEST(PhysicsSystem, DestroyingOneBodyDoesNotAffectAnUnrelatedBody)
 {
     World world({0.f, 0.f});
     Scene scene;
@@ -211,4 +213,72 @@ TEST(PhysicsSystem, ScratchDestroyingOneUnrelatedBodyDoesNotAffectOthers)
         RigidBody* body = circle2.get_component<NativeBodyComponent>();
         EXPECT_TRUE(body->is_valid());
     }
+}
+
+TEST(PhysicsSystem, DestroyingAMiddleBodyDoesNotDetachALaterBodysCollider)
+{
+    World world({0.f, 0.f});
+    Scene scene;
+    scene.get_systems().add<PhysicsSystem>(scene, world);
+
+    auto make_body = [&](const std::string& tag, Vector2f pos, bool isCircle){
+        Entity entity = scene.create_entity();
+        entity.add_component<TagComponent>(TagComponent{tag});
+        entity.add_component<TransformComponent>(TransformComponent{pos, 0.f});
+        entity.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+        if(isCircle){
+            CircleShape shape;
+            shape.set_radius(25.f);
+            entity.add_component<ColliderComponent>(ColliderComponent(shape));
+        } else {
+            PolygonShape shape;
+            shape.set_as_box(30.f, 30.f);
+            entity.add_component<ColliderComponent>(ColliderComponent(shape));
+        }
+
+        return entity;
+    };
+
+    Entity ground = scene.create_entity();
+    ground.add_component<TagComponent>(TagComponent{"Ground"});
+    ground.add_component<TransformComponent>(TransformComponent{{640.f, 680.f}, 0.f});
+    ground.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::STATIC});
+    PolygonShape groundShape;
+    groundShape.set_as_box(400.f, 20.f);
+    ground.add_component<ColliderComponent>(ColliderComponent(groundShape));
+
+    Entity circle0 = make_body("Circle0", {300.f, 60.f}, true);
+    Entity box0 = make_body("Box0", {460.f, 120.f}, false);
+    Entity circle1 = make_body("Circle1", {620.f, 40.f}, true);
+    Entity box1 = make_body("Box1", {780.f, 100.f}, false);
+    Entity circle2 = make_body("Circle2", {940.f, 70.f}, true);
+
+    Entity marker = scene.create_entity();
+    marker.add_component<TagComponent>(TagComponent{"SpawnPoint"});
+    marker.add_component<TransformComponent>(TransformComponent{{100.f, 500.f}, 0.f});
+
+    Entity player = make_body("Player", {100.f, 500.f}, false);
+
+    ASSERT_EQ(world.get_body_count(), 7u);
+
+    circle0.destroy();
+    ASSERT_EQ(world.get_body_count(), 6u);
+
+    circle1.destroy();
+    ASSERT_EQ(world.get_body_count(), 5u);
+
+    EXPECT_TRUE(circle2.is_valid());
+    EXPECT_TRUE(circle2.has_component<RigidBodyComponent>());
+    ASSERT_TRUE(circle2.has_component<NativeBodyComponent>());
+    RigidBody* body = circle2.get_component<NativeBodyComponent>();
+    EXPECT_TRUE(body->is_valid());
+    ASSERT_TRUE(circle2.has_component<ColliderComponent>());
+    EXPECT_TRUE(circle2.get_component<ColliderComponent>().collider.is_attached());
+    EXPECT_EQ(body->get_fixture_list().size(), 1u);
+    EXPECT_TRUE(player.is_valid());
+    EXPECT_TRUE(player.has_component<NativeBodyComponent>());
+
+    circle2.destroy();
+    EXPECT_EQ(world.get_body_count(), 4u);
 }

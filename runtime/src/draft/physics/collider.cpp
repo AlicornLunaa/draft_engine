@@ -87,9 +87,33 @@ namespace Draft {
         fixtures.clear();
     }
 
+    // Unlike copy_collider(), this relocates the same logical Collider to a new address (e.g.
+    // entt moving a ColliderComponent during pool compaction)
+    void Collider::move_collider(Collider&& other){
+        shapes = std::move(other.shapes);
+        position = other.position;
+        origin = other.origin;
+        scale = other.scale;
+        rotation = other.rotation;
+        fixtures = std::move(other.fixtures);
+        rigidBodyPtr = other.rigidBodyPtr;
+
+        if(rigidBodyPtr){
+            auto& attached = rigidBodyPtr->attachedColliders;
+            std::replace(attached.begin(), attached.end(), &other, this);
+        }
+
+        other.rigidBodyPtr = nullptr;
+        other.fixtures.clear();
+    }
+
     // Constructors
     Collider::Collider(const Collider& other){
         copy_collider(other);
+    }
+
+    Collider::Collider(Collider&& other) noexcept {
+        move_collider(std::move(other));
     }
 
     Collider::~Collider(){
@@ -103,6 +127,17 @@ namespace Draft {
     Collider& Collider::operator=(const Collider& other){
         if(this != &other)
             copy_collider(other);
+
+        return *this;
+    }
+
+    Collider& Collider::operator=(Collider&& other) noexcept {
+        if(this != &other){
+            if(is_attached())
+                detach();
+
+            move_collider(std::move(other));
+        }
 
         return *this;
     }

@@ -26,6 +26,7 @@ namespace Draft {
 
         // Private functions
         void copy_collider(const Collider& other);
+        void move_collider(Collider&& other);
         void set_new_transform(Vector2f newPosition, Vector2f newOrigin, Vector2f newScale, float newRotation);
 
         // Clears rigidBodyPtr/fixtures without touching box2d, called by RigidBody's destructor
@@ -37,6 +38,7 @@ namespace Draft {
         // Constructors
         Collider() = default;
         Collider(const Collider& other);
+        Collider(Collider&& other) noexcept;
         ~Collider();
 
         // Friends :)
@@ -44,6 +46,7 @@ namespace Draft {
 
         // Operators
         Collider& operator=(const Collider& other);
+        Collider& operator=(Collider&& other) noexcept;
 
         // Functions
         inline const uint get_shape_count() const { return shapes.size(); };
