@@ -1,7 +1,9 @@
 #include "draft/editor/panels/inspector_panel.hpp"
 #include "draft/ecs/component_catalog.hpp"
+#include "draft/ecs/scene_serialization_context.hpp"
 #include "draft/editor/editor_application.hpp"
 #include "draft/editor/field_widgets.hpp"
+#include "draft/util/serialization/context.hpp"
 
 #include "imgui.h"
 
@@ -41,6 +43,20 @@ namespace Draft {
             if(!selected.is_valid()){
                 ImGui::TextDisabled("No entity selected");
             } else {
+                // entry->serialize()/visit_fields() below can reach Entity or Resource<T> fields
+                SceneSerializationContext serializationCtx;
+                serializationCtx.assets = &m_app.assets;
+
+                for(entt::entity raw : m_app.gameScene.get_registry().storage<entt::entity>()){
+                    if(!m_app.gameScene.get_registry().valid(raw))
+                        continue;
+
+                    serializationCtx.entityToId[raw] = static_cast<uint32_t>(serializationCtx.idToEntity.size());
+                    serializationCtx.idToEntity.push_back(Entity(&m_app.gameScene, raw));
+                }
+
+                Serializer::ScopedContext<SceneSerializationContext> scope(serializationCtx);
+
                 for(ComponentTypeInterface* entry : m_app.gameEngine.components().all())
                     if(entry->has(selected))
                         draw_component_entry(*entry, selected);

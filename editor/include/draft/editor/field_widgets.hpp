@@ -55,22 +55,30 @@ namespace Draft {
     bool draw_string_field(std::string_view label, std::string& value);
     bool draw_resource_field(FieldContext& ctx, std::string_view label, Resource<Texture>& value);
 
+    /**
+     * @brief Generic recursive JSON tree editor.
+     * @return True if @p json was edited this frame.
+     */
+    bool draw_json_editor(std::string_view label, JSON& json);
+
     template<typename T>
     bool draw_field(FieldContext& ctx, std::string_view label, T& value);
 
     /**
-     * @brief Fallback for anything draw_field<T>() doesn't otherwise recognize: a read-only dump
-     * of the value's own JSON serialization, guaranteeing nothing is silently invisible even for
-     * a type this editor build has no widget for at all.
+     * @brief Fallback for anything draw_field<T>() doesn't otherwise recognize: a generic,
+     * editable JSON tree (see draw_json_editor()) built from the value's own serialization and
+     * written back through its own deserialization on change.
      */
     template<typename T>
-    bool draw_json_fallback_field(std::string_view label, const T& value){
+    bool draw_json_fallback_field(std::string_view label, T& value){
         JSON json;
         Serializer::serialize(value, json);
 
-        ImGui::TextDisabled("%.*s", static_cast<int>(label.size()), label.data());
-        ImGui::SameLine();
-        ImGui::TextWrapped("%s", json.dump(2).c_str());
+        if(draw_json_editor(label, json)){
+            Serializer::deserialize(value, json);
+            return true;
+        }
+
         return false;
     }
 

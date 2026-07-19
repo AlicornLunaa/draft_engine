@@ -1,7 +1,9 @@
 #include "draft/editor/field_widgets.hpp"
 #include "draft/components/tag_component.hpp"
+#include "draft/editor/field_widgets/camera_widget.hpp" // IWYU pragma: keep
 #include "draft/editor/selection.hpp"
 #include "draft/physics/body_type.hpp"
+#include "draft/physics/collider.hpp"
 #include "draft/rendering/animation.hpp"
 #include "draft/audio/music.hpp"
 
@@ -120,6 +122,39 @@ namespace Draft {
         return false;
     }
 
+    bool draw_json_editor(std::string_view label, JSON& json){
+        std::string labelId(label);
+        ImGui::PushID(labelId.c_str());
+        bool changed = false;
+
+        if(json.is_boolean()){
+            bool value = json.get<bool>();
+            if(ImGui::Checkbox(labelId.c_str(), &value)){ json = value; changed = true; }
+        } else if(json.is_number_float()){
+            float value = json.get<float>();
+            if(ImGui::DragFloat(labelId.c_str(), &value, 0.1f)){ json = value; changed = true; }
+        } else if(json.is_number_integer()){
+            int value = json.get<int>();
+            if(ImGui::DragInt(labelId.c_str(), &value)){ json = value; changed = true; }
+        } else if(json.is_string()){
+            std::string value = json.get<std::string>();
+            if(draw_string_field(label, value)){ json = value; changed = true; }
+        } else if(json.is_object() || json.is_array()){
+            ImGui::TextDisabled("%s", labelId.c_str());
+            ImGui::Indent();
+
+            for(auto it = json.begin(); it != json.end(); ++it)
+                changed |= draw_json_editor(it.key(), static_cast<JSON&>(it.value()));
+
+            ImGui::Unindent();
+        } else {
+            ImGui::TextDisabled("%s: null", labelId.c_str());
+        }
+
+        ImGui::PopID();
+        return changed;
+    }
+
     bool draw_typeerased_field(FieldContext& ctx, std::string_view name, std::type_index type, void* valuePtr, const JSON& fallbackJson){
         if(type == typeid(float)) return draw_field(ctx, name, *static_cast<float*>(valuePtr));
         if(type == typeid(bool)) return draw_field(ctx, name, *static_cast<bool*>(valuePtr));
@@ -132,6 +167,7 @@ namespace Draft {
         if(type == typeid(std::vector<Entity>)) return draw_field(ctx, name, *static_cast<std::vector<Entity>*>(valuePtr));
         if(type == typeid(BodyType)) return draw_field(ctx, name, *static_cast<BodyType*>(valuePtr));
         if(type == typeid(Camera)) return draw_field(ctx, name, *static_cast<Camera*>(valuePtr));
+        if(type == typeid(Collider)) return draw_field(ctx, name, *static_cast<Collider*>(valuePtr));
         if(type == typeid(TextureRegion)) return draw_field(ctx, name, *static_cast<TextureRegion*>(valuePtr));
         if(type == typeid(Resource<Texture>)) return draw_field(ctx, name, *static_cast<Resource<Texture>*>(valuePtr));
         if(type == typeid(Resource<Animation>)) return draw_field(ctx, name, *static_cast<Resource<Animation>*>(valuePtr));
