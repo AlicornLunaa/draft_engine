@@ -29,8 +29,11 @@ namespace Draft {
         DRAFT_REFLECTABLE(GizmoOverlaySystem)
 
     private:
-        void draw_translate_handle(Entity entity, const TransformComponent& transform, const Camera& camera);
-        void draw_rotate_handle(Entity entity, const TransformComponent& transform, const Camera& camera);
+        /**
+         * @return True if this handle is the active item this frame (being clicked/dragged)
+         */
+        bool draw_translate_handle(Entity entity, const TransformComponent& transform, const Camera& camera);
+        bool draw_rotate_handle(Entity entity, const TransformComponent& transform, const Camera& camera);
 
         Vector2f world_to_screen(const Camera& camera, const Vector2f& worldPos) const;
         Vector2f screen_to_world(const Camera& camera, const Vector2f& screenPos) const;

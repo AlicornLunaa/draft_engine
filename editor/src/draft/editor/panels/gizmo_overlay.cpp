@@ -1,6 +1,7 @@
 #include "draft/editor/panels/gizmo_overlay.hpp"
 #include "draft/components/transform_component.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/editor/panels/entity_picker.hpp"
 #include "draft/rendering/camera.hpp"
 
 #include "imgui.h"
@@ -20,26 +21,30 @@ namespace Draft {
         if(layer != RenderLayer::Interface)
             return;
 
-        Entity selected = m_app.selection.get();
-        if(!selected.is_valid() || !selected.has_component<TransformComponent>())
-            return;
-
         Camera* camera = m_app.gameScene.get_active_camera();
-        if(!camera)
-            return;
+        Entity selected = m_app.selection.get();
+        bool handledByGizmo = false;
 
-        // Reopens the same window ViewportPanelSystem drew this frame (Default layer, earlier),
-        // so these handles land inside it instead of a separate floating window.
-        if(ImGui::Begin("Viewport###Viewport")){
-            const TransformComponent& transform = selected.get_component<TransformComponent>();
-            draw_translate_handle(selected, transform, *camera);
-            draw_rotate_handle(selected, transform, *camera);
+        if(camera && selected.is_valid() && selected.has_component<TransformComponent>()){
+            // Reopens the same window ViewportPanelSystem drew this frame (Default layer,
+            // earlier), so these handles land inside it instead of a separate floating window.
+            if(ImGui::Begin("Viewport###Viewport")){
+                const TransformComponent& transform = selected.get_component<TransformComponent>();
+                handledByGizmo |= draw_translate_handle(selected, transform, *camera);
+                handledByGizmo |= draw_rotate_handle(selected, transform, *camera);
+            }
+
+            ImGui::End();
         }
 
-        ImGui::End();
+        // Click-to-select, edit mode only
+        if(!handledByGizmo && camera && m_app.gameApp.simulationPaused && m_app.viewportHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
+            Vector2f ndc = Vector2f(m_app.gameApp.fakeMouse.get_normalized_position());
+            m_app.selection.set(pick_entity(m_app.gameScene, camera->unproject(ndc)));
+        }
     }
 
-    void GizmoOverlaySystem::draw_translate_handle(Entity entity, const TransformComponent& transform, const Camera& camera){
+    bool GizmoOverlaySystem::draw_translate_handle(Entity entity, const TransformComponent& transform, const Camera& camera){
         Vector2f screenPos = world_to_screen(camera, transform.position);
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -50,7 +55,9 @@ namespace Draft {
         ImGui::SetCursorScreenPos(ImVec2(screenPos.x - TRANSLATE_HANDLE_RADIUS, screenPos.y - TRANSLATE_HANDLE_RADIUS));
         ImGui::InvisibleButton("##handle", ImVec2(TRANSLATE_HANDLE_RADIUS * 2.f, TRANSLATE_HANDLE_RADIUS * 2.f));
 
-        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+        bool active = ImGui::IsItemActive();
+
+        if(active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mouseNow = ImGui::GetMousePos();
             ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
             ImVec2 mousePrev{mouseNow.x - mouseDelta.x, mouseNow.y - mouseDelta.y};
@@ -65,9 +72,10 @@ namespace Draft {
         }
 
         ImGui::PopID();
+        return active;
     }
 
-    void GizmoOverlaySystem::draw_rotate_handle(Entity entity, const TransformComponent& transform, const Camera& camera){
+    bool GizmoOverlaySystem::draw_rotate_handle(Entity entity, const TransformComponent& transform, const Camera& camera){
         Vector2f handleDirection{Math::sin(transform.rotation), -Math::cos(transform.rotation)};
         Vector2f handleWorldPos = transform.position + handleDirection * ROTATE_HANDLE_DISTANCE;
 
@@ -88,7 +96,9 @@ namespace Draft {
             m_dragRotationOffset = transform.rotation - Math::atan(toMouse.y, toMouse.x);
         }
 
-        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+        bool active = ImGui::IsItemActive();
+
+        if(active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mousePos = ImGui::GetMousePos();
             Vector2f toMouse = screen_to_world(camera, {mousePos.x, mousePos.y}) - transform.position;
             float newRotation = Math::atan(toMouse.y, toMouse.x) + m_dragRotationOffset;
@@ -99,6 +109,7 @@ namespace Draft {
         }
 
         ImGui::PopID();
+        return active;
     }
 
     // Matches Mouse::get_normalized_position()'s pixel<->NDC convention (viewport-local, Y
