@@ -41,13 +41,21 @@ namespace Draft {
     }
 
     void Application::key_callback(int key, int action, int modifier){
+        // x11 reports a key event's modifier state as it was just before the event?
+        // so a modifier key's own press/release carries its own bit one step stale.
+        bool down = action != Action::RELEASE;
+        bool isShiftKey = key == Keyboard::LEFT_SHIFT || key == Keyboard::RIGHT_SHIFT;
+        bool isControlKey = key == Keyboard::LEFT_CONTROL || key == Keyboard::RIGHT_CONTROL;
+        bool isAltKey = key == Keyboard::LEFT_ALT || key == Keyboard::RIGHT_ALT;
+        bool isSuperKey = key == Keyboard::LEFT_SUPER || key == Keyboard::RIGHT_SUPER;
+
         Event event;
         event.type = (action == Action::PRESS) ? Event::KeyPressed : (action == Action::RELEASE) ? Event::KeyReleased : Event::KeyHold;
         event.key.code = key;
-        event.key.alt = modifier & static_cast<int>(Keyboard::Modifier::ALT);
-        event.key.control = modifier & static_cast<int>(Keyboard::Modifier::CTRL);
-        event.key.shift = modifier & static_cast<int>(Keyboard::Modifier::SHIFT);
-        event.key.system = modifier & static_cast<int>(Keyboard::Modifier::SUPER);
+        event.key.alt = isAltKey ? down : (bool)(modifier & static_cast<int>(Keyboard::Modifier::ALT));
+        event.key.control = isControlKey ? down : (bool)(modifier & static_cast<int>(Keyboard::Modifier::CTRL));
+        event.key.shift = isShiftKey ? down : (bool)(modifier & static_cast<int>(Keyboard::Modifier::SHIFT));
+        event.key.system = isSuperKey ? down : (bool)(modifier & static_cast<int>(Keyboard::Modifier::SUPER));
         event.key.mods = modifier;
         dispatch(event);
     }
