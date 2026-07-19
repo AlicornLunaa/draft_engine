@@ -11,6 +11,9 @@ namespace Draft {
     void RenderSystem::render(Time dt, RenderLayer){
         // Setting the texture for the sprite via an animation
         for(auto&& [entity, sprite, animation] : registryRef.view<SpriteComponent, AnimationComponent>().each()){
+            if(!animation.animation || animation.animation->get_frames().empty())
+                continue;
+
             if(animation.tag.empty()){
                 sprite.texture = animation.animation->get_frame(animation.frameTime);
             } else {

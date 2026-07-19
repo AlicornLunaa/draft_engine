@@ -143,8 +143,8 @@ namespace Draft {
             ImGui::TextDisabled("%s", labelId.c_str());
             ImGui::Indent();
 
-            for(auto it = json.begin(); it != json.end(); ++it)
-                changed |= draw_json_editor(it.key(), static_cast<JSON&>(it.value()));
+            for(auto element : json.items())
+                changed |= draw_json_editor(element.key(), static_cast<JSON&>(element.value()));
 
             ImGui::Unindent();
         } else {
