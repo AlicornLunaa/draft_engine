@@ -3,6 +3,7 @@
 #include "draft/editor/freecam_controller.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
+#include "draft/editor/panels/inspector_panel.hpp"
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/interface/imgui/imgui_system.hpp"
 #include "draft/interface/rmlui/rml_system.hpp"
@@ -155,6 +156,7 @@ namespace Draft {
         editScene.get_systems().add<ViewportPanelSystem>(*this);
         editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
+        editScene.get_systems().add<InspectorPanelSystem>(*this);
     }
 
     void EditorApplication::play(){

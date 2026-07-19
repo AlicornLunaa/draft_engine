@@ -60,6 +60,15 @@ namespace Draft {
          */
         virtual void deserialize(Entity entity, JSON& json) const = 0;
         virtual void deserialize(Entity entity, Binary::ByteView data) const = 0;
+
+        /**
+         * @brief Calls @p visitor once per reflected field of this component on @p entity, which
+         * must already have(entity). Generic, reflection-driven hook meant for an editor's
+         * inspector to draw/edit fields of any registered component - including a game module's
+         * own custom types the editor has no compile-time knowledge of - with no per-component
+         * editor code.
+         */
+        virtual void visit_fields(Entity entity, FieldVisitor& visitor) const = 0;
     };
 
     /**
@@ -94,6 +103,12 @@ namespace Draft {
         void deserialize(Entity entity, Binary::ByteView data) const override {
             T& component = entity.has_component<T>() ? entity.get_component<T>() : entity.add_component<T>();
             Serializer::deserialize(component, data);
+        }
+
+        void visit_fields(Entity entity, FieldVisitor& visitor) const override {
+            for_each_field(entity.get_component<T>(), [&](std::string_view name, auto& field){
+                visitor.visit(name, std::type_index(typeid(field)), const_cast<void*>(static_cast<const void*>(std::addressof(field))));
+            });
         }
 
     private:

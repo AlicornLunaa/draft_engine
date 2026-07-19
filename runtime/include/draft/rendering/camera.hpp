@@ -84,6 +84,18 @@ namespace Draft {
         void set_zoom(float zoom);
 
         /**
+         * @brief Switches this camera to perspective projection (if it wasn't already) and
+         * applies @p params, recomputing the projection matrix.
+         */
+        void set_perspective_params(const PerspectiveCameraParams& params);
+
+        /**
+         * @brief Switches this camera to orthographic projection (if it wasn't already) and
+         * applies @p params, recomputing the projection matrix.
+         */
+        void set_orthographic_params(const OrthographicCameraParams& params);
+
+        /**
          * @brief Set the camera's own position
          * @param vec
          */

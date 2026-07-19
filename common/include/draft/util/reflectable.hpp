@@ -3,6 +3,7 @@
 #include <concepts>
 #include <string_view>
 #include <tuple>
+#include <typeindex>
 #include <utility>
 
 namespace Draft {
@@ -103,6 +104,19 @@ namespace Draft {
 
         return found;
     }
+
+    /**
+     * @brief Type-erased sink for one reflected field, called once per field by
+     * ComponentTypeInterface::visit_fields() (see component_catalog.hpp). Lets external tooling
+     * (an editor's inspector) walk an arbitrary, runtime-registered component's fields without
+     * needing compile-time knowledge of that component's type, only of @p type, recovered from
+     * @p valuePtr via typeid() at the call site, where the field's real type is still known.
+     */
+    class FieldVisitor {
+    public:
+        virtual ~FieldVisitor() = default;
+        virtual void visit(std::string_view name, std::type_index type, void* valuePtr) = 0;
+    };
 }
 
 /// Macros

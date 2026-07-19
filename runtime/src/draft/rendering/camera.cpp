@@ -74,6 +74,16 @@ namespace Draft {
         update_matrices();
     }
 
+    void Camera::set_perspective_params(const PerspectiveCameraParams& p){
+        params = p;
+        update_matrices();
+    }
+
+    void Camera::set_orthographic_params(const OrthographicCameraParams& p){
+        params = p;
+        update_matrices();
+    }
+
     void Camera::apply(const Shader& shader) const {
         shader.set_uniform("view", get_view());
         shader.set_uniform("projection", get_projection());

@@ -87,11 +87,16 @@ namespace Draft {
         ImGui::DockBuilderSetNodeSize(dockspaceId, ImGui::GetMainViewport()->Size);
 
         ImGuiID hierarchyId;
+        ImGuiID rightOfHierarchyId;
+        ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.2f, &hierarchyId, &rightOfHierarchyId);
+
+        ImGuiID inspectorId;
         ImGuiID viewportId;
-        ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.3f, &hierarchyId, &viewportId);
+        ImGui::DockBuilderSplitNode(rightOfHierarchyId, ImGuiDir_Right, 0.3f, &inspectorId, &viewportId);
 
         ImGui::DockBuilderDockWindow("Hierarchy", hierarchyId);
         ImGui::DockBuilderDockWindow("Viewport###Viewport", viewportId);
+        ImGui::DockBuilderDockWindow("Inspector", inspectorId);
 
         ImGui::DockBuilderFinish(dockspaceId);
     }
