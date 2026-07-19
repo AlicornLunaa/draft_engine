@@ -53,6 +53,7 @@ namespace Draft {
         EditorSelection selection;
 
         bool viewportFocused = false;
+        bool viewportHovered = false;
         std::queue<Event> pendingViewportEvents;
 
     private:

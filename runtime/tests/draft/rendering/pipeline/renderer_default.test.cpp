@@ -85,7 +85,7 @@ TEST_F(DefaultRendererTest, RenderFrameWithNothingSubmittedProducesNoGLError)
     SystemRegistry systems;
 
     glGetError();
-    renderer.render_frame(Time::seconds(0), systems);
+    renderer.render_frame(Time::seconds(0), systems, OrthographicCamera({0, 0, 0}, {0, 0, -1}, -1, 1, -1, 1));
     EXPECT_EQ(glGetError(), GL_NO_ERROR);
 }
 
@@ -98,7 +98,7 @@ TEST_F(DefaultRendererTest, RenderFrameRunsTheFullGeometryCompositeInterfaceChai
     renderer.shape.draw_line({0, 0}, {1, 1});
 
     glGetError();
-    renderer.render_frame(Time::seconds(0), systems);
+    renderer.render_frame(Time::seconds(0), systems, OrthographicCamera({0, 0, 0}, {0, 0, -1}, -1, 1, -1, 1));
     EXPECT_EQ(glGetError(), GL_NO_ERROR);
 }
 
@@ -123,7 +123,7 @@ TEST_F(DefaultRendererTest, RenderFrameDispatchesLayersInGeometryInterfaceOverla
     systems.add<LayerRecordingSystem<RenderLayer::Geometry>>(log);
     systems.add<LayerRecordingSystem<RenderLayer::Interface>>(log);
 
-    renderer.render_frame(Time::seconds(0), systems);
+    renderer.render_frame(Time::seconds(0), systems, OrthographicCamera({0, 0, 0}, {0, 0, -1}, -1, 1, -1, 1));
 
     ASSERT_EQ(log.size(), 3u);
     EXPECT_EQ(log[0], "Geometry");
@@ -139,7 +139,7 @@ TEST_F(DefaultRendererTest, RenderFrameOnlyCallsSystemsForLayersTheyDeclare)
 
     systems.add<LayerRecordingSystem<RenderLayer::Geometry>>(log);
 
-    renderer.render_frame(Time::seconds(0), systems);
+    renderer.render_frame(Time::seconds(0), systems, OrthographicCamera({0, 0, 0}, {0, 0, -1}, -1, 1, -1, 1));
 
     ASSERT_EQ(log.size(), 1u);
     EXPECT_EQ(log[0], "Geometry");

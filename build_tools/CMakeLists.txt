@@ -68,14 +68,7 @@ function(draft_add_game_module target)
         add_executable(${target} ${sources} ${DRAFT_LAUNCHER_SOURCE})
         target_compile_definitions(${target} PRIVATE DRAFT_STATIC_GAME_MODULE)
 
-        # Lets Phase 6's export_project() find this binary generically (`cmake --install
-        # <build-dir> --prefix <output-dir> --component DraftGameLauncher`) without needing to
-        # know `target`'s name - every project using draft_add_game_module gets this for free,
-        # no per-project CMake needed. A named COMPONENT matters here, not just convenience:
-        # without one, `cmake --install` with no --component installs every default-component
-        # rule in the whole dependency tree (glfw, EnTT headers, SFML's pkgconfig files, ...),
-        # some of which (SFML) hardcode absolute /usr/local paths and fail outright without
-        # root - found by actually running export end to end, not just reading the docs.
+        # Lets export_project() find this binary generically
         install(TARGETS ${target} RUNTIME DESTINATION . COMPONENT DraftGameLauncher)
     endif()
 
@@ -91,9 +84,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     draft_copy_openal_dll(draft_launcher)
 endif()
 
-# Standalone asset-pipeline CLI - src/cli/main.cpp dispatches to each subcommand's own
-# src/<name>/main.cpp (run_<name>()), sharing the walk/classify/validate/pack/export logic in
-# draft::build_tools's own headers rather than duplicating it per subcommand.
+# Standalone asset-pipeline CLI
 add_executable(draft_buildtools src/cli/main.cpp src/validate/main.cpp src/pack/main.cpp src/export/main.cpp)
 target_link_libraries(draft_buildtools PRIVATE ${PROJECT_NAME} draft::runtime glfw)
 target_compile_features(draft_buildtools PRIVATE cxx_std_23)

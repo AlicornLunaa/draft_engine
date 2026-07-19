@@ -1,5 +1,9 @@
 #include "draft/ecs/scene.hpp"
+#include "draft/components/camera_component.hpp"
+#include "draft/components/transform_component.hpp"
 #include "draft/ecs/entity.hpp"
+
+#include <limits>
 
 namespace Draft {
     Scene::Scene() : m_relationshipSystem(*this) {}
@@ -12,6 +16,43 @@ namespace Draft {
 
     Entity Scene::create_entity(){
         return Entity{ this, m_registry.create() };
+    }
+
+    Camera* Scene::get_active_camera(){
+        // If an override supplied, just use that
+        if(m_cameraOverride){
+            return m_cameraOverride.get();
+        }
+
+        // Find a camera component
+        entt::entity best = entt::null;
+        int bestPriority = std::numeric_limits<int>::min();
+
+        for(auto&& [raw, cam] : m_registry.view<CameraComponent>().each()){
+            if(!cam.active || !cam.camera)
+                continue;
+
+            if(best != entt::null && cam.priority < bestPriority)
+                continue;
+
+            best = raw;
+            bestPriority = cam.priority;
+        }
+
+        if(best == entt::null)
+            return nullptr;
+
+        CameraComponent& cam = m_registry.get<CameraComponent>(best);
+        if(auto* transform = m_registry.try_get<TransformComponent>(best)){
+            cam.camera->set_position({transform->position.x, transform->position.y, 0.f});
+            cam.camera->set_rotation(transform->rotation);
+        }
+
+        return cam.camera.get();
+    }
+
+    void Scene::set_active_camera_override(std::unique_ptr<Camera>&& camera) {
+        m_cameraOverride = std::move(camera);
     }
 
     void Scene::update(Time dt){

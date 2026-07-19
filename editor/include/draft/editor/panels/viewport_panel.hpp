@@ -26,7 +26,6 @@ namespace Draft {
         Vector2d m_regionAvailable{};
         Vector2d m_regionLocalCursorPosition{};
         Vector2d m_regionScreenPosition{};
-        bool m_regionHovered = false;
 
         Vector2d m_regionAvailableLast{};
         bool m_regionHoveredLast = false;

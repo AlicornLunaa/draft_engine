@@ -4,6 +4,7 @@
 #include "draft/math/glm.hpp"
 #include "draft/rendering/batching/shape_collection.hpp"
 #include "draft/rendering/batching/sprite_collection.hpp"
+#include "draft/rendering/camera.hpp"
 #include "draft/rendering/pipeline/passes/composite_pass.hpp"
 #include "draft/rendering/pipeline/passes/geometry_pass.hpp"
 #include "draft/rendering/pipeline/passes/interface_pass.hpp"
@@ -37,11 +38,12 @@ namespace Draft {
          * @brief Runs this renderer's whole pass pipeline for one frame. Called once per frame,
          * after RenderLayer::Default has already run (see Application::frame()). Drives
          * @p systems itself, layer by layer, interleaved with its own passes, e.g.
-         * DefaultRenderer::render_frame() runs RenderLayer::Geometry, flushes it via
-         * GeometryPass/CompositePass, runs RenderLayer::Interface, flushes it via InterfacePass,
-         * then runs RenderLayer::Overlay for anything that must draw after everything else.
+         * DefaultRenderer::render_frame() applies @p camera to batch/shape, runs
+         * RenderLayer::Geometry, flushes it via GeometryPass/CompositePass, runs
+         * RenderLayer::Interface, flushes it via InterfacePass, then runs RenderLayer::Overlay
+         * for anything that must draw after everything else.
          */
-        virtual void render_frame(Time deltaTime, SystemRegistry& systems) = 0;
+        virtual void render_frame(Time deltaTime, SystemRegistry& systems, const Camera& camera) = 0;
         virtual void resize(const Vector2u& size);
 
         void begin_pass(AbstractRenderPass& pass);
@@ -73,7 +75,7 @@ namespace Draft {
         virtual ~DefaultRenderer() = default;
 
         // Functions
-        virtual void render_frame(Time deltaTime, SystemRegistry& systems) override;
+        virtual void render_frame(Time deltaTime, SystemRegistry& systems, const Camera& camera) override;
         virtual void resize(const Vector2u& size) override;
 
     protected:

@@ -15,6 +15,8 @@ namespace Draft {
         if(layer != RenderLayer::Default)
             return;
 
+        ImGui::SetNextWindowSize({64, 480}, ImGuiCond_FirstUseEver);
+
         ImGui::Begin("Hierarchy");
 
         if(ImGui::BeginPopupContextWindow("HierarchyContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)){
@@ -56,8 +58,14 @@ namespace Draft {
     }
 
     void HierarchyPanelSystem::draw_entity_row(Entity entity){
+        if(!entity.is_valid())
+            return;
+
         auto* parentComp = entity.try_get_component<ParentComponent>();
         bool hasChildren = parentComp && !parentComp->children.empty();
+
+        // Snapshot the children now
+        std::vector<Entity> children = hasChildren ? parentComp->children : std::vector<Entity>();
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
         if(!hasChildren)
@@ -90,18 +98,21 @@ namespace Draft {
         bool destroyed = false;
         if(ImGui::BeginPopupContextItem()){
             if(ImGui::MenuItem("Delete")){
-                if(m_app.selection.get() == entity)
-                    m_app.selection.clear();
-
+                bool wasSelected = m_app.selection.get() == entity;
                 entity.destroy();
                 destroyed = true;
+
+                // Destroying entity may cascade-destroy descendants, clear the selection if it
+                // was the deleted row itself or if it was one of those descendants.
+                if(wasSelected || !m_app.selection.get().is_valid())
+                    m_app.selection.clear();
             }
             ImGui::EndPopup();
         }
 
         if(open && hasChildren){
             if(!destroyed)
-                for(Entity child : parentComp->children)
+                for(Entity child : children)
                     draw_entity_row(child);
 
             ImGui::TreePop();

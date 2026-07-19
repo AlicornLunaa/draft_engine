@@ -19,7 +19,7 @@ namespace {
     public:
         using Renderer::Renderer;
         int resizeCalls = 0;
-        void render_frame(Time, SystemRegistry&) override {}
+        void render_frame(Time, SystemRegistry&, const Camera&) override {}
         void resize(const Vector2u& size) override {
             resizeCalls++;
             Renderer::resize(size);

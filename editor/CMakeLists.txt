@@ -3,6 +3,7 @@ project("draft_editor" VERSION 0.1.0 LANGUAGES CXX)
 
 set(HEADERS
     include/draft/editor/editor_application.hpp
+    include/draft/editor/freecam_controller.hpp
     include/draft/editor/game_module_watcher.hpp
     include/draft/editor/project.hpp
     include/draft/editor/selection.hpp
@@ -13,6 +14,7 @@ set(HEADERS
 
 set(SOURCES
     src/draft/editor/editor_application.cpp
+    src/draft/editor/freecam_controller.cpp
     src/draft/editor/game_module_watcher.cpp
     src/draft/editor/project.cpp
     src/draft/editor/selection.cpp

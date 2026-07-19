@@ -1,4 +1,5 @@
 #include "draft/core/application_interface.hpp"
+#include "draft/rendering/camera.hpp"
 
 #include <algorithm>
 
@@ -57,9 +58,16 @@ namespace Draft {
         if(p_activeScene){
             // Ordinary per-frame work always runs, even with no renderer set
             p_activeScene->render(deltaTime, RenderLayer::Default);
+            
+            if(p_renderer){
+                OrthographicCamera defaultCamera{Vector3f{0, 0, 10}, Vector3f{0, 0, -1}, 0.f, (float)target.get_size().x, (float)target.get_size().y, 0.f};
+                auto* camera = p_activeScene->get_active_camera();
 
-            if(p_renderer)
-                p_renderer->render_frame(deltaTime, p_activeScene->get_systems());
+                if(!camera)
+                    camera = &defaultCamera;
+
+                p_renderer->render_frame(deltaTime, p_activeScene->get_systems(), *camera);
+            }
         }
 
         target.end();

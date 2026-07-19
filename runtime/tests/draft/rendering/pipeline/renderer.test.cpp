@@ -18,7 +18,7 @@ namespace {
     class TestRenderer : public Renderer {
     public:
         using Renderer::Renderer;
-        void render_frame(Time, SystemRegistry&) override {}
+        void render_frame(Time, SystemRegistry&, const Camera&) override {}
     };
 
     const char* SOLID_COLOR_VERTEX_SRC =

@@ -4,7 +4,9 @@
 #include "draft/ecs/relationship_system.hpp"
 #include "draft/ecs/system.hpp"
 #include "draft/input/event.hpp"
+#include "draft/rendering/camera.hpp"
 #include "draft/util/time.hpp"
+#include <memory>
 
 namespace Draft {
     class Entity;
@@ -31,6 +33,19 @@ namespace Draft {
          * @brief Creates a new, component-less entity in this scene.
          */
         Entity create_entity();
+
+        /**
+         * @brief Resolves the highest-priority active CameraComponent in this scene, syncing its
+         * Camera's position/rotation from that entity's TransformComponent (if any) first.
+         * Returns nullptr if no active CameraComponent exists. Never save this pointer, it may change or be freed.
+         */
+        Camera* get_active_camera();
+
+        /**
+         * @brief Set the active camera object
+         * @param camera 
+         */
+        void set_active_camera_override(std::unique_ptr<Camera>&& camera);
 
         /**
          * @brief Advances every registered system by a fixed-size @p dt, in registration order.
@@ -71,5 +86,7 @@ namespace Draft {
         Registry m_registry;
         RelationshipSystem m_relationshipSystem;
         SystemRegistry m_systems;
+
+        std::unique_ptr<Camera> m_cameraOverride; // Used to override scene camera without an entity
     };
 }

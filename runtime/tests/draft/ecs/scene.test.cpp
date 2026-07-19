@@ -1,7 +1,12 @@
 #include <gtest/gtest.h>
+#include "draft/components/camera_component.hpp"
+#include "draft/components/transform_component.hpp"
 #include "draft/ecs/entity.hpp"
 #include "draft/ecs/scene.hpp"
 #include "draft/ecs/system.hpp"
+#include "draft/rendering/camera.hpp"
+
+#include <memory>
 
 using namespace Draft;
 
@@ -120,4 +125,81 @@ TEST(Scene, DispatchEventReachesRegisteredSystemsAndReturnsWhetherOneConsumedIt)
 
     EXPECT_TRUE(scene.dispatch_event(event));
     EXPECT_EQ(scene.get_systems().get<EventConsumer>().eventCalls, 1);
+}
+
+namespace {
+    std::unique_ptr<Camera> make_ortho_camera(float halfExtent = 1.f){
+        return std::make_unique<OrthographicCamera>(Vector3f{0, 0, 0}, Vector3f{0, 0, -1}, -halfExtent, halfExtent, -halfExtent, halfExtent);
+    }
+}
+
+TEST(Scene, NoActiveCameraReturnsNullptr)
+{
+    Scene scene;
+    ASSERT_EQ(scene.get_active_camera(), nullptr);
+}
+
+TEST(Scene, InactiveCameraIsIgnored)
+{
+    Scene scene;
+    Entity entity = scene.create_entity();
+    entity.add_component<CameraComponent>(CameraComponent{false, 0, make_ortho_camera()});
+
+    ASSERT_EQ(scene.get_active_camera(), nullptr);
+}
+
+TEST(Scene, ActiveCameraResolvesToHighestPriority)
+{
+    Scene scene;
+
+    Entity low = scene.create_entity();
+    low.add_component<CameraComponent>(CameraComponent{true, 0, make_ortho_camera(1.f)});
+
+    Entity high = scene.create_entity();
+    high.add_component<CameraComponent>(CameraComponent{true, 5, make_ortho_camera(2.f)});
+
+    // The higher-priority (high) camera should be the one returned.
+    ASSERT_EQ(scene.get_active_camera(), high.get_component<CameraComponent>().camera.get());
+}
+
+TEST(Scene, ActiveCameraSyncsPositionFromTransformComponent)
+{
+    Scene scene;
+
+    Entity entity = scene.create_entity();
+    entity.add_component<TransformComponent>(TransformComponent{{5.f, 3.f}, 0.f});
+    entity.add_component<CameraComponent>(CameraComponent{true, 0, make_ortho_camera()});
+
+    Camera* camera = scene.get_active_camera();
+    ASSERT_NE(camera, nullptr);
+
+    ASSERT_FLOAT_EQ(camera->get_position().x, 5.f);
+    ASSERT_FLOAT_EQ(camera->get_position().y, 3.f);
+}
+
+TEST(Scene, CameraOverrideTakesPrecedenceOverCameraComponent)
+{
+    Scene scene;
+
+    Entity entity = scene.create_entity();
+    entity.add_component<CameraComponent>(CameraComponent{true, 0, make_ortho_camera()});
+
+    std::unique_ptr<Camera> overrideCamera = make_ortho_camera(2.f);
+    Camera* overridePtr = overrideCamera.get();
+    scene.set_active_camera_override(std::move(overrideCamera));
+
+    ASSERT_EQ(scene.get_active_camera(), overridePtr);
+}
+
+TEST(Scene, ClearingCameraOverrideFallsBackToCameraComponent)
+{
+    Scene scene;
+
+    Entity entity = scene.create_entity();
+    entity.add_component<CameraComponent>(CameraComponent{true, 0, make_ortho_camera()});
+
+    scene.set_active_camera_override(make_ortho_camera(2.f));
+    scene.set_active_camera_override(nullptr);
+
+    ASSERT_EQ(scene.get_active_camera(), entity.get_component<CameraComponent>().camera.get());
 }

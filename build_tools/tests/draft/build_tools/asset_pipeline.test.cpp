@@ -70,7 +70,7 @@ RenderWindow* AssetPipelineProjectTest::window = nullptr;
 TEST_F(AssetPipelineProjectTest, CollectWalksAssetsRecursivelyAndSkipsUnknownExtensions)
 {
     auto tasks = collect_project_assets(projectRoot);
-    ASSERT_EQ(tasks.size(), 3u); // font, texture, scene - not the .glsl file
+    ASSERT_EQ(tasks.size(), 3u); // font, texture, scene, not the .glsl file
 
     bool foundFont = false, foundTexture = false, foundScene = false;
     for (const auto& task : tasks) {

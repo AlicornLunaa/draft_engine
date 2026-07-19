@@ -1,5 +1,6 @@
 #include "draft/editor/editor_application.hpp"
 #include "draft/ecs/scene_serializer.hpp"
+#include "draft/editor/freecam_controller.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/viewport_panel.hpp"
@@ -152,6 +153,7 @@ namespace Draft {
         editScene.get_systems().add<ImGuiSystem>(application.target.get_size(), "imgui_editor.ini", false);
         editScene.get_systems().add<DockspacePanelSystem>(*this);
         editScene.get_systems().add<ViewportPanelSystem>(*this);
+        editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
     }
 

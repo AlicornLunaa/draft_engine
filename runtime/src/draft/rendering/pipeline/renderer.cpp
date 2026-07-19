@@ -120,7 +120,13 @@ namespace Draft {
     {
     }
 
-    void DefaultRenderer::render_frame(Time dt, SystemRegistry& systems){
+    void DefaultRenderer::render_frame(Time dt, SystemRegistry& systems, const Camera& camera){
+        // Applied before Geometry submission.
+        batch.set_trans_matrix(camera.get_view());
+        batch.set_proj_matrix(camera.get_projection());
+        shape.set_trans_matrix(camera.get_view());
+        shape.set_proj_matrix(camera.get_projection());
+
         // World rendering: submit, then flush
         systems.render_all(dt, RenderLayer::Geometry); // Fills the collections with data
         const Texture& geometry = p_geometryPass.run(*this); // Flushes the data

@@ -15,10 +15,12 @@ namespace Draft {
         // Draws a viewport and lets the engine know if this special widget is currently focused
         // when it IS focused, all inputs should be forwarded to the game engine and skip the editor engine.
         ImGuiWindowFlags flags = ImGuiWindowFlags_None;
-        if(m_regionHovered && m_app.viewportFocused){
+        if(m_app.viewportHovered && m_app.viewportFocused){
             flags |= ImGuiWindowFlags_NoResize;
             flags |= ImGuiWindowFlags_NoMove;
         }
+
+        ImGui::SetNextWindowSize({640, 480}, ImGuiCond_FirstUseEver);
         
         if(ImGui::Begin("Viewport###Viewport", nullptr, flags)){
             ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
@@ -30,7 +32,7 @@ namespace Draft {
             ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
 
             m_app.viewportFocused = ImGui::IsWindowFocused();
-            m_regionHovered = ImGui::IsItemHovered();
+            m_app.viewportHovered = ImGui::IsItemHovered();
             m_regionLocalCursorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};
             m_regionScreenPosition = {cursorPosition.x, cursorPosition.y};
             m_regionAvailable = Math::max({regionAvailable.x, regionAvailable.y}, Vector2u(1, 1));
@@ -44,10 +46,10 @@ namespace Draft {
                 m_app.pendingViewportEvents.push(event);
             }
 
-            if(m_regionHovered && !m_regionHoveredLast){
+            if(m_app.viewportHovered && !m_regionHoveredLast){
                 // Region has just been hovered
                 m_app.pendingViewportEvents.push({.type = Event::MouseEntered});
-            } else if(!m_regionHovered && m_regionHoveredLast){
+            } else if(!m_app.viewportHovered && m_regionHoveredLast){
                 // Region just left hover
                 m_app.pendingViewportEvents.push({.type = Event::MouseLeft});
             }
@@ -61,7 +63,7 @@ namespace Draft {
             }
 
             m_regionAvailableLast = m_regionAvailable;
-            m_regionHoveredLast = m_regionHovered;
+            m_regionHoveredLast = m_app.viewportHovered;
             m_regionFocusedLast = m_app.viewportFocused;
         }
 
@@ -81,20 +83,20 @@ namespace Draft {
 
             switch(event.type){
                 case Event::MouseMoved:
-                    if(!m_regionHovered) return false; // Bail out even when focused
+                    if(!m_app.viewportHovered) return false; // Bail out even when focused
                     localEvent.mouseMove.x = (int)(event.mouseMove.x - m_regionScreenPosition.x);
                     localEvent.mouseMove.y = (int)(event.mouseMove.y - m_regionScreenPosition.y);
                     break;
 
                 case Event::MouseButtonPressed:
                 case Event::MouseButtonReleased:
-                    if(!m_regionHovered) return false; // Bail out even when focused
+                    if(!m_app.viewportHovered) return false; // Bail out even when focused
                     localEvent.mouseButton.x = (int)(event.mouseButton.x - m_regionScreenPosition.x);
                     localEvent.mouseButton.y = (int)(event.mouseButton.y - m_regionScreenPosition.y);
                     break;
 
                 case Event::MouseWheelScrolled:
-                    if(!m_regionHovered) return false; // Bail out even when focused
+                    if(!m_app.viewportHovered) return false; // Bail out even when focused
                     break;
 
                 default:

@@ -111,6 +111,7 @@ set(HEADERS
     include/draft/components/transform_component.hpp
     include/draft/components/texture_component.hpp
     include/draft/components/animation_component.hpp
+    include/draft/components/camera_component.hpp
     include/draft/core/application.hpp
     include/draft/core/application_interface.hpp
     include/draft/core/engine.hpp
