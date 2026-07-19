@@ -2,6 +2,7 @@
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/freecam_controller.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
+#include "draft/editor/panels/gizmo_overlay.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/inspector_panel.hpp"
 #include "draft/editor/panels/viewport_panel.hpp"
@@ -105,6 +106,13 @@ namespace Draft {
         m_pending = PendingAction::Stop;
     }
 
+    void EditorApplication::toggle_pause(){
+        if(!m_isPlaying)
+            return;
+
+        gameApp.simulationPaused = !gameApp.simulationPaused;
+    }
+
     void EditorApplication::process_pending(){
         PendingAction action = m_pending;
         m_pending = PendingAction::None;
@@ -139,6 +147,7 @@ namespace Draft {
         std::filesystem::current_path(m_project->module_manifest_path().parent_path());
 
         gameApp.simulationPaused = true;
+        m_isPlaying = false;
         selection.clear();
         gameScene.get_registry().clear();
         gameScene.get_systems().clear();
@@ -157,6 +166,7 @@ namespace Draft {
         editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);
+        editScene.get_systems().add<GizmoOverlaySystem>(*this);
     }
 
     void EditorApplication::play(){
@@ -167,6 +177,7 @@ namespace Draft {
         HostFileSystem().create_directories(path);
         save_scene(gameScene, gameEngine, assets, HostFileSystem().open(path));
         gameApp.simulationPaused = false;
+        m_isPlaying = true;
     }
 
     void EditorApplication::stop(){
@@ -174,6 +185,7 @@ namespace Draft {
             return;
 
         gameApp.simulationPaused = true;
+        m_isPlaying = false;
 
         FileHandle snapshot = HostFileSystem().open(snapshot_path());
         if(!snapshot.exists())

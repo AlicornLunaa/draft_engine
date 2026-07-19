@@ -1,5 +1,7 @@
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/editor/panels/entity_picker.hpp"
+#include "draft/rendering/camera.hpp"
 
 #include "imgui.h"
 
@@ -36,6 +38,17 @@ namespace Draft {
             m_regionLocalCursorPosition = {mousePosition.x - cursorPosition.x, mousePosition.y - cursorPosition.y};
             m_regionScreenPosition = {cursorPosition.x, cursorPosition.y};
             m_regionAvailable = Math::max({regionAvailable.x, regionAvailable.y}, Vector2u(1, 1));
+
+            m_app.viewportScreenPosition = m_regionScreenPosition;
+            m_app.viewportSize = m_regionAvailable;
+
+            // Click-to-select, edit mode only
+            if(m_app.gameApp.simulationPaused && m_app.viewportHovered && ImGui::IsItemClicked(ImGuiMouseButton_Left)){
+                if(Camera* camera = m_app.gameScene.get_active_camera()){
+                    Vector2f ndc = Vector2f(m_app.gameApp.fakeMouse.get_normalized_position());
+                    m_app.selection.set(pick_entity(m_app.gameScene, camera->unproject(ndc)));
+                }
+            }
 
             // Dispatch event for mouse hover/focus events
             if(m_regionAvailable.x != m_regionAvailableLast.x || m_regionAvailable.y != m_regionAvailableLast.y){

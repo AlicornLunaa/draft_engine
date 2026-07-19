@@ -10,6 +10,7 @@
 #include "draft/editor/game_module_watcher.hpp"
 #include "draft/editor/project.hpp"
 #include "draft/editor/selection.hpp"
+#include "draft/math/glm.hpp"
 
 #include <filesystem>
 #include <optional>
@@ -41,6 +42,17 @@ namespace Draft {
         void request_play();
         void request_stop();
 
+        /**
+         * @brief True from request_play() until request_stop(), regardless of gameApp.simulationPaused
+         */
+        bool is_playing() const { return m_isPlaying; }
+
+        /**
+         * @brief Toggles gameApp.simulationPaused directly unlike Play/Stop, this touches no
+         * scene state (no snapshot save, no registry/systems clear)
+         */
+        void toggle_pause();
+
         Application application;
         AssetManager assets;
         Scene editScene;
@@ -55,6 +67,12 @@ namespace Draft {
         bool viewportFocused = false;
         bool viewportHovered = false;
         std::queue<Event> pendingViewportEvents;
+
+        /**
+         * @brief The Viewport window's content region, in absolute screen pixels.
+         */
+        Vector2d viewportScreenPosition{};
+        Vector2d viewportSize{1, 1};
 
     private:
         enum class PendingAction {
@@ -79,5 +97,6 @@ namespace Draft {
 
         PendingAction m_pending = PendingAction::None;
         std::filesystem::path m_pendingProjectPath;
+        bool m_isPlaying = false;
     };
 }
