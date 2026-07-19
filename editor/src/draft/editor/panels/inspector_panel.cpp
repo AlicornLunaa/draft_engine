@@ -3,9 +3,12 @@
 #include "draft/ecs/scene_serialization_context.hpp"
 #include "draft/editor/editor_application.hpp"
 #include "draft/editor/field_widgets.hpp"
+#include "draft/util/logger.hpp"
 #include "draft/util/serialization/context.hpp"
 
 #include "imgui.h"
+
+#include <exception>
 
 namespace Draft {
     namespace {
@@ -112,7 +115,12 @@ namespace Draft {
                 for(const std::string& key : visitor.changed_fallback_keys())
                     freshJson[key] = componentJson[key];
 
-                entry.deserialize(entity, freshJson);
+                // A hand-edited JSON subtree can be malformed for whatever T's own deserialize expects
+                try {
+                    entry.deserialize(entity, freshJson);
+                } catch(const std::exception& e){
+                    Logger::println(LogLevel::Severe, "Inspector", std::string("Failed to apply edit to ") + entry.name() + ": " + e.what());
+                }
             }
         }
 
