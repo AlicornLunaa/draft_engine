@@ -2,6 +2,7 @@
 #include "draft/components/transform_component.hpp"
 #include "draft/editor/editor_application.hpp"
 #include "draft/editor/panels/entity_picker.hpp"
+#include "draft/editor/panels/gizmo_primitives.hpp"
 #include "draft/rendering/camera.hpp"
 
 #include "imgui.h"
@@ -17,6 +18,15 @@ namespace Draft {
 
         constexpr float POSITION_SNAP_STEP = 10.f;
         const float ROTATION_SNAP_STEP = Math::radians(15.f);
+
+        constexpr Vector4f CENTER_COLOR{1.f, 0.784f, 0.f, 1.f};
+        constexpr Vector4f CENTER_HOVER_COLOR{1.f, 0.902f, 0.47f, 1.f};
+        constexpr Vector4f X_AXIS_COLOR{0.863f, 0.235f, 0.235f, 1.f};
+        constexpr Vector4f X_AXIS_HOVER_COLOR{1.f, 0.51f, 0.51f, 1.f};
+        constexpr Vector4f Y_AXIS_COLOR{0.235f, 0.784f, 0.353f, 1.f};
+        constexpr Vector4f Y_AXIS_HOVER_COLOR{0.588f, 1.f, 0.667f, 1.f};
+        constexpr Vector4f ROTATE_COLOR{0.f, 0.784f, 1.f, 1.f};
+        constexpr Vector4f ROTATE_HOVER_COLOR{0.588f, 0.902f, 1.f, 1.f};
 
         float snap_to_step(float value, float step){
             return Math::round(value / step) * step;
@@ -49,51 +59,41 @@ namespace Draft {
         bool handledByGizmo = false;
 
         if(camera && selected.is_valid() && selected.has_component<TransformComponent>()){
+            GizmoViewport viewport{*camera, m_app.viewportScreenPosition, m_app.viewportSize};
+
             if(ImGui::Begin("Viewport###Viewport")){
                 const TransformComponent& transform = selected.get_component<TransformComponent>();
                 Vector2f xAxisDir = axis_x(transform.rotation);
                 Vector2f yAxisDir = axis_y(transform.rotation);
 
-                handledByGizmo |= draw_axis_handle(selected, transform, *camera, xAxisDir, true);
-                handledByGizmo |= draw_axis_handle(selected, transform, *camera, yAxisDir, false);
-                handledByGizmo |= draw_rotate_handle(selected, transform, *camera, xAxisDir, yAxisDir);
-                handledByGizmo |= draw_center_handle(selected, transform, *camera);
+                handledByGizmo |= draw_axis_handle(selected, transform, viewport, xAxisDir, true);
+                handledByGizmo |= draw_axis_handle(selected, transform, viewport, yAxisDir, false);
+                handledByGizmo |= draw_rotate_handle(selected, transform, viewport, xAxisDir, yAxisDir);
+                handledByGizmo |= draw_center_handle(selected, transform, viewport);
             }
 
             ImGui::End();
         }
 
-        if(!handledByGizmo && camera && m_app.gameApp.simulationPaused && m_app.viewportHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
+        if(!handledByGizmo && !m_app.colliderGizmoActiveThisFrame && camera && m_app.gameApp.simulationPaused && m_app.viewportHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
             Vector2f ndc = Vector2f(m_app.gameApp.fakeMouse.get_normalized_position());
             m_app.selection.set(pick_entity(m_app.gameScene, camera->unproject(ndc)));
         }
     }
 
-    bool GizmoOverlaySystem::draw_center_handle(Entity entity, const TransformComponent& transform, const Camera& camera){
-        Vector2f screenPos = world_to_screen(camera, transform.position);
+    bool GizmoOverlaySystem::draw_center_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport){
+        Vector2f screenPos = viewport.world_to_screen(transform.position);
+        HandleInteraction interaction = draw_circle_handle("GizmoCenter", screenPos, CENTER_HANDLE_RADIUS, CENTER_COLOR, CENTER_HOVER_COLOR);
 
-        ImGui::PushID("GizmoCenter");
-        ImGui::SetCursorScreenPos(ImVec2(screenPos.x - CENTER_HANDLE_RADIUS, screenPos.y - CENTER_HANDLE_RADIUS));
-        ImGui::InvisibleButton("##handle", ImVec2(CENTER_HANDLE_RADIUS * 2.f, CENTER_HANDLE_RADIUS * 2.f));
-
-        bool hovered = ImGui::IsItemHovered();
-
-        if(ImGui::IsItemActivated()){
+        if(interaction.justActivated){
             ImVec2 mousePos = ImGui::GetMousePos();
             m_dragPositionStart = transform.position;
-            m_dragMouseWorldStart = screen_to_world(camera, {mousePos.x, mousePos.y});
+            m_dragMouseWorldStart = viewport.screen_to_world({mousePos.x, mousePos.y});
         }
 
-        bool active = ImGui::IsItemActive();
-        ImU32 color = (hovered || active) ? IM_COL32(255, 230, 120, 255) : IM_COL32(255, 200, 0, 255);
-
-        ImDrawList* drawList = ImGui::GetWindowDrawList();
-        drawList->AddCircleFilled(ImVec2(screenPos.x, screenPos.y), CENTER_HANDLE_RADIUS, color);
-        drawList->AddCircle(ImVec2(screenPos.x, screenPos.y), CENTER_HANDLE_RADIUS, IM_COL32(0, 0, 0, 255), 0, 2.f);
-
-        if(active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+        if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mousePos = ImGui::GetMousePos();
-            Vector2f mouseWorldNow = screen_to_world(camera, {mousePos.x, mousePos.y});
+            Vector2f mouseWorldNow = viewport.screen_to_world({mousePos.x, mousePos.y});
             Vector2f newPosition = m_dragPositionStart + (mouseWorldNow - m_dragMouseWorldStart);
 
             if(ImGui::GetIO().KeyShift)
@@ -104,39 +104,34 @@ namespace Draft {
             });
         }
 
-        ImGui::PopID();
-        return active;
+        return interaction.active;
     }
 
-    bool GizmoOverlaySystem::draw_axis_handle(Entity entity, const TransformComponent& transform, const Camera& camera, const Vector2f& axisDir, bool isXAxis){
+    bool GizmoOverlaySystem::draw_axis_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& axisDir, bool isXAxis){
         Vector2f tipWorld = transform.position + axisDir * AXIS_LENGTH;
-        Vector2f pivotScreen = world_to_screen(camera, transform.position);
-        Vector2f tipScreen = world_to_screen(camera, tipWorld);
+        Vector2f pivotScreen = viewport.world_to_screen(transform.position);
+        Vector2f tipScreen = viewport.world_to_screen(tipWorld);
 
-        ImGui::PushID(isXAxis ? "GizmoAxisX" : "GizmoAxisY");
-        ImGui::SetCursorScreenPos(ImVec2(tipScreen.x - AXIS_HANDLE_RADIUS, tipScreen.y - AXIS_HANDLE_RADIUS));
-        ImGui::InvisibleButton("##handle", ImVec2(AXIS_HANDLE_RADIUS * 2.f, AXIS_HANDLE_RADIUS * 2.f));
+        HandleInteraction interaction = hit_test_handle(isXAxis ? "GizmoAxisX" : "GizmoAxisY", tipScreen, AXIS_HANDLE_RADIUS);
 
-        bool hovered = ImGui::IsItemHovered();
-
-        if(ImGui::IsItemActivated()){
+        if(interaction.justActivated){
             ImVec2 mousePos = ImGui::GetMousePos();
             m_dragPositionStart = transform.position;
-            m_dragMouseWorldStart = screen_to_world(camera, {mousePos.x, mousePos.y});
+            m_dragMouseWorldStart = viewport.screen_to_world({mousePos.x, mousePos.y});
         }
 
-        bool active = ImGui::IsItemActive();
-        ImU32 normalColor = isXAxis ? IM_COL32(220, 60, 60, 255) : IM_COL32(60, 200, 90, 255);
-        ImU32 hoverColor = isXAxis ? IM_COL32(255, 130, 130, 255) : IM_COL32(150, 255, 170, 255);
-        ImU32 color = (hovered || active) ? hoverColor : normalColor;
+        const Vector4f& color = isXAxis ? X_AXIS_COLOR : Y_AXIS_COLOR;
+        const Vector4f& hoverColor = isXAxis ? X_AXIS_HOVER_COLOR : Y_AXIS_HOVER_COLOR;
+        const Vector4f& drawColor = (interaction.hovered || interaction.active) ? hoverColor : color;
+        ImU32 packedColor = ImGui::ColorConvertFloat4ToU32(ImVec4(drawColor.r, drawColor.g, drawColor.b, drawColor.a));
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
-        drawList->AddLine(ImVec2(pivotScreen.x, pivotScreen.y), ImVec2(tipScreen.x, tipScreen.y), color, 3.f);
-        draw_arrowhead(drawList, tipScreen, pivotScreen, color);
+        drawList->AddLine(ImVec2(pivotScreen.x, pivotScreen.y), ImVec2(tipScreen.x, tipScreen.y), packedColor, 3.f);
+        draw_arrowhead(drawList, tipScreen, pivotScreen, packedColor);
 
-        if(active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+        if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mousePos = ImGui::GetMousePos();
-            Vector2f mouseWorldNow = screen_to_world(camera, {mousePos.x, mousePos.y});
+            Vector2f mouseWorldNow = viewport.screen_to_world({mousePos.x, mousePos.y});
             float distance = Math::dot(mouseWorldNow - m_dragMouseWorldStart, axisDir);
 
             if(ImGui::GetIO().KeyShift)
@@ -149,42 +144,37 @@ namespace Draft {
             });
         }
 
-        ImGui::PopID();
-        return active;
+        return interaction.active;
     }
 
-    bool GizmoOverlaySystem::draw_rotate_handle(Entity entity, const TransformComponent& transform, const Camera& camera, const Vector2f& xAxisDir, const Vector2f& yAxisDir){
+    bool GizmoOverlaySystem::draw_rotate_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& xAxisDir, const Vector2f& yAxisDir){
         Vector2f xTipWorld = transform.position + xAxisDir * AXIS_LENGTH;
         Vector2f yTipWorld = transform.position + yAxisDir * AXIS_LENGTH;
         Vector2f cornerWorld = xTipWorld + yAxisDir * AXIS_LENGTH;
 
-        Vector2f xTipScreen = world_to_screen(camera, xTipWorld);
-        Vector2f yTipScreen = world_to_screen(camera, yTipWorld);
-        Vector2f cornerScreen = world_to_screen(camera, cornerWorld);
+        Vector2f xTipScreen = viewport.world_to_screen(xTipWorld);
+        Vector2f yTipScreen = viewport.world_to_screen(yTipWorld);
+        Vector2f cornerScreen = viewport.world_to_screen(cornerWorld);
 
-        ImGui::PushID("GizmoRotate");
-        ImGui::SetCursorScreenPos(ImVec2(cornerScreen.x - ROTATE_HANDLE_RADIUS, cornerScreen.y - ROTATE_HANDLE_RADIUS));
-        ImGui::InvisibleButton("##handle", ImVec2(ROTATE_HANDLE_RADIUS * 2.f, ROTATE_HANDLE_RADIUS * 2.f));
+        HandleInteraction interaction = hit_test_handle("GizmoRotate", cornerScreen, ROTATE_HANDLE_RADIUS);
 
-        bool hovered = ImGui::IsItemHovered();
-
-        if(ImGui::IsItemActivated()){
+        if(interaction.justActivated){
             ImVec2 mousePos = ImGui::GetMousePos();
-            Vector2f toMouse = screen_to_world(camera, {mousePos.x, mousePos.y}) - transform.position;
+            Vector2f toMouse = viewport.screen_to_world({mousePos.x, mousePos.y}) - transform.position;
             m_dragRotationOffset = transform.rotation - Math::atan(toMouse.y, toMouse.x);
         }
 
-        bool active = ImGui::IsItemActive();
-        ImU32 color = (hovered || active) ? IM_COL32(150, 230, 255, 255) : IM_COL32(0, 200, 255, 255);
+        const Vector4f& drawColor = (interaction.hovered || interaction.active) ? ROTATE_HOVER_COLOR : ROTATE_COLOR;
+        ImU32 packedColor = ImGui::ColorConvertFloat4ToU32(ImVec4(drawColor.r, drawColor.g, drawColor.b, drawColor.a));
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         drawList->AddLine(ImVec2(xTipScreen.x, xTipScreen.y), ImVec2(cornerScreen.x, cornerScreen.y), IM_COL32(200, 200, 200, 150), 1.5f);
         drawList->AddLine(ImVec2(yTipScreen.x, yTipScreen.y), ImVec2(cornerScreen.x, cornerScreen.y), IM_COL32(200, 200, 200, 150), 1.5f);
-        drawList->AddRectFilled(ImVec2(cornerScreen.x - ROTATE_HANDLE_RADIUS, cornerScreen.y - ROTATE_HANDLE_RADIUS), ImVec2(cornerScreen.x + ROTATE_HANDLE_RADIUS, cornerScreen.y + ROTATE_HANDLE_RADIUS), color);
+        drawList->AddRectFilled(ImVec2(cornerScreen.x - ROTATE_HANDLE_RADIUS, cornerScreen.y - ROTATE_HANDLE_RADIUS), ImVec2(cornerScreen.x + ROTATE_HANDLE_RADIUS, cornerScreen.y + ROTATE_HANDLE_RADIUS), packedColor);
 
-        if(active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+        if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             ImVec2 mousePos = ImGui::GetMousePos();
-            Vector2f toMouse = screen_to_world(camera, {mousePos.x, mousePos.y}) - transform.position;
+            Vector2f toMouse = viewport.screen_to_world({mousePos.x, mousePos.y}) - transform.position;
             float newRotation = Math::atan(toMouse.y, toMouse.x) + m_dragRotationOffset;
 
             if(ImGui::GetIO().KeyShift)
@@ -195,31 +185,6 @@ namespace Draft {
             });
         }
 
-        ImGui::PopID();
-        return active;
-    }
-
-    Vector2f GizmoOverlaySystem::world_to_screen(const Camera& camera, const Vector2f& worldPos) const {
-        Vector2f ndc = camera.project(worldPos);
-        Vector2d size = m_app.viewportSize;
-
-        Vector2f local{
-            static_cast<float>(size.x * (ndc.x / 2.0 + 0.5)),
-            static_cast<float>(size.y * (0.5 - ndc.y / 2.0))
-        };
-
-        return local + Vector2f(m_app.viewportScreenPosition);
-    }
-
-    Vector2f GizmoOverlaySystem::screen_to_world(const Camera& camera, const Vector2f& screenPos) const {
-        Vector2f local = screenPos - Vector2f(m_app.viewportScreenPosition);
-        Vector2d size = m_app.viewportSize;
-
-        Vector2f ndc{
-            static_cast<float>((local.x / size.x - 0.5) * 2.0),
-            static_cast<float>((1.0 - local.y / size.y - 0.5) * 2.0)
-        };
-
-        return camera.unproject(ndc);
+        return interaction.active;
     }
 }

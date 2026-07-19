@@ -20,16 +20,18 @@
 
 namespace Draft {
     class EditorSelection;
+    class EditorApplication;
 
     /**
      * @brief Everything a field widget might need beyond the value it's editing: the scene to
      * browse for an Entity-field picker, the assets manager to resolve a Resource<T>'s key, the
-     * selection so a picked Entity field can be jumped to.
+     * selection so a picked Entity field can be jumped to, and the owning EditorApplication.
      */
     struct FieldContext {
         Scene& scene;
         AssetManager& assets;
         EditorSelection& selection;
+        EditorApplication& app;
     };
 
     /**

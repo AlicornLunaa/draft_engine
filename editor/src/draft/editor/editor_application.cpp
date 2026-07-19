@@ -1,6 +1,7 @@
 #include "draft/editor/editor_application.hpp"
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/freecam_controller.hpp"
+#include "draft/editor/panels/collider_gizmo.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/panels/gizmo_overlay.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
@@ -166,6 +167,10 @@ namespace Draft {
         editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);
+
+        // ColliderGizmoSystem must render before GizmoOverlaySystem because it sets
+        // colliderGizmoActiveThisFrame fresh each frame.
+        editScene.get_systems().add<ColliderGizmoSystem>(*this);
         editScene.get_systems().add<GizmoOverlaySystem>(*this);
     }
 

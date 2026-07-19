@@ -102,7 +102,7 @@ namespace Draft {
             JSON componentJson;
             entry.serialize(entity, componentJson);
 
-            FieldContext ctx{ m_app.gameScene, m_app.assets, m_app.selection };
+            FieldContext ctx{ m_app.gameScene, m_app.assets, m_app.selection, m_app };
             FieldDrawVisitor visitor(ctx, componentJson);
             entry.visit_fields(entity, visitor);
 

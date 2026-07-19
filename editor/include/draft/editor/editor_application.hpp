@@ -19,6 +19,14 @@
 
 namespace Draft {
     /**
+     * @brief Which shape (if any) of the selected entity's Collider is being edited
+     */
+    struct ColliderShapeSelection {
+        bool editing = false;
+        int shapeIndex = -1;
+    };
+
+    /**
      * @brief Owns the editor's own window/chrome (dockspace, hierarchy, ...) on `editScene`, and
      * a `SubApplication` running the loaded project's own scene (`gameScene`) into an offscreen
      * Framebuffer.
@@ -73,6 +81,14 @@ namespace Draft {
          */
         Vector2d viewportScreenPosition{};
         Vector2d viewportSize{1, 1};
+
+        ColliderShapeSelection colliderShapeSelection;
+
+        /**
+         * @brief Reset to false at the top of ColliderGizmoSystem::render() every frame, set true
+         * if any of its handles were active or it just consumed a ghost-point insert click.
+         */
+        bool colliderGizmoActiveThisFrame = false;
 
     private:
         enum class PendingAction {

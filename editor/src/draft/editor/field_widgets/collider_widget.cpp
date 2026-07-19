@@ -1,4 +1,5 @@
 #include "draft/editor/field_widgets/collider_widget.hpp"
+#include "draft/editor/editor_application.hpp"
 #include "draft/physics/shapes/chain_shape.hpp"
 #include "draft/physics/shapes/circle_shape.hpp"
 #include "draft/physics/shapes/edge_shape.hpp"
@@ -149,24 +150,18 @@ namespace Draft {
 
         ImGui::Separator();
 
-        ImGuiStorage* storage = ImGui::GetStateStorage();
-        ImGuiID editingId = ImGui::GetID("EditingShapes");
-        bool editing = storage->GetBool(editingId, false);
+        ColliderShapeSelection& shapeSelection = ctx.app.colliderShapeSelection;
+        ImGui::Checkbox("Edit Shapes", &shapeSelection.editing);
 
-        if(ImGui::Checkbox("Edit Shapes", &editing))
-            storage->SetBool(editingId, editing);
-
-        if(!editing){
+        if(!shapeSelection.editing){
             ImGui::PopID();
             return changed;
         }
 
         ImGui::Indent();
 
-        ImGuiID selectedId = ImGui::GetID("SelectedShape");
-        int selected = storage->GetInt(selectedId, -1);
         int shapeCount = static_cast<int>(collider.get_shape_count());
-        if(selected >= shapeCount) selected = -1;
+        if(shapeSelection.shapeIndex >= shapeCount) shapeSelection.shapeIndex = -1;
 
         Shape* toRemove = nullptr;
 
@@ -175,10 +170,8 @@ namespace Draft {
             std::string entryLabel = std::string(shape_type_name(shape->type)) + " " + std::to_string(i);
 
             ImGui::PushID(i);
-            if(ImGui::Selectable(entryLabel.c_str(), selected == i)){
-                selected = i;
-                storage->SetInt(selectedId, selected);
-            }
+            if(ImGui::Selectable(entryLabel.c_str(), shapeSelection.shapeIndex == i))
+                shapeSelection.shapeIndex = i;
 
             ImGui::SameLine();
             if(ImGui::SmallButton("Remove")) toRemove = shape;
@@ -187,8 +180,7 @@ namespace Draft {
 
         if(toRemove){
             collider.del_shape(toRemove);
-            selected = -1;
-            storage->SetInt(selectedId, selected);
+            shapeSelection.shapeIndex = -1;
             changed = true;
         }
 
@@ -224,10 +216,10 @@ namespace Draft {
             ImGui::EndPopup();
         }
 
-        if(selected >= 0 && selected < static_cast<int>(collider.get_shape_count())){
+        if(shapeSelection.shapeIndex >= 0 && shapeSelection.shapeIndex < static_cast<int>(collider.get_shape_count())){
             ImGui::Separator();
             ImGui::PushID("SelectedShape");
-            bool shapeChanged = draw_shape_fields(collider.get_shapes()[selected].get());
+            bool shapeChanged = draw_shape_fields(collider.get_shapes()[shapeSelection.shapeIndex].get());
             ImGui::PopID();
 
             // Editing a shape's own fields (radius, vertices, ...) mutates it directly, unlike
