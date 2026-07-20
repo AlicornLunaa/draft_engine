@@ -166,6 +166,20 @@ namespace Draft {
          */
         const std::vector<SystemTypeInterface*>& all() const { return m_order; }
 
+        /**
+         * @brief Drops every registered entry. Needed before unloading a dynamically-loaded game
+         * module (see GameModuleLoader): a SystemTypeCatalogEntry<T> registered from inside that
+         * module has its vtable, and its factory closure's code, compiled into the module itself,
+         * so once the module is unloaded, touching an entry left over from it is a dangling call
+         * into unmapped memory. Must be called while that module is still loaded, before it's
+         * unloaded.
+         */
+        void clear(){
+            m_byType.clear();
+            m_byName.clear();
+            m_order.clear();
+        }
+
     private:
         std::unordered_map<std::type_index, std::unique_ptr<SystemTypeInterface>> m_byType;
         std::unordered_map<std::string, SystemTypeInterface*> m_byName;

@@ -19,7 +19,6 @@ namespace Draft {
         constexpr float MIDPOINT_HANDLE_RADIUS = 5.f;
         constexpr float GHOST_HANDLE_RADIUS = 6.f;
         constexpr float GHOST_MAX_SCREEN_DISTANCE = 30.f;
-        constexpr float POSITION_SNAP_STEP = 10.f;
 
         constexpr Vector4f POINT_COLOR{1.f, 0.784f, 0.f, 1.f};
         constexpr Vector4f POINT_HOVER_COLOR{1.f, 0.902f, 0.47f, 1.f};
@@ -204,8 +203,10 @@ namespace Draft {
                 Vector2f mouseWorldNow = viewport.screen_to_world({mousePos.x, mousePos.y});
                 Vector2f newWorld = m_dragPointWorldStart + (mouseWorldNow - m_dragMouseWorldStart);
 
-                if(ImGui::GetIO().KeyShift)
-                    newWorld = { snap_to_step(newWorld.x, POSITION_SNAP_STEP), snap_to_step(newWorld.y, POSITION_SNAP_STEP) };
+                if(ImGui::GetIO().KeyShift){
+                    float step = m_app.settings.positionSnapStep;
+                    newWorld = { snap_to_step(newWorld.x, step), snap_to_step(newWorld.y, step) };
+                }
 
                 points.set(i, Vector2f(toLocal * Vector3f(newWorld, 1.f)));
                 changed = true;
@@ -252,7 +253,7 @@ namespace Draft {
                 float distance = Math::dot(mouseWorldNow - m_dragMouseWorldStart, m_dragEdgeNormal);
 
                 if(ImGui::GetIO().KeyShift)
-                    distance = snap_to_step(distance, POSITION_SNAP_STEP);
+                    distance = snap_to_step(distance, m_app.settings.positionSnapStep);
 
                 Vector2f newWorldA = m_dragEdgeAWorldStart + m_dragEdgeNormal * distance;
                 Vector2f newWorldB = m_dragEdgeBWorldStart + m_dragEdgeNormal * distance;
@@ -328,8 +329,10 @@ namespace Draft {
             Vector2f mouseWorldNow = viewport.screen_to_world({mousePos.x, mousePos.y});
             Vector2f newWorld = m_dragPointWorldStart + (mouseWorldNow - m_dragMouseWorldStart);
 
-            if(ImGui::GetIO().KeyShift)
-                newWorld = { snap_to_step(newWorld.x, POSITION_SNAP_STEP), snap_to_step(newWorld.y, POSITION_SNAP_STEP) };
+            if(ImGui::GetIO().KeyShift){
+                float step = m_app.settings.positionSnapStep;
+                newWorld = { snap_to_step(newWorld.x, step), snap_to_step(newWorld.y, step) };
+            }
 
             circle.set_position(Vector2f(Math::inverse(toWorld) * Vector3f(newWorld, 1.f)));
             changed = true;

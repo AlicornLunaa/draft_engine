@@ -12,6 +12,10 @@ namespace Draft {
         return m_root / "assets";
     }
 
+    std::filesystem::path EditorProject::manifest_path() const {
+        return m_root / "manifest.json";
+    }
+
     std::filesystem::path EditorProject::module_manifest_path() const {
         return m_root / "build" / "bin" / "game.json";
     }

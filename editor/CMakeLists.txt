@@ -4,6 +4,7 @@ project("draft_editor" VERSION 0.1.0 LANGUAGES CXX)
 set(HEADERS
     include/draft/editor/asset_drag_drop.hpp
     include/draft/editor/editor_application.hpp
+    include/draft/editor/editor_settings.hpp
     include/draft/editor/field_widgets.hpp
     include/draft/editor/freecam_controller.hpp
     include/draft/editor/game_module_watcher.hpp
@@ -19,6 +20,7 @@ set(HEADERS
     include/draft/editor/panels/gizmo_primitives.hpp
     include/draft/editor/panels/hierarchy_panel.hpp
     include/draft/editor/panels/inspector_panel.hpp
+    include/draft/editor/panels/settings_panel.hpp
     include/draft/editor/panels/systems_panel.hpp
     include/draft/editor/panels/viewport_panel.hpp
 )
@@ -41,6 +43,7 @@ set(SOURCES
     src/draft/editor/panels/gizmo_primitives.cpp
     src/draft/editor/panels/hierarchy_panel.cpp
     src/draft/editor/panels/inspector_panel.cpp
+    src/draft/editor/panels/settings_panel.cpp
     src/draft/editor/panels/systems_panel.cpp
     src/draft/editor/panels/viewport_panel.cpp
     src/main.cpp

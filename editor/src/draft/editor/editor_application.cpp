@@ -8,6 +8,7 @@
 #include "draft/editor/panels/gizmo_overlay.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/inspector_panel.hpp"
+#include "draft/editor/panels/settings_panel.hpp"
 #include "draft/editor/panels/systems_panel.hpp"
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/interface/imgui/console_system.hpp"
@@ -16,6 +17,7 @@
 #include "draft/util/files/file_handle.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/logger.hpp"
+#include "draft/util/serialization/serializer.hpp"
 #include "draft/input/action.hpp"
 
 namespace Draft {
@@ -156,7 +158,37 @@ namespace Draft {
 
     void EditorApplication::open_project(const std::filesystem::path& root){
         m_project.emplace(root);
+        load_settings();
         load_game_module();
+    }
+
+    void EditorApplication::load_settings(){
+        settings = EditorSettings();
+
+        if(!m_project)
+            return;
+
+        FileHandle manifest = HostFileSystem().open(m_project->manifest_path());
+        if(!manifest.exists())
+            return;
+
+        JSON json(manifest);
+        if(json.contains("editor"))
+            Serializer::deserialize(settings, json["editor"]);
+    }
+
+    void EditorApplication::save_settings(){
+        if(!m_project)
+            return;
+
+        FileHandle manifest = HostFileSystem().open(m_project->manifest_path());
+
+        // Preserve whatever else might already live in the manifest (module/asset location, ...)
+        // rather than clobbering it with a file containing only "editor".
+        JSON json = manifest.exists() ? JSON(manifest) : JSON::object();
+        Serializer::serialize(settings, json["editor"]);
+
+        manifest.write_string(json.dump(4));
     }
 
     void EditorApplication::load_game_module(){
@@ -176,6 +208,13 @@ namespace Draft {
         gameScene.get_registry().clear();
         gameScene.get_systems().clear();
 
+        // Catalog entries a previously-loaded module registered have their vtables (and, for
+        // systems, their factory closures) compiled into that module. Must drop them while it's
+        // still loaded, before emplace() below unloads it. Otherwise register_game() below,
+        // finding an old entry already registered under a name it wants, dangling-calls into
+        // memory that's no longer mapped.
+        gameEngine.clear();
+
         m_gameModule.emplace(modulePath);
         m_gameModule->register_game(gameContext, gameScene);
         m_watcher.emplace(modulePath);
@@ -191,6 +230,7 @@ namespace Draft {
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);
         editScene.get_systems().add<SystemsPanelSystem>(*this);
+        editScene.get_systems().add<SettingsPanelSystem>(*this);
         editScene.get_systems().add<AssetBrowserPanelSystem>(*this);
         editScene.get_systems().add<ConsoleSystem>(gameEngine, gameApp, assets);
 

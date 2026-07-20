@@ -14,6 +14,13 @@ namespace Draft {
         std::filesystem::path assets_dir() const;
 
         /**
+         * @brief Path to the project's own root-level settings file (editor preferences today,
+         * a natural home for module/asset location too if that ever moves out of the
+         * build-generated module manifest below). Editor-owned, not written by CMake.
+         */
+        std::filesystem::path manifest_path() const;
+
+        /**
          * @brief Path to the manifest draft_launcher itself reads, written at build time by
          * draft_add_game_module (see build_tools/CMakeLists.txt).
          */

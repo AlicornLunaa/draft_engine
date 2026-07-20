@@ -92,6 +92,7 @@ namespace Draft {
 
         if(ImGui::BeginMenu("View")){
             ImGui::MenuItem("Systems", nullptr, &m_app.systemsPanelVisible);
+            ImGui::MenuItem("Settings", nullptr, &m_app.settingsPanelVisible);
             ImGui::EndMenu();
         }
     }

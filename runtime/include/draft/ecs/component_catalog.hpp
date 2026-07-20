@@ -204,6 +204,21 @@ namespace Draft {
          */
         const std::vector<ComponentTypeInterface*>& all() const { return m_order; }
 
+        /**
+         * @brief Drops every registered entry. Needed before unloading a dynamically-loaded game
+         * module (see GameModuleLoader): a ComponentTypeCatalogEntry<T> registered from inside
+         * that module has its vtable compiled into the module itself, so once the module is
+         * unloaded, calling any virtual method on an entry left over from it (including from a
+         * future register_component<T>() looking up "is this name already registered") is a
+         * dangling-vtable call into unmapped memory. Must be called while that module is still
+         * loaded, before it's unloaded.
+         */
+        void clear(){
+            m_byType.clear();
+            m_byName.clear();
+            m_order.clear();
+        }
+
     private:
         std::unordered_map<std::type_index, std::unique_ptr<ComponentTypeInterface>> m_byType;
         std::unordered_map<std::string, ComponentTypeInterface*> m_byName;

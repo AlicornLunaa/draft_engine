@@ -54,7 +54,23 @@ namespace Draft {
         CommandCatalog& commands() { return m_commands; }
         const CommandCatalog& commands() const { return m_commands; }
 
+        /**
+         * @brief Drops every component/system type a game module registered, then re-registers
+         * the engine-owned baseline the constructor does. Must be called before unloading a
+         * GameModuleLoader (see ComponentCatalog::clear()/SystemCatalog::clear()), and before
+         * that module's own register_game() runs again on reload. Otherwise its first
+         * already-registered-by-name lookup dangling-calls into the just-unloaded module.
+         * Commands aren't touched: nothing here registers any into a game module's own code.
+         */
+        void clear(){
+            m_components.clear();
+            m_systems.clear();
+            register_builtin_components();
+        }
+
     private:
+        void register_builtin_components();
+
         ComponentCatalog m_components;
         SystemCatalog m_systems;
         CommandCatalog m_commands;

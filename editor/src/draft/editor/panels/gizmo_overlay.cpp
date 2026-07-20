@@ -16,9 +16,6 @@ namespace Draft {
         constexpr float ARROWHEAD_LENGTH = 10.f;
         constexpr float ARROWHEAD_WIDTH = 6.f;
 
-        constexpr float POSITION_SNAP_STEP = 10.f;
-        const float ROTATION_SNAP_STEP = Math::radians(15.f);
-
         constexpr Vector4f CENTER_COLOR{1.f, 0.784f, 0.f, 1.f};
         constexpr Vector4f CENTER_HOVER_COLOR{1.f, 0.902f, 0.47f, 1.f};
         constexpr Vector4f X_AXIS_COLOR{0.863f, 0.235f, 0.235f, 1.f};
@@ -98,8 +95,10 @@ namespace Draft {
             Vector2f mouseWorldNow = viewport.screen_to_world({mousePos.x, mousePos.y});
             Vector2f newPosition = m_dragPositionStart + (mouseWorldNow - m_dragMouseWorldStart);
 
-            if(ImGui::GetIO().KeyShift)
-                newPosition = { snap_to_step(newPosition.x, POSITION_SNAP_STEP), snap_to_step(newPosition.y, POSITION_SNAP_STEP) };
+            if(ImGui::GetIO().KeyShift){
+                float step = m_app.settings.positionSnapStep;
+                newPosition = { snap_to_step(newPosition.x, step), snap_to_step(newPosition.y, step) };
+            }
 
             entity.modify_component<TransformComponent>([newPosition](TransformComponent& t){
                 t.position = newPosition;
@@ -132,7 +131,7 @@ namespace Draft {
             float distance = Math::dot(mouseWorldNow - m_dragMouseWorldStart, axisDir);
 
             if(ImGui::GetIO().KeyShift)
-                distance = snap_to_step(distance, POSITION_SNAP_STEP);
+                distance = snap_to_step(distance, m_app.settings.positionSnapStep);
 
             Vector2f newPosition = m_dragPositionStart + axisDir * distance;
 
@@ -179,7 +178,7 @@ namespace Draft {
             float newRotation = Math::atan(toMouse.y, toMouse.x) + m_dragRotationOffset;
 
             if(ImGui::GetIO().KeyShift)
-                newRotation = snap_to_step(newRotation, ROTATION_SNAP_STEP);
+                newRotation = snap_to_step(newRotation, Math::radians(m_app.settings.rotationSnapStepDegrees));
 
             entity.modify_component<TransformComponent>([newRotation](TransformComponent& t){
                 t.rotation = newRotation;

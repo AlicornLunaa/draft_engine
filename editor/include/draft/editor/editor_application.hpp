@@ -7,6 +7,7 @@
 #include "draft/core/engine.hpp"
 #include "draft/core/sub_application.hpp"
 #include "draft/ecs/scene.hpp"
+#include "draft/editor/editor_settings.hpp"
 #include "draft/editor/game_module_watcher.hpp"
 #include "draft/editor/project.hpp"
 #include "draft/editor/selection.hpp"
@@ -49,6 +50,13 @@ namespace Draft {
         void request_reload_module();
         void request_play();
         void request_stop();
+
+        /**
+         * @brief Serializes `settings` to EditorProject::manifest_path(). Synchronous, no
+         * scene/registry state involved, safe to call directly from a panel's render() (e.g. on
+         * every settings field edit).
+         */
+        void save_settings();
 
         /**
          * @brief Clears gameScene and loads @p path into it, tracking it as currentScenePath.
@@ -110,6 +118,17 @@ namespace Draft {
         bool systemsPanelVisible = true;
 
         /**
+         * @brief Whether the Settings panel window is open, toggled from the dockspace's View menu.
+         */
+        bool settingsPanelVisible = false;
+
+        /**
+         * @brief Editor preferences (snap distances, ...), loaded from and saved to
+         * EditorProject::manifest_path().
+         */
+        EditorSettings settings;
+
+        /**
          * @brief Reset to false at the top of ColliderGizmoSystem::render() every frame, set true
          * if any of its handles were active or it just consumed a ghost-point insert click.
          */
@@ -134,6 +153,7 @@ namespace Draft {
 
         void process_pending();
         void open_project(const std::filesystem::path& root);
+        void load_settings();
         void load_game_module();
         void attach_chrome();
         void register_editor_commands();

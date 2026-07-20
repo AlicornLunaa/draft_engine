@@ -12,6 +12,10 @@
 
 namespace Draft {
     Engine::Engine(){
+        register_builtin_components();
+    }
+
+    void Engine::register_builtin_components(){
         register_component<TransformComponent>();
         register_component<TagComponent>();
         register_component<ParentComponent>();
