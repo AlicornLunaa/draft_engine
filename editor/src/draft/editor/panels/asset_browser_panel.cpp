@@ -1,7 +1,12 @@
 #include "draft/editor/panels/asset_browser_panel.hpp"
+#include "draft/audio/sound_buffer.hpp"
 #include "draft/editor/asset_drag_drop.hpp"
 #include "draft/editor/editor_application.hpp"
 #include "draft/editor/project.hpp"
+#include "draft/rendering/animation.hpp"
+#include "draft/rendering/font.hpp"
+#include "draft/rendering/model.hpp"
+#include "draft/rendering/texture.hpp"
 
 #include "imgui.h"
 
@@ -10,6 +15,30 @@
 #include <vector>
 
 namespace Draft {
+    namespace {
+        // Re-queues the key if it's already loaded, otherwise loads it fresh
+        template<typename T>
+        void reload_or_queue(AssetManager& assets, const std::string& key){
+            if(!assets.reload<T>(key))
+                assets.queue<T>(key);
+        }
+
+        // Scene/RML/RCSS/Language assets aren't loaded through AssetManager (see
+        // asset_pipeline.cpp's validate_assets()), so there's nothing to reload for them.
+        bool asset_kind_reloadable(AssetKind kind){
+            switch(kind){
+                case AssetKind::Texture:
+                case AssetKind::Font:
+                case AssetKind::Model:
+                case AssetKind::Sound:
+                case AssetKind::Animation:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
+
     AssetBrowserPanelSystem::AssetBrowserPanelSystem(EditorApplication& app) : m_app(app) {}
 
     void AssetBrowserPanelSystem::render(Time dt, RenderLayer layer){
@@ -27,6 +56,10 @@ namespace Draft {
 
                 if(ImGui::SmallButton("Refresh"))
                     rescan();
+
+                ImGui::SameLine();
+                if(ImGui::SmallButton("Reload All"))
+                    reload_all();
 
                 ImGui::Separator();
                 draw_node(m_root);
@@ -110,6 +143,17 @@ namespace Draft {
                 ImGui::Text("%s", child.name.c_str());
                 ImGui::EndDragDropSource();
             }
+
+            if(ImGui::BeginPopupContextItem(label.c_str())){
+                ImGui::BeginDisabled(!asset_kind_reloadable(child.kind));
+                if(ImGui::MenuItem("Reload")){
+                    reload_asset(child.kind, child.key);
+                    m_app.assets.load();
+                }
+                ImGui::EndDisabled();
+
+                ImGui::EndPopup();
+            }
         }
     }
 
@@ -118,5 +162,23 @@ namespace Draft {
             return;
 
         m_app.request_open_scene(m_scannedRoot / key);
+    }
+
+    void AssetBrowserPanelSystem::reload_all(){
+        for(const AssetTask& task : collect_project_assets(m_scannedRoot))
+            reload_asset(task.kind, task.key);
+
+        m_app.assets.load();
+    }
+
+    void AssetBrowserPanelSystem::reload_asset(AssetKind kind, const std::string& key){
+        switch(kind){
+            case AssetKind::Texture: reload_or_queue<Texture>(m_app.assets, key); break;
+            case AssetKind::Font: reload_or_queue<Font>(m_app.assets, key); break;
+            case AssetKind::Model: reload_or_queue<Model>(m_app.assets, key); break;
+            case AssetKind::Sound: reload_or_queue<SoundBuffer>(m_app.assets, key); break;
+            case AssetKind::Animation: reload_or_queue<Animation>(m_app.assets, key); break;
+            default: break;
+        }
     }
 }

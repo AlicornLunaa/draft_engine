@@ -9,6 +9,45 @@
 #include <filesystem>
 
 namespace Draft {
+    namespace {
+        // Rotating-arc throbber for indeterminate waits.
+        void draw_throbber(const char* label, float radius, float thickness){
+            ImGuiWindow* window = ImGui::GetCurrentWindow();
+            if(window->SkipItems)
+                return;
+
+            ImGuiContext& g = *GImGui;
+            const ImGuiStyle& style = g.Style;
+            const ImGuiID id = window->GetID(label);
+
+            ImVec2 pos = window->DC.CursorPos;
+            ImVec2 size(radius * 2.f, (radius + style.FramePadding.y) * 2.f);
+
+            const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
+            ImGui::ItemSize(bb, style.FramePadding.y);
+            if(!ImGui::ItemAdd(bb, id))
+                return;
+
+            window->DrawList->PathClear();
+
+            const int numSegments = 30;
+            const int start = static_cast<int>(std::abs(std::sin(g.Time * 1.8f)) * (numSegments - 5));
+            const float aMin = IM_PI * 2.0f * float(start) / float(numSegments);
+            const float aMax = IM_PI * 2.0f * float(numSegments - 3) / float(numSegments);
+            const ImVec2 centre(pos.x + radius, pos.y + radius + style.FramePadding.y);
+
+            for(int i = 0; i < numSegments; i++){
+                const float a = aMin + (float(i) / float(numSegments)) * (aMax - aMin);
+                window->DrawList->PathLineTo(ImVec2(
+                    centre.x + std::cos(a + g.Time * 8.f) * radius,
+                    centre.y + std::sin(a + g.Time * 8.f) * radius
+                ));
+            }
+
+            window->DrawList->PathStroke(ImGui::GetColorU32(ImGuiCol_ButtonHovered), false, thickness);
+        }
+    }
+
     DockspacePanelSystem::DockspacePanelSystem(EditorApplication& app) : m_app(app) {
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -259,10 +298,9 @@ namespace Draft {
             } else {
                 ImGui::TextUnformatted(m_app.build_action_label().c_str());
 
-                // Indeterminate marquee - there's no per-step progress signal to report here,
-                // the underlying cmake/pack/export calls only expose pass/fail plus log lines.
-                float t = static_cast<float>(std::fmod(ImGui::GetTime(), 1.5)) / 1.5f;
-                ImGui::ProgressBar(t, ImVec2(-1, 0), "");
+                const float radius = 16.f;
+                ImGui::SetCursorPosX((ImGui::GetWindowWidth() - radius * 2.f) * 0.5f);
+                draw_throbber("##build_throbber", radius, 4.f);
             }
 
             ImGui::EndPopup();

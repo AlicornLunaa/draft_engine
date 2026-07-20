@@ -13,12 +13,11 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 * Intentionally lightweight engine, where main logic is all compiled in with C++.
 
 ## Current Todo/Future Ideas
-- [ ] Proper editor
-- [ ] Shader pipeline
-- [ ] Animation editor
+- [ ] Shader preview with data and uniform mockup at runtime
+- [ ] Animation editor/previewer
 - [ ] Particle editor
-- [ ] Collider physics editor (overlaid texture)
-- [ ] Hot-reload of the game module
+- [ ] Collider physics editor (overlaid texture) which saves to JSON
+- [ ] RMLUI editor with hot reload for RML documents and a data binding mockup
 - [ ] Prefab system
 - [ ] Visual debugging tools
 - [ ] Profiler system to standardize calls to RAM/CPU usage across systems

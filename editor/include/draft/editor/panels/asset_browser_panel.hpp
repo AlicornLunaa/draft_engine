@@ -33,6 +33,8 @@ namespace Draft {
         void rescan();
         void draw_node(const AssetNode& node);
         void open_scene(const std::string& key);
+        void reload_all();
+        void reload_asset(AssetKind kind, const std::string& key);
 
         EditorApplication& m_app;
         std::filesystem::path m_scannedRoot;
