@@ -26,6 +26,6 @@ namespace Draft {
             return false;
         }
 
-        return m_pendingClock.get_elapsed_time() >= Time::milliseconds(200);
+        return m_pendingClock.get_elapsed_time() >= Time::milliseconds(1000);
     }
 }
