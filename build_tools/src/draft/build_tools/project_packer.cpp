@@ -24,15 +24,11 @@ namespace {
         ~CwdGuard() { fs::current_path(previous); }
     };
 
-    // Copies one validated asset into tempDir, source-relative path preserved. Scene JSON is
-    // re-parsed and re-dumped (consistent key order/formatting, "the packed copy is
-    // normalized"); everything else is opaque binary data, copied byte for byte with no
-    // decode/re-encode.
     void resave(const Draft::AssetTask& task, const fs::path& tempDir) {
         Draft::HostFileSystem hostFs;
         fs::path destination = tempDir / task.key;
 
-        if (task.kind == Draft::AssetKind::Scene) {
+        if (task.kind == Draft::AssetKind::Scene && fs::path(task.key).extension() == ".scene") {
             Draft::JSON parsed = Draft::JSON::parse(hostFs.read_string(task.key));
             hostFs.write_string(destination, parsed.dump(2));
         } else {

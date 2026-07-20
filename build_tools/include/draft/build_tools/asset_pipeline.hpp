@@ -18,6 +18,7 @@ namespace Draft {
         Model,
         Sound,
         Scene,
+        Prefab,
         RML,
         RCSS,
         Animation,
@@ -28,9 +29,7 @@ namespace Draft {
     const char* asset_kind_name(AssetKind kind);
 
     /**
-     * @brief Classifies @p projectRelativePath by extension: .png/.jpg/.jpeg -> Texture,
-     * .ttf -> Font, .glb/.gltf -> Model, .wav/.ogg -> Sound, any .json under an "assets/scenes/"
-     * directory (at any depth) -> Scene. Anything else is Unknown.
+     * @brief Classifies @p projectRelativePath by extension alone
      */
     AssetKind classify_asset(const std::filesystem::path& projectRelativePath);
 

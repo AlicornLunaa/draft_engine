@@ -1,9 +1,15 @@
 #include "draft/editor/panels/viewport_panel.hpp"
+#include "draft/editor/asset_drag_drop.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/editor/panels/gizmo_primitives.hpp"
+#include "draft/editor/prefab.hpp"
+#include "draft/editor/project.hpp"
+#include "draft/rendering/camera.hpp"
 
 #include "imgui.h"
 
 #include <cstdint>
+#include <string>
 
 namespace Draft {
     ViewportPanelSystem::ViewportPanelSystem(EditorApplication& app) : m_app(app) {}
@@ -30,6 +36,24 @@ namespace Draft {
             // Display gameApp's current output texture as-is.
             auto textureId = (ImTextureID)(intptr_t)m_app.gameApp.get_output().get_texture_handle();
             ImGui::Image(textureId, regionAvailable, ImVec2(0, 1), ImVec2(1, 0));
+
+            if(ImGui::BeginDragDropTarget()){
+                if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_drag_payload_type(AssetKind::Prefab))){
+                    std::string key(static_cast<const char*>(payload->Data), static_cast<size_t>(payload->DataSize));
+
+                    if(Camera* camera = m_app.gameScene.get_active_camera(); camera && m_app.has_project()){
+                        GizmoViewport viewport{*camera, {cursorPosition.x, cursorPosition.y}, {regionAvailable.x, regionAvailable.y}};
+                        ImVec2 dropScreenPos = ImGui::GetMousePos();
+                        Vector2f worldPos = viewport.screen_to_world({dropScreenPos.x, dropScreenPos.y});
+
+                        Entity instance = PrefabManager(m_app).instantiate_prefab(m_app.project()->root() / key, worldPos);
+                        if(instance.is_valid())
+                            m_app.selection.set(instance);
+                    }
+                }
+
+                ImGui::EndDragDropTarget();
+            }
 
             if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
                 ImGui::SetWindowFocus();

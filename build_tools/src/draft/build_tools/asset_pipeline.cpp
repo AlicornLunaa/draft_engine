@@ -14,20 +14,6 @@
 namespace fs = std::filesystem;
 
 namespace {
-    // True for any .json under an "assets/scenes/" directory, at any depth (e.g.
-    // "assets/scenes/level1.json" or "assets/scenes/dungeon/level2.json").
-    bool is_scene_json(const fs::path& projectRelativePath) {
-        std::vector<std::string> parts;
-        for (const auto& part : projectRelativePath)
-            parts.push_back(part.string());
-
-        for (std::size_t i = 0; i + 1 < parts.size(); i++)
-            if (parts[i] == "assets" && parts[i + 1] == "scenes")
-                return true;
-
-        return false;
-    }
-
     std::string describe(std::exception_ptr error) {
         try {
             if (error)
@@ -48,6 +34,7 @@ namespace Draft {
             case AssetKind::Model: return "Model";
             case AssetKind::Sound: return "Sound";
             case AssetKind::Scene: return "Scene";
+            case AssetKind::Prefab: return "Prefab";
             case AssetKind::RML: return "Rml Document";
             case AssetKind::RCSS: return "Rml Stylesheet";
             case AssetKind::Animation: return "Animation";
@@ -68,7 +55,8 @@ namespace Draft {
         if (ext == ".rcss") return AssetKind::RCSS;
         if (ext == ".anim") return AssetKind::Animation;
         if (ext == ".lang") return AssetKind::Language;
-        if (ext == ".json" && is_scene_json(projectRelativePath)) return AssetKind::Scene;
+        if (ext == ".scene" || ext == ".scenebin") return AssetKind::Scene;
+        if (ext == ".prefab") return AssetKind::Prefab;
 
         return AssetKind::Unknown;
     }
@@ -108,6 +96,7 @@ namespace Draft {
                 case AssetKind::Animation: assets.queue<Animation>(task.key); break;
                 case AssetKind::Language: break; // not validated, only packed
                 case AssetKind::Scene: break; // validated separately below, load_scene() doesn't go through AssetManager's loader registry
+                case AssetKind::Prefab: break; // not validated, plain JSON read on demand like a Scene but never through AssetManager
                 case AssetKind::RML: break; // not validated, only packed
                 case AssetKind::RCSS: break; // not validated, only packed
                 default: break;
@@ -126,7 +115,12 @@ namespace Draft {
 
             try {
                 Scene scratch;
-                load_scene(scratch, sceneEngine, assets, HostFileSystem().open(task.key));
+                FileHandle handle = HostFileSystem().open(task.key);
+
+                if (fs::path(task.key).extension() == ".scenebin")
+                    load_scene_binary(scratch, sceneEngine, assets, handle);
+                else
+                    load_scene(scratch, sceneEngine, assets, handle);
             } catch (const std::exception& e) {
                 errors[task.key] = e.what();
             }

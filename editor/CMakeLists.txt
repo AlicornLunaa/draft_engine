@@ -9,6 +9,7 @@ set(HEADERS
     include/draft/editor/field_widgets.hpp
     include/draft/editor/freecam_controller.hpp
     include/draft/editor/game_module_watcher.hpp
+    include/draft/editor/prefab.hpp
     include/draft/editor/project.hpp
     include/draft/editor/selection.hpp
     include/draft/editor/field_widgets/camera_widget.hpp
@@ -33,6 +34,7 @@ set(SOURCES
     src/draft/editor/field_widgets.cpp
     src/draft/editor/freecam_controller.cpp
     src/draft/editor/game_module_watcher.cpp
+    src/draft/editor/prefab.cpp
     src/draft/editor/project.cpp
     src/draft/editor/selection.cpp
     src/draft/editor/field_widgets/camera_widget.cpp

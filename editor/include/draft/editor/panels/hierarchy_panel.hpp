@@ -4,6 +4,7 @@
 #include "draft/ecs/system.hpp"
 #include "draft/util/reflectable.hpp"
 
+#include <array>
 #include <string>
 
 namespace Draft {
@@ -30,6 +31,12 @@ namespace Draft {
         Entity clone_subtree(Entity source, Entity parent);
         static std::string label_for(Entity entity);
 
+        void open_save_prefab_prompt(Entity entity);
+        void draw_save_prefab_modal();
+
         EditorApplication& m_app;
+        Entity m_prefabSaveTarget;
+        std::array<char, 512> m_prefabPathBuffer{};
+        bool m_openSavePrefabPopupRequested = false;
     };
 }

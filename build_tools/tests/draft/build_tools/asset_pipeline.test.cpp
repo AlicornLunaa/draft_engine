@@ -26,10 +26,12 @@ TEST(AssetPipeline, ClassifyAssetByExtension)
     ASSERT_EQ(classify_asset("assets/models/thing.gltf"), AssetKind::Model);
     ASSERT_EQ(classify_asset("assets/sfx/boom.wav"), AssetKind::Sound);
     ASSERT_EQ(classify_asset("assets/sfx/boom.ogg"), AssetKind::Sound);
-    ASSERT_EQ(classify_asset("assets/scenes/level1.json"), AssetKind::Scene);
-    ASSERT_EQ(classify_asset("assets/scenes/dungeon/level2.json"), AssetKind::Scene);
+    ASSERT_EQ(classify_asset("assets/scenes/level1.scene"), AssetKind::Scene);
+    ASSERT_EQ(classify_asset("assets/level2.scene"), AssetKind::Scene); // extension alone classifies it, no required directory
+    ASSERT_EQ(classify_asset("assets/scenes/level1.scenebin"), AssetKind::Scene);
+    ASSERT_EQ(classify_asset("assets/prefabs/crate.prefab"), AssetKind::Prefab);
     ASSERT_EQ(classify_asset("assets/shaders/default/vertex.glsl"), AssetKind::Unknown);
-    ASSERT_EQ(classify_asset("assets/data.json"), AssetKind::Unknown); // .json outside assets/scenes/ isn't a Scene
+    ASSERT_EQ(classify_asset("assets/data.json"), AssetKind::Unknown); // plain .json is no longer a recognized kind
 }
 
 class AssetPipelineProjectTest : public ::testing::Test {
@@ -47,7 +49,7 @@ protected:
         HostFileSystem hostFs;
         hostFs.write_bytes(projectRoot / "assets/fonts/default.ttf", sourceAssets.open("assets/fonts/default.ttf").read_bytes());
         hostFs.write_bytes(projectRoot / "assets/textures/debug_black.png", sourceAssets.open("assets/textures/debug_black.png").read_bytes());
-        hostFs.write_string(projectRoot / "assets/scenes/level1.json", "{\"systems\":[],\"entities\":[]}");
+        hostFs.write_string(projectRoot / "assets/scenes/level1.scene", "{\"systems\":[],\"entities\":[]}");
         hostFs.write_string(projectRoot / "assets/shaders/ignored.glsl", "// not a validated type");
 
         glfwInit();
@@ -76,7 +78,7 @@ TEST_F(AssetPipelineProjectTest, CollectWalksAssetsRecursivelyAndSkipsUnknownExt
     for (const auto& task : tasks) {
         if (task.key == "assets/fonts/default.ttf") { foundFont = true; ASSERT_EQ(task.kind, AssetKind::Font); }
         if (task.key == "assets/textures/debug_black.png") { foundTexture = true; ASSERT_EQ(task.kind, AssetKind::Texture); }
-        if (task.key == "assets/scenes/level1.json") { foundScene = true; ASSERT_EQ(task.kind, AssetKind::Scene); }
+        if (task.key == "assets/scenes/level1.scene") { foundScene = true; ASSERT_EQ(task.kind, AssetKind::Scene); }
     }
     ASSERT_TRUE(foundFont);
     ASSERT_TRUE(foundTexture);

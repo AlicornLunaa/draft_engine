@@ -2,6 +2,7 @@
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/editor/asset_drag_drop.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/editor/prefab.hpp"
 #include "draft/editor/project.hpp"
 #include "draft/rendering/animation.hpp"
 #include "draft/rendering/font.hpp"
@@ -136,6 +137,9 @@ namespace Draft {
 
                 if(child.kind == AssetKind::Scene && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
                     open_scene(child.key);
+
+                if(child.kind == AssetKind::Prefab && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                    instantiate_prefab_at_origin(child.key);
             }
 
             if(ImGui::BeginDragDropSource()){
@@ -162,6 +166,13 @@ namespace Draft {
             return;
 
         m_app.request_open_scene(m_scannedRoot / key);
+    }
+
+    void AssetBrowserPanelSystem::instantiate_prefab_at_origin(const std::string& key){
+        Entity instance = PrefabManager(m_app).instantiate_prefab(m_scannedRoot / key, Vector2f(0.f, 0.f));
+
+        if(instance.is_valid())
+            m_app.selection.set(instance);
     }
 
     void AssetBrowserPanelSystem::reload_all(){

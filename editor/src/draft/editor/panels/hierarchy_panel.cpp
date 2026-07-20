@@ -4,9 +4,11 @@
 #include "draft/ecs/component_catalog.hpp"
 #include "draft/ecs/relationship_components.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/editor/prefab.hpp"
 
 #include "imgui.h"
 
+#include <cstring>
 #include <typeindex>
 #include <vector>
 
@@ -58,6 +60,13 @@ namespace Draft {
         }
 
         ImGui::End();
+
+        if(m_openSavePrefabPopupRequested){
+            m_openSavePrefabPopupRequested = false;
+            ImGui::OpenPopup("Save As Prefab");
+        }
+
+        draw_save_prefab_modal();
 
         // Cleanup
         for(auto entity : entitiesToRemove){
@@ -112,6 +121,9 @@ namespace Draft {
         if(ImGui::BeginPopupContextItem()){
             if(ImGui::MenuItem("Duplicate"))
                 m_app.selection.set(duplicate_entity(entity));
+
+            if(ImGui::MenuItem("Save As Prefab..."))
+                open_save_prefab_prompt(entity);
 
             if(ImGui::MenuItem("Delete")){
                 bool wasSelected = m_app.selection.get() == entity;
@@ -192,5 +204,35 @@ namespace Draft {
             return tag->tag;
 
         return "Entity " + std::to_string(static_cast<uint32_t>(static_cast<entt::entity>(entity)));
+    }
+
+    void HierarchyPanelSystem::open_save_prefab_prompt(Entity entity){
+        m_prefabSaveTarget = entity;
+
+        std::filesystem::path suggested = m_app.project()->assets_dir() / "prefabs" / (label_for(entity) + ".prefab");
+        std::string suggestedStr = suggested.string();
+        std::strncpy(m_prefabPathBuffer.data(), suggestedStr.c_str(), m_prefabPathBuffer.size() - 1);
+
+        m_openSavePrefabPopupRequested = true;
+    }
+
+    void HierarchyPanelSystem::draw_save_prefab_modal(){
+        if(ImGui::BeginPopupModal("Save As Prefab", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+            ImGui::SetNextItemWidth(400.f);
+            ImGui::InputText("##PrefabPath", m_prefabPathBuffer.data(), m_prefabPathBuffer.size());
+
+            if(ImGui::Button("Save")){
+                if(m_prefabSaveTarget.is_valid())
+                    PrefabManager(m_app).save_prefab(m_prefabSaveTarget, std::filesystem::path(m_prefabPathBuffer.data()));
+
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+            if(ImGui::Button("Cancel"))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
+        }
     }
 }

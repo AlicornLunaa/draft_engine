@@ -229,7 +229,7 @@ namespace Draft {
 
         std::filesystem::path suggested = m_app.currentScenePath
             ? *m_app.currentScenePath
-            : (m_app.project()->assets_dir() / "scenes" / "NewScene.json");
+            : (m_app.project()->assets_dir() / "scenes" / "NewScene.scene");
 
         std::string suggestedStr = suggested.string();
         std::strncpy(m_scenePathBuffer.data(), suggestedStr.c_str(), m_scenePathBuffer.size() - 1);
