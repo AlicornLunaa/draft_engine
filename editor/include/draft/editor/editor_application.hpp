@@ -214,7 +214,7 @@ namespace Draft {
         void process_pending();
         void open_project(const std::filesystem::path& root);
         void load_settings();
-        void load_game_module();
+        void load_game_module(bool preserveScene);
         void attach_chrome();
         void register_editor_commands();
         void play();
@@ -222,6 +222,7 @@ namespace Draft {
         void open_scene_now(const std::filesystem::path& path);
         void new_scene_now(const std::filesystem::path& path);
         std::filesystem::path snapshot_path() const;
+        std::filesystem::path reload_snapshot_path() const;
 
         std::optional<EditorProject> m_project;
         std::optional<GameModuleLoader> m_gameModule;

@@ -197,7 +197,7 @@ namespace Draft {
                 case PendingAction::None: break;
                 case PendingAction::OpenProject: open_project(m_pendingProjectPath); break;
                 case PendingAction::ReloadModule:
-                    load_game_module();
+                    load_game_module(true);
                     if(m_playAfterBuild){
                         m_playAfterBuild = false;
                         play();
@@ -216,7 +216,7 @@ namespace Draft {
     void EditorApplication::open_project(const std::filesystem::path& root){
         m_project.emplace(root);
         load_settings();
-        load_game_module();
+        load_game_module(false);
     }
 
     void EditorApplication::load_settings(){
@@ -248,7 +248,7 @@ namespace Draft {
         manifest.write_string(json.dump(4));
     }
 
-    void EditorApplication::load_game_module(){
+    void EditorApplication::load_game_module(bool preserveScene){
         if(!m_project)
             return;
 
@@ -259,6 +259,14 @@ namespace Draft {
         // "assets" symlink/copy sits next to it, see test_bench/CMakeLists.txt's POST_BUILD step).
         std::filesystem::current_path(modulePath.parent_path());
 
+        bool wasPlaying = preserveScene && m_isPlaying;
+        std::filesystem::path reloadSnapshotPath = wasPlaying ? snapshot_path() : reload_snapshot_path();
+
+        if(preserveScene && !wasPlaying){
+            HostFileSystem().create_directories(reloadSnapshotPath);
+            save_scene(gameScene, gameEngine, assets, HostFileSystem().open(reloadSnapshotPath));
+        }
+
         GameModuleLoader newModule(modulePath);
 
         gameApp.simulationPaused = true;
@@ -266,17 +274,24 @@ namespace Draft {
         selection.clear();
         gameScene.get_registry().clear();
         gameScene.get_systems().clear();
-
-        // Catalog entries a previously-loaded module registered have their vtables (and, for
-        // systems, their factory closures) compiled into that module. Must drop them while it's
-        // still loaded, before the assignment below unloads it. Otherwise register_game() below,
-        // finding an old entry already registered under a name it wants, dangling-calls into
-        // memory that's no longer mapped.
         gameEngine.clear();
 
         m_gameModule = std::move(newModule);
         m_gameModule->register_game(gameContext, gameScene);
         m_watcher.emplace(modulePath);
+
+        if(preserveScene){
+            // Discard whatever register_game() just seeded on its own and restore the snapshot
+            // taken above instead, against the freshly (re)registered catalogs
+            gameScene.get_registry().clear();
+            gameScene.get_systems().clear();
+            load_scene(gameScene, gameEngine, assets, HostFileSystem().open(reloadSnapshotPath));
+        }
+
+        // Reload always leaves simulationPaused/m_isPlaying reset above (the module swap itself
+        // requires it), so resume here
+        if(wasPlaying)
+            play();
 
         Logger::println(LogLevel::Info, "Editor", "Loaded game module " + modulePath.string());
     }
@@ -375,5 +390,9 @@ namespace Draft {
 
     std::filesystem::path EditorApplication::snapshot_path() const {
         return m_project->root() / ".draft-editor" / "play_snapshot.json";
+    }
+
+    std::filesystem::path EditorApplication::reload_snapshot_path() const {
+        return m_project->root() / ".draft-editor" / "reload_snapshot.json";
     }
 }
