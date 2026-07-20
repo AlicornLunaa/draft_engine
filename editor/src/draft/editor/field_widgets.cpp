@@ -1,7 +1,9 @@
 #include "draft/editor/field_widgets.hpp"
 #include "draft/components/tag_component.hpp"
+#include "draft/editor/editor_application.hpp"
 #include "draft/editor/field_widgets/camera_widget.hpp" // IWYU pragma: keep
 #include "draft/editor/field_widgets/collider_widget.hpp" // IWYU pragma: keep
+#include "draft/editor/project.hpp"
 #include "draft/editor/selection.hpp"
 #include "draft/physics/body_type.hpp"
 #include "draft/physics/collider.hpp"
@@ -9,6 +11,8 @@
 #include "draft/audio/music.hpp"
 
 #include "imgui.h"
+
+#include <array>
 
 namespace Draft {
     std::string entity_label(Entity entity){
@@ -108,19 +112,39 @@ namespace Draft {
         return false;
     }
 
-    bool draw_resource_field(FieldContext& ctx, std::string_view label, Resource<Texture>& value){
-        auto key = ctx.assets.key_for<Texture>(value);
+    bool draw_asset_picker_list(FieldContext& ctx, AssetKind kind, std::string& outSelectedKey){
+        static std::array<char, 256> s_searchBuffer{};
 
-        if(value.is_valid()){
-            ImTextureID texId = static_cast<ImTextureID>(static_cast<intptr_t>(value->get_texture_handle()));
-            ImGui::Image(texId, ImVec2(32, 32));
-            ImGui::SameLine();
+        if(ImGui::IsWindowAppearing())
+            s_searchBuffer[0] = '\0';
+
+        ImGui::SetNextItemWidth(300.f);
+        ImGui::InputTextWithHint("##AssetPickerSearch", "Search...", s_searchBuffer.data(), s_searchBuffer.size());
+
+        if(!ctx.app.has_project())
+            return false;
+
+        bool picked = false;
+
+        ImGui::BeginChild("##AssetPickerList", ImVec2(300.f, 200.f));
+        for(const AssetTask& task : collect_project_assets(ctx.app.project()->root())){
+            if(task.kind != kind)
+                continue;
+
+            if(s_searchBuffer[0] != '\0' && task.key.find(s_searchBuffer.data()) == std::string::npos)
+                continue;
+
+            if(ImGui::Selectable(task.key.c_str())){
+                outSelectedKey = task.key;
+                picked = true;
+            }
         }
+        ImGui::EndChild();
 
-        ImGui::TextDisabled("%.*s", static_cast<int>(label.size()), label.data());
-        ImGui::SameLine();
-        ImGui::Text("%s", key ? key->c_str() : "(unassigned)");
-        return false;
+        if(picked)
+            ImGui::CloseCurrentPopup();
+
+        return picked;
     }
 
     bool draw_json_editor(std::string_view label, JSON& json){

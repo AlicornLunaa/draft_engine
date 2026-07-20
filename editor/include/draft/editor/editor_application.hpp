@@ -51,6 +51,26 @@ namespace Draft {
         void request_stop();
 
         /**
+         * @brief Clears gameScene and loads @p path into it, tracking it as currentScenePath.
+         * Deferred to the next step() (see class doc comment), same as Play/Stop, since it
+         * mutates gameScene's registry/systems.
+         */
+        void request_open_scene(std::filesystem::path path);
+
+        /**
+         * @brief Writes a brand new, empty scene to @p path, then opens it the same way
+         * request_open_scene() would. Deferred for the same reason.
+         */
+        void request_new_scene(std::filesystem::path path);
+
+        /**
+         * @brief Serializes gameScene to @p path and tracks it as currentScenePath. Synchronous -
+         * unlike open/new, this only reads gameScene, it never touches its registry/systems, so
+         * there's no reentrancy hazard calling it directly from a panel's render().
+         */
+        void save_scene_to(const std::filesystem::path& path);
+
+        /**
          * @brief True from request_play() until request_stop(), regardless of gameApp.simulationPaused
          */
         bool is_playing() const { return m_isPlaying; }
@@ -90,13 +110,21 @@ namespace Draft {
          */
         bool colliderGizmoActiveThisFrame = false;
 
+        /**
+         * @brief Absolute path gameScene was last opened/saved from, or nullopt if it's never
+         * been saved anywhere yet ("(Unsaved scene)" in the dockspace's title text).
+         */
+        std::optional<std::filesystem::path> currentScenePath;
+
     private:
         enum class PendingAction {
             None,
             OpenProject,
             ReloadModule,
             Play,
-            Stop
+            Stop,
+            OpenScene,
+            NewScene
         };
 
         void process_pending();
@@ -105,6 +133,8 @@ namespace Draft {
         void attach_chrome();
         void play();
         void stop();
+        void open_scene_now(const std::filesystem::path& path);
+        void new_scene_now(const std::filesystem::path& path);
         std::filesystem::path snapshot_path() const;
 
         std::optional<EditorProject> m_project;
@@ -113,6 +143,7 @@ namespace Draft {
 
         PendingAction m_pending = PendingAction::None;
         std::filesystem::path m_pendingProjectPath;
+        std::filesystem::path m_pendingScenePath;
         bool m_isPlaying = false;
     };
 }

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 project("draft_editor" VERSION 0.1.0 LANGUAGES CXX)
 
 set(HEADERS
+    include/draft/editor/asset_drag_drop.hpp
     include/draft/editor/editor_application.hpp
     include/draft/editor/field_widgets.hpp
     include/draft/editor/freecam_controller.hpp
@@ -10,6 +11,7 @@ set(HEADERS
     include/draft/editor/selection.hpp
     include/draft/editor/field_widgets/camera_widget.hpp
     include/draft/editor/field_widgets/collider_widget.hpp
+    include/draft/editor/panels/asset_browser_panel.hpp
     include/draft/editor/panels/collider_gizmo.hpp
     include/draft/editor/panels/dockspace_panel.hpp
     include/draft/editor/panels/entity_picker.hpp
@@ -21,6 +23,7 @@ set(HEADERS
 )
 
 set(SOURCES
+    src/draft/editor/asset_drag_drop.cpp
     src/draft/editor/editor_application.cpp
     src/draft/editor/field_widgets.cpp
     src/draft/editor/freecam_controller.cpp
@@ -29,6 +32,7 @@ set(SOURCES
     src/draft/editor/selection.cpp
     src/draft/editor/field_widgets/camera_widget.cpp
     src/draft/editor/field_widgets/collider_widget.cpp
+    src/draft/editor/panels/asset_browser_panel.cpp
     src/draft/editor/panels/collider_gizmo.cpp
     src/draft/editor/panels/dockspace_panel.cpp
     src/draft/editor/panels/entity_picker.cpp

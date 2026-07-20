@@ -1,6 +1,7 @@
 #include "draft/editor/editor_application.hpp"
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/freecam_controller.hpp"
+#include "draft/editor/panels/asset_browser_panel.hpp"
 #include "draft/editor/panels/collider_gizmo.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/panels/gizmo_overlay.hpp"
@@ -107,6 +108,22 @@ namespace Draft {
         m_pending = PendingAction::Stop;
     }
 
+    void EditorApplication::request_open_scene(std::filesystem::path path){
+        m_pendingScenePath = std::move(path);
+        m_pending = PendingAction::OpenScene;
+    }
+
+    void EditorApplication::request_new_scene(std::filesystem::path path){
+        m_pendingScenePath = std::move(path);
+        m_pending = PendingAction::NewScene;
+    }
+
+    void EditorApplication::save_scene_to(const std::filesystem::path& path){
+        HostFileSystem().create_directories(path);
+        save_scene(gameScene, gameEngine, assets, HostFileSystem().open(path));
+        currentScenePath = path;
+    }
+
     void EditorApplication::toggle_pause(){
         if(!m_isPlaying)
             return;
@@ -125,6 +142,8 @@ namespace Draft {
                 case PendingAction::ReloadModule: load_game_module(); break;
                 case PendingAction::Play: play(); break;
                 case PendingAction::Stop: stop(); break;
+                case PendingAction::OpenScene: open_scene_now(m_pendingScenePath); break;
+                case PendingAction::NewScene: new_scene_now(m_pendingScenePath); break;
             }
         } catch(const std::exception& e){
             Logger::println(LogLevel::Severe, "Editor", e.what());
@@ -167,6 +186,7 @@ namespace Draft {
         editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);
+        editScene.get_systems().add<AssetBrowserPanelSystem>(*this);
 
         // ColliderGizmoSystem must render before GizmoOverlaySystem because it sets
         // colliderGizmoActiveThisFrame fresh each frame.
@@ -201,6 +221,34 @@ namespace Draft {
         gameScene.get_systems().clear();
 
         load_scene(gameScene, gameEngine, assets, snapshot);
+    }
+
+    void EditorApplication::open_scene_now(const std::filesystem::path& path){
+        FileHandle file = HostFileSystem().open(path);
+        if(!file.exists()){
+            Logger::println(LogLevel::Severe, "Editor", "Scene not found: " + path.string());
+            return;
+        }
+
+        selection.clear();
+        gameScene.get_registry().clear();
+        gameScene.get_systems().clear();
+
+        try {
+            load_scene(gameScene, gameEngine, assets, file);
+            currentScenePath = path;
+        } catch(const std::exception& e){
+            Logger::println(LogLevel::Severe, "Editor", "Failed to open scene " + path.string() + ": " + e.what());
+        }
+    }
+
+    void EditorApplication::new_scene_now(const std::filesystem::path& path){
+        HostFileSystem().create_directories(path);
+
+        Scene empty;
+        save_scene(empty, gameEngine, assets, HostFileSystem().open(path));
+
+        open_scene_now(path);
     }
 
     std::filesystem::path EditorApplication::snapshot_path() const {

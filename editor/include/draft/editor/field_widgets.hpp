@@ -2,8 +2,10 @@
 
 #include "draft/asset/asset_manager.hpp"
 #include "draft/asset/resource.hpp"
+#include "draft/build_tools/asset_pipeline.hpp"
 #include "draft/ecs/entity.hpp"
 #include "draft/ecs/scene.hpp"
+#include "draft/editor/asset_drag_drop.hpp"
 #include "draft/math/glm.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/reflectable.hpp"
@@ -21,6 +23,7 @@
 namespace Draft {
     class EditorSelection;
     class EditorApplication;
+    class Animation;
 
     /**
      * @brief Everything a field widget might need beyond the value it's editing: the scene to
@@ -51,11 +54,81 @@ namespace Draft {
     template<typename T> struct IsResource : std::false_type {};
     template<typename T> struct IsResource<Resource<T>> : std::true_type { using AssetType = T; };
 
+    /**
+     * @brief Maps an asset type T to the AssetKind an asset browser entry needs to have for a
+     * Resource<T> field to accept it as a drag-drop drop. Only specialized for types that both
+     * have a working AssetManager default loader and already appear as a Resource<T> field
+     * somewhere - unspecialized T just means "no drop target", not an error.
+     */
+    template<typename T> struct AssetKindOf { static constexpr bool has_kind = false; };
+    template<> struct AssetKindOf<Texture> { static constexpr bool has_kind = true; static constexpr AssetKind kind = AssetKind::Texture; };
+    template<> struct AssetKindOf<Animation> { static constexpr bool has_kind = true; static constexpr AssetKind kind = AssetKind::Animation; };
+
     std::string entity_label(Entity entity);
     bool draw_entity_field(FieldContext& ctx, std::string_view label, Entity& value);
     bool draw_entity_list_field(FieldContext& ctx, std::string_view label, std::vector<Entity>& values);
     bool draw_string_field(std::string_view label, std::string& value);
-    bool draw_resource_field(FieldContext& ctx, std::string_view label, Resource<Texture>& value);
+
+    /**
+     * @brief Draws a search box + scrollable list of every project asset of @p kind (must be
+     * called with a popup already begun, e.g. via ImGui::BeginPopup()). Shared across every
+     * Resource<T> field's picker button, T-agnostic since it only ever hands back a key string.
+     * @return True if an entry was picked this frame (@p outSelectedKey set, popup closed).
+     */
+    bool draw_asset_picker_list(FieldContext& ctx, AssetKind kind, std::string& outSelectedKey);
+
+    /**
+     * @brief Shows a Resource<T>'s current key (plus a thumbnail for Texture). If T has an
+     * AssetKindOf, also offers two ways to reassign it: a drop target accepting a matching-kind
+     * drag from the asset browser, and a "..." button opening draw_asset_picker_list().
+     */
+    template<typename T>
+    bool draw_resource_field(FieldContext& ctx, std::string_view label, Resource<T>& value){
+        auto key = ctx.assets.template key_for<T>(value);
+
+        if constexpr(std::same_as<T, Texture>){
+            if(value.is_valid()){
+                ImTextureID texId = static_cast<ImTextureID>(static_cast<intptr_t>(value->get_texture_handle()));
+                ImGui::Image(texId, ImVec2(32, 32));
+                ImGui::SameLine();
+            }
+        }
+
+        ImGui::TextDisabled("%.*s", static_cast<int>(label.size()), label.data());
+        ImGui::SameLine();
+        ImGui::Text("%s", key ? key->c_str() : "(unassigned)");
+
+        bool changed = false;
+
+        if constexpr(AssetKindOf<T>::has_kind){
+            if(ImGui::BeginDragDropTarget()){
+                if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_drag_payload_type(AssetKindOf<T>::kind))){
+                    std::string droppedKey(static_cast<const char*>(payload->Data), static_cast<size_t>(payload->DataSize));
+                    value = ctx.assets.template get<T>(droppedKey);
+                    changed = true;
+                }
+
+                ImGui::EndDragDropTarget();
+            }
+
+            std::string pickerId = "PickAsset##" + std::string(label);
+            ImGui::SameLine();
+            if(ImGui::SmallButton(("...##" + std::string(label)).c_str()))
+                ImGui::OpenPopup(pickerId.c_str());
+
+            if(ImGui::BeginPopup(pickerId.c_str())){
+                std::string pickedKey;
+                if(draw_asset_picker_list(ctx, AssetKindOf<T>::kind, pickedKey)){
+                    value = ctx.assets.template get<T>(pickedKey);
+                    changed = true;
+                }
+
+                ImGui::EndPopup();
+            }
+        }
+
+        return changed;
+    }
 
     /**
      * @brief Generic recursive JSON tree editor.
@@ -113,14 +186,8 @@ namespace Draft {
             return draw_entity_field(ctx, label, value);
         } else if constexpr(std::same_as<T, std::vector<Entity>>){
             return draw_entity_list_field(ctx, label, value);
-        } else if constexpr(std::same_as<T, Resource<Texture>>){
-            return draw_resource_field(ctx, label, value);
         } else if constexpr(IsResource<T>::value){
-            auto key = ctx.assets.template key_for<typename IsResource<T>::AssetType>(value);
-            ImGui::TextDisabled("%.*s", static_cast<int>(label.size()), label.data());
-            ImGui::SameLine();
-            ImGui::Text("%s", key ? key->c_str() : "(unassigned)");
-            return false;
+            return draw_resource_field(ctx, label, value);
         } else if constexpr(std::is_enum_v<T>){
             if constexpr(requires(T v){ { enum_name(v) } -> std::convertible_to<std::string_view>; enum_values(v); }){
                 bool changed = false;

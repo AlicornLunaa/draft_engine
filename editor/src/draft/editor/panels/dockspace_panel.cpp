@@ -33,6 +33,8 @@ namespace Draft {
             draw_play_controls();
             ImGui::EndMainMenuBar();
         }
+
+        draw_scene_path_modal();
     }
 
     void DockspacePanelSystem::draw_menu_bar(){
@@ -47,6 +49,23 @@ namespace Draft {
             ImGui::BeginDisabled(!m_app.has_project());
             if(ImGui::MenuItem("Reload Module"))
                 m_app.request_reload_module();
+            ImGui::EndDisabled();
+
+            ImGui::Separator();
+
+            ImGui::BeginDisabled(!m_app.has_project());
+            if(ImGui::MenuItem("New Scene"))
+                open_scene_prompt(ScenePromptMode::New);
+
+            if(ImGui::MenuItem("Save Scene")){
+                if(m_app.currentScenePath)
+                    m_app.save_scene_to(*m_app.currentScenePath);
+                else
+                    open_scene_prompt(ScenePromptMode::SaveAs);
+            }
+
+            if(ImGui::MenuItem("Save Scene As..."))
+                open_scene_prompt(ScenePromptMode::SaveAs);
             ImGui::EndDisabled();
 
             ImGui::Separator();
@@ -85,8 +104,56 @@ namespace Draft {
 
         ImGui::EndDisabled();
 
-        if(m_app.has_project())
+        if(m_app.has_project()){
             ImGui::Text("  %s", m_app.project()->root().string().c_str());
+            ImGui::SameLine();
+
+            if(m_app.currentScenePath)
+                ImGui::Text(" | %s", m_app.currentScenePath->filename().string().c_str());
+            else
+                ImGui::TextDisabled(" | (Unsaved scene)");
+        }
+    }
+
+    void DockspacePanelSystem::open_scene_prompt(ScenePromptMode mode){
+        m_scenePrompt = mode;
+
+        std::filesystem::path suggested = m_app.currentScenePath
+            ? *m_app.currentScenePath
+            : (m_app.project()->assets_dir() / "scenes" / "NewScene.json");
+
+        std::string suggestedStr = suggested.string();
+        std::strncpy(m_scenePathBuffer.data(), suggestedStr.c_str(), m_scenePathBuffer.size() - 1);
+
+        ImGui::OpenPopup("Scene Path");
+    }
+
+    void DockspacePanelSystem::draw_scene_path_modal(){
+        if(ImGui::BeginPopupModal("Scene Path", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+            ImGui::Text("%s", m_scenePrompt == ScenePromptMode::New ? "New Scene" : "Save Scene As");
+            ImGui::SetNextItemWidth(400.f);
+            ImGui::InputText("##ScenePath", m_scenePathBuffer.data(), m_scenePathBuffer.size());
+
+            if(ImGui::Button("Save")){
+                std::filesystem::path path(m_scenePathBuffer.data());
+
+                if(m_scenePrompt == ScenePromptMode::New)
+                    m_app.request_new_scene(path);
+                else
+                    m_app.save_scene_to(path);
+
+                m_scenePrompt = ScenePromptMode::None;
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+            if(ImGui::Button("Cancel")){
+                m_scenePrompt = ScenePromptMode::None;
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
     }
 
     void DockspacePanelSystem::build_initial_layout(unsigned int dockspaceId){
@@ -98,11 +165,15 @@ namespace Draft {
         ImGuiID rightOfHierarchyId;
         ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.2f, &hierarchyId, &rightOfHierarchyId);
 
+        ImGuiID assetBrowserId;
+        ImGui::DockBuilderSplitNode(hierarchyId, ImGuiDir_Down, 0.4f, &assetBrowserId, &hierarchyId);
+
         ImGuiID inspectorId;
         ImGuiID viewportId;
         ImGui::DockBuilderSplitNode(rightOfHierarchyId, ImGuiDir_Right, 0.3f, &inspectorId, &viewportId);
 
         ImGui::DockBuilderDockWindow("Hierarchy", hierarchyId);
+        ImGui::DockBuilderDockWindow("Asset Browser", assetBrowserId);
         ImGui::DockBuilderDockWindow("Viewport###Viewport", viewportId);
         ImGui::DockBuilderDockWindow("Inspector", inspectorId);
 
