@@ -18,7 +18,14 @@ namespace Draft {
         if(m_lastModified.has_value() && modified == *m_lastModified)
             return false;
 
-        m_lastModified = modified;
-        return true;
+        // First sight of this mtime (or it moved again since the last time we noticed it):
+        // reset the settle timer rather than reporting the change yet.
+        if(!m_pendingModified.has_value() || modified != *m_pendingModified){
+            m_pendingModified = modified;
+            m_pendingClock.restart();
+            return false;
+        }
+
+        return m_pendingClock.get_elapsed_time() >= Time::milliseconds(200);
     }
 }

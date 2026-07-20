@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/util/clock.hpp"
 #include "draft/util/time.hpp"
 
 #include <filesystem>
@@ -15,14 +16,15 @@ namespace Draft {
         explicit GameModuleWatcher(std::filesystem::path path);
 
         /**
-         * @brief True once, the first time the watched file's mtime differs from what it was
-         * at construction (or the last time this returned true). False if the file doesn't
-         * currently exist.
+         * @brief True once the watched file's mtime has changed from what it was at construction.
          */
         bool poll();
 
     private:
         std::filesystem::path m_path;
         std::optional<Time> m_lastModified;
+
+        std::optional<Time> m_pendingModified;
+        Clock m_pendingClock;
     };
 }

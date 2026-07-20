@@ -202,6 +202,8 @@ namespace Draft {
         // in.
         std::filesystem::current_path(m_project->module_manifest_path().parent_path());
 
+        GameModuleLoader newModule(modulePath);
+
         gameApp.simulationPaused = true;
         m_isPlaying = false;
         selection.clear();
@@ -210,12 +212,12 @@ namespace Draft {
 
         // Catalog entries a previously-loaded module registered have their vtables (and, for
         // systems, their factory closures) compiled into that module. Must drop them while it's
-        // still loaded, before emplace() below unloads it. Otherwise register_game() below,
+        // still loaded, before the assignment below unloads it. Otherwise register_game() below,
         // finding an old entry already registered under a name it wants, dangling-calls into
         // memory that's no longer mapped.
         gameEngine.clear();
 
-        m_gameModule.emplace(modulePath);
+        m_gameModule = std::move(newModule);
         m_gameModule->register_game(gameContext, gameScene);
         m_watcher.emplace(modulePath);
 

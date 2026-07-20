@@ -25,6 +25,9 @@ namespace Draft {
         GameModuleLoader(const GameModuleLoader&) = delete;
         GameModuleLoader& operator=(const GameModuleLoader&) = delete;
 
+        GameModuleLoader(GameModuleLoader&& other) noexcept;
+        GameModuleLoader& operator=(GameModuleLoader&& other) noexcept;
+
         ~GameModuleLoader();
 
         /**
@@ -44,5 +47,8 @@ namespace Draft {
         void* m_handle = nullptr;
         GameInfoFn m_gameInfo = nullptr;
         RegisterGameFn m_registerGame = nullptr;
+
+        // The actual dlopen()/LoadLibrary() target
+        std::filesystem::path m_copyPath;
     };
 }

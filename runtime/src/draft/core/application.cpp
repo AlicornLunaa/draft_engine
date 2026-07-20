@@ -23,6 +23,10 @@ namespace Draft {
         p_renderer = std::make_unique<DefaultRenderer>(window.get_size());
     }
 
+    Application::~Application(){
+        p_renderer.reset();
+    }
+
     // Private functions
     void Application::framebuffer_resized(unsigned int width, unsigned int height){
         m_pendingResize = true;
