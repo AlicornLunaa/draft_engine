@@ -46,6 +46,7 @@ namespace Draft {
             if(!trimmed.empty() && trimmed.back() == '\n')
                 trimmed.pop_back();
 
+            std::lock_guard lock(m_entriesMutex);
             m_entries.push(LogEntry{level, std::string(name), std::move(trimmed)});
             m_scrollToBottom = true;
         });
@@ -60,7 +61,10 @@ namespace Draft {
     void ConsoleSystem::register_builtin_commands(){
         m_engine.register_command({
             "clear", "Clears the console log.",
-            [this](CommandContext&){ m_entries = CircularBuffer<LogEntry>(LOG_CAPACITY); }
+            [this](CommandContext&){
+                std::lock_guard lock(m_entriesMutex);
+                m_entries = CircularBuffer<LogEntry>(LOG_CAPACITY);
+            }
         });
 
         m_engine.register_command({
@@ -85,8 +89,10 @@ namespace Draft {
         ImGui::SetNextWindowSize(ImVec2(600, 300), ImGuiCond_FirstUseEver);
 
         if(ImGui::Begin("Console", &m_visible)){
-            if(ImGui::SmallButton("Clear"))
+            if(ImGui::SmallButton("Clear")){
+                std::lock_guard lock(m_entriesMutex);
                 m_entries = CircularBuffer<LogEntry>(LOG_CAPACITY);
+            }
 
             ImGui::SameLine();
             ImGui::Checkbox("Auto scroll", &m_autoScroll);
@@ -103,11 +109,14 @@ namespace Draft {
     void ConsoleSystem::draw_log(){
         ImGui::BeginChild("##ConsoleLog", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), ImGuiChildFlags_Borders);
 
-        for(std::size_t i = 0; i < m_entries.length(); i++){
-            const LogEntry& entry = m_entries[static_cast<int>(i)];
-            ImGui::PushStyleColor(ImGuiCol_Text, level_color(entry.level));
-            ImGui::TextUnformatted(("[" + entry.name + "] " + entry.message).c_str());
-            ImGui::PopStyleColor();
+        {
+            std::lock_guard lock(m_entriesMutex);
+            for(std::size_t i = 0; i < m_entries.length(); i++){
+                const LogEntry& entry = m_entries[static_cast<int>(i)];
+                ImGui::PushStyleColor(ImGuiCol_Text, level_color(entry.level));
+                ImGui::TextUnformatted(("[" + entry.name + "] " + entry.message).c_str());
+                ImGui::PopStyleColor();
+            }
         }
 
         if(m_scrollToBottom || (m_autoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))

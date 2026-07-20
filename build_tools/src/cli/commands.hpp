@@ -5,3 +5,4 @@
 int run_validate(int argc, char** argv);
 int run_pack(int argc, char** argv);
 int run_export(int argc, char** argv);
+int run_manifest(int argc, char** argv);

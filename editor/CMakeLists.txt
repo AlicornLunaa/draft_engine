@@ -3,6 +3,7 @@ project("draft_editor" VERSION 0.1.0 LANGUAGES CXX)
 
 set(HEADERS
     include/draft/editor/asset_drag_drop.hpp
+    include/draft/editor/build_actions.hpp
     include/draft/editor/editor_application.hpp
     include/draft/editor/editor_settings.hpp
     include/draft/editor/field_widgets.hpp
@@ -27,6 +28,7 @@ set(HEADERS
 
 set(SOURCES
     src/draft/editor/asset_drag_drop.cpp
+    src/draft/editor/build_actions.cpp
     src/draft/editor/editor_application.cpp
     src/draft/editor/field_widgets.cpp
     src/draft/editor/freecam_controller.cpp
@@ -57,6 +59,9 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE draft::common draft::runtime draft::build_tools)
+# glfw: build_actions.cpp calls glfwInit()/glfwWindowHint() directly (same reason
+# build_tools/project_packer.cpp does, see its own CMakeLists.txt comment), draft::runtime only
+# links glfw PRIVATE, so anything calling raw GLFW functions itself needs its own link to it.
+target_link_libraries(${PROJECT_NAME} PRIVATE draft::common draft::runtime draft::build_tools glfw)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 draft_copy_openal_dll(${PROJECT_NAME})

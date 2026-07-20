@@ -6,7 +6,9 @@
 #include "draft/util/reflectable.hpp"
 
 #include <array>
+#include <atomic>
 #include <cstddef>
+#include <mutex>
 #include <string>
 
 struct ImGuiInputTextCallbackData;
@@ -47,11 +49,13 @@ namespace Draft {
         Engine& m_engine;
         ApplicationInterface& m_application;
         AssetManager& m_assets;
+
+        std::mutex m_entriesMutex;
         CircularBuffer<LogEntry> m_entries;
         std::size_t m_sinkToken;
         std::array<char, 256> m_inputBuffer{};
         bool m_visible = false;
         bool m_autoScroll = true;
-        bool m_scrollToBottom = false;
+        std::atomic<bool> m_scrollToBottom = false;
     };
 }

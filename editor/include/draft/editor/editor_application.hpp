@@ -7,6 +7,7 @@
 #include "draft/core/engine.hpp"
 #include "draft/core/sub_application.hpp"
 #include "draft/ecs/scene.hpp"
+#include "draft/editor/build_actions.hpp"
 #include "draft/editor/editor_settings.hpp"
 #include "draft/editor/game_module_watcher.hpp"
 #include "draft/editor/project.hpp"
@@ -50,6 +51,40 @@ namespace Draft {
         void request_reload_module();
         void request_play();
         void request_stop();
+
+        /**
+         * @brief Starts `cmake --build` (configuring first if the project has never been built)
+         * on a background thread. A successful build reloads the game module automatically on
+         * a later step() (see BuildActions), the same as clicking Reload Module.
+         */
+        void request_build();
+
+        /**
+         * @brief Same as request_build(), but also starts Play once the resulting module reload
+         * finishes - only if the build actually succeeded. Bound to F5.
+         */
+        void request_build_and_play();
+
+        /**
+         * @brief Validates every asset under the project's assets dir against gameEngine's live
+         * catalogs, on a background thread. Results are logged (see Phase 6's console panel).
+         */
+        void request_validate_assets();
+
+        /**
+         * @brief Packs the project's assets into <root>/build/<project-dir-name>.apak, on a
+         * background thread.
+         */
+        void request_pack();
+
+        /**
+         * @brief Exports the project (Release build + install + asset pack) to @p outputDir, on
+         * a background thread.
+         */
+        void request_export(std::filesystem::path outputDir);
+
+        bool build_action_running() const { return m_buildActions.running(); }
+        std::string build_action_label() const { return m_buildActions.label(); }
 
         /**
          * @brief Serializes `settings` to EditorProject::manifest_path(). Synchronous, no
@@ -166,6 +201,8 @@ namespace Draft {
         std::optional<EditorProject> m_project;
         std::optional<GameModuleLoader> m_gameModule;
         std::optional<GameModuleWatcher> m_watcher;
+        BuildActions m_buildActions;
+        bool m_playAfterBuild = false;
 
         PendingAction m_pending = PendingAction::None;
         std::filesystem::path m_pendingProjectPath;

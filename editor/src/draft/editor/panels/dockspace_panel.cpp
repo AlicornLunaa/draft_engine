@@ -1,10 +1,10 @@
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/editor_application.hpp"
-#include "draft/util/logger.hpp"
 
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#include <cmath>
 #include <cstring>
 #include <filesystem>
 
@@ -42,19 +42,30 @@ namespace Draft {
             ImGui::OpenPopup("Scene Path");
         }
 
+        if(m_openExportPopupRequested){
+            m_openExportPopupRequested = false;
+            ImGui::OpenPopup("Export Path");
+        }
+
         draw_scene_path_modal();
+        draw_export_path_modal();
+        draw_build_progress_modal();
     }
 
     void DockspacePanelSystem::draw_menu_bar(){
+        bool busy = m_app.build_action_running();
+
         if(ImGui::BeginMenu("File")){
             ImGui::SetNextItemWidth(300.f);
             ImGui::InputText("##ProjectPath", m_projectPathBuffer.data(), m_projectPathBuffer.size());
             ImGui::SameLine();
 
+            ImGui::BeginDisabled(busy);
             if(ImGui::MenuItem("Open Project"))
                 m_app.request_open_project(std::filesystem::path(m_projectPathBuffer.data()));
+            ImGui::EndDisabled();
 
-            ImGui::BeginDisabled(!m_app.has_project());
+            ImGui::BeginDisabled(!m_app.has_project() || busy);
             if(ImGui::MenuItem("Reload Module"))
                 m_app.request_reload_module();
             ImGui::EndDisabled();
@@ -84,9 +95,24 @@ namespace Draft {
         }
 
         if(ImGui::BeginMenu("Build")){
-            // Wired up in Phase 7
-            ImGui::MenuItem("Build Project", nullptr, false, false);
-            ImGui::MenuItem("Export Project", nullptr, false, false);
+            ImGui::BeginDisabled(!m_app.has_project() || busy);
+
+            if(ImGui::MenuItem("Build"))
+                do_build();
+
+            if(ImGui::MenuItem("Validate Assets"))
+                m_app.request_validate_assets();
+
+            if(ImGui::MenuItem("Pack Assets"))
+                m_app.request_pack();
+
+            if(ImGui::MenuItem("Export Project...")){
+                std::string suggested = (m_app.project()->root() / "export").string();
+                std::strncpy(m_exportPathBuffer.data(), suggested.c_str(), m_exportPathBuffer.size() - 1);
+                m_openExportPopupRequested = true;
+            }
+
+            ImGui::EndDisabled();
             ImGui::EndMenu();
         }
 
@@ -95,6 +121,13 @@ namespace Draft {
             ImGui::MenuItem("Settings", nullptr, &m_app.settingsPanelVisible);
             ImGui::EndMenu();
         }
+
+        if(busy)
+            ImGui::TextDisabled("  %s", m_app.build_action_label().c_str());
+    }
+
+    void DockspacePanelSystem::do_build(){
+        m_app.request_build();
     }
 
     void DockspacePanelSystem::draw_play_controls(){
@@ -134,15 +167,13 @@ namespace Draft {
             return;
 
         ImGuiIO& io = ImGui::GetIO();
+        bool busy = m_app.build_action_running();
 
-        if(ImGui::IsKeyPressed(ImGuiKey_F5, false)){
-            Logger::println(LogLevel::Info, "Editor", "Build isn't wired up yet, skipping straight to Play.");
-            if(!m_app.is_playing())
-                m_app.request_play();
-        }
+        if(!busy && ImGui::IsKeyPressed(ImGuiKey_F5, false) && !m_app.is_playing())
+            m_app.request_build_and_play();
 
-        if(io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_B, false))
-            Logger::println(LogLevel::Info, "Editor", "Build isn't wired up yet.");
+        if(!busy && io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_B, false))
+            do_build();
 
         if(io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_S, false)){
             open_scene_prompt(ScenePromptMode::SaveAs);
@@ -189,6 +220,49 @@ namespace Draft {
             if(ImGui::Button("Cancel")){
                 m_scenePrompt = ScenePromptMode::None;
                 ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void DockspacePanelSystem::draw_export_path_modal(){
+        if(ImGui::BeginPopupModal("Export Path", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+            ImGui::Text("Export Project");
+            ImGui::SetNextItemWidth(400.f);
+            ImGui::InputText("##ExportPath", m_exportPathBuffer.data(), m_exportPathBuffer.size());
+
+            if(ImGui::Button("Export")){
+                m_app.request_export(std::filesystem::path(m_exportPathBuffer.data()));
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+            if(ImGui::Button("Cancel"))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void DockspacePanelSystem::draw_build_progress_modal(){
+        // OpenPopup only while running (calling it every frame is harmless, but pointless once
+        // finished); BeginPopupModal still runs every frame the popup is open so the one frame
+        // running() just went false can reach CloseCurrentPopup() below.
+        if(m_app.build_action_running())
+            ImGui::OpenPopup("Build Progress");
+
+        ImGui::SetNextWindowSize({320, 0}, ImGuiCond_Always);
+        if(ImGui::BeginPopupModal("Build Progress", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)){
+            if(!m_app.build_action_running()){
+                ImGui::CloseCurrentPopup();
+            } else {
+                ImGui::TextUnformatted(m_app.build_action_label().c_str());
+
+                // Indeterminate marquee - there's no per-step progress signal to report here,
+                // the underlying cmake/pack/export calls only expose pass/fail plus log lines.
+                float t = static_cast<float>(std::fmod(ImGui::GetTime(), 1.5)) / 1.5f;
+                ImGui::ProgressBar(t, ImVec2(-1, 0), "");
             }
 
             ImGui::EndPopup();

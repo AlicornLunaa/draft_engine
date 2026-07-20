@@ -36,6 +36,20 @@ namespace Draft {
         if(m_watcher && m_watcher->poll())
             m_pending = PendingAction::ReloadModule;
 
+        switch(m_buildActions.poll()){
+            case BuildActionResult::BuildSucceeded:
+                m_pending = PendingAction::ReloadModule;
+                break;
+
+            case BuildActionResult::BuildFailed:
+                m_playAfterBuild = false;
+                break;
+
+            case BuildActionResult::None:
+            case BuildActionResult::OtherFinished:
+                break;
+        }
+
         bool open = application.step();
 
         // Send any built up events to the sub app
@@ -106,6 +120,43 @@ namespace Draft {
         m_pending = PendingAction::ReloadModule;
     }
 
+    void EditorApplication::request_build(){
+        if(!m_project)
+            return;
+
+        m_buildActions.start_build(m_project->root());
+    }
+
+    void EditorApplication::request_build_and_play(){
+        if(!m_project)
+            return;
+
+        m_playAfterBuild = true;
+        m_buildActions.start_build(m_project->root());
+    }
+
+    void EditorApplication::request_validate_assets(){
+        if(!m_project)
+            return;
+
+        m_buildActions.start_validate(m_project->root(), gameEngine);
+    }
+
+    void EditorApplication::request_pack(){
+        if(!m_project)
+            return;
+
+        std::filesystem::path outputPath = m_project->root() / "build" / (m_project->root().filename().string() + ".apak");
+        m_buildActions.start_pack(m_project->root(), outputPath);
+    }
+
+    void EditorApplication::request_export(std::filesystem::path outputDir){
+        if(!m_project)
+            return;
+
+        m_buildActions.start_export(m_project->root(), std::move(outputDir));
+    }
+
     void EditorApplication::request_play(){
         m_pending = PendingAction::Play;
     }
@@ -145,7 +196,13 @@ namespace Draft {
             switch(action){
                 case PendingAction::None: break;
                 case PendingAction::OpenProject: open_project(m_pendingProjectPath); break;
-                case PendingAction::ReloadModule: load_game_module(); break;
+                case PendingAction::ReloadModule:
+                    load_game_module();
+                    if(m_playAfterBuild){
+                        m_playAfterBuild = false;
+                        play();
+                    }
+                    break;
                 case PendingAction::Play: play(); break;
                 case PendingAction::Stop: stop(); break;
                 case PendingAction::OpenScene: open_scene_now(m_pendingScenePath); break;
@@ -198,9 +255,9 @@ namespace Draft {
         std::filesystem::path modulePath = m_project->resolved_module_path();
 
         // Games resolve their own asset paths (e.g. "assets/dev_texture.png") relative to the
-        // process's working directory, the same directory game.json and the module itself live
-        // in.
-        std::filesystem::current_path(m_project->module_manifest_path().parent_path());
+        // process's working directory, the same directory the module itself lives in (an
+        // "assets" symlink/copy sits next to it, see test_bench/CMakeLists.txt's POST_BUILD step).
+        std::filesystem::current_path(modulePath.parent_path());
 
         GameModuleLoader newModule(modulePath);
 

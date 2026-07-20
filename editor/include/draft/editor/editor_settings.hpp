@@ -5,8 +5,8 @@
 namespace Draft {
     /**
      * @brief Editor-only preferences, persisted to EditorProject::manifest_path() under an
-     * "editor" key so a future unified manifest (module location, asset location, ...) can add
-     * its own keys alongside this one without touching this shape.
+     * "editor" key alongside that same file's other top-level keys ("module", "assetsDir", ...)
+     * without touching this shape.
      */
     struct EditorSettings {
         float positionSnapStep = 10.f;

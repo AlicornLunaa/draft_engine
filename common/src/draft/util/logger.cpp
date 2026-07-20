@@ -1,6 +1,7 @@
 #include "draft/util/logger.hpp"
 
 #include <iostream>
+#include <mutex>
 #include <unordered_map>
 
 namespace Draft {
@@ -18,6 +19,13 @@ namespace Draft {
 
         std::size_t& next_sink_token(){
             static std::size_t instance = 0;
+            return instance;
+        }
+
+        // Guards sinks()/next_sink_token() so print()/add_sink()/remove_sink() are safe to call
+        // from a background thread.
+        std::mutex& sink_mutex(){
+            static std::mutex instance;
             return instance;
         }
     }
@@ -44,6 +52,7 @@ namespace Draft {
                 break;
         }
 
+        std::lock_guard lock(sink_mutex());
         for(auto& [token, sink] : sinks())
             sink(level, name, str);
     }
@@ -57,12 +66,14 @@ namespace Draft {
     }
 
     std::size_t Logger::add_sink(Sink sink){
+        std::lock_guard lock(sink_mutex());
         std::size_t token = next_sink_token()++;
         sinks()[token] = std::move(sink);
         return token;
     }
 
     void Logger::remove_sink(std::size_t token){
+        std::lock_guard lock(sink_mutex());
         sinks().erase(token);
     }
 }

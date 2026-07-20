@@ -10,6 +10,7 @@ set(HEADERS
     include/draft/build_tools/game_module.hpp
     include/draft/build_tools/game_module_loader.hpp
     include/draft/build_tools/project_exporter.hpp
+    include/draft/build_tools/project_manifest.hpp
     include/draft/build_tools/project_packer.hpp
 )
 
@@ -18,6 +19,7 @@ set(SOURCES
     src/draft/build_tools/asset_pipeline.cpp
     src/draft/build_tools/game_module_loader.cpp
     src/draft/build_tools/project_exporter.cpp
+    src/draft/build_tools/project_manifest.cpp
     src/draft/build_tools/project_packer.cpp
 )
 
@@ -58,11 +60,12 @@ function(draft_add_game_module target)
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
         )
 
-        # The manifest draft_launcher reads to find this module. Generated at build time so the
-        # module filename always matches whatever this platform actually names the shared library.
-        file(GENERATE
-            OUTPUT "$<TARGET_FILE_DIR:${target}>/game.json"
-            CONTENT "{\n  \"module\": \"$<TARGET_FILE_NAME:${target}>\"\n}\n"
+        # The manifest draft_launcher/the editor read to find this module.
+        file(RELATIVE_PATH DRAFT_MODULE_OUTPUT_DIR_REL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/bin")
+        add_custom_command(
+            TARGET ${target} POST_BUILD
+            COMMAND $<TARGET_FILE:draft_buildtools> manifest ${CMAKE_SOURCE_DIR} "${DRAFT_MODULE_OUTPUT_DIR_REL}/$<TARGET_FILE_NAME:${target}>"
+            COMMENT "Updating ${CMAKE_SOURCE_DIR}/manifest.json"
         )
     else()
         add_executable(${target} ${sources} ${DRAFT_LAUNCHER_SOURCE})
@@ -85,7 +88,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Standalone asset-pipeline CLI
-add_executable(draft_buildtools src/cli/main.cpp src/validate/main.cpp src/pack/main.cpp src/export/main.cpp)
+add_executable(draft_buildtools src/cli/main.cpp src/validate/main.cpp src/pack/main.cpp src/export/main.cpp src/manifest/main.cpp)
 target_link_libraries(draft_buildtools PRIVATE ${PROJECT_NAME} draft::runtime glfw)
 target_compile_features(draft_buildtools PRIVATE cxx_std_23)
 draft_copy_openal_dll(draft_buildtools)
