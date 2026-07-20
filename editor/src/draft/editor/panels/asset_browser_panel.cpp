@@ -5,6 +5,10 @@
 
 #include "imgui.h"
 
+#include <algorithm>
+#include <cstring>
+#include <vector>
+
 namespace Draft {
     AssetBrowserPanelSystem::AssetBrowserPanelSystem(EditorApplication& app) : m_app(app) {}
 
@@ -61,9 +65,28 @@ namespace Draft {
     }
 
     void AssetBrowserPanelSystem::draw_node(const AssetNode& node){
-        for(auto& [name, child] : node.children){
+        std::vector<const AssetNode*> sorted;
+        sorted.reserve(node.children.size());
+        for(const auto& [name, child] : node.children)
+            sorted.push_back(&child);
+
+        // Folders first, then files grouped by kind (alphabetically by kind name), then
+        // alphabetically by filename within a kind.
+        std::sort(sorted.begin(), sorted.end(), [](const AssetNode* a, const AssetNode* b){
+            if(a->isDirectory != b->isDirectory)
+                return a->isDirectory;
+
+            if(!a->isDirectory && a->kind != b->kind)
+                return std::strcmp(asset_kind_name(a->kind), asset_kind_name(b->kind)) < 0;
+
+            return a->name < b->name;
+        });
+
+        for(const AssetNode* childPtr : sorted){
+            const AssetNode& child = *childPtr;
+
             if(child.isDirectory){
-                if(ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth)){
+                if(ImGui::TreeNodeEx(child.name.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth)){
                     draw_node(child);
                     ImGui::TreePop();
                 }
@@ -71,7 +94,7 @@ namespace Draft {
                 continue;
             }
 
-            std::string label = name + "##" + child.key;
+            std::string label = child.name + "##" + child.key;
             if(ImGui::Selectable(label.c_str(), m_selectedKey == child.key))
                 m_selectedKey = child.key;
 
@@ -84,7 +107,7 @@ namespace Draft {
 
             if(ImGui::BeginDragDropSource()){
                 ImGui::SetDragDropPayload(asset_drag_payload_type(child.kind), child.key.data(), child.key.size());
-                ImGui::Text("%s", name.c_str());
+                ImGui::Text("%s", child.name.c_str());
                 ImGui::EndDragDropSource();
             }
         }

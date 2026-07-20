@@ -33,6 +33,7 @@ namespace Draft {
         std::array<char, 512> m_projectPathBuffer{};
         std::array<char, 512> m_scenePathBuffer{};
         ScenePromptMode m_scenePrompt = ScenePromptMode::None;
+        bool m_openScenePopupRequested = false;
         bool m_dockspaceBuilt = false;
     };
 }

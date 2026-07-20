@@ -34,6 +34,11 @@ namespace Draft {
             ImGui::EndMainMenuBar();
         }
 
+        if(m_openScenePopupRequested){
+            m_openScenePopupRequested = false;
+            ImGui::OpenPopup("Scene Path");
+        }
+
         draw_scene_path_modal();
     }
 
@@ -125,7 +130,7 @@ namespace Draft {
         std::string suggestedStr = suggested.string();
         std::strncpy(m_scenePathBuffer.data(), suggestedStr.c_str(), m_scenePathBuffer.size() - 1);
 
-        ImGui::OpenPopup("Scene Path");
+        m_openScenePopupRequested = true;
     }
 
     void DockspacePanelSystem::draw_scene_path_modal(){
