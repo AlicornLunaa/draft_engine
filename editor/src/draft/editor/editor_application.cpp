@@ -1,4 +1,5 @@
 #include "draft/editor/editor_application.hpp"
+#include "draft/core/command_catalog.hpp"
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/freecam_controller.hpp"
 #include "draft/editor/panels/asset_browser_panel.hpp"
@@ -8,6 +9,7 @@
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/inspector_panel.hpp"
 #include "draft/editor/panels/viewport_panel.hpp"
+#include "draft/interface/imgui/console_system.hpp"
 #include "draft/interface/imgui/imgui_system.hpp"
 #include "draft/interface/rmlui/rml_system.hpp"
 #include "draft/util/files/file_handle.hpp"
@@ -24,6 +26,7 @@ namespace Draft {
         application.set_scene(&editScene);
         gameApp.set_scene(&gameScene);
         attach_chrome();
+        register_editor_commands();
     }
 
     bool EditorApplication::step(){
@@ -187,11 +190,29 @@ namespace Draft {
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);
         editScene.get_systems().add<AssetBrowserPanelSystem>(*this);
+        editScene.get_systems().add<ConsoleSystem>(gameEngine, gameApp, assets);
 
         // ColliderGizmoSystem must render before GizmoOverlaySystem because it sets
         // colliderGizmoActiveThisFrame fresh each frame.
         editScene.get_systems().add<ColliderGizmoSystem>(*this);
         editScene.get_systems().add<GizmoOverlaySystem>(*this);
+    }
+
+    void EditorApplication::register_editor_commands(){
+        gameEngine.register_command({
+            "play", "Starts play mode.",
+            [this](CommandContext&){ request_play(); }
+        });
+
+        gameEngine.register_command({
+            "stop", "Stops play mode.",
+            [this](CommandContext&){ request_stop(); }
+        });
+
+        gameEngine.register_command({
+            "pause", "Toggles simulation pause.",
+            [this](CommandContext&){ toggle_pause(); }
+        });
     }
 
     void EditorApplication::play(){

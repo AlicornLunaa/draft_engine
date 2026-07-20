@@ -131,6 +131,7 @@ namespace Draft {
         void open_project(const std::filesystem::path& root);
         void load_game_module();
         void attach_chrome();
+        void register_editor_commands();
         void play();
         void stop();
         void open_scene_now(const std::filesystem::path& path);

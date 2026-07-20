@@ -1,5 +1,6 @@
 #pragma once
 
+#include "draft/core/command_catalog.hpp"
 #include "draft/ecs/component_catalog.hpp"
 #include "draft/ecs/system_catalog.hpp"
 
@@ -43,8 +44,19 @@ namespace Draft {
         SystemCatalog& systems() { return m_systems; }
         const SystemCatalog& systems() const { return m_systems; }
 
+        /**
+         * @brief Shorthand for commands().register_command().
+         */
+        void register_command(CommandInfo info){
+            m_commands.register_command(std::move(info));
+        }
+
+        CommandCatalog& commands() { return m_commands; }
+        const CommandCatalog& commands() const { return m_commands; }
+
     private:
         ComponentCatalog m_components;
         SystemCatalog m_systems;
+        CommandCatalog m_commands;
     };
 }

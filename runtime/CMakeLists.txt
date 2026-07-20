@@ -114,6 +114,7 @@ set(HEADERS
     include/draft/components/camera_component.hpp
     include/draft/core/application.hpp
     include/draft/core/application_interface.hpp
+    include/draft/core/command_catalog.hpp
     include/draft/core/engine.hpp
     include/draft/core/sub_application.hpp
     include/draft/ecs/audio_system.hpp
@@ -133,6 +134,7 @@ set(HEADERS
     include/draft/input/input_manager.hpp
     include/draft/input/keyboard.hpp
     include/draft/input/mouse.hpp
+    include/draft/interface/imgui/console_system.hpp
     include/draft/interface/imgui/imgui_system.hpp
     include/draft/interface/rmlui/RmlUi_Include_GL3.h
     include/draft/interface/rmlui/RmlUi_Platform_GLFW.h
@@ -207,6 +209,7 @@ set(SOURCES
     src/draft/audio/sound_buffer.cpp
     src/draft/core/application.cpp
     src/draft/core/application_interface.cpp
+    src/draft/core/command_catalog.cpp
     src/draft/core/engine.cpp
     src/draft/core/sub_application.cpp
     src/draft/ecs/audio_system.cpp
@@ -220,6 +223,7 @@ set(SOURCES
     src/draft/input/input_manager.cpp
     src/draft/input/keyboard.cpp
     src/draft/input/mouse.cpp
+    src/draft/interface/imgui/console_system.cpp
     src/draft/interface/imgui/imgui_system.cpp
     src/draft/interface/rmlui/RmlUi_Platform_GLFW.cpp
     src/draft/interface/rmlui/RmlUi_Renderer_GL3.cpp
