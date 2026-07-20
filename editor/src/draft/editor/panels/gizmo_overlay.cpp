@@ -48,7 +48,7 @@ namespace Draft {
     RenderLayer GizmoOverlaySystem::get_render_layers() const { return RenderLayer::Interface; }
 
     void GizmoOverlaySystem::render(Time dt, RenderLayer layer){
-        if(layer != RenderLayer::Interface)
+        if(layer != RenderLayer::Interface || !m_app.viewportPanelVisible)
             return;
 
         Camera* camera = m_app.gameScene.get_active_camera();

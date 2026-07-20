@@ -43,12 +43,12 @@ namespace Draft {
     AssetBrowserPanelSystem::AssetBrowserPanelSystem(EditorApplication& app) : m_app(app) {}
 
     void AssetBrowserPanelSystem::render(Time dt, RenderLayer layer){
-        if(layer != RenderLayer::Default)
+        if(layer != RenderLayer::Default || !m_app.assetBrowserPanelVisible)
             return;
 
         ImGui::SetNextWindowSize({320, 320}, ImGuiCond_FirstUseEver);
 
-        if(ImGui::Begin("Asset Browser")){
+        if(ImGui::Begin("Asset Browser", &m_app.assetBrowserPanelVisible)){
             if(!m_app.has_project()){
                 ImGui::TextDisabled("No project open");
             } else {
@@ -119,8 +119,11 @@ namespace Draft {
         for(const AssetNode* childPtr : sorted){
             const AssetNode& child = *childPtr;
 
+            ImGuiTreeNodeFlags directoryFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DrawLinesToNodes;
+            ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DrawLinesToNodes;
+
             if(child.isDirectory){
-                if(ImGui::TreeNodeEx(child.name.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth)){
+                if(ImGui::TreeNodeEx(child.name.c_str(), directoryFlags)){
                     draw_node(child);
                     ImGui::TreePop();
                 }
@@ -129,7 +132,10 @@ namespace Draft {
             }
 
             std::string label = child.name + "##" + child.key;
-            if(ImGui::Selectable(label.c_str(), m_selectedKey == child.key))
+            bool selected = m_selectedKey == child.key;
+            ImGui::TreeNodeEx(label.c_str(), leafFlags | (selected ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None));
+
+            if(ImGui::IsItemClicked())
                 m_selectedKey = child.key;
 
             if(ImGui::IsItemHovered()){

@@ -106,7 +106,7 @@ namespace Draft {
     RenderLayer ColliderGizmoSystem::get_render_layers() const { return RenderLayer::Interface; }
 
     void ColliderGizmoSystem::render(Time dt, RenderLayer layer){
-        if(layer != RenderLayer::Interface)
+        if(layer != RenderLayer::Interface || !m_app.viewportPanelVisible)
             return;
 
         m_app.colliderGizmoActiveThisFrame = false;

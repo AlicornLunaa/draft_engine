@@ -47,12 +47,12 @@ namespace Draft {
     InspectorPanelSystem::InspectorPanelSystem(EditorApplication& app) : m_app(app) {}
 
     void InspectorPanelSystem::render(Time dt, RenderLayer layer){
-        if(layer != RenderLayer::Default)
+        if(layer != RenderLayer::Default || !m_app.inspectorPanelVisible)
             return;
 
         ImGui::SetNextWindowSize({320, 480}, ImGuiCond_FirstUseEver);
 
-        if(ImGui::Begin("Inspector")){
+        if(ImGui::Begin("Inspector", &m_app.inspectorPanelVisible)){
             Entity selected = m_app.selection.get();
 
             if(!selected.is_valid()){
@@ -98,6 +98,28 @@ namespace Draft {
             if(ImGui::MenuItem("Remove Component")){
                 entry.remove(entity);
                 removed = true;
+            }
+
+            ImGui::Separator();
+
+            if(ImGui::MenuItem("Copy JSON")){
+                JSON json;
+                entry.serialize(entity, json);
+                ImGui::SetClipboardText(json.dump(4).c_str());
+            }
+
+            if(ImGui::MenuItem("Paste JSON")){
+                const char* clipboard = ImGui::GetClipboardText();
+
+                if(clipboard){
+                    try {
+                        JSON json = JSON::parse(clipboard);
+                        entry.deserialize(entity, json);
+                        entry.notify_modified(entity);
+                    } catch(const std::exception& e){
+                        Logger::println(LogLevel::Severe, "Inspector", std::string("Failed to paste JSON into ") + entry.name() + ": " + e.what());
+                    }
+                }
             }
 
             ImGui::EndPopup();

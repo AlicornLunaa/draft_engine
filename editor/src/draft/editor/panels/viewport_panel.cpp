@@ -18,6 +18,13 @@ namespace Draft {
         if(layer != RenderLayer::Default)
             return;
 
+        if(!m_app.viewportPanelVisible){
+            // Nothing draws the window this frame.
+            m_app.viewportFocused = false;
+            m_app.viewportHovered = false;
+            return;
+        }
+
         // Draws a viewport and lets the engine know if this special widget is currently focused
         // when it IS focused, all inputs should be forwarded to the game engine and skip the editor engine.
         ImGuiWindowFlags flags = ImGuiWindowFlags_None;
@@ -27,8 +34,8 @@ namespace Draft {
         }
 
         ImGui::SetNextWindowSize({640, 480}, ImGuiCond_FirstUseEver);
-        
-        if(ImGui::Begin("Viewport###Viewport", nullptr, flags)){
+
+        if(ImGui::Begin("Viewport###Viewport", &m_app.viewportPanelVisible, flags)){
             ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
             ImVec2 cursorPosition = ImGui::GetCursorScreenPos();
             ImVec2 mousePosition = ImGui::GetMousePos();

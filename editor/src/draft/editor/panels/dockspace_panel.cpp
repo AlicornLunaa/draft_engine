@@ -156,6 +156,10 @@ namespace Draft {
         }
 
         if(ImGui::BeginMenu("View")){
+            ImGui::MenuItem("Hierarchy", nullptr, &m_app.hierarchyPanelVisible);
+            ImGui::MenuItem("Asset Browser", nullptr, &m_app.assetBrowserPanelVisible);
+            ImGui::MenuItem("Viewport", nullptr, &m_app.viewportPanelVisible);
+            ImGui::MenuItem("Inspector", nullptr, &m_app.inspectorPanelVisible);
             ImGui::MenuItem("Systems", nullptr, &m_app.systemsPanelVisible);
             ImGui::MenuItem("Settings", nullptr, &m_app.settingsPanelVisible);
             ImGui::EndMenu();
@@ -221,6 +225,17 @@ namespace Draft {
                 m_app.save_scene_to(*m_app.currentScenePath);
             else
                 open_scene_prompt(ScenePromptMode::SaveAs);
+        }
+
+        if(io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_Comma, false))
+            m_app.settingsPanelVisible = !m_app.settingsPanelVisible;
+
+        // Guarded by WantTextInput so Delete still deletes a character while editing an
+        // InputText (e.g. a Tag) instead of also deleting the selected entity.
+        if(!io.WantTextInput && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && m_app.selection.get().is_valid()){
+            Entity selected = m_app.selection.get();
+            m_app.selection.clear();
+            selected.destroy();
         }
     }
 

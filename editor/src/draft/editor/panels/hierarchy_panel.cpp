@@ -16,14 +16,14 @@ namespace Draft {
     HierarchyPanelSystem::HierarchyPanelSystem(EditorApplication& app) : m_app(app) {}
 
     void HierarchyPanelSystem::render(Time dt, RenderLayer layer){
-        if(layer != RenderLayer::Default)
+        if(layer != RenderLayer::Default || !m_app.hierarchyPanelVisible)
             return;
 
         std::vector<Entity> entitiesToRemove;
 
         ImGui::SetNextWindowSize({64, 480}, ImGuiCond_FirstUseEver);
 
-        if(ImGui::Begin("Hierarchy")){
+        if(ImGui::Begin("Hierarchy", &m_app.hierarchyPanelVisible)){
             // Context popup for an entity on empty space
             if(ImGui::BeginPopupContextWindow("HierarchyContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)){
                 if(ImGui::MenuItem("Create Entity"))

@@ -153,9 +153,34 @@ namespace Draft {
         bool systemsPanelVisible = true;
 
         /**
-         * @brief Whether the Settings panel window is open, toggled from the dockspace's View menu.
+         * @brief Whether the Settings panel window is open, toggled from the dockspace's View
+         * menu or the Ctrl+Shift+, shortcut.
          */
         bool settingsPanelVisible = false;
+
+        /**
+         * @brief Whether the Hierarchy panel window is open, toggled from the dockspace's View menu.
+         */
+        bool hierarchyPanelVisible = true;
+
+        /**
+         * @brief Whether the Inspector panel window is open, toggled from the dockspace's View menu.
+         */
+        bool inspectorPanelVisible = true;
+
+        /**
+         * @brief Whether the Asset Browser panel window is open, toggled from the dockspace's
+         * View menu.
+         */
+        bool assetBrowserPanelVisible = true;
+
+        /**
+         * @brief Whether the Viewport panel window is open, toggled from the dockspace's View
+         * menu. GizmoOverlaySystem/ColliderGizmoSystem also check this before drawing into the
+         * same "Viewport###Viewport" window, otherwise their own independent Begin() call would
+         * keep it showing regardless of this flag.
+         */
+        bool viewportPanelVisible = true;
 
         /**
          * @brief Editor preferences (snap distances, ...), loaded from and saved to
