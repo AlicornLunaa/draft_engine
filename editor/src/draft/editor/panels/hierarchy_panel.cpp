@@ -8,6 +8,7 @@
 
 #include "imgui.h"
 
+#include <algorithm>
 #include <cstring>
 #include <typeindex>
 #include <vector>
@@ -20,6 +21,7 @@ namespace Draft {
             return;
 
         std::vector<Entity> entitiesToRemove;
+        std::vector<Entity> drawOrder;
 
         ImGui::SetNextWindowSize({64, 480}, ImGuiCond_FirstUseEver);
 
@@ -31,7 +33,7 @@ namespace Draft {
 
                 ImGui::EndPopup();
             }
-    
+
             Registry& registry = m_app.gameScene.get_registry();
 
             std::vector<Entity> rootEntities;
@@ -42,10 +44,10 @@ namespace Draft {
 
                 if(entity && !entity.has_component<ChildComponent>()){
                     // Draw each root entity
-                    draw_entity_row(entity, entitiesToRemove);
+                    draw_entity_row(entity, entitiesToRemove, drawOrder);
                 }
             }
-    
+
             // Fills the rest of the panel so dropping on empty space unparents (drops to root).
             ImGui::Dummy(ImGui::GetContentRegionAvail());
             if(ImGui::BeginDragDropTarget()){
@@ -61,6 +63,10 @@ namespace Draft {
 
         ImGui::End();
 
+        // Only overwritten now that the full traversal above is done - see m_drawOrder's own
+        // comment for why select_range() needs it to stay one frame stale.
+        m_drawOrder = std::move(drawOrder);
+
         if(m_openSavePrefabPopupRequested){
             m_openSavePrefabPopupRequested = false;
             ImGui::OpenPopup("Save As Prefab");
@@ -72,6 +78,19 @@ namespace Draft {
         for(auto entity : entitiesToRemove){
             entity.destroy();
         }
+
+        // destroy() above may have cascade-destroyed descendants (RelationshipSystem), which can
+        // include entities still referenced by the selection even when they weren't the row
+        // deleted directly.
+        if(m_app.selection.count() > 0){
+            std::vector<Entity> stillValid;
+            for(Entity selected : m_app.selection.all())
+                if(selected.is_valid())
+                    stillValid.push_back(selected);
+
+            if(stillValid.size() != m_app.selection.count())
+                m_app.selection.set_range(std::move(stillValid));
+        }
     }
 
     void HierarchyPanelSystem::create_entity(){
@@ -81,9 +100,11 @@ namespace Draft {
         m_app.selection.set(entity);
     }
 
-    void HierarchyPanelSystem::draw_entity_row(Entity entity, std::vector<Entity>& entitiesToRemove){
+    void HierarchyPanelSystem::draw_entity_row(Entity entity, std::vector<Entity>& entitiesToRemove, std::vector<Entity>& drawOrder){
         if(!entity.is_valid())
             return;
+
+        drawOrder.push_back(entity);
 
         auto* parentComp = entity.try_get_component<ParentComponent>();
         bool hasChildren = parentComp && !parentComp->children.empty();
@@ -93,14 +114,14 @@ namespace Draft {
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DrawLinesToNodes;
         if(!hasChildren) flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-        if(m_app.selection.get() == entity) flags |= ImGuiTreeNodeFlags_Selected;
+        if(m_app.selection.is_selected(entity)) flags |= ImGuiTreeNodeFlags_Selected;
 
         std::string label = label_for(entity);
         auto id = reinterpret_cast<void*>(static_cast<uint64_t>(static_cast<entt::entity>(entity)));
         bool open = ImGui::TreeNodeEx(id, flags, "%s", label.c_str());
 
         if(ImGui::IsItemClicked())
-            m_app.selection.set(entity);
+            handle_row_selection(entity);
 
         if(ImGui::BeginDragDropSource()){
             Entity payload = entity;
@@ -126,13 +147,13 @@ namespace Draft {
                 open_save_prefab_prompt(entity);
 
             if(ImGui::MenuItem("Delete")){
-                bool wasSelected = m_app.selection.get() == entity;
-                entitiesToRemove.push_back(entity);
-
-                // Destroying entity may cascade-destroy descendants, clear the selection if it
-                // was the deleted row itself or if it was one of those descendants.
-                if(wasSelected || !m_app.selection.get().is_valid())
-                    m_app.selection.clear();
+                // Right-clicking a row that's part of a multi-selection deletes the whole
+                // selection, matching the Delete hotkey
+                if(m_app.selection.is_selected(entity))
+                    for(Entity selected : m_app.selection.all())
+                        entitiesToRemove.push_back(selected);
+                else
+                    entitiesToRemove.push_back(entity);
             }
 
             ImGui::EndPopup();
@@ -140,10 +161,45 @@ namespace Draft {
 
         if(open && hasChildren){
             for(Entity child : children)
-                draw_entity_row(child, entitiesToRemove);
+                draw_entity_row(child, entitiesToRemove, drawOrder);
 
             ImGui::TreePop();
         }
+    }
+
+    void HierarchyPanelSystem::handle_row_selection(Entity entity){
+        ImGuiIO& io = ImGui::GetIO();
+
+        if(io.KeyShift && m_selectionAnchor.is_valid()){
+            select_range(m_selectionAnchor, entity);
+            // Deliberately not updating the anchor: repeated Shift-clicks keep re-ranging from
+            // the same fixed point, matching the usual file-explorer convention.
+        } else if(io.KeyCtrl){
+            m_app.selection.toggle(entity);
+            m_selectionAnchor = entity;
+        } else {
+            m_app.selection.set(entity);
+            m_selectionAnchor = entity;
+        }
+    }
+
+    void HierarchyPanelSystem::select_range(Entity anchor, Entity target){
+        auto anchorIt = std::find(m_drawOrder.begin(), m_drawOrder.end(), anchor);
+        auto targetIt = std::find(m_drawOrder.begin(), m_drawOrder.end(), target);
+
+        if(anchorIt == m_drawOrder.end() || targetIt == m_drawOrder.end()){
+            m_app.selection.set(target);
+            return;
+        }
+
+        std::vector<Entity> range(std::min(anchorIt, targetIt), std::max(anchorIt, targetIt) + 1);
+
+        // The just-clicked entity should end up primary (EditorSelection::get() == range.back()),
+        // regardless of whether it's above or below the anchor in the tree.
+        if(targetIt < anchorIt)
+            std::reverse(range.begin(), range.end());
+
+        m_app.selection.set_range(std::move(range));
     }
 
     void HierarchyPanelSystem::reparent(Entity child, Entity newParent){

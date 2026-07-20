@@ -14,7 +14,7 @@ namespace Draft {
     /**
      * @brief Draws the edit scene's entity tree, following ParentComponent/ChildComponent.
      * Create, delete, reparent (drag drop), and select all act directly on the registry, no
-     * shadow state of its own beyond which row is being dragged.
+     * shadow state of its own beyond which row is being dragged
      */
     class HierarchyPanelSystem : public AbstractSystem {
     public:
@@ -26,7 +26,9 @@ namespace Draft {
 
     private:
         void create_entity();
-        void draw_entity_row(Entity entity, std::vector<Entity>& entitiesToRemove);
+        void draw_entity_row(Entity entity, std::vector<Entity>& entitiesToRemove, std::vector<Entity>& drawOrder);
+        void handle_row_selection(Entity entity);
+        void select_range(Entity anchor, Entity target);
         void reparent(Entity child, Entity newParent);
         Entity duplicate_entity(Entity source);
         Entity clone_subtree(Entity source, Entity parent);
@@ -39,5 +41,8 @@ namespace Draft {
         Entity m_prefabSaveTarget;
         std::array<char, 512> m_prefabPathBuffer{};
         bool m_openSavePrefabPopupRequested = false;
+
+        std::vector<Entity> m_drawOrder;
+        Entity m_selectionAnchor;
     };
 }

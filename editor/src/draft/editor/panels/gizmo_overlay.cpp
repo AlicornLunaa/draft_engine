@@ -63,10 +63,10 @@ namespace Draft {
                 Vector2f xAxisDir = axis_x(transform.rotation);
                 Vector2f yAxisDir = axis_y(transform.rotation);
 
-                handledByGizmo |= draw_axis_handle(selected, transform, viewport, xAxisDir, true);
-                handledByGizmo |= draw_axis_handle(selected, transform, viewport, yAxisDir, false);
-                handledByGizmo |= draw_rotate_handle(selected, transform, viewport, xAxisDir, yAxisDir);
-                handledByGizmo |= draw_center_handle(selected, transform, viewport);
+                handledByGizmo |= draw_axis_handle(transform, viewport, xAxisDir, true);
+                handledByGizmo |= draw_axis_handle(transform, viewport, yAxisDir, false);
+                handledByGizmo |= draw_rotate_handle(transform, viewport, xAxisDir, yAxisDir);
+                handledByGizmo |= draw_center_handle(transform, viewport);
             }
 
             ImGui::End();
@@ -78,7 +78,7 @@ namespace Draft {
         }
     }
 
-    bool GizmoOverlaySystem::draw_center_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport){
+    bool GizmoOverlaySystem::draw_center_handle(const TransformComponent& transform, const GizmoViewport& viewport){
         // Hit-test against last frame's known position. Once a drag is already active, ImGui doesn't require the cursor to stay over
         // that rect to keep going, so this doesn't need to be frame-accurate for that part.
         Vector2f screenPos = viewport.world_to_screen(transform.position);
@@ -88,6 +88,7 @@ namespace Draft {
             ImVec2 mousePos = ImGui::GetMousePos();
             m_dragPositionStart = transform.position;
             m_dragMouseWorldStart = viewport.screen_to_world({mousePos.x, mousePos.y});
+            snapshot_drag_group();
         }
 
         if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
@@ -100,9 +101,7 @@ namespace Draft {
                 newPosition = { snap_to_step(newPosition.x, step), snap_to_step(newPosition.y, step) };
             }
 
-            entity.modify_component<TransformComponent>([newPosition](TransformComponent& t){
-                t.position = newPosition;
-            });
+            apply_group_position(newPosition - m_dragPositionStart);
 
             // transform is a reference into the live component, patched in place above, so
             // re-reading it now reflects this frame's drag
@@ -113,7 +112,7 @@ namespace Draft {
         return interaction.active;
     }
 
-    bool GizmoOverlaySystem::draw_axis_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& axisDir, bool isXAxis){
+    bool GizmoOverlaySystem::draw_axis_handle(const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& axisDir, bool isXAxis){
         Vector2f pivotScreen = viewport.world_to_screen(transform.position);
         Vector2f tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH);
 
@@ -123,6 +122,7 @@ namespace Draft {
             ImVec2 mousePos = ImGui::GetMousePos();
             m_dragPositionStart = transform.position;
             m_dragMouseWorldStart = viewport.screen_to_world({mousePos.x, mousePos.y});
+            snapshot_drag_group();
         }
 
         if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
@@ -133,11 +133,7 @@ namespace Draft {
             if(ImGui::GetIO().KeyShift)
                 distance = snap_to_step(distance, m_app.settings.positionSnapStep);
 
-            Vector2f newPosition = m_dragPositionStart + axisDir * distance;
-
-            entity.modify_component<TransformComponent>([newPosition](TransformComponent& t){
-                t.position = newPosition;
-            });
+            apply_group_position(axisDir * distance);
 
             pivotScreen = viewport.world_to_screen(transform.position);
             tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH);
@@ -155,7 +151,7 @@ namespace Draft {
         return interaction.active;
     }
 
-    bool GizmoOverlaySystem::draw_rotate_handle(Entity entity, const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& xAxisDir, const Vector2f& yAxisDir){
+    bool GizmoOverlaySystem::draw_rotate_handle(const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& xAxisDir, const Vector2f& yAxisDir){
         Vector2f xTipWorld = transform.position + xAxisDir * AXIS_LENGTH;
         Vector2f yTipWorld = transform.position + yAxisDir * AXIS_LENGTH;
         Vector2f cornerWorld = xTipWorld + yAxisDir * AXIS_LENGTH;
@@ -170,6 +166,8 @@ namespace Draft {
             ImVec2 mousePos = ImGui::GetMousePos();
             Vector2f toMouse = viewport.screen_to_world({mousePos.x, mousePos.y}) - transform.position;
             m_dragRotationOffset = transform.rotation - Math::atan(toMouse.y, toMouse.x);
+            m_dragRotationStart = transform.rotation;
+            snapshot_drag_group();
         }
 
         if(interaction.active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
@@ -180,9 +178,7 @@ namespace Draft {
             if(ImGui::GetIO().KeyShift)
                 newRotation = snap_to_step(newRotation, Math::radians(m_app.settings.rotationSnapStepDegrees));
 
-            entity.modify_component<TransformComponent>([newRotation](TransformComponent& t){
-                t.rotation = newRotation;
-            });
+            apply_group_rotation(newRotation - m_dragRotationStart);
 
             Vector2f freshXAxis = axis_x(transform.rotation);
             Vector2f freshYAxis = axis_y(transform.rotation);
@@ -200,5 +196,39 @@ namespace Draft {
         drawList->AddRectFilled(ImVec2(cornerScreen.x - ROTATE_HANDLE_RADIUS, cornerScreen.y - ROTATE_HANDLE_RADIUS), ImVec2(cornerScreen.x + ROTATE_HANDLE_RADIUS, cornerScreen.y + ROTATE_HANDLE_RADIUS), packedColor);
 
         return interaction.active;
+    }
+
+    void GizmoOverlaySystem::snapshot_drag_group(){
+        m_dragGroup.clear();
+        m_dragGroupPositionStart.clear();
+        m_dragGroupRotationStart.clear();
+
+        for(Entity entity : m_app.selection.all()){
+            auto* transform = entity.try_get_component<TransformComponent>();
+            if(!transform)
+                continue;
+
+            m_dragGroup.push_back(entity);
+            m_dragGroupPositionStart.push_back(transform->position);
+            m_dragGroupRotationStart.push_back(transform->rotation);
+        }
+    }
+
+    void GizmoOverlaySystem::apply_group_position(const Vector2f& delta){
+        for(std::size_t i = 0; i < m_dragGroup.size(); i++){
+            Vector2f newPosition = m_dragGroupPositionStart[i] + delta;
+            m_dragGroup[i].modify_component<TransformComponent>([newPosition](TransformComponent& t){
+                t.position = newPosition;
+            });
+        }
+    }
+
+    void GizmoOverlaySystem::apply_group_rotation(float deltaRotation){
+        for(std::size_t i = 0; i < m_dragGroup.size(); i++){
+            float newRotation = m_dragGroupRotationStart[i] + deltaRotation;
+            m_dragGroup[i].modify_component<TransformComponent>([newRotation](TransformComponent& t){
+                t.rotation = newRotation;
+            });
+        }
     }
 }

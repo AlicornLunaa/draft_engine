@@ -55,7 +55,16 @@ namespace Draft {
         if(ImGui::Begin("Inspector", &m_app.inspectorPanelVisible)){
             Entity selected = m_app.selection.get();
 
-            if(!selected.is_valid()){
+            if(m_app.selection.count() > 1){
+                // Multi-entity field editing isn't implemented, showing one arbitrary entity's
+                // components while the label says "N entities" would misrepresent what Add/Remove
+                // Component or a field edit is actually about to touch, so this stays read-only.
+                ImGui::Text("%zu entities selected", m_app.selection.count());
+                ImGui::Separator();
+
+                for(Entity entity : m_app.selection.all())
+                    ImGui::BulletText("%s", entity_label(entity).c_str());
+            } else if(!selected.is_valid()){
                 ImGui::TextDisabled("No entity selected");
             } else {
                 // entry->serialize()/visit_fields() below can reach Entity or Resource<T> fields

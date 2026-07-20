@@ -231,11 +231,12 @@ namespace Draft {
             m_app.settingsPanelVisible = !m_app.settingsPanelVisible;
 
         // Guarded by WantTextInput so Delete still deletes a character while editing an
-        // InputText (e.g. a Tag) instead of also deleting the selected entity.
-        if(!io.WantTextInput && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && m_app.selection.get().is_valid()){
-            Entity selected = m_app.selection.get();
+        // InputText (e.g. a Tag) instead of also deleting the whole selection.
+        if(!io.WantTextInput && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && m_app.selection.count() > 0){
+            for(Entity entity : m_app.selection.all())
+                entity.destroy();
+
             m_app.selection.clear();
-            selected.destroy();
         }
     }
 
