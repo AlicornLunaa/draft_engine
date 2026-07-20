@@ -4,6 +4,9 @@
 #include "draft/ecs/system.hpp"
 #include "draft/util/reflectable.hpp"
 
+#include <array>
+#include <string>
+
 namespace Draft {
     class EditorApplication;
     struct ComponentTypeInterface;
@@ -25,6 +28,13 @@ namespace Draft {
         void draw_component_entry(ComponentTypeInterface& entry, Entity entity);
         void draw_add_component_popup(Entity entity);
 
+        void open_save_component_prompt(ComponentTypeInterface& entry, Entity entity);
+        void draw_save_component_modal();
+
         EditorApplication& m_app;
+
+        std::string m_componentSaveJson;
+        std::array<char, 512> m_componentSavePathBuffer{};
+        bool m_openSaveComponentPopupRequested = false;
     };
 }

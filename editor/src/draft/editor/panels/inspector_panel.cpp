@@ -3,12 +3,16 @@
 #include "draft/ecs/scene_serialization_context.hpp"
 #include "draft/editor/editor_application.hpp"
 #include "draft/editor/field_widgets.hpp"
+#include "draft/editor/project.hpp"
+#include "draft/util/files/host_file_system.hpp"
 #include "draft/util/logger.hpp"
 #include "draft/util/serialization/context.hpp"
 
 #include "imgui.h"
 
+#include <cstring>
 #include <exception>
+#include <filesystem>
 
 namespace Draft {
     namespace {
@@ -95,6 +99,13 @@ namespace Draft {
         }
 
         ImGui::End();
+
+        if(m_openSaveComponentPopupRequested){
+            m_openSaveComponentPopupRequested = false;
+            ImGui::OpenPopup("Save Component");
+        }
+
+        draw_save_component_modal();
     }
 
     void InspectorPanelSystem::draw_component_entry(ComponentTypeInterface& entry, Entity entity){
@@ -130,6 +141,9 @@ namespace Draft {
                     }
                 }
             }
+
+            if(ImGui::MenuItem("Save to File..."))
+                open_save_component_prompt(entry, entity);
 
             ImGui::EndPopup();
         }
@@ -176,6 +190,40 @@ namespace Draft {
                     ImGui::CloseCurrentPopup();
                 }
             }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void InspectorPanelSystem::open_save_component_prompt(ComponentTypeInterface& entry, Entity entity){
+        // Captured now, while the caller's SceneSerializationContext scope (see render()) is
+        // still active, entry.serialize() may reach Entity/Resource<T> fields that need it.
+        JSON json;
+        entry.serialize(entity, json);
+        m_componentSaveJson = json.dump(4);
+
+        std::filesystem::path suggested = m_app.project()->assets_dir() / (entry.name() + ".json");
+        std::string suggestedStr = suggested.string();
+        std::strncpy(m_componentSavePathBuffer.data(), suggestedStr.c_str(), m_componentSavePathBuffer.size() - 1);
+
+        m_openSaveComponentPopupRequested = true;
+    }
+
+    void InspectorPanelSystem::draw_save_component_modal(){
+        if(ImGui::BeginPopupModal("Save Component", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+            ImGui::SetNextItemWidth(400.f);
+            ImGui::InputText("##ComponentSavePath", m_componentSavePathBuffer.data(), m_componentSavePathBuffer.size());
+
+            if(ImGui::Button("Save")){
+                std::filesystem::path path(m_componentSavePathBuffer.data());
+                HostFileSystem().create_directories(path);
+                HostFileSystem().open(path).write_string(m_componentSaveJson);
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+            if(ImGui::Button("Cancel"))
+                ImGui::CloseCurrentPopup();
 
             ImGui::EndPopup();
         }
