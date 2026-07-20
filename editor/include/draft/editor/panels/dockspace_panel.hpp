@@ -27,6 +27,7 @@ namespace Draft {
         void draw_play_controls();
         void draw_scene_path_modal();
         void open_scene_prompt(ScenePromptMode mode);
+        void handle_global_shortcuts();
         void build_initial_layout(unsigned int dockspaceId);
 
         EditorApplication& m_app;

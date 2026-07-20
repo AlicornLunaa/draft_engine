@@ -19,6 +19,7 @@ set(HEADERS
     include/draft/editor/panels/gizmo_primitives.hpp
     include/draft/editor/panels/hierarchy_panel.hpp
     include/draft/editor/panels/inspector_panel.hpp
+    include/draft/editor/panels/systems_panel.hpp
     include/draft/editor/panels/viewport_panel.hpp
 )
 
@@ -40,6 +41,7 @@ set(SOURCES
     src/draft/editor/panels/gizmo_primitives.cpp
     src/draft/editor/panels/hierarchy_panel.cpp
     src/draft/editor/panels/inspector_panel.cpp
+    src/draft/editor/panels/systems_panel.cpp
     src/draft/editor/panels/viewport_panel.cpp
     src/main.cpp
 )

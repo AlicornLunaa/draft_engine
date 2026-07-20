@@ -105,6 +105,11 @@ namespace Draft {
         ColliderShapeSelection colliderShapeSelection;
 
         /**
+         * @brief Whether the Systems panel window is open, toggled from the dockspace's View menu.
+         */
+        bool systemsPanelVisible = true;
+
+        /**
          * @brief Reset to false at the top of ColliderGizmoSystem::render() every frame, set true
          * if any of its handles were active or it just consumed a ghost-point insert click.
          */

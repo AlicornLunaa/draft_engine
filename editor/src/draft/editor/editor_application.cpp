@@ -8,6 +8,7 @@
 #include "draft/editor/panels/gizmo_overlay.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/inspector_panel.hpp"
+#include "draft/editor/panels/systems_panel.hpp"
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/interface/imgui/console_system.hpp"
 #include "draft/interface/imgui/imgui_system.hpp"
@@ -189,6 +190,7 @@ namespace Draft {
         editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);
+        editScene.get_systems().add<SystemsPanelSystem>(*this);
         editScene.get_systems().add<AssetBrowserPanelSystem>(*this);
         editScene.get_systems().add<ConsoleSystem>(gameEngine, gameApp, assets);
 

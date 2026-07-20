@@ -1,5 +1,6 @@
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/util/logger.hpp"
 
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -33,6 +34,8 @@ namespace Draft {
             draw_play_controls();
             ImGui::EndMainMenuBar();
         }
+
+        handle_global_shortcuts();
 
         if(m_openScenePopupRequested){
             m_openScenePopupRequested = false;
@@ -86,6 +89,11 @@ namespace Draft {
             ImGui::MenuItem("Export Project", nullptr, false, false);
             ImGui::EndMenu();
         }
+
+        if(ImGui::BeginMenu("View")){
+            ImGui::MenuItem("Systems", nullptr, &m_app.systemsPanelVisible);
+            ImGui::EndMenu();
+        }
     }
 
     void DockspacePanelSystem::draw_play_controls(){
@@ -117,6 +125,31 @@ namespace Draft {
                 ImGui::Text(" | %s", m_app.currentScenePath->filename().string().c_str());
             else
                 ImGui::TextDisabled(" | (Unsaved scene)");
+        }
+    }
+
+    void DockspacePanelSystem::handle_global_shortcuts(){
+        if(!m_app.has_project())
+            return;
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        if(ImGui::IsKeyPressed(ImGuiKey_F5, false)){
+            Logger::println(LogLevel::Info, "Editor", "Build isn't wired up yet, skipping straight to Play.");
+            if(!m_app.is_playing())
+                m_app.request_play();
+        }
+
+        if(io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_B, false))
+            Logger::println(LogLevel::Info, "Editor", "Build isn't wired up yet.");
+
+        if(io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_S, false)){
+            open_scene_prompt(ScenePromptMode::SaveAs);
+        } else if(io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S, false)){
+            if(m_app.currentScenePath)
+                m_app.save_scene_to(*m_app.currentScenePath);
+            else
+                open_scene_prompt(ScenePromptMode::SaveAs);
         }
     }
 
@@ -181,6 +214,9 @@ namespace Draft {
         ImGui::DockBuilderDockWindow("Asset Browser", assetBrowserId);
         ImGui::DockBuilderDockWindow("Viewport###Viewport", viewportId);
         ImGui::DockBuilderDockWindow("Inspector", inspectorId);
+
+        // Joins Inspector's dock node as a second, initially unfocused tab.
+        ImGui::DockBuilderDockWindow("Systems", inspectorId);
 
         ImGui::DockBuilderFinish(dockspaceId);
     }
