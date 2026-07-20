@@ -183,6 +183,19 @@ namespace Draft {
         bool viewportPanelVisible = true;
 
         /**
+         * @brief Whether the Particle Editor panel window is open. False by default, set true
+         * by AssetBrowserPanelSystem when a .particle asset is double-clicked, or from the
+         * dockspace's View menu.
+         */
+        bool particleEditorPanelVisible = false;
+
+        /**
+         * @brief AssetManager key of the .particle asset currently shown in the Particle Editor
+         * panel (e.g. "assets/particles/fire.particle"), or nullopt if none has been opened yet.
+         */
+        std::optional<std::string> particleEditorAssetKey;
+
+        /**
          * @brief Editor preferences (snap distances, ...), loaded from and saved to
          * EditorProject::manifest_path().
          */

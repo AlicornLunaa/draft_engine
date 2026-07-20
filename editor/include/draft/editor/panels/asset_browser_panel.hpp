@@ -34,6 +34,7 @@ namespace Draft {
         void draw_node(const AssetNode& node);
         void open_scene(const std::string& key);
         void instantiate_prefab_at_origin(const std::string& key);
+        void open_particle_editor(const std::string& key);
         void reload_all();
         void reload_asset(AssetKind kind, const std::string& key);
 

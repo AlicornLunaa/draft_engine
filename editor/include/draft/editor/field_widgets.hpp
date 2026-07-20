@@ -14,6 +14,7 @@
 #include "imgui.h"
 
 #include <concepts>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -53,6 +54,9 @@ namespace Draft {
 
     template<typename T> struct IsResource : std::false_type {};
     template<typename T> struct IsResource<Resource<T>> : std::true_type { using AssetType = T; };
+
+    template<typename T> struct IsOptionalResource : std::false_type {};
+    template<typename T> struct IsOptionalResource<std::optional<Resource<T>>> : std::true_type { using AssetType = T; };
 
     /**
      * @brief Maps an asset type T to the AssetKind an asset browser entry needs to have for a
@@ -131,6 +135,32 @@ namespace Draft {
     }
 
     /**
+     * @brief Same as draw_resource_field(), for a field where "unassigned" is itself a
+     * meaningful value (e.g. ParticleProps::texture, where nullopt means "use the renderer's
+     * own fallback") rather than just the not-yet-loaded state a plain Resource<T> starts in.
+     * Adds a Clear button to explicitly get back to nullopt, since draw_resource_field() itself
+     * only ever assigns a value, never clears one.
+     */
+    template<typename T>
+    bool draw_optional_resource_field(FieldContext& ctx, std::string_view label, std::optional<Resource<T>>& value){
+        Resource<T> current = value.value_or(Resource<T>());
+        bool changed = draw_resource_field(ctx, label, current);
+
+        if(changed)
+            value = current;
+
+        if(value){
+            ImGui::SameLine();
+            if(ImGui::SmallButton(("Clear##" + std::string(label)).c_str())){
+                value.reset();
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    /**
      * @brief Generic recursive JSON tree editor.
      * @return True if @p json was edited this frame.
      */
@@ -182,12 +212,16 @@ namespace Draft {
             return ImGui::DragFloat2(labelId.c_str(), &value.x, 0.1f);
         } else if constexpr(std::same_as<T, Vector3f>){
             return ImGui::DragFloat3(labelId.c_str(), &value.x, 0.1f);
+        } else if constexpr(std::same_as<T, Vector4f>){
+            return ImGui::ColorEdit4(labelId.c_str(), &value.x);
         } else if constexpr(std::same_as<T, Entity>){
             return draw_entity_field(ctx, label, value);
         } else if constexpr(std::same_as<T, std::vector<Entity>>){
             return draw_entity_list_field(ctx, label, value);
         } else if constexpr(IsResource<T>::value){
             return draw_resource_field(ctx, label, value);
+        } else if constexpr(IsOptionalResource<T>::value){
+            return draw_optional_resource_field(ctx, label, value);
         } else if constexpr(std::is_enum_v<T>){
             if constexpr(requires(T v){ { enum_name(v) } -> std::convertible_to<std::string_view>; enum_values(v); }){
                 bool changed = false;

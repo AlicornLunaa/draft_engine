@@ -159,6 +159,7 @@ namespace Draft {
             ImGui::MenuItem("Hierarchy", nullptr, &m_app.hierarchyPanelVisible);
             ImGui::MenuItem("Asset Browser", nullptr, &m_app.assetBrowserPanelVisible);
             ImGui::MenuItem("Viewport", nullptr, &m_app.viewportPanelVisible);
+            ImGui::MenuItem("Particle Editor", nullptr, &m_app.particleEditorPanelVisible);
             ImGui::MenuItem("Inspector", nullptr, &m_app.inspectorPanelVisible);
             ImGui::MenuItem("Systems", nullptr, &m_app.systemsPanelVisible);
             ImGui::MenuItem("Settings", nullptr, &m_app.settingsPanelVisible);
@@ -342,6 +343,10 @@ namespace Draft {
         ImGui::DockBuilderDockWindow("Hierarchy", hierarchyId);
         ImGui::DockBuilderDockWindow("Asset Browser", assetBrowserId);
         ImGui::DockBuilderDockWindow("Viewport###Viewport", viewportId);
+
+        // Joins Viewport's dock node as a second, initially unfocused tab.
+        ImGui::DockBuilderDockWindow("Particle Editor###ParticleEditor", viewportId);
+
         ImGui::DockBuilderDockWindow("Inspector", inspectorId);
 
         // Joins Inspector's dock node as a second, initially unfocused tab.

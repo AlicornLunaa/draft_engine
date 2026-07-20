@@ -23,6 +23,7 @@ namespace Draft {
         RCSS,
         Animation,
         Language,
+        Particle,
         Unknown
     };
 

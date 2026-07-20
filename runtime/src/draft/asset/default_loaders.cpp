@@ -1,6 +1,7 @@
 #include "draft/asset/default_loaders.hpp"
 #include "draft/asset/asset_manager.hpp"
 #include "draft/audio/sound_buffer.hpp"
+#include "draft/ecs/scene_serialization_context.hpp"
 #include "draft/physics/collider.hpp"
 #include "draft/rendering/animation.hpp"
 #include "draft/rendering/font.hpp"
@@ -14,9 +15,11 @@
 #include "draft/util/json.hpp"
 #include "draft/util/localization.hpp"
 #include "draft/util/logger.hpp"
+#include "draft/util/serialization/context.hpp"
+#include "draft/util/serialization/resource_serializer.hpp" // IWYU pragma: keep
+#include "draft/util/serialization/serializer.hpp"
 #include <any>
 #include <stdexcept>
-#include <utility>
 
 namespace Draft {
     namespace Loaders {
@@ -121,33 +124,31 @@ namespace Draft {
 
         template<>
         void register_default_loader<ParticleProps>(AssetManager& assets){
+            // Parsing text into a JSON tree doesn't touch AssetManager, so it can run off-thread.
+            // Turning that JSON into a ParticleProps needs to resolve texture/shader Resource
+            // fields through AssetManager though, so that part has to run on the finish stage.
             assets.register_loader<ParticleProps>(
                 [](const FileHandle& handle){
-                    JSON data = JSON::parse(handle.read_string());
-                    
-                    ParticleProps props;
-                    props.velocity.x = data["velocity"]["x"];
-                    props.velocity.y = data["velocity"]["y"];
-                    props.velocityVariation.x = data["velocity_variation"]["x"];
-                    props.velocityVariation.y = data["velocity_variation"]["y"];
-                    props.colorBegin.r = data["color_begin"]["r"];
-                    props.colorBegin.g = data["color_begin"]["g"];
-                    props.colorBegin.b = data["color_begin"]["b"];
-                    props.colorBegin.a = data["color_begin"]["a"];
-                    props.colorEnd.r = data["color_end"]["r"];
-                    props.colorEnd.g = data["color_end"]["g"];
-                    props.colorEnd.b = data["color_end"]["b"];
-                    props.colorEnd.a = data["color_end"]["a"];
-                    props.sizeBegin = data["size_begin"];
-                    props.sizeEnd = data["size_end"];
-                    props.sizeVariation = data["size_variation"];
-                    props.lifeTime = data["lifetime"];
-
-                    return std::make_pair(props, data["texture"]);
+                    std::string text = handle.read_string();
+                    return text.empty() ? JSON::object() : JSON::parse(text);
                 },
                 [](std::any data, AssetManager& assets){
-                    auto [props, texturePath] = std::any_cast<std::pair<ParticleProps, std::string>>(data);
-                    props.texture = assets.get<Texture>(texturePath);
+                    JSON json = std::any_cast<JSON>(data);
+
+                    SceneSerializationContext ctx;
+                    ctx.assets = &assets;
+                    Serializer::ScopedContext<SceneSerializationContext> scope(ctx);
+
+                    // A freshly created .particle file may be empty or only specify a few
+                    // fields, so fields missing from the JSON keep ParticleProps's own defaults
+                    // instead of throwing.
+                    ParticleProps props;
+                    for_each_field(props, [&](std::string_view name, auto& field){
+                        std::string key(name);
+                        if(json.contains(key))
+                            Serializer::deserialize(field, json.at(key));
+                    });
+
                     return props;
                 }
             );

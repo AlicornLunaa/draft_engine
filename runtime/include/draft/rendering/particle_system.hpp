@@ -4,24 +4,28 @@
 #include "draft/rendering/batching/sprite_collection.hpp"
 #include "draft/rendering/shader.hpp"
 #include "draft/rendering/texture.hpp"
+#include "draft/util/reflectable.hpp"
 #include "draft/util/time.hpp"
 
 #include <cstddef>
+#include <optional>
 #include <vector>
 
 namespace Draft {
     struct ParticleProps {
-        Vector2f position{0, 0};
-        Vector2f velocity{0, 0};
-        Vector2f velocityVariation{1, 1};
-        Vector4f colorBegin{1, 1, 1, 1};
-        Vector4f colorEnd{1, 1, 1, 1};
-        float sizeBegin = 0.2f;
-        float sizeEnd = 0.1f;
-        float sizeVariation = 0.f;
-        float lifeTime = 1.f;
-        std::optional<Resource<Texture>> texture; // None means use SpriteCollection's shared fallback texture
-        std::optional<Resource<Shader>> shader; // None means use SpriteCollection's shared default shader
+        DRAFT_REFLECTED(Vector2f, position) = {0, 0};
+        DRAFT_REFLECTED(Vector2f, velocity) = {0, 0};
+        DRAFT_REFLECTED(Vector2f, velocityVariation) = {1, 1};
+        DRAFT_REFLECTED(Vector4f, colorBegin) = {1, 1, 1, 1};
+        DRAFT_REFLECTED(Vector4f, colorEnd) = {1, 1, 1, 1};
+        DRAFT_REFLECTED(float, sizeBegin) = 0.2f;
+        DRAFT_REFLECTED(float, sizeEnd) = 0.1f;
+        DRAFT_REFLECTED(float, sizeVariation) = 0.f;
+        DRAFT_REFLECTED(float, lifeTime) = 1.f;
+        DRAFT_REFLECTED(std::optional<Resource<Texture>>, texture) = std::nullopt; // None means use SpriteCollection's shared fallback texture
+        DRAFT_REFLECTED(std::optional<Resource<Shader>>, shader) = std::nullopt; // None means use SpriteCollection's shared default shader
+
+        DRAFT_REFLECTABLE(ParticleProps, position, velocity, velocityVariation, colorBegin, colorEnd, sizeBegin, sizeEnd, sizeVariation, lifeTime, texture, shader)
     };
 
     /**

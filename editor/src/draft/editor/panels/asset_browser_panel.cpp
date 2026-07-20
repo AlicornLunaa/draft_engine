@@ -7,6 +7,7 @@
 #include "draft/rendering/animation.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/model.hpp"
+#include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/texture.hpp"
 
 #include "imgui.h"
@@ -33,6 +34,7 @@ namespace Draft {
                 case AssetKind::Model:
                 case AssetKind::Sound:
                 case AssetKind::Animation:
+                case AssetKind::Particle:
                     return true;
                 default:
                     return false;
@@ -146,6 +148,9 @@ namespace Draft {
 
                 if(child.kind == AssetKind::Prefab && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
                     instantiate_prefab_at_origin(child.key);
+
+                if(child.kind == AssetKind::Particle && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                    open_particle_editor(child.key);
             }
 
             if(ImGui::BeginDragDropSource()){
@@ -181,6 +186,11 @@ namespace Draft {
             m_app.selection.set(instance);
     }
 
+    void AssetBrowserPanelSystem::open_particle_editor(const std::string& key){
+        m_app.particleEditorAssetKey = key;
+        m_app.particleEditorPanelVisible = true;
+    }
+
     void AssetBrowserPanelSystem::reload_all(){
         for(const AssetTask& task : collect_project_assets(m_scannedRoot))
             reload_asset(task.kind, task.key);
@@ -195,6 +205,7 @@ namespace Draft {
             case AssetKind::Model: reload_or_queue<Model>(m_app.assets, key); break;
             case AssetKind::Sound: reload_or_queue<SoundBuffer>(m_app.assets, key); break;
             case AssetKind::Animation: reload_or_queue<Animation>(m_app.assets, key); break;
+            case AssetKind::Particle: reload_or_queue<ParticleProps>(m_app.assets, key); break;
             default: break;
         }
     }

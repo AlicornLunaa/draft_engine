@@ -6,6 +6,7 @@
 #include "draft/rendering/animation.hpp"
 #include "draft/rendering/font.hpp"
 #include "draft/rendering/model.hpp"
+#include "draft/rendering/particle_system.hpp"
 #include "draft/rendering/texture.hpp"
 #include "draft/util/files/host_file_system.hpp"
 
@@ -39,6 +40,7 @@ namespace Draft {
             case AssetKind::RCSS: return "Rml Stylesheet";
             case AssetKind::Animation: return "Animation";
             case AssetKind::Language: return "Language";
+            case AssetKind::Particle: return "Particle";
             default: return "Unknown";
         }
     }
@@ -57,6 +59,7 @@ namespace Draft {
         if (ext == ".lang") return AssetKind::Language;
         if (ext == ".scene" || ext == ".scenebin") return AssetKind::Scene;
         if (ext == ".prefab") return AssetKind::Prefab;
+        if (ext == ".particle") return AssetKind::Particle;
 
         return AssetKind::Unknown;
     }
@@ -86,6 +89,7 @@ namespace Draft {
         Loaders::register_default_loader<Model>(assets);
         Loaders::register_default_loader<SoundBuffer>(assets);
         Loaders::register_default_loader<Animation>(assets);
+        Loaders::register_default_loader<ParticleProps>(assets);
 
         for (const AssetTask& task : tasks) {
             switch (task.kind) {
@@ -94,6 +98,7 @@ namespace Draft {
                 case AssetKind::Model: assets.queue<Model>(task.key); break;
                 case AssetKind::Sound: assets.queue<SoundBuffer>(task.key); break;
                 case AssetKind::Animation: assets.queue<Animation>(task.key); break;
+                case AssetKind::Particle: assets.queue<ParticleProps>(task.key); break;
                 case AssetKind::Language: break; // not validated, only packed
                 case AssetKind::Scene: break; // validated separately below, load_scene() doesn't go through AssetManager's loader registry
                 case AssetKind::Prefab: break; // not validated, plain JSON read on demand like a Scene but never through AssetManager

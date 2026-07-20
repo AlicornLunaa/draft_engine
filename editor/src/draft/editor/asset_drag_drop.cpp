@@ -11,6 +11,7 @@ namespace Draft {
             case AssetKind::Prefab: return "ASSET_PREFAB";
             case AssetKind::Animation: return "ASSET_ANIMATION";
             case AssetKind::Language: return "ASSET_LANGUAGE";
+            case AssetKind::Particle: return "ASSET_PARTICLE";
             case AssetKind::RML: return "ASSET_RML";
             case AssetKind::RCSS: return "ASSET_RCSS";
             default: return "ASSET_UNKNOWN";
