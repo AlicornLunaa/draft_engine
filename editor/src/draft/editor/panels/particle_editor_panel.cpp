@@ -21,7 +21,7 @@ namespace Draft {
     }
 
     ParticleEditorPanelSystem::ParticleEditorPanelSystem(EditorApplication& app)
-        : m_app(app), m_previewTarget(FramebufferProperties{.size = {256, 256}})
+        : m_app(app), m_previewTarget(FramebufferProperties{.size = {1024, 1024}})
     {
     }
 
@@ -101,10 +101,6 @@ namespace Draft {
         float rowWidth = ImGui::GetContentRegionAvail().x;
         float imageHeight = availableHeight - ImGui::GetFrameHeightWithSpacing();
         float squareSize = std::clamp(std::min(rowWidth, imageHeight), 64.f, 1024.f);
-
-        Vector2u desiredSize{(unsigned int)squareSize, (unsigned int)squareSize};
-        if(m_previewTarget.get_size() != desiredSize)
-            m_previewTarget.set_size(desiredSize);
 
         m_emitAccumulator += dt.as_seconds();
         while(m_emitAccumulator >= PARTICLE_EMIT_INTERVAL){
