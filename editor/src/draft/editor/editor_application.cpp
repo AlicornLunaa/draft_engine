@@ -149,7 +149,7 @@ namespace Draft {
         if(!m_project)
             return;
 
-        std::filesystem::path outputPath = m_project->root() / "build" / (m_project->root().filename().string() + ".apak");
+        std::filesystem::path outputPath = m_project->root() / "build" / "assets.apak";
         m_buildActions.start_pack(m_project->root(), outputPath);
     }
 
