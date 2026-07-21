@@ -76,6 +76,11 @@ namespace Draft {
         std::vector<ShaderAttribute> m_attributes;
         std::vector<ShaderUniform> m_uniforms;
 
+        // Detected but never fed - Draft has no generic way to mock a storage block's contents
+        // (see ShaderStorageBlock's doc comment). Kept only to show an inline warning instead of
+        // silently rendering whatever an unbound binding point happens to read back as.
+        std::vector<ShaderStorageBlock> m_storageBlocks;
+
         std::unordered_map<std::string, std::array<MockValue, 4>> m_attributeValues;
         std::unordered_map<std::string, MockValue> m_uniformValues;
         std::unordered_map<std::string, Resource<Texture>> m_samplerValues;

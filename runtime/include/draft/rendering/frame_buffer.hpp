@@ -71,6 +71,7 @@ namespace Draft {
         // Variables
         uint fbo;
         uint previousFbo = 0;
+        int m_previousViewport[4] = {0, 0, 0, 0};
 
         FramebufferProperties m_properties;
         std::vector<GLenum> m_drawBuffers;

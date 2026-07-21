@@ -44,6 +44,18 @@ namespace Draft {
     };
 
     /**
+     * @brief One active shader storage block (SSBO) of a linked program. Draft has no generic
+     * way to mock a storage block's contents (unlike a plain attribute/uniform, its layout is
+     * arbitrary and its size is often unbounded), so reflect_storage_blocks() exists only so a
+     * caller (e.g. the editor's shader preview) can detect and warn about one rather than
+     * silently rendering whatever garbage/zeroed data an unbound binding point reads back as.
+     */
+    struct ShaderStorageBlock {
+        std::string name;
+        int binding;
+    };
+
+    /**
      * @brief A compiled+linked vertex/fragment GL shader program. Do not construct before an
      * OpenGL context was established.
      */
@@ -115,6 +127,13 @@ namespace Draft {
          * GL_UNIFORM program interface.
          */
         std::vector<ShaderUniform> reflect_uniforms() const;
+
+        /**
+         * @brief Reflects every active shader storage block, via the GL_SHADER_STORAGE_BLOCK
+         * program interface. See ShaderStorageBlock's doc comment for why this is separate from
+         * reflect_uniforms() rather than folded into it.
+         */
+        std::vector<ShaderStorageBlock> reflect_storage_blocks() const;
 
         // Named uniforms
         void set_uniform(const std::string& name, bool value) const;

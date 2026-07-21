@@ -137,6 +137,17 @@ namespace Draft {
                 else if(!m_shader)
                     ImGui::TextDisabled("Compiling...");
 
+                if(!m_storageBlocks.empty()){
+                    std::string names;
+                    for(const ShaderStorageBlock& block : m_storageBlocks){
+                        if(!names.empty())
+                            names += ", ";
+                        names += block.name + " (binding " + std::to_string(block.binding) + ")";
+                    }
+
+                    ImGui::TextColored(ImVec4(1.f, 0.8f, 0.3f, 1.f), "Uses shader storage buffer(s) not fed by preview data: %s. The preview may render nothing.", names.c_str());
+                }
+
                 constexpr float dataHeight = 320.f;
                 float previewHeight = std::max(ImGui::GetContentRegionAvail().y - dataHeight - ImGui::GetStyle().ItemSpacing.y, 100.f);
 
@@ -168,6 +179,7 @@ namespace Draft {
         m_attributeValues.clear();
         m_uniformValues.clear();
         m_samplerValues.clear();
+        m_storageBlocks.clear();
         m_previewVao.reset();
         m_vaoAttributeOrder.clear();
         m_vertexWatcher.reset();
@@ -199,6 +211,7 @@ namespace Draft {
 
             m_attributes = m_shader->reflect_attributes();
             m_uniforms = m_shader->reflect_uniforms();
+            m_storageBlocks = m_shader->reflect_storage_blocks();
             reconcile_mock_data();
             rebuild_preview_mesh();
         } catch(const std::exception& e){
@@ -471,8 +484,11 @@ namespace Draft {
         m_previewTarget.begin();
 
         if(m_shader && m_previewVao && !m_vaoAttributeOrder.empty()){
+            // Same convention as SpriteCollection::flush(): this bypasses Renderer::set_state(),
+            // so depth/blend must be put back to RenderState{}'s defaults (depthTest on, blend
+            // off) before returning, or the next real pass's diffed set_state() call could wrongly
+            // skip reapplying them and inherit whatever's left here.
             glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -484,6 +500,9 @@ namespace Draft {
             VertexArray::set_wireframe(false);
 
             m_shader->unbind();
+
+            glDisable(GL_BLEND);
+            glEnable(GL_DEPTH_TEST);
         }
 
         m_previewTarget.end();

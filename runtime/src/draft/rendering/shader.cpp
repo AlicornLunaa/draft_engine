@@ -237,6 +237,30 @@ namespace Draft {
         return uniforms;
     }
 
+    std::vector<ShaderStorageBlock> Shader::reflect_storage_blocks() const {
+        std::vector<ShaderStorageBlock> blocks;
+
+        int count = 0;
+        glGetProgramInterfaceiv(shaderId, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &count);
+
+        for(int i = 0; i < count; i++){
+            const GLenum props[] = { GL_BUFFER_BINDING };
+            int binding = 0;
+            glGetProgramResourceiv(shaderId, GL_SHADER_STORAGE_BLOCK, i, 1, props, 1, nullptr, &binding);
+
+            char nameBuf[256];
+            int nameLength = 0;
+            glGetProgramResourceName(shaderId, GL_SHADER_STORAGE_BLOCK, i, sizeof(nameBuf), &nameLength, nameBuf);
+
+            blocks.push_back(ShaderStorageBlock{
+                std::string(nameBuf, static_cast<size_t>(nameLength)),
+                binding
+            });
+        }
+
+        return blocks;
+    }
+
     // Named uniforms
     void Shader::set_uniform(const std::string& name, bool value) const { glUniform1i(get_location(name), value); }
 

@@ -17,6 +17,10 @@ namespace Draft {
 
         if(!m_drawBuffers.empty())
             glDrawBuffers(m_drawBuffers.size(), m_drawBuffers.data());
+
+        // Scope the viewport to this fbo's own size, saving whatever was active to restore in unbind().
+        glGetIntegerv(GL_VIEWPORT, m_previousViewport);
+        glViewport(0, 0, static_cast<int>(m_properties.size.x), static_cast<int>(m_properties.size.y));
     }
 
     void Framebuffer::unbind(){
@@ -24,6 +28,8 @@ namespace Draft {
         glBindFramebuffer(GL_FRAMEBUFFER, previousFbo);
         currentFbo = previousFbo;
         previousFbo = 0;
+
+        glViewport(m_previousViewport[0], m_previousViewport[1], m_previousViewport[2], m_previousViewport[3]);
     }
 
     void Framebuffer::generate(){

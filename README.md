@@ -16,9 +16,9 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 - [ ] RMLUI editor with hot reload for RML documents and a data binding mockup
     * Implement the RMLUI editor view the engine editor. This should be a panel that is tabbed next to viewport, but invisible by default. It should be opened when double clicking an RML document. It will then open this RML document and show a preview on the screen for how it renders. There should be a way to define a data binding model using custom JSON so that can be previewed. It should update the preview on file save, such that the document changing itself or any document it links to changes should update the view immediately (look at game module watcher). Custom data models should be saved as a json in .draft-editor for future use when the document gets reopened
 - [ ] Update comments. This project is almost ready for its version 2 release, but I would like all the comments updated. Get a checklist of every file in the engine and work file by file. The comments should be documenting enough for a wiki autogenerator to be used on the code. Do not reference phases or documentation that doesn't matter. Only talk about the code if it needs explanation. You can shorten comments if they are too long or verbose. Fix grammar issues and do not hyphenate. Speak like a human when writing comments. Make sure to use standard doxygen comments. Determine a consistent style guide to write into the information/style_guide.md based on the current code.
+- [ ] Hotkey F, when an entity is selected press F to center camera on the entity's transform (if it has one)
 
 ## Known bugs
-- [ ] Particle editor doesn't show particle at (0, 0)
 - [ ] Release build of editor doesn't work with debug build of game
 
 ## Project Structure
