@@ -196,6 +196,19 @@ namespace Draft {
         std::optional<std::string> particleEditorAssetKey;
 
         /**
+         * @brief Whether the Animation Editor panel window is open. False by default, set true
+         * by AssetBrowserPanelSystem when an animation asset is double-clicked, or from the
+         * dockspace's View menu.
+         */
+        bool animationEditorPanelVisible = false;
+
+        /**
+         * @brief AssetManager key of the animation asset currently shown in the Animation
+         * Editor panel (e.g. "assets/anims/walk.anim"), or nullopt if none has been opened yet.
+         */
+        std::optional<std::string> animationEditorAssetKey;
+
+        /**
          * @brief Editor preferences (snap distances, ...), loaded from and saved to
          * EditorProject::manifest_path().
          */

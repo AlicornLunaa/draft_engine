@@ -14,6 +14,7 @@ set(HEADERS
     include/draft/editor/selection.hpp
     include/draft/editor/field_widgets/camera_widget.hpp
     include/draft/editor/field_widgets/collider_widget.hpp
+    include/draft/editor/panels/animation_editor_panel.hpp
     include/draft/editor/panels/asset_browser_panel.hpp
     include/draft/editor/panels/collider_gizmo.hpp
     include/draft/editor/panels/dockspace_panel.hpp
@@ -40,6 +41,7 @@ set(SOURCES
     src/draft/editor/selection.cpp
     src/draft/editor/field_widgets/camera_widget.cpp
     src/draft/editor/field_widgets/collider_widget.cpp
+    src/draft/editor/panels/animation_editor_panel.cpp
     src/draft/editor/panels/asset_browser_panel.cpp
     src/draft/editor/panels/collider_gizmo.cpp
     src/draft/editor/panels/dockspace_panel.cpp

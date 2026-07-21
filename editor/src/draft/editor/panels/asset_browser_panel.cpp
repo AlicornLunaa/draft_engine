@@ -151,6 +151,9 @@ namespace Draft {
 
                 if(child.kind == AssetKind::Particle && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
                     open_particle_editor(child.key);
+
+                if(child.kind == AssetKind::Animation && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                    open_animation_editor(child.key);
             }
 
             if(ImGui::BeginDragDropSource()){
@@ -189,6 +192,11 @@ namespace Draft {
     void AssetBrowserPanelSystem::open_particle_editor(const std::string& key){
         m_app.particleEditorAssetKey = key;
         m_app.particleEditorPanelVisible = true;
+    }
+
+    void AssetBrowserPanelSystem::open_animation_editor(const std::string& key){
+        m_app.animationEditorAssetKey = key;
+        m_app.animationEditorPanelVisible = true;
     }
 
     void AssetBrowserPanelSystem::reload_all(){

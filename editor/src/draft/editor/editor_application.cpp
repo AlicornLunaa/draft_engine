@@ -2,6 +2,7 @@
 #include "draft/core/command_catalog.hpp"
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/editor/freecam_controller.hpp"
+#include "draft/editor/panels/animation_editor_panel.hpp"
 #include "draft/editor/panels/asset_browser_panel.hpp"
 #include "draft/editor/panels/collider_gizmo.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
