@@ -14,6 +14,7 @@
 #include "draft/editor/panels/viewport_panel.hpp"
 #include "draft/interface/imgui/console_system.hpp"
 #include "draft/interface/imgui/imgui_system.hpp"
+#include "draft/interface/imgui/profiler_system.hpp"
 #include "draft/interface/rmlui/rml_system.hpp"
 #include "draft/util/files/file_handle.hpp"
 #include "draft/util/files/host_file_system.hpp"
@@ -309,6 +310,7 @@ namespace Draft {
         editScene.get_systems().add<SettingsPanelSystem>(*this);
         editScene.get_systems().add<AssetBrowserPanelSystem>(*this);
         editScene.get_systems().add<ConsoleSystem>(gameEngine, gameApp, assets);
+        editScene.get_systems().add<ProfilerSystem>();
 
         // ColliderGizmoSystem must render before GizmoOverlaySystem because it sets
         // colliderGizmoActiveThisFrame fresh each frame.

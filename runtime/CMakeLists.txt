@@ -77,9 +77,9 @@ find_package(Threads REQUIRED)
 
 if(WIN32)
     if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(SFML_FLAGS sfml-audio user32 gdi32)
+        set(SFML_FLAGS sfml-audio user32 gdi32 psapi)
     else()
-        set(SFML_FLAGS sfml-audio user32 gdi32 -static)
+        set(SFML_FLAGS sfml-audio user32 gdi32 psapi -static)
     endif()
     add_compile_definitions(WINDOWS)
 elseif(LINUX)
@@ -136,6 +136,7 @@ set(HEADERS
     include/draft/input/mouse.hpp
     include/draft/interface/imgui/console_system.hpp
     include/draft/interface/imgui/imgui_system.hpp
+    include/draft/interface/imgui/profiler_system.hpp
     include/draft/interface/rmlui/RmlUi_Include_GL3.h
     include/draft/interface/rmlui/RmlUi_Platform_GLFW.h
     include/draft/interface/rmlui/RmlUi_Renderer_GL3.h
@@ -225,6 +226,7 @@ set(SOURCES
     src/draft/input/mouse.cpp
     src/draft/interface/imgui/console_system.cpp
     src/draft/interface/imgui/imgui_system.cpp
+    src/draft/interface/imgui/profiler_system.cpp
     src/draft/interface/rmlui/RmlUi_Platform_GLFW.cpp
     src/draft/interface/rmlui/RmlUi_Renderer_GL3.cpp
     src/draft/interface/rmlui/rml_context.cpp
