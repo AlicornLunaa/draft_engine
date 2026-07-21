@@ -38,6 +38,27 @@ namespace glm {
     }
 
     /**
+     * @brief Remaps @p value from [@p inMin, @p inMax] to [@p outMin, @p outMax], linearly.
+     * Doesn't clamp, a @p value outside [@p inMin, @p inMax] extrapolates past
+     * [@p outMin, @p outMax] the same way, callers that want clamping should glm::clamp() the
+     * result themselves.
+     */
+    template<typename T>
+    T map(T value, T inMin, T inMax, T outMin, T outMax){
+        return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
+    }
+
+    /**
+     * @brief Inverse of map(): given @p value already in [@p rangeMin, @p rangeMax], returns
+     * where it falls within [0, 1] - equivalent to map(value, rangeMin, rangeMax, 0, 1). Useful
+     * for turning a concrete value back into the fraction lerp()/glm::slerp() take as @p t.
+     */
+    template<typename T>
+    T inverse_lerp(T value, T rangeMin, T rangeMax){
+        return (value - rangeMin) / (rangeMax - rangeMin);
+    }
+
+    /**
      * @brief A vector perpendicular to @p v (rotated 90 degrees counter-clockwise).
      */
     template<typename T>

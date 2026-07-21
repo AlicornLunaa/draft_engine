@@ -33,3 +33,29 @@ TEST(Funcs, Perpendicular)
     ASSERT_EQ(p.x, -2.f);
     ASSERT_EQ(p.y, 1.f);
 }
+
+TEST(Funcs, Map)
+{
+    ASSERT_EQ(glm::map(5.f, 0.f, 10.f, 0.f, 100.f), 50.f);
+    ASSERT_EQ(glm::map(0.f, 0.f, 10.f, -1.f, 1.f), -1.f);
+    ASSERT_EQ(glm::map(10.f, 0.f, 10.f, -1.f, 1.f), 1.f);
+}
+
+TEST(Funcs, MapExtrapolatesPastTheInputRangeInsteadOfClamping)
+{
+    ASSERT_EQ(glm::map(15.f, 0.f, 10.f, 0.f, 100.f), 150.f);
+    ASSERT_EQ(glm::map(-5.f, 0.f, 10.f, 0.f, 100.f), -50.f);
+}
+
+TEST(Funcs, InverseLerp)
+{
+    ASSERT_EQ(glm::inverse_lerp(5.f, 0.f, 10.f), 0.5f);
+    ASSERT_EQ(glm::inverse_lerp(0.f, 0.f, 10.f), 0.f);
+    ASSERT_EQ(glm::inverse_lerp(10.f, 0.f, 10.f), 1.f);
+}
+
+TEST(Funcs, MapAndInverseLerpAreInverses)
+{
+    float mapped = glm::map(3.f, 0.f, 10.f, 20.f, 40.f);
+    ASSERT_EQ(glm::inverse_lerp(mapped, 20.f, 40.f), glm::inverse_lerp(3.f, 0.f, 10.f));
+}
