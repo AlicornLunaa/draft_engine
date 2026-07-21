@@ -283,4 +283,39 @@ namespace Draft {
      * generic JSON subtree.
      */
     bool draw_typeerased_field(FieldContext& ctx, std::string_view name, std::type_index type, void* valuePtr, JSON& componentJson, bool& usedJsonFallback);
+
+    /**
+     * @brief Bridges Runtime's type-erased FieldVisitor callback into draw_typeerased_field()'s
+     * typed dispatch, holding just what one reflected instance's worth of field-drawing needs:
+     * the shared FieldContext, and that instance's own JSON serialization used both as the
+     * generic JSON-subtree editor's backing store for any field type with no typed widget, and
+     * as the source to overlay back onto a fresh re-serialize before deserializing (see
+     * changed_fallback_keys()). Shared by InspectorPanelSystem (components) and
+     * SystemsPanelSystem (system config), both of which own a JSON, call some type-erased
+     * `visit_fields(..., visitor)`, then re-serialize/overlay/deserialize if any fallback field changed.
+     */
+    class FieldDrawVisitor : public FieldVisitor {
+    public:
+        FieldDrawVisitor(FieldContext& ctx, JSON& json) : m_ctx(ctx), m_json(json) {}
+
+        void visit(std::string_view name, std::type_index type, void* valuePtr) override {
+            bool usedJsonFallback = false;
+            bool changed = draw_typeerased_field(m_ctx, name, type, valuePtr, m_json, usedJsonFallback);
+
+            if(changed){
+                m_anyChanged = true;
+                if(usedJsonFallback)
+                    m_changedFallbackKeys.emplace_back(name);
+            }
+        }
+
+        const std::vector<std::string>& changed_fallback_keys() const { return m_changedFallbackKeys; }
+        bool any_changed() const { return m_anyChanged; }
+
+    private:
+        FieldContext& m_ctx;
+        JSON& m_json;
+        std::vector<std::string> m_changedFallbackKeys;
+        bool m_anyChanged = false;
+    };
 }

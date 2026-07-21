@@ -15,39 +15,6 @@
 #include <filesystem>
 
 namespace Draft {
-    namespace {
-        /**
-         * @brief Bridges Runtime's type-erased FieldVisitor callback into field_widgets.hpp's
-         * typed dispatch, holding just what one component's worth of field-drawing needs: the
-         * shared FieldContext, and that component's own JSON serialization used both as the
-         * generic JSON-subtree editor's backing store for any field type with no typed widget
-         */
-        class FieldDrawVisitor : public FieldVisitor {
-        public:
-            FieldDrawVisitor(FieldContext& ctx, JSON& componentJson) : m_ctx(ctx), m_componentJson(componentJson) {}
-
-            void visit(std::string_view name, std::type_index type, void* valuePtr) override {
-                bool usedJsonFallback = false;
-                bool changed = draw_typeerased_field(m_ctx, name, type, valuePtr, m_componentJson, usedJsonFallback);
-
-                if(changed){
-                    m_anyChanged = true;
-                    if(usedJsonFallback)
-                        m_changedFallbackKeys.emplace_back(name);
-                }
-            }
-
-            const std::vector<std::string>& changed_fallback_keys() const { return m_changedFallbackKeys; }
-            bool any_changed() const { return m_anyChanged; }
-
-        private:
-            FieldContext& m_ctx;
-            JSON& m_componentJson;
-            std::vector<std::string> m_changedFallbackKeys;
-            bool m_anyChanged = false;
-        };
-    }
-
     InspectorPanelSystem::InspectorPanelSystem(EditorApplication& app) : m_app(app) {}
 
     void InspectorPanelSystem::render(Time dt, RenderLayer layer){

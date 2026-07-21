@@ -62,6 +62,22 @@ namespace Draft {
          */
         virtual void deserialize(SystemRegistry& registry, JSON& json) const = 0;
         virtual void deserialize(SystemRegistry& registry, Binary::ByteView data) const = 0;
+
+        /**
+         * @brief True if this system type has at least one reflected field (see DRAFT_REFLECTABLE).
+         * Meant for a caller (e.g. the editor's Systems panel) deciding whether there's anything
+         * worth showing a config editor for, without first having to visit_fields() to find out.
+         */
+        virtual bool has_fields() const = 0;
+
+        /**
+         * @brief Calls @p visitor once per reflected field of this system's own instance already
+         * attached to @p registry, which must already have(registry). Generic, reflection-driven
+         * hook meant for an editor's Systems panel to draw/edit config fields of any registered
+         * system - including a game module's own custom types the editor has no compile-time
+         * knowledge of - with no per-system editor code. Mirrors ComponentTypeInterface::visit_fields().
+         */
+        virtual void visit_fields(const SystemRegistry& registry, FieldVisitor& visitor) const = 0;
     };
 
     /**
@@ -85,6 +101,14 @@ namespace Draft {
 
         void deserialize(SystemRegistry& registry, JSON& json) const override { Serializer::deserialize(registry.get<T>(), json); }
         void deserialize(SystemRegistry& registry, Binary::ByteView data) const override { Serializer::deserialize(registry.get<T>(), data); }
+
+        bool has_fields() const override { return std::tuple_size_v<decltype(T::reflect())> > 0; }
+
+        void visit_fields(const SystemRegistry& registry, FieldVisitor& visitor) const override {
+            for_each_field(registry.get<T>(), [&](std::string_view name, auto& field){
+                visitor.visit(name, std::type_index(typeid(field)), const_cast<void*>(static_cast<const void*>(std::addressof(field))));
+            });
+        }
 
     private:
         std::string m_name;
