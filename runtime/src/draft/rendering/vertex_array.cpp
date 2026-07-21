@@ -85,4 +85,20 @@ namespace Draft {
         // Cleanup
         unbind();
     }
+
+    void VertexArray::draw_arrays(int mode, int first, int count) const {
+        bind();
+        glDrawArrays(mode, first, count);
+        unbind();
+    }
+
+    void VertexArray::draw_elements(int mode, int count, int indexType) const {
+        bind();
+        glDrawElements(mode, count, indexType, nullptr);
+        unbind();
+    }
+
+    void VertexArray::set_wireframe(bool enabled){
+        glPolygonMode(GL_FRONT_AND_BACK, enabled ? GL_LINE : GL_FILL);
+    }
 }

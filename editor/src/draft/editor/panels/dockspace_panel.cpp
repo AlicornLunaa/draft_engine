@@ -161,6 +161,7 @@ namespace Draft {
             ImGui::MenuItem("Viewport", nullptr, &m_app.viewportPanelVisible);
             ImGui::MenuItem("Particle Editor", nullptr, &m_app.particleEditorPanelVisible);
             ImGui::MenuItem("Animation Editor", nullptr, &m_app.animationEditorPanelVisible);
+            ImGui::MenuItem("Shader Editor", nullptr, &m_app.shaderEditorPanelVisible);
             ImGui::MenuItem("Inspector", nullptr, &m_app.inspectorPanelVisible);
             ImGui::MenuItem("Systems", nullptr, &m_app.systemsPanelVisible);
             ImGui::MenuItem("Settings", nullptr, &m_app.settingsPanelVisible);
@@ -345,9 +346,10 @@ namespace Draft {
         ImGui::DockBuilderDockWindow("Asset Browser", assetBrowserId);
         ImGui::DockBuilderDockWindow("Viewport###Viewport", viewportId);
 
-        // Joins Viewport's dock node as a second/third, initially unfocused tab.
+        // Joins Viewport's dock node as a second/third/fourth, initially unfocused tab.
         ImGui::DockBuilderDockWindow("Particle Editor###ParticleEditor", viewportId);
         ImGui::DockBuilderDockWindow("Animation Editor###AnimationEditor", viewportId);
+        ImGui::DockBuilderDockWindow("Shader Editor###ShaderEditor", viewportId);
 
         ImGui::DockBuilderDockWindow("Inspector", inspectorId);
 

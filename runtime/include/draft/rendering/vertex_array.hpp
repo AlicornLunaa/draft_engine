@@ -142,5 +142,21 @@ namespace Draft {
 
         template<typename... Args>
         void create(Args... args){ create({ args... }); }
+
+        /**
+         * @brief Binds this vertex array, issues glDrawArrays(@p mode, @p first, @p count), then unbinds.
+         */
+        void draw_arrays(int mode, int first, int count) const;
+
+        /**
+         * @brief Binds this vertex array, issues glDrawElements(@p mode, @p count, @p indexType, 0), then unbinds.
+         */
+        void draw_elements(int mode, int count, int indexType = GL_UNSIGNED_INT) const;
+
+        /**
+         * @brief Toggles GL_FRONT_AND_BACK polygon mode between GL_LINE and GL_FILL. Global GL
+         * state, not scoped to this vertex array - meant for debug/preview views.
+         */
+        static void set_wireframe(bool enabled);
     };
 }

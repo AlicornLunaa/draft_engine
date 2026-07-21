@@ -24,6 +24,7 @@ namespace Draft {
         Animation,
         Language,
         Particle,
+        Shader,
         Unknown
     };
 
@@ -40,8 +41,10 @@ namespace Draft {
     };
 
     /**
-     * @brief Walks <projectRoot>/assets recursively, skipping anything classify_asset() reports
-     * as Unknown (shaders, READMEs, ...).
+     * @brief Walks <projectRoot>/assets recursively. A directory directly containing both
+     * vertex.glsl and fragment.glsl is reported once as a Shader task (keyed by the directory
+     * itself, not either file inside it); everything else is classified per file, skipping
+     * anything classify_asset() reports as Unknown (READMEs, loose .glsl includes, ...).
      */
     std::vector<AssetTask> collect_project_assets(const std::filesystem::path& projectRoot);
 

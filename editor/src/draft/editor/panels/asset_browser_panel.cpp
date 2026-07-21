@@ -154,6 +154,9 @@ namespace Draft {
 
                 if(child.kind == AssetKind::Animation && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
                     open_animation_editor(child.key);
+
+                if(child.kind == AssetKind::Shader && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                    open_shader_editor(child.key);
             }
 
             if(ImGui::BeginDragDropSource()){
@@ -197,6 +200,11 @@ namespace Draft {
     void AssetBrowserPanelSystem::open_animation_editor(const std::string& key){
         m_app.animationEditorAssetKey = key;
         m_app.animationEditorPanelVisible = true;
+    }
+
+    void AssetBrowserPanelSystem::open_shader_editor(const std::string& key){
+        m_app.shaderEditorAssetKey = key;
+        m_app.shaderEditorPanelVisible = true;
     }
 
     void AssetBrowserPanelSystem::reload_all(){

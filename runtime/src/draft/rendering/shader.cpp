@@ -4,6 +4,32 @@
 #include "glad/gl.h"
 
 #include <stdexcept>
+#include <vector>
+
+namespace {
+    Draft::ShaderDataType map_gl_type(GLenum type){
+        switch(type){
+            case GL_FLOAT: return Draft::ShaderDataType::Float;
+            case GL_FLOAT_VEC2: return Draft::ShaderDataType::Vec2;
+            case GL_FLOAT_VEC3: return Draft::ShaderDataType::Vec3;
+            case GL_FLOAT_VEC4: return Draft::ShaderDataType::Vec4;
+            case GL_INT: return Draft::ShaderDataType::Int;
+            case GL_INT_VEC2: return Draft::ShaderDataType::IVec2;
+            case GL_INT_VEC3: return Draft::ShaderDataType::IVec3;
+            case GL_INT_VEC4: return Draft::ShaderDataType::IVec4;
+            case GL_UNSIGNED_INT: return Draft::ShaderDataType::UInt;
+            case GL_UNSIGNED_INT_VEC2: return Draft::ShaderDataType::UVec2;
+            case GL_UNSIGNED_INT_VEC3: return Draft::ShaderDataType::UVec3;
+            case GL_UNSIGNED_INT_VEC4: return Draft::ShaderDataType::UVec4;
+            case GL_BOOL: return Draft::ShaderDataType::Bool;
+            case GL_FLOAT_MAT2: return Draft::ShaderDataType::Mat2;
+            case GL_FLOAT_MAT3: return Draft::ShaderDataType::Mat3;
+            case GL_FLOAT_MAT4: return Draft::ShaderDataType::Mat4;
+            case GL_SAMPLER_2D: return Draft::ShaderDataType::Sampler2D;
+            default: return Draft::ShaderDataType::Unknown;
+        }
+    }
+}
 
 namespace Draft {
     // Private functions
@@ -154,6 +180,62 @@ namespace Draft {
     }
 
     bool Shader::has_uniform(const std::string& name) const { return (glGetUniformLocation(shaderId, name.c_str()) != -1); }
+
+    std::vector<ShaderAttribute> Shader::reflect_attributes() const {
+        std::vector<ShaderAttribute> attributes;
+
+        int count = 0;
+        glGetProgramInterfaceiv(shaderId, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &count);
+
+        for(int i = 0; i < count; i++){
+            const GLenum props[] = { GL_TYPE, GL_LOCATION };
+            int values[2] = { 0, 0 };
+            glGetProgramResourceiv(shaderId, GL_PROGRAM_INPUT, i, 2, props, 2, nullptr, values);
+
+            if(values[1] < 0)
+                continue; // Built-in input (gl_VertexID, ...), not a real attribute location
+
+            char nameBuf[256];
+            int nameLength = 0;
+            glGetProgramResourceName(shaderId, GL_PROGRAM_INPUT, i, sizeof(nameBuf), &nameLength, nameBuf);
+
+            attributes.push_back(ShaderAttribute{
+                std::string(nameBuf, static_cast<size_t>(nameLength)),
+                values[1],
+                map_gl_type(static_cast<GLenum>(values[0]))
+            });
+        }
+
+        return attributes;
+    }
+
+    std::vector<ShaderUniform> Shader::reflect_uniforms() const {
+        std::vector<ShaderUniform> uniforms;
+
+        int count = 0;
+        glGetProgramInterfaceiv(shaderId, GL_UNIFORM, GL_ACTIVE_RESOURCES, &count);
+
+        for(int i = 0; i < count; i++){
+            const GLenum props[] = { GL_TYPE, GL_LOCATION, GL_BLOCK_INDEX };
+            int values[3] = { 0, 0, 0 };
+            glGetProgramResourceiv(shaderId, GL_UNIFORM, i, 3, props, 3, nullptr, values);
+
+            if(values[2] != -1 || values[1] < 0)
+                continue; // Uniform block member, or otherwise has no standalone location
+
+            char nameBuf[256];
+            int nameLength = 0;
+            glGetProgramResourceName(shaderId, GL_UNIFORM, i, sizeof(nameBuf), &nameLength, nameBuf);
+
+            uniforms.push_back(ShaderUniform{
+                std::string(nameBuf, static_cast<size_t>(nameLength)),
+                values[1],
+                map_gl_type(static_cast<GLenum>(values[0]))
+            });
+        }
+
+        return uniforms;
+    }
 
     // Named uniforms
     void Shader::set_uniform(const std::string& name, bool value) const { glUniform1i(get_location(name), value); }

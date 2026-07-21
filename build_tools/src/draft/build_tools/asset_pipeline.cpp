@@ -41,6 +41,7 @@ namespace Draft {
             case AssetKind::Animation: return "Animation";
             case AssetKind::Language: return "Language";
             case AssetKind::Particle: return "Particle";
+            case AssetKind::Shader: return "Shader";
             default: return "Unknown";
         }
     }
@@ -69,8 +70,14 @@ namespace Draft {
         fs::path assetsDir = projectRoot / "assets";
 
         for (fs::recursive_directory_iterator it(assetsDir), end; it != end; ++it) {
-            if (it->is_directory())
+            if (it->is_directory()) {
+                if (fs::exists(it->path() / "vertex.glsl") && fs::exists(it->path() / "fragment.glsl")) {
+                    fs::path relative = fs::relative(it->path(), projectRoot);
+                    tasks.push_back({relative.generic_string(), AssetKind::Shader});
+                }
+
                 continue;
+            }
 
             fs::path relative = fs::relative(it->path(), projectRoot);
             AssetKind kind = classify_asset(relative);

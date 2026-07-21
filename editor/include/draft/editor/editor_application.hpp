@@ -209,6 +209,20 @@ namespace Draft {
         std::optional<std::string> animationEditorAssetKey;
 
         /**
+         * @brief Whether the Shader Editor panel window is open. False by default, set true
+         * by AssetBrowserPanelSystem when a shader asset is double-clicked, or from the
+         * dockspace's View menu.
+         */
+        bool shaderEditorPanelVisible = false;
+
+        /**
+         * @brief Project-root-relative directory of the shader asset currently shown in the
+         * Shader Editor panel (e.g. "assets/shaders/glow", a directory containing vertex.glsl
+         * and fragment.glsl), or nullopt if none has been opened yet.
+         */
+        std::optional<std::string> shaderEditorAssetKey;
+
+        /**
          * @brief Editor preferences (snap distances, ...), loaded from and saved to
          * EditorProject::manifest_path().
          */
