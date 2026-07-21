@@ -14,15 +14,10 @@ The goal of Draft Engine 2.0 is to create a simple C++23 game engine with a clea
 
 ## Current Todo/Future Ideas
 - [ ] Shader preview with data and uniform mockup at runtime
-- [ ] Animation editor/previewer
-- [ ] Particle editor (serialize particle props to a .particle file)
-- [ ] Collider physics editor (overlaid texture) which saves to JSON
 - [ ] RMLUI editor with hot reload for RML documents and a data binding mockup
-- [ ] Visual debugging tools
-- [ ] Profiler system to standardize calls to RAM/CPU usage across systems
-- [ ] Math utils for map, lerp, slerp, and other graphs. Maybe even a graph editor?
-- [ ] Crash logs
 
+## Known bugs
+- [ ] Particle editor doesn't show particle at (0, 0)
 
 ## Project Structure
 Example game project:

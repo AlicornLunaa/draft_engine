@@ -23,7 +23,7 @@ namespace Draft {
         DRAFT_REFLECTABLE(ProfilerSystem)
 
     private:
-        void sample(std::chrono::steady_clock::time_point now);
+        void sample(std::chrono::steady_clock::time_point now, const Time& dt);
 
         bool m_visible = false;
         bool m_hasPrevSample = false;
@@ -35,12 +35,14 @@ namespace Draft {
         std::uint64_t m_prevSystemTotalTicks = 0;
         std::uint64_t m_prevSystemBusyTicks = 0;
 
+        float m_processFrameTime = 0.f;
         float m_processCpuPercent = 0.f;
         float m_systemCpuPercent = 0.f;
         std::uint64_t m_processMemoryBytes = 0;
         std::uint64_t m_systemUsedMemoryBytes = 0;
         std::uint64_t m_systemTotalMemoryBytes = 0;
 
+        CircularBuffer<float> m_processFrameTimeHistory;
         CircularBuffer<float> m_processCpuHistory;
         CircularBuffer<float> m_systemCpuHistory;
     };

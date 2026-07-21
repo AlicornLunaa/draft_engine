@@ -23,6 +23,10 @@ namespace Draft {
             return (*static_cast<CircularBuffer<float>*>(data))[idx];
         }
 
+        float get_fps_history_value(void* data, int idx){
+            return 1.f / (*static_cast<CircularBuffer<float>*>(data))[idx];
+        }
+
         #if defined(_WIN32)
             std::uint64_t filetime_to_ticks(const FILETIME& ft){
                 return (static_cast<std::uint64_t>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
@@ -145,7 +149,7 @@ namespace Draft {
     }
 
     ProfilerSystem::ProfilerSystem()
-        : m_processCpuHistory(HISTORY_CAPACITY), m_systemCpuHistory(HISTORY_CAPACITY)
+        : m_processCpuHistory(HISTORY_CAPACITY), m_systemCpuHistory(HISTORY_CAPACITY), m_processFrameTimeHistory(HISTORY_CAPACITY)
     {
     }
 
@@ -158,14 +162,23 @@ namespace Draft {
 
         auto now = std::chrono::steady_clock::now();
         if(!m_hasPrevSample || now - m_lastSampleTime >= SAMPLE_INTERVAL)
-            sample(now);
+            sample(now, dt);
 
         if(!m_visible)
             return;
 
-        ImGui::SetNextWindowSize(ImVec2(320, 280), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(320, 400), ImGuiCond_FirstUseEver);
 
         if(ImGui::Begin("Profiler", &m_visible)){
+            ImGui::Text("Frame Time: %fs", m_processFrameTime);
+            ImGui::Separator();
+            ImGui::PlotLines("##ProcessFrameTimeHistory", get_history_value, &m_processFrameTimeHistory,
+                (int)m_processCpuHistory.length(), 0, nullptr, 0.f, FLT_MAX, ImVec2(0, 48));
+            ImGui::Text("Frames Per Second: %d", static_cast<int>(1.f / m_processFrameTime));
+            ImGui::PlotLines("##ProcessFPSHistory", get_fps_history_value, &m_processFrameTimeHistory,
+                (int)m_processCpuHistory.length(), 0, nullptr, 0.f, FLT_MAX, ImVec2(0, 48));
+            ImGui::Spacing();
+
             ImGui::TextDisabled("Process");
             ImGui::Separator();
             ImGui::Text("CPU: %.1f%%", m_processCpuPercent);
@@ -185,7 +198,7 @@ namespace Draft {
         ImGui::End();
     }
 
-    void ProfilerSystem::sample(std::chrono::steady_clock::time_point now){
+    void ProfilerSystem::sample(std::chrono::steady_clock::time_point now, const Time& dt){
         std::uint64_t processCpuTicks = read_process_cpu_ticks();
         std::uint64_t systemTotalTicks, systemBusyTicks;
         read_system_cpu_ticks(systemTotalTicks, systemBusyTicks);
@@ -206,8 +219,11 @@ namespace Draft {
         m_processMemoryBytes = read_process_memory_bytes();
         read_system_memory_bytes(m_systemUsedMemoryBytes, m_systemTotalMemoryBytes);
 
+        m_processFrameTime = dt.as_seconds();
+
         m_processCpuHistory.push(m_processCpuPercent);
         m_systemCpuHistory.push(m_systemCpuPercent);
+        m_processFrameTimeHistory.push(m_processFrameTime);
 
         m_prevProcessCpuTicks = processCpuTicks;
         m_prevSystemTotalTicks = systemTotalTicks;
