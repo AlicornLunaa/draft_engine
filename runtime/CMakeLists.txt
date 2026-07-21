@@ -77,9 +77,9 @@ find_package(Threads REQUIRED)
 
 if(WIN32)
     if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(SFML_FLAGS sfml-audio user32 gdi32 psapi)
+        set(SFML_FLAGS sfml-audio user32 gdi32 psapi dbghelp)
     else()
-        set(SFML_FLAGS sfml-audio user32 gdi32 psapi -static)
+        set(SFML_FLAGS sfml-audio user32 gdi32 psapi dbghelp -static)
     endif()
     add_compile_definitions(WINDOWS)
 elseif(LINUX)
@@ -115,6 +115,7 @@ set(HEADERS
     include/draft/core/application.hpp
     include/draft/core/application_interface.hpp
     include/draft/core/command_catalog.hpp
+    include/draft/core/crash_handler.hpp
     include/draft/core/engine.hpp
     include/draft/core/sub_application.hpp
     include/draft/ecs/audio_system.hpp
@@ -211,6 +212,7 @@ set(SOURCES
     src/draft/core/application.cpp
     src/draft/core/application_interface.cpp
     src/draft/core/command_catalog.cpp
+    src/draft/core/crash_handler.cpp
     src/draft/core/engine.cpp
     src/draft/core/sub_application.cpp
     src/draft/ecs/audio_system.cpp
@@ -321,6 +323,13 @@ target_link_libraries(${PROJECT_NAME}
         box2d
         ${SFML_FLAGS}
 )
+
+if(LINUX)
+    # Exports this binary's own symbols into its dynamic symbol table, PUBLIC so it also applies
+    # to whatever final executable links draft::runtime (the launcher, an exported game, the
+    # editor), without it, CrashHandler's backtrace_symbols_fd() can't resolve function names.
+    target_link_options(${PROJECT_NAME} PUBLIC -rdynamic)
+endif()
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:TRACY_ENABLE>)

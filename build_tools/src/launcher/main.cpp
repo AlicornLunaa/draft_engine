@@ -1,6 +1,7 @@
 #include "draft/asset/asset_manager.hpp"
 #include "draft/build_tools/game_context.hpp"
 #include "draft/core/application.hpp"
+#include "draft/core/crash_handler.hpp"
 #include "draft/core/engine.hpp"
 #include "draft/ecs/scene.hpp"
 #include "draft/interface/rmlui/rml_system.hpp"
@@ -36,6 +37,8 @@ namespace {
 }
 
 int main(int argc, char** argv){
+    CrashHandler::install();
+
     #if !defined(DRAFT_STATIC_GAME_MODULE)
         // Argument only needed if not Release build
         if(argc != 2){

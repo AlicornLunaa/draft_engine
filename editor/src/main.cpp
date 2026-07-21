@@ -1,3 +1,4 @@
+#include "draft/core/crash_handler.hpp"
 #include "draft/editor/editor_application.hpp"
 
 #include <filesystem>
@@ -5,6 +6,8 @@
 using namespace Draft;
 
 int main(int argc, char** argv){
+    CrashHandler::install();
+
     EditorApplication editor("Draft Editor", 1600, 900);
 
     if(argc > 1)
