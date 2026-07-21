@@ -304,6 +304,7 @@ namespace Draft {
         editScene.get_systems().add<DockspacePanelSystem>(*this);
         editScene.get_systems().add<ViewportPanelSystem>(*this);
         editScene.get_systems().add<ParticleEditorPanelSystem>(*this);
+        editScene.get_systems().add<AnimationEditorPanelSystem>(*this);
         editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);
