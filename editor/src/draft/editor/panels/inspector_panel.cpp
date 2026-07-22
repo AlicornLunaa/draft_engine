@@ -148,8 +148,18 @@ namespace Draft {
 
     void InspectorPanelSystem::draw_add_component_popup(Entity entity){
         if(ImGui::BeginPopup("AddComponentPopup")){
+            static std::array<char, 256> s_searchBuffer{};
+
+            if(ImGui::IsWindowAppearing())
+                s_searchBuffer[0] = '\0';
+
+            ImGui::InputTextWithHint("##AddComponentSearch", "Search...", s_searchBuffer.data(), s_searchBuffer.size());
+
             for(ComponentTypeInterface* entry : m_app.gameEngine.components().all()){
                 if(entry->has(entity))
+                    continue;
+
+                if(s_searchBuffer[0] != '\0' && entry->name().find(s_searchBuffer.data()) == std::string::npos)
                     continue;
 
                 if(ImGui::MenuItem(entry->name().c_str())){
