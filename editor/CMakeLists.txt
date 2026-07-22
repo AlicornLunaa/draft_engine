@@ -24,6 +24,7 @@ set(HEADERS
     include/draft/editor/panels/hierarchy_panel.hpp
     include/draft/editor/panels/inspector_panel.hpp
     include/draft/editor/panels/particle_editor_panel.hpp
+    include/draft/editor/panels/rml_editor_panel.hpp
     include/draft/editor/panels/settings_panel.hpp
     include/draft/editor/panels/shader_editor_panel.hpp
     include/draft/editor/panels/systems_panel.hpp
@@ -52,6 +53,7 @@ set(SOURCES
     src/draft/editor/panels/hierarchy_panel.cpp
     src/draft/editor/panels/inspector_panel.cpp
     src/draft/editor/panels/particle_editor_panel.cpp
+    src/draft/editor/panels/rml_editor_panel.cpp
     src/draft/editor/panels/settings_panel.cpp
     src/draft/editor/panels/shader_editor_panel.cpp
     src/draft/editor/panels/systems_panel.cpp

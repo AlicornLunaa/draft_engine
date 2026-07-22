@@ -10,6 +10,7 @@
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/inspector_panel.hpp"
 #include "draft/editor/panels/particle_editor_panel.hpp"
+#include "draft/editor/panels/rml_editor_panel.hpp"
 #include "draft/editor/panels/settings_panel.hpp"
 #include "draft/editor/panels/shader_editor_panel.hpp"
 #include "draft/editor/panels/systems_panel.hpp"
@@ -307,6 +308,7 @@ namespace Draft {
         editScene.get_systems().add<ParticleEditorPanelSystem>(*this);
         editScene.get_systems().add<AnimationEditorPanelSystem>(*this);
         editScene.get_systems().add<ShaderEditorPanelSystem>(*this);
+        editScene.get_systems().add<RmlEditorPanelSystem>(*this);
         editScene.get_systems().add<FreecamControllerSystem>(*this);
         editScene.get_systems().add<HierarchyPanelSystem>(*this);
         editScene.get_systems().add<InspectorPanelSystem>(*this);

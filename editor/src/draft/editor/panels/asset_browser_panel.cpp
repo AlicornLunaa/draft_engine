@@ -157,6 +157,9 @@ namespace Draft {
 
                 if(child.kind == AssetKind::Shader && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
                     open_shader_editor(child.key);
+
+                if(child.kind == AssetKind::RML && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                    open_rml_editor(child.key);
             }
 
             if(ImGui::BeginDragDropSource()){
@@ -205,6 +208,11 @@ namespace Draft {
     void AssetBrowserPanelSystem::open_shader_editor(const std::string& key){
         m_app.shaderEditorAssetKey = key;
         m_app.shaderEditorPanelVisible = true;
+    }
+
+    void AssetBrowserPanelSystem::open_rml_editor(const std::string& key){
+        m_app.rmlEditorAssetKey = key;
+        m_app.rmlEditorPanelVisible = true;
     }
 
     void AssetBrowserPanelSystem::reload_all(){

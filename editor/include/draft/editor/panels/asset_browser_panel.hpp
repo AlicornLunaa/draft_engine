@@ -37,6 +37,7 @@ namespace Draft {
         void open_particle_editor(const std::string& key);
         void open_animation_editor(const std::string& key);
         void open_shader_editor(const std::string& key);
+        void open_rml_editor(const std::string& key);
         void reload_all();
         void reload_asset(AssetKind kind, const std::string& key);
 

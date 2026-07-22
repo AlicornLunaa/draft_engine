@@ -223,6 +223,19 @@ namespace Draft {
         std::optional<std::string> shaderEditorAssetKey;
 
         /**
+         * @brief Whether the Rml Editor panel window is open. False by default, set true
+         * by AssetBrowserPanelSystem when an .rml asset is double-clicked, or from the
+         * dockspace's View menu.
+         */
+        bool rmlEditorPanelVisible = false;
+
+        /**
+         * @brief Project-root-relative path of the .rml asset currently shown in the Rml Editor
+         * panel (e.g. "assets/test.rml"), or nullopt if none has been opened yet.
+         */
+        std::optional<std::string> rmlEditorAssetKey;
+
+        /**
          * @brief Editor preferences (snap distances, ...), loaded from and saved to
          * EditorProject::manifest_path().
          */

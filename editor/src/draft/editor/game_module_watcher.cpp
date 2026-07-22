@@ -26,6 +26,10 @@ namespace Draft {
             return false;
         }
 
-        return m_pendingClock.get_elapsed_time() >= Time::milliseconds(1000);
+        if(m_pendingClock.get_elapsed_time() < Time::milliseconds(1000))
+            return false;
+
+        m_lastModified = modified;
+        return true;
     }
 }
