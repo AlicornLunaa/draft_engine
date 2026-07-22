@@ -83,12 +83,31 @@ namespace Draft {
         void construct_joint_func(Registry& reg, entt::entity rawEnt){
             // A JointComponent was added, add a new native handle
             T& jointComponent = reg.get<T>(rawEnt);
+            Entity self(&m_sceneRef, rawEnt);
 
             // Make sure the entity doesn't already have a native handle somehow
             if(reg.all_of<typename T::NativeType>(rawEnt))
                 reg.remove<typename T::NativeType>(rawEnt);
 
-            // Make sure the two target entities have bodies to attach to
+            // Register the constraint link on both targets
+            if(jointComponent.entityA.is_valid()){
+                ConstrainedComponent* constraintComponent = jointComponent.entityA.template has_component<ConstrainedComponent>()
+                    ? &jointComponent.entityA.template get_component<ConstrainedComponent>()
+                    : &jointComponent.entityA.template add_component<ConstrainedComponent>();
+
+                constraintComponent->constraints.push_back(self);
+            }
+
+            if(jointComponent.entityB.is_valid()){
+                ConstrainedComponent* constraintComponent = jointComponent.entityB.template has_component<ConstrainedComponent>()
+                    ? &jointComponent.entityB.template get_component<ConstrainedComponent>()
+                    : &jointComponent.entityB.template add_component<ConstrainedComponent>();
+
+                constraintComponent->constraints.push_back(self);
+            }
+
+            // Make sure the two target entities have bodies to attach to already; if not, the
+            // retry described above finishes the job later.
             if(!jointComponent.entityA.is_valid() || !jointComponent.entityA.template has_component<NativeBodyComponent>())
                 return;
 
@@ -97,27 +116,6 @@ namespace Draft {
 
             // Construct actual joint
             reg.emplace<typename T::NativeType>(rawEnt);
-
-            // Add constraint references to the targets
-            // Entity A
-            ConstrainedComponent* constraintComponent = nullptr;
-
-            if(!jointComponent.entityA.template has_component<ConstrainedComponent>()){
-                constraintComponent = &jointComponent.entityA.template add_component<ConstrainedComponent>();
-            } else {
-                constraintComponent = &jointComponent.entityA.template get_component<ConstrainedComponent>();
-            }
-
-            constraintComponent->constraints.push_back(Entity(&m_sceneRef, rawEnt));
-
-            // Entity B
-            if(!jointComponent.entityB.template has_component<ConstrainedComponent>()){
-                constraintComponent = &jointComponent.entityB.template add_component<ConstrainedComponent>();
-            } else {
-                constraintComponent = &jointComponent.entityB.template get_component<ConstrainedComponent>();
-            }
-
-            constraintComponent->constraints.push_back(Entity(&m_sceneRef, rawEnt));
         }
 
         template<typename T>

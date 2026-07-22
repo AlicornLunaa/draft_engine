@@ -57,6 +57,7 @@ struct Draft::Serializer::CustomSerializer<std::vector<K>> {
         size_t size = 0;
         Serializer::deserialize_and_advance(size, span);
 
+        array.clear();
         array.reserve(size);
 
         for(size_t i = 0; i < size; i++){
@@ -77,6 +78,7 @@ struct Draft::Serializer::CustomSerializer<std::vector<K>> {
     }
 
     static void deserialize(std::vector<K>& array, const Draft::JSON& json){
+        array.clear();
         array.reserve(json.size());
 
         for(auto& item : json){

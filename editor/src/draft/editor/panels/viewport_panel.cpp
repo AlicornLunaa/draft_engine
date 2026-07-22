@@ -27,7 +27,7 @@ namespace Draft {
 
         // Draws a viewport and lets the engine know if this special widget is currently focused
         // when it IS focused, all inputs should be forwarded to the game engine and skip the editor engine.
-        ImGuiWindowFlags flags = ImGuiWindowFlags_None;
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         if(m_app.viewportHovered && m_app.viewportFocused){
             flags |= ImGuiWindowFlags_NoResize;
             flags |= ImGuiWindowFlags_NoMove;

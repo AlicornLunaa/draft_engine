@@ -247,7 +247,57 @@ TEST(SceneSerializer, PhysicsBodyAndColliderMaterializeAutomaticallyOnLoad)
     ASSERT_TRUE(loaded.has_component<NativeBodyComponent>());
     EXPECT_FLOAT_EQ(loaded.get_component<NativeBodyComponent>().bodyPtr->get_position().x, 3.f);
     EXPECT_FLOAT_EQ(loaded.get_component<NativeBodyComponent>().bodyPtr->get_position().y, 4.f);
+    EXPECT_EQ(loaded.get_component<NativeBodyComponent>().bodyPtr->get_type(), BodyType::DYNAMIC);
 
     ASSERT_TRUE(loaded.has_component<ColliderComponent>());
     EXPECT_TRUE(loaded.get_component<ColliderComponent>().collider.is_attached());
+}
+
+// Regression test for crash on clear
+TEST(SceneSerializer, StoppingWithALiveJointDoesNotCrash)
+{
+    Engine engine;
+    AssetManager assets;
+
+    World world({0.f, 0.f});
+    Scene scene;
+
+    engine.systems().register_system<PhysicsSystem>([&world](Scene& scene){ return std::make_unique<PhysicsSystem>(scene, world); });
+    engine.systems().by_type<PhysicsSystem>()->add(scene);
+
+    Entity bodyA = scene.create_entity();
+    bodyA.add_component<TagComponent>(TagComponent{"BodyA"});
+    bodyA.add_component<TransformComponent>();
+    bodyA.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+    CircleShape circleA;
+    bodyA.add_component<ColliderComponent>(ColliderComponent(circleA));
+
+    Entity bodyB = scene.create_entity();
+    bodyB.add_component<TagComponent>(TagComponent{"BodyB"});
+    bodyB.add_component<TransformComponent>(TransformComponent{{2.f, 0.f}, 0.f});
+    bodyB.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+    CircleShape circleB;
+    bodyB.add_component<ColliderComponent>(ColliderComponent(circleB));
+
+    Entity jointEntity = scene.create_entity();
+    jointEntity.add_component<TagComponent>(TagComponent{"Joint"});
+    WeldJointComponent jointData;
+    jointData.entityA = bodyA;
+    jointData.entityB = bodyB;
+    jointEntity.add_component<WeldJointComponent>(jointData);
+
+    ASSERT_TRUE(jointEntity.has_component<WeldJointComponent::NativeType>());
+
+    FileHandle file = DiskFileProvider().open("scene_serializer_stop_joint.json");
+    save_scene(scene, engine, assets, file); // play()
+
+    for(int i = 0; i < 5; i++)
+        scene.update(Time::seconds(1.f / 60.f));
+
+    // stop()
+    scene.get_registry().clear();
+    load_scene(scene, engine, assets, file);
+    file.remove();
+
+    EXPECT_EQ(world.get_body_count(), 2u);
 }

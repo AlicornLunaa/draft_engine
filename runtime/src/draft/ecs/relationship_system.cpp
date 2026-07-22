@@ -27,9 +27,13 @@ namespace Draft {
             childrenCompPtr = &parent.get_component<ParentComponent>();
         }
 
-        // Add to array
+        // Add to array, unless it's already there.
         if(childrenCompPtr){
-            childrenCompPtr->children.push_back(Entity(&m_sceneRef, rawEnt));
+            Entity self(&m_sceneRef, rawEnt);
+            auto& vec = childrenCompPtr->children;
+
+            if(std::find(vec.begin(), vec.end(), self) == vec.end())
+                vec.push_back(self);
         }
     }
 

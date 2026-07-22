@@ -102,13 +102,25 @@ namespace Draft {
         void serialize(Entity entity, Binary::ByteArray& out) const override { Serializer::serialize(entity.get_component<T>(), out); }
 
         void deserialize(Entity entity, JSON& json) const override {
-            T& component = entity.has_component<T>() ? entity.get_component<T>() : entity.add_component<T>();
+            if(entity.has_component<T>()){
+                Serializer::deserialize(entity.get_component<T>(), json);
+                return;
+            }
+
+            T component{};
             Serializer::deserialize(component, json);
+            entity.add_component<T>(component);
         }
 
         void deserialize(Entity entity, Binary::ByteView data) const override {
-            T& component = entity.has_component<T>() ? entity.get_component<T>() : entity.add_component<T>();
+            if(entity.has_component<T>()){
+                Serializer::deserialize(entity.get_component<T>(), data);
+                return;
+            }
+
+            T component{};
             Serializer::deserialize(component, data);
+            entity.add_component<T>(component);
         }
 
         void visit_fields(Entity entity, FieldVisitor& visitor) const override {

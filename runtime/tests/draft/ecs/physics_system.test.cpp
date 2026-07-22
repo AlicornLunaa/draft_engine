@@ -124,6 +124,116 @@ TEST(PhysicsSystem, JointComponentPairCreatesALiveJointAndConstrainsBothEntities
     EXPECT_FALSE(bodyB.has_component<ConstrainedComponent>());
 }
 
+// Regression test for box2d setting values for joints
+TEST(PhysicsSystem, EditingAJointAnchorAfterConstructionRebuildsTheNativeJoint)
+{
+    World world({0.f, 0.f});
+    Scene scene;
+    scene.get_systems().add<PhysicsSystem>(scene, world);
+
+    Entity bodyA = scene.create_entity();
+    bodyA.add_component<TransformComponent>();
+    bodyA.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+    Entity bodyB = scene.create_entity();
+    bodyB.add_component<TransformComponent>(TransformComponent{{2.f, 0.f}, 0.f});
+    bodyB.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+    Entity jointEntity = scene.create_entity();
+    RevoluteJointComponent jointData;
+    jointData.entityA = bodyA;
+    jointData.entityB = bodyB;
+    jointEntity.add_component<RevoluteJointComponent>(jointData);
+
+    ASSERT_TRUE(jointEntity.has_component<RevoluteJointComponent::NativeType>());
+
+    // bodyA sits at the origin with no rotation, so its world anchor starts at {0, 0} too.
+    ASSERT_FLOAT_EQ(jointEntity.get_component<RevoluteJointComponent>().get_world_anchor_a().x, 0.f);
+
+    // Simulate an inspector edit
+    jointEntity.get_component<RevoluteJointComponent>().localAnchorA = Vector2f{1.f, 0.f};
+
+    scene.update(Time::seconds(1.f / 60.f));
+
+    ASSERT_TRUE(jointEntity.has_component<RevoluteJointComponent::NativeType>());
+    EXPECT_EQ(jointEntity.get_component<RevoluteJointComponent>().localAnchorA, (Vector2f{1.f, 0.f}));
+
+    // The native joint must have actually been rebuilt with the new anchor
+    EXPECT_NEAR(jointEntity.get_component<RevoluteJointComponent>().get_world_anchor_a().x, 1.f, 0.001f);
+
+    // The rebuild must also refresh ConstrainedComponent's link on each body
+    ASSERT_TRUE(bodyA.has_component<ConstrainedComponent>());
+    EXPECT_EQ(bodyA.get_component<ConstrainedComponent>().constraints.size(), 1u);
+    ASSERT_TRUE(bodyB.has_component<ConstrainedComponent>());
+    EXPECT_EQ(bodyB.get_component<ConstrainedComponent>().constraints.size(), 1u);
+}
+
+// Regression test for crashing on clear
+TEST(PhysicsSystem, ClearingTheRegistryWithALiveJointDoesNotCrash)
+{
+    World world({0.f, 0.f});
+    Scene scene;
+    scene.get_systems().add<PhysicsSystem>(scene, world);
+
+    Entity bodyA = scene.create_entity();
+    bodyA.add_component<TransformComponent>();
+    bodyA.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+    Entity bodyB = scene.create_entity();
+    bodyB.add_component<TransformComponent>(TransformComponent{{2.f, 0.f}, 0.f});
+    bodyB.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+    Entity jointEntity = scene.create_entity();
+    DistanceJointComponent jointData;
+    jointData.entityA = bodyA;
+    jointData.entityB = bodyB;
+    jointData.length = 2.f;
+    jointEntity.add_component<DistanceJointComponent>(jointData);
+
+    ASSERT_TRUE(jointEntity.has_component<DistanceJointComponent::NativeType>());
+
+    scene.get_registry().clear();
+
+    EXPECT_EQ(world.get_body_count(), 0u);
+}
+
+TEST(PhysicsSystem, JointConstructedBeforeItsBodiesStillGoesLiveOnceTheyExist)
+{
+    World world({0.f, 0.f});
+    Scene scene;
+    scene.get_systems().add<PhysicsSystem>(scene, world);
+
+    Entity bodyA = scene.create_entity();
+    Entity bodyB = scene.create_entity();
+
+    Entity jointEntity = scene.create_entity();
+    DistanceJointComponent jointData;
+    jointData.entityA = bodyA;
+    jointData.entityB = bodyB;
+    jointData.length = 2.f;
+    jointEntity.add_component<DistanceJointComponent>(jointData);
+
+    // Neither body exists yet, so the joint can't go live immediately, but the constraint link
+    // should already be recorded so it can be retried once they do.
+    EXPECT_FALSE(jointEntity.has_component<DistanceJointComponent::NativeType>());
+    ASSERT_TRUE(bodyA.has_component<ConstrainedComponent>());
+    EXPECT_EQ(bodyA.get_component<ConstrainedComponent>().constraints[0], jointEntity);
+    ASSERT_TRUE(bodyB.has_component<ConstrainedComponent>());
+    EXPECT_EQ(bodyB.get_component<ConstrainedComponent>().constraints[0], jointEntity);
+
+    bodyA.add_component<TransformComponent>();
+    bodyA.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+    EXPECT_FALSE(jointEntity.has_component<DistanceJointComponent::NativeType>()); // still missing bodyB
+
+    bodyB.add_component<TransformComponent>(TransformComponent{{2.f, 0.f}, 0.f});
+    bodyB.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+    ASSERT_TRUE(jointEntity.has_component<DistanceJointComponent::NativeType>());
+    DistanceJointComponent::NativeType& native = jointEntity.get_component<DistanceJointComponent::NativeType>();
+    ASSERT_TRUE(native.is_valid());
+    EXPECT_EQ(native.get_as<DistanceJoint>()->get_length(), 2.f);
+}
+
 TEST(PhysicsSystem, OneShotTorqueComponentIsConsumedAfterOneUpdate)
 {
     World world({0.f, 0.f});
