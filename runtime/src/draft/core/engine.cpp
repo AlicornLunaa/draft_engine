@@ -27,5 +27,16 @@ namespace Draft {
         register_component<RigidBodyComponent>();
         register_component<AnimationComponent>();
         register_component<CameraComponent>();
+
+        register_component<DistanceJointComponent>();
+        register_component<FrictionJointComponent>();
+        register_component<GearJointComponent>();
+        register_component<MotorJointComponent>();
+        register_component<MouseJointComponent>();
+        register_component<PrismaticJointComponent>();
+        register_component<PulleyJointComponent>();
+        register_component<RevoluteJointComponent>();
+        register_component<WeldJointComponent>();
+        register_component<WheelJointComponent>();
     }
 }
