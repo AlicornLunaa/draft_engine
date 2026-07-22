@@ -23,6 +23,7 @@ set(HEADERS
     include/draft/editor/panels/gizmo_primitives.hpp
     include/draft/editor/panels/hierarchy_panel.hpp
     include/draft/editor/panels/inspector_panel.hpp
+    include/draft/editor/panels/joint_gizmo.hpp
     include/draft/editor/panels/particle_editor_panel.hpp
     include/draft/editor/panels/rml_editor_panel.hpp
     include/draft/editor/panels/settings_panel.hpp
@@ -52,6 +53,7 @@ set(SOURCES
     src/draft/editor/panels/gizmo_primitives.cpp
     src/draft/editor/panels/hierarchy_panel.cpp
     src/draft/editor/panels/inspector_panel.cpp
+    src/draft/editor/panels/joint_gizmo.cpp
     src/draft/editor/panels/particle_editor_panel.cpp
     src/draft/editor/panels/rml_editor_panel.cpp
     src/draft/editor/panels/settings_panel.cpp

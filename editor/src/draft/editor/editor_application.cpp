@@ -9,6 +9,7 @@
 #include "draft/editor/panels/gizmo_overlay.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
 #include "draft/editor/panels/inspector_panel.hpp"
+#include "draft/editor/panels/joint_gizmo.hpp"
 #include "draft/editor/panels/particle_editor_panel.hpp"
 #include "draft/editor/panels/rml_editor_panel.hpp"
 #include "draft/editor/panels/settings_panel.hpp"
@@ -322,6 +323,7 @@ namespace Draft {
         // colliderGizmoActiveThisFrame fresh each frame.
         editScene.get_systems().add<ColliderGizmoSystem>(*this);
         editScene.get_systems().add<GizmoOverlaySystem>(*this);
+        editScene.get_systems().add<JointGizmoSystem>(*this);
     }
 
     void EditorApplication::register_editor_commands(){
