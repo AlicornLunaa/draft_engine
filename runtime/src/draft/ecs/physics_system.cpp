@@ -27,6 +27,9 @@ namespace Draft {
     void add_for_component(Entity entity){
         if(!entity.has_component<ComponentType>())
             return;
+        
+        if(entity.has_component<typename ComponentType::NativeType>())
+            return;
 
         // Both targets must already be ready before emplacing NativeType
         ComponentType& joint = entity.get_component<ComponentType>();

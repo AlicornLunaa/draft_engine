@@ -197,6 +197,37 @@ TEST(PhysicsSystem, ClearingTheRegistryWithALiveJointDoesNotCrash)
     EXPECT_EQ(world.get_body_count(), 0u);
 }
 
+TEST(PhysicsSystem, DuplicateConstraintEntryDoesNotCrashBodyConstruction)
+{
+    World world({0.f, 0.f});
+    Scene scene;
+    scene.get_systems().add<PhysicsSystem>(scene, world);
+
+    Entity bodyA = scene.create_entity();
+    bodyA.add_component<TransformComponent>();
+    bodyA.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+    Entity bodyB = scene.create_entity();
+
+    Entity jointEntity = scene.create_entity();
+    DistanceJointComponent jointData;
+    jointData.entityA = bodyA;
+    jointData.entityB = bodyB;
+    jointData.length = 2.f;
+    jointEntity.add_component<DistanceJointComponent>(jointData);
+
+    ASSERT_FALSE(jointEntity.has_component<DistanceJointComponent::NativeType>());
+
+    ASSERT_TRUE(bodyB.has_component<ConstrainedComponent>());
+    bodyB.get_component<ConstrainedComponent>().constraints.push_back(jointEntity);
+    ASSERT_EQ(bodyB.get_component<ConstrainedComponent>().constraints.size(), 2u);
+
+    bodyB.add_component<TransformComponent>(TransformComponent{{2.f, 0.f}, 0.f});
+    bodyB.add_component<RigidBodyComponent>(RigidBodyComponent{.type = BodyType::DYNAMIC});
+
+    ASSERT_TRUE(jointEntity.has_component<DistanceJointComponent::NativeType>());
+}
+
 TEST(PhysicsSystem, JointConstructedBeforeItsBodiesStillGoesLiveOnceTheyExist)
 {
     World world({0.f, 0.f});

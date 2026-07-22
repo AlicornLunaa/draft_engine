@@ -89,13 +89,15 @@ namespace Draft {
             if(reg.all_of<typename T::NativeType>(rawEnt))
                 reg.remove<typename T::NativeType>(rawEnt);
 
-            // Register the constraint link on both targets
+            // Register the constraint link on both targets, unless it's already there
             if(jointComponent.entityA.is_valid()){
                 ConstrainedComponent* constraintComponent = jointComponent.entityA.template has_component<ConstrainedComponent>()
                     ? &jointComponent.entityA.template get_component<ConstrainedComponent>()
                     : &jointComponent.entityA.template add_component<ConstrainedComponent>();
 
-                constraintComponent->constraints.push_back(self);
+                auto& constraints = constraintComponent->constraints;
+                if(std::find(constraints.begin(), constraints.end(), self) == constraints.end())
+                    constraints.push_back(self);
             }
 
             if(jointComponent.entityB.is_valid()){
@@ -103,7 +105,9 @@ namespace Draft {
                     ? &jointComponent.entityB.template get_component<ConstrainedComponent>()
                     : &jointComponent.entityB.template add_component<ConstrainedComponent>();
 
-                constraintComponent->constraints.push_back(self);
+                auto& constraints = constraintComponent->constraints;
+                if(std::find(constraints.begin(), constraints.end(), self) == constraints.end())
+                    constraints.push_back(self);
             }
 
             // Make sure the two target entities have bodies to attach to already; if not, the
