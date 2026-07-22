@@ -1,5 +1,6 @@
 #include "draft/editor/freecam_controller.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/components/transform_component.hpp"
 #include "draft/input/keyboard.hpp"
 #include "draft/input/mouse.hpp"
 #include "draft/rendering/camera.hpp"
@@ -45,6 +46,12 @@ namespace Draft {
             } else {
                 dragStart = std::nullopt;
                 positionStart = std::nullopt;
+            }
+
+            if(keyboard.is_just_pressed(Keyboard::F)){
+                Entity selected = m_app.selection.get();
+                if(selected.is_valid() && selected.has_component<TransformComponent>())
+                    m_position = selected.get_component<TransformComponent>().position;
             }
         }
 
