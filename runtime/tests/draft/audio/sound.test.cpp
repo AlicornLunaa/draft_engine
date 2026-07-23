@@ -1,50 +1,59 @@
 #include <gtest/gtest.h>
+#include "draft/asset/resource.hpp"
 #include "draft/audio/sound.hpp"
 #include "wav_test_helper.hpp"
+#include <memory>
 
 using namespace Draft;
 using namespace Draft::Testing;
 
+namespace {
+    Resource<SoundBuffer> make_buffer_resource(){
+        auto buffer = std::make_shared<SoundBuffer>(make_wav_bytes());
+        return Resource<SoundBuffer>(std::make_shared<AssetSlot<SoundBuffer>>(std::move(buffer)));
+    }
+}
+
 TEST(Sound, DefaultConstructedHasNoBuffer)
 {
     Sound sound;
-    EXPECT_EQ(sound.get_buffer(), nullptr);
+    EXPECT_FALSE(sound.get_buffer().is_valid());
 }
 
 TEST(Sound, SetBufferTracksThePassedBuffer)
 {
-    SoundBuffer buffer(make_wav_bytes());
+    Resource<SoundBuffer> buffer = make_buffer_resource();
     Sound sound;
     sound.set_buffer(buffer);
 
-    EXPECT_EQ(sound.get_buffer(), &buffer);
+    EXPECT_EQ(sound.get_buffer().get(), buffer.get());
 }
 
 TEST(Sound, ConstructingFromABufferBindsItImmediately)
 {
-    SoundBuffer buffer(make_wav_bytes());
+    Resource<SoundBuffer> buffer = make_buffer_resource();
     Sound sound(buffer);
 
-    EXPECT_EQ(sound.get_buffer(), &buffer);
+    EXPECT_EQ(sound.get_buffer().get(), buffer.get());
 }
 
 TEST(Sound, CopyConstructorPreservesTheBufferPointer)
 {
-    SoundBuffer buffer(make_wav_bytes());
+    Resource<SoundBuffer> buffer = make_buffer_resource();
     Sound original(buffer);
     Sound copy(original);
 
-    EXPECT_EQ(copy.get_buffer(), &buffer);
+    EXPECT_EQ(copy.get_buffer().get(), buffer.get());
 }
 
 TEST(Sound, CopyAssignmentPreservesTheBufferPointer)
 {
-    SoundBuffer buffer(make_wav_bytes());
+    Resource<SoundBuffer> buffer = make_buffer_resource();
     Sound original(buffer);
     Sound copy;
     copy = original;
 
-    EXPECT_EQ(copy.get_buffer(), &buffer);
+    EXPECT_EQ(copy.get_buffer().get(), buffer.get());
 }
 
 TEST(Sound, PropertiesRoundTrip)
@@ -71,7 +80,7 @@ TEST(Sound, PropertiesRoundTrip)
 
 TEST(Sound, PlayPauseStopDoNotThrow)
 {
-    SoundBuffer buffer(make_wav_bytes());
+    Resource<SoundBuffer> buffer = make_buffer_resource();
     Sound sound(buffer);
 
     ASSERT_NO_THROW(sound.play());
@@ -81,7 +90,7 @@ TEST(Sound, PlayPauseStopDoNotThrow)
 
 TEST(Sound, ResetBufferDoesNotThrow)
 {
-    SoundBuffer buffer(make_wav_bytes());
+    Resource<SoundBuffer> buffer = make_buffer_resource();
     Sound sound(buffer);
 
     ASSERT_NO_THROW(sound.reset_buffer());

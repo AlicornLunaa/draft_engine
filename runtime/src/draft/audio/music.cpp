@@ -17,7 +17,11 @@ namespace Draft {
     // Constructors
     Music::Music() : ptr(std::make_unique<Impl>()) {}
     Music::Music(const FileHandle& handle) : Music() { load(handle); }
+    Music::Music(Music&& other) noexcept = default;
     Music::~Music(){}
+
+    // Operators
+    Music& Music::operator=(Music&& other) noexcept = default;
 
     // Functions
     void Music::play(){ ptr->music.play(); }

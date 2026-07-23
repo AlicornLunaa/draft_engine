@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "draft/ecs/scene_serializer.hpp"
 #include "draft/asset/asset_manager.hpp"
+#include "draft/components/audio_components.hpp"
 #include "draft/components/rigid_body_component.hpp"
 #include "draft/components/collider_component.hpp"
 #include "draft/components/tag_component.hpp"
@@ -14,10 +15,12 @@
 #include "draft/physics/shapes/circle_shape.hpp"
 #include "draft/physics/world.hpp"
 #include "draft/util/files/disk_file_provider.hpp"
+#include "../audio/wav_test_helper.hpp"
 
 #include <memory>
 
 using namespace Draft;
+using namespace Draft::Testing;
 
 namespace {
     // A system holding its own reflected, savable data alongside its per-tick behavior, the
@@ -251,6 +254,40 @@ TEST(SceneSerializer, PhysicsBodyAndColliderMaterializeAutomaticallyOnLoad)
 
     ASSERT_TRUE(loaded.has_component<ColliderComponent>());
     EXPECT_TRUE(loaded.get_component<ColliderComponent>().collider.is_attached());
+}
+
+TEST(SceneSerializer, SoundComponentRoundTripsItsBufferAsAResourceKey)
+{
+    Engine engine;
+    AssetManager assets;
+
+    std::filesystem::path wavPath = "scene_serializer_sound.wav";
+    DiskFileProvider().open(wavPath).write_bytes(make_wav_bytes());
+
+    Resource<SoundBuffer> original = assets.get<SoundBuffer>(wavPath.string());
+    Sound sound(original);
+
+    Scene scene;
+    Entity entity = scene.create_entity();
+    entity.add_component<TagComponent>(TagComponent{"SoundEntity"});
+    entity.add_component<SoundComponent>(sound);
+
+    FileHandle file = DiskFileProvider().open("scene_serializer_sound.json");
+    save_scene(scene, engine, assets, file);
+
+    Scene loaded;
+    load_scene(loaded, engine, assets, file);
+    file.remove();
+    DiskFileProvider().open(wavPath).remove();
+
+    Entity loadedEntity = find_by_tag(loaded, "SoundEntity");
+    ASSERT_TRUE(loadedEntity.is_valid());
+    ASSERT_TRUE(loadedEntity.has_component<SoundComponent>());
+
+    Resource<SoundBuffer> restored = loadedEntity.get_component<SoundComponent>().sound.get_buffer();
+    ASSERT_TRUE(restored.is_valid());
+    EXPECT_EQ(restored.slot_id(), original.slot_id());
+    EXPECT_EQ(restored->get_sample_rate(), original->get_sample_rate());
 }
 
 // Regression test for crash on clear

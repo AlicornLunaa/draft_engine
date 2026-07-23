@@ -1,5 +1,6 @@
 #include "draft/asset/default_loaders.hpp"
 #include "draft/asset/asset_manager.hpp"
+#include "draft/audio/music.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/ecs/scene_serialization_context.hpp"
 #include "draft/physics/collider.hpp"
@@ -173,6 +174,18 @@ namespace Draft {
                 },
                 [](std::any data, AssetManager&){
                     return SoundBuffer(std::any_cast<Binary::ByteArray>(data));
+                }
+            );
+        }
+
+        template<>
+        void register_default_loader<Music>(AssetManager& assets){
+            assets.register_loader<Music>(
+                [](const FileHandle& handle){
+                    return handle;
+                },
+                [](std::any data, AssetManager&){
+                    return Music(std::any_cast<FileHandle>(data));
                 }
             );
         }

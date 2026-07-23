@@ -33,8 +33,9 @@ TEST_F(AudioSystemTest, RenderSyncsListenerPositionFromTransform)
     // Listener::apply() pushes straight to SFML's global listener state, which only exists
     // while at least one SFML sound source (Sound/Music) is alive, keep one around so this
     // test exercises a real, live audio device instead of a torn-down one.
-    SoundBuffer keepAliveBuffer(make_wav_bytes());
-    Sound keepAliveSound(keepAliveBuffer);
+    auto keepAliveBuffer = std::make_shared<SoundBuffer>(make_wav_bytes());
+    Resource<SoundBuffer> keepAliveBufferResource(std::make_shared<AssetSlot<SoundBuffer>>(std::move(keepAliveBuffer)));
+    Sound keepAliveSound(keepAliveBufferResource);
 
     Scene scene;
     scene.get_systems().add<AudioSystem>(scene.get_registry());
@@ -54,8 +55,9 @@ TEST_F(AudioSystemTest, RenderSyncsSoundPositionFromTransform)
     Scene scene;
     scene.get_systems().add<AudioSystem>(scene.get_registry());
 
-    SoundBuffer buffer(make_wav_bytes());
-    Sound sound(buffer);
+    auto buffer = std::make_shared<SoundBuffer>(make_wav_bytes());
+    Resource<SoundBuffer> bufferResource(std::make_shared<AssetSlot<SoundBuffer>>(std::move(buffer)));
+    Sound sound(bufferResource);
 
     Entity soundEntity = scene.create_entity();
     soundEntity.add_component<TransformComponent>(TransformComponent{{5.f, 7.f}, 0.f});

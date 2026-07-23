@@ -1,5 +1,6 @@
 #include "draft/core/engine.hpp"
 #include "draft/components/animation_component.hpp"
+#include "draft/components/audio_components.hpp"
 #include "draft/components/camera_component.hpp"
 #include "draft/components/collider_component.hpp"
 #include "draft/components/joint_component.hpp"
@@ -27,6 +28,9 @@ namespace Draft {
         register_component<RigidBodyComponent>();
         register_component<AnimationComponent>();
         register_component<CameraComponent>();
+        register_component<SoundComponent>();
+        register_component<MusicComponent>();
+        register_component<ListenerComponent>();
 
         register_component<DistanceJointComponent>();
         register_component<FrictionJointComponent>();

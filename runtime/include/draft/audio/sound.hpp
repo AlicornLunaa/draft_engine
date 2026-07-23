@@ -1,7 +1,9 @@
 #pragma once
 
+#include "draft/asset/resource.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/math/glm.hpp"
+#include "draft/util/reflectable.hpp"
 #include "draft/util/time.hpp"
 #include <memory>
 
@@ -13,12 +15,12 @@ namespace Draft {
     class Sound {
     private:
         // Variables
-        SoundBuffer const* m_bufferPtr = nullptr;
+        Resource<SoundBuffer> m_buffer;
 
     public:
         // Constructors
         Sound();
-        Sound(const SoundBuffer& buffer);
+        Sound(Resource<SoundBuffer> buffer);
         Sound(const Sound& other);
         ~Sound();
 
@@ -31,7 +33,7 @@ namespace Draft {
         void stop();
         void reset_buffer();
 
-        void set_buffer(const SoundBuffer& buffer);
+        void set_buffer(Resource<SoundBuffer> buffer);
         void set_loop(bool loop);
         void set_playing_offset(Time timeOffset);
         void set_pitch(float pitch);
@@ -41,7 +43,7 @@ namespace Draft {
         void set_attenuation(float attenuation);
         void set_relative(bool relative);
 
-        const SoundBuffer* get_buffer() const;
+        Resource<SoundBuffer> get_buffer() const;
         bool get_loop() const;
         Time get_playing_offset() const;
         float get_pitch() const;
@@ -50,6 +52,8 @@ namespace Draft {
         float get_min_distance() const;
         float get_attenuation() const;
         bool is_relative() const;
+
+        DRAFT_REFLECTABLE(Sound, m_buffer)
 
     private:
         struct Impl;

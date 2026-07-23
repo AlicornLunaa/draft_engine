@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/math/glm.hpp"
+#include "draft/util/reflectable.hpp"
 
 namespace Draft {
     /**
@@ -32,5 +33,7 @@ namespace Draft {
          * currently-playing Sound/Music is heard relative to.
          */
         void apply();
+
+        DRAFT_REFLECTABLE(Listener, m_position, m_forward, m_up, m_volume);
     };
 }

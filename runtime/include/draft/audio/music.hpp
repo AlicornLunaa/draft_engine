@@ -26,10 +26,12 @@ namespace Draft {
         Music();
         Music(const FileHandle& handle);
         Music(const Music& other) = delete;
+        Music(Music&& other) noexcept;
         ~Music();
 
         // Operators
         Music& operator=(const Music& other) = delete;
+        Music& operator=(Music&& other) noexcept;
 
         // Functions
         void play();

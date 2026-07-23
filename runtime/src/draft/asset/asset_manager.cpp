@@ -1,5 +1,6 @@
 #include "draft/asset/asset_manager.hpp"
 #include "draft/asset/default_loaders.hpp"
+#include "draft/audio/music.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/physics/collider.hpp"
 #include "draft/rendering/animation.hpp"
@@ -138,6 +139,7 @@ namespace Draft {
         Loaders::register_default_loader<ParticleProps>(*this);
         Loaders::register_default_loader<Shader>(*this);
         Loaders::register_default_loader<SoundBuffer>(*this);
+        Loaders::register_default_loader<Music>(*this);
         Loaders::register_default_loader<Texture>(*this);
         Loaders::register_default_loader<Localization>(*this);
     }

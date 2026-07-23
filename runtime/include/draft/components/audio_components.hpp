@@ -16,6 +16,7 @@ namespace Draft {
         Sound sound;
 
         // Constructors
+        SoundComponent(){}
         SoundComponent(Sound& sound) : sound(sound) {}
 
         // Ops
@@ -32,6 +33,7 @@ namespace Draft {
         Resource<Music> track;
 
         // Constructors
+        MusicComponent(){}
         MusicComponent(Resource<Music> track) : track(track) {}
 
         // Ops

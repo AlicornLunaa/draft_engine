@@ -13,10 +13,10 @@ namespace Draft {
     // Constructors
     Sound::Sound() : ptr(std::make_unique<Impl>()) {}
 
-    Sound::Sound(const SoundBuffer& buffer) : Sound() { set_buffer(buffer); }
+    Sound::Sound(Resource<SoundBuffer> buffer) : Sound() { set_buffer(buffer); }
 
     Sound::Sound(const Sound& other) : ptr(std::make_unique<Impl>()) {
-        m_bufferPtr = other.m_bufferPtr;
+        m_buffer = other.m_buffer;
         ptr->sound = sf::Sound(other.ptr->sound);
     }
 
@@ -25,7 +25,7 @@ namespace Draft {
     // Operators
     Sound& Sound::operator=(const Sound& other){
         if(this != &other){
-            m_bufferPtr = other.m_bufferPtr;
+            m_buffer = other.m_buffer;
             ptr->sound = other.ptr->sound;
         }
 
@@ -38,9 +38,9 @@ namespace Draft {
     void Sound::stop(){ ptr->sound.stop(); }
     void Sound::reset_buffer(){ ptr->sound.resetBuffer(); }
 
-    void Sound::set_buffer(const SoundBuffer& buffer){
-        m_bufferPtr = &buffer;
-        ptr->sound.setBuffer(*((const sf::SoundBuffer*)buffer.get_buffer_ptr()));
+    void Sound::set_buffer(Resource<SoundBuffer> buffer){
+        m_buffer = buffer;
+        ptr->sound.setBuffer(*((const sf::SoundBuffer*)buffer->get_buffer_ptr()));
     }
 
     void Sound::set_loop(bool loop){ ptr->sound.setLoop(loop); }
@@ -52,7 +52,7 @@ namespace Draft {
     void Sound::set_attenuation(float attenuation){ ptr->sound.setAttenuation(attenuation); }
     void Sound::set_relative(bool relative){ ptr->sound.setRelativeToListener(relative); }
 
-    const SoundBuffer* Sound::get_buffer() const { return m_bufferPtr; }
+    Resource<SoundBuffer> Sound::get_buffer() const { return m_buffer; }
     bool Sound::get_loop() const { return ptr->sound.getLoop(); }
     Time Sound::get_playing_offset() const { return Time::microseconds(ptr->sound.getPlayingOffset().asMicroseconds()); }
     float Sound::get_pitch() const { return ptr->sound.getPitch(); }

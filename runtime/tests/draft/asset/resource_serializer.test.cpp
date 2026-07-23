@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
-#include "draft/util/serialization/resource_serializer.hpp"
-
 #include <filesystem>
 #include <fstream>
+#include "draft/util/serialization/resource_serializer.hpp" // IWYU pragma: keep
 
 using namespace Draft;
 
