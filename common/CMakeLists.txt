@@ -33,6 +33,7 @@ set(HEADERS
     include/draft/util/logger.hpp
     include/draft/util/reflectable.hpp
     include/draft/util/serialization/binary.hpp
+    include/draft/util/serialization/base64.hpp
     include/draft/util/serialization/context.hpp
     include/draft/util/serialization/serializer.hpp
     include/draft/util/serialization/custom.hpp

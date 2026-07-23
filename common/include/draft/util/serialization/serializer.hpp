@@ -2,6 +2,7 @@
 
 #include "draft/util/json.hpp"
 #include "draft/util/reflectable.hpp"
+#include "draft/util/serialization/base64.hpp"
 #include "draft/util/serialization/custom.hpp"
 #include "draft/util/serialization/binary.hpp"
 
@@ -109,6 +110,13 @@ namespace Draft {
             && !BinarySerializable<T> && !CustomBinarySerializable<T> && !Reflectable<T> && !TriviallySerializable<T>;
 
         /**
+         * @brief Satisfied by types with some Binary (de)serialization path (explicit, custom, or trivial)
+         */
+        template<typename T>
+        concept BinaryJsonFallback = (BinarySerializable<T> || CustomBinarySerializable<T> || TriviallySerializable<T>)
+            && !JsonSerializable<T> && !CustomJsonSerializable<T> && !Reflectable<T> && !JsonTrivial<T>;
+
+        /**
          * @name Forward declarations
          * The tiers below are mutually recursive, a reflectable type's fields, or a vector's
          * elements, can themselves be trivial, reflectable, vector, or explicitly-serializable.
@@ -172,6 +180,10 @@ namespace Draft {
         template<JsonBinaryFallback T> void serialize(const T& value, Binary::ByteArray& out);
         template<JsonBinaryFallback T> void deserialize(T& value, Binary::ByteView span);
         template<JsonBinaryFallback T> void deserialize_and_advance(T& value, Binary::ByteView& span);
+
+        // Binary-as-base64 fallback tier: Binary-only types with no JSON path of their own
+        template<BinaryJsonFallback T, JsonLike J> void serialize(const T& value, J&& json);
+        template<BinaryJsonFallback T, JsonLike J> void deserialize(T& value, J&& json);
         ///@}
 
         /**
@@ -345,6 +357,20 @@ namespace Draft {
             span = span.subspan(size);
 
             deserialize(value, json);
+        }
+
+        // Fallback for Binary-only types: JSON encoding is a base64 string of the Binary bytes.
+        template<BinaryJsonFallback T, JsonLike J>
+        inline void serialize(const T& value, J&& json){
+            Binary::ByteArray bytes;
+            serialize(value, bytes);
+            json = base64_encode(bytes);
+        }
+
+        template<BinaryJsonFallback T, JsonLike J>
+        inline void deserialize(T& value, J&& json){
+            Binary::ByteArray bytes = base64_decode(json.template get<std::string>());
+            deserialize(value, Binary::ByteView(bytes));
         }
     };
 };
