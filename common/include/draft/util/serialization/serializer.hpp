@@ -100,6 +100,15 @@ namespace Draft {
         concept JsonLike = std::same_as<std::remove_cvref_t<J>, JSON>;
 
         /**
+         * @brief Satisfied by types with some JSON (de)serialization path (explicit, custom, or
+         * trivial) but no Binary path of their own, the lowest-priority Binary tier. Always correct
+         * but not compact.
+         */
+        template<typename T>
+        concept JsonBinaryFallback = (JsonSerializable<T> || CustomJsonSerializable<T> || JsonTrivial<T>)
+            && !BinarySerializable<T> && !CustomBinarySerializable<T> && !Reflectable<T> && !TriviallySerializable<T>;
+
+        /**
          * @name Forward declarations
          * The tiers below are mutually recursive, a reflectable type's fields, or a vector's
          * elements, can themselves be trivial, reflectable, vector, or explicitly-serializable.
@@ -158,6 +167,11 @@ namespace Draft {
         void serialize(const T& value, J&& json);
         template<JsonTrivial T, JsonLike J> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         void deserialize(T& value, J&& json);
+
+        // JSON-as-bytes fallback tier: JSON-only types with no Binary path of their own
+        template<JsonBinaryFallback T> void serialize(const T& value, Binary::ByteArray& out);
+        template<JsonBinaryFallback T> void deserialize(T& value, Binary::ByteView span);
+        template<JsonBinaryFallback T> void deserialize_and_advance(T& value, Binary::ByteView& span);
         ///@}
 
         /**
@@ -299,6 +313,39 @@ namespace Draft {
 
         template<JsonTrivial T, JsonLike J> requires (!JsonSerializable<T>) && (!CustomJsonSerializable<T>) && (!Reflectable<T>)
         inline void deserialize(T& value, J&& json){ value = json.template get<T>(); }
+
+
+        // Fallback for JSON-only types: binary encoding is a size-prefixed dump of the JSON text.
+        template<JsonBinaryFallback T>
+        inline void serialize(const T& value, Binary::ByteArray& out){
+            JSON json;
+            serialize(value, json);
+
+            std::string text = json.dump();
+            serialize(text.size(), out);
+            out.insert(out.end(),
+                reinterpret_cast<const std::byte*>(text.data()),
+                reinterpret_cast<const std::byte*>(text.data()) + text.size());
+        }
+
+        template<JsonBinaryFallback T>
+        inline void deserialize(T& value, Binary::ByteView span){
+            deserialize_and_advance(value, span);
+        }
+
+        template<JsonBinaryFallback T>
+        inline void deserialize_and_advance(T& value, Binary::ByteView& span){
+            size_t size = 0;
+            deserialize_and_advance(size, span);
+
+            if(span.size() < size)
+                throw std::runtime_error("deserialize(JsonBinaryFallback) out of bounds");
+
+            JSON json = JSON::parse(std::string(reinterpret_cast<const char*>(span.data()), size));
+            span = span.subspan(size);
+
+            deserialize(value, json);
+        }
     };
 };
 
