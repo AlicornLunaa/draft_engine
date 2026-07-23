@@ -18,7 +18,7 @@ namespace Draft {
 
         default:
         case 0:
-            throw new std::invalid_argument("channels_to_color_format(...) invalid channel count");
+            throw std::invalid_argument("channels_to_color_format(...) invalid channel count");
         }
     }
 

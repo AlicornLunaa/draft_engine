@@ -116,7 +116,7 @@ namespace Draft {
 
     private:
         mutable std::unordered_map<int, bool> m_lastPressedKeys;
-        mutable std::unordered_map<int, bool> m_pressedKeys;;
+        mutable std::unordered_map<int, bool> m_pressedKeys;
         mutable Vector2d m_lastScrollDelta{};
         mutable Vector2d m_position{};
         mutable bool hovered = false;
