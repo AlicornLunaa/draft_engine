@@ -272,6 +272,15 @@ namespace {
         void on_detach() override { detachCalls++; }
     };
 
+    // Same as LifecycleSystem
+    struct ExternalLifecycleSystem : AbstractSystem {
+        int* attachCalls;
+        int* detachCalls;
+        ExternalLifecycleSystem(int& attachCalls, int& detachCalls) : attachCalls(&attachCalls), detachCalls(&detachCalls) {}
+        void on_attach() override { (*attachCalls)++; }
+        void on_detach() override { (*detachCalls)++; }
+    };
+
     // Always consumes whatever event it sees.
     struct ConsumingSystem : AbstractSystem {
         int eventCalls = 0;
@@ -303,6 +312,104 @@ TEST(SystemRegistry, DetachAllRunsEveryRegisteredSystemsOnDetachHookExactlyOnce)
     systems.detach_all();
     ASSERT_EQ(systems.get<LifecycleSystem>().detachCalls, 1);
     ASSERT_EQ(systems.get<LifecycleSystem>().attachCalls, 0);
+}
+
+TEST(SystemRegistry, AddBeforeAttachAllDoesNotRunOnAttachEarly)
+{
+    SystemRegistry systems;
+    LifecycleSystem& s = systems.add<LifecycleSystem>();
+    ASSERT_EQ(s.attachCalls, 0);
+}
+
+TEST(SystemRegistry, AddAfterAttachAllRunsOnAttachImmediately)
+{
+    // A system added once this registry is already attached
+    SystemRegistry systems;
+    systems.attach_all();
+
+    LifecycleSystem& s = systems.add<LifecycleSystem>();
+    ASSERT_EQ(s.attachCalls, 1);
+}
+
+TEST(SystemRegistry, EmplaceAfterAttachAllRunsOnAttachImmediately)
+{
+    SystemRegistry systems;
+    systems.attach_all();
+
+    LifecycleSystem& s = systems.emplace<LifecycleSystem>(std::make_unique<LifecycleSystem>());
+    ASSERT_EQ(s.attachCalls, 1);
+}
+
+TEST(SystemRegistry, RemoveWhileAttachedRunsOnDetachFirst)
+{
+    SystemRegistry systems;
+    int attachCalls = 0, detachCalls = 0;
+    systems.add<ExternalLifecycleSystem>(attachCalls, detachCalls);
+    systems.attach_all();
+
+    systems.remove<ExternalLifecycleSystem>();
+    ASSERT_EQ(detachCalls, 1);
+}
+
+TEST(SystemRegistry, RemoveWhileNotAttachedDoesNotRunOnDetach)
+{
+    SystemRegistry systems;
+    LifecycleSystem& s = systems.add<LifecycleSystem>();
+
+    // Keep the destroyed instance's flag readable by copying out first.
+    int detachCallsBeforeRemove = s.detachCalls;
+    systems.remove<LifecycleSystem>();
+    ASSERT_EQ(detachCallsBeforeRemove, 0);
+}
+
+TEST(SystemRegistry, ReplacingALiveSystemDetachesTheOldOneAndAttachesTheNewOne)
+{
+    SystemRegistry systems;
+    int oldAttachCalls = 0, oldDetachCalls = 0;
+    systems.add<ExternalLifecycleSystem>(oldAttachCalls, oldDetachCalls);
+    systems.attach_all();
+
+    int newAttachCalls = 0, newDetachCalls = 0;
+    systems.add<ExternalLifecycleSystem>(newAttachCalls, newDetachCalls);
+
+    ASSERT_EQ(oldDetachCalls, 1);
+    ASSERT_EQ(newAttachCalls, 1);
+}
+
+TEST(SystemRegistry, ClearWhileAttachedDetachesEverySystemButKeepsRegistryAttached)
+{
+    // Mirrors a Scene that's cleared and repopulated in place
+    SystemRegistry systems;
+    int oldAttachCalls = 0, oldDetachCalls = 0;
+    systems.add<ExternalLifecycleSystem>(oldAttachCalls, oldDetachCalls);
+    systems.attach_all();
+    ASSERT_EQ(oldAttachCalls, 1);
+
+    systems.clear();
+    ASSERT_EQ(oldDetachCalls, 1);
+
+    LifecycleSystem& newSystem = systems.add<LifecycleSystem>();
+    ASSERT_EQ(newSystem.attachCalls, 1);
+}
+
+TEST(SystemRegistry, ClearWhileNotAttachedDoesNotRunOnDetach)
+{
+    SystemRegistry systems;
+    LifecycleSystem& s = systems.add<LifecycleSystem>();
+
+    int detachCallsBeforeClear = s.detachCalls;
+    systems.clear();
+    ASSERT_EQ(detachCallsBeforeClear, 0);
+}
+
+TEST(SystemRegistry, DetachAllThenAddDoesNotReAttachAutomatically)
+{
+    SystemRegistry systems;
+    systems.attach_all();
+    systems.detach_all();
+
+    LifecycleSystem& s = systems.add<LifecycleSystem>();
+    ASSERT_EQ(s.attachCalls, 0);
 }
 
 TEST(SystemRegistry, DispatchEventReturnsFalseWhenNoSystemConsumesIt)

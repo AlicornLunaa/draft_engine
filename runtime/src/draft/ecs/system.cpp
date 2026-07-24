@@ -23,9 +23,16 @@ namespace Draft {
             if(it != m_systems.end())
                 it->second->on_attach();
         }
+
+        m_attached = true;
     }
 
     void SystemRegistry::detach_all(){
+        notify_detach_all();
+        m_attached = false;
+    }
+
+    void SystemRegistry::notify_detach_all(){
         for(auto& type : m_order){
             auto it = m_systems.find(type);
             if(it != m_systems.end())

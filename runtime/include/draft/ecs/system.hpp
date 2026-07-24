@@ -110,8 +110,14 @@ namespace Draft {
             auto type = std::type_index(typeid(T));
             if(!m_systems.contains(type))
                 m_order.push_back(type);
+            else if(m_attached)
+                m_systems[type]->on_detach();
 
             m_systems[type] = std::move(ptr);
+
+            if(m_attached)
+                ref.on_attach();
+
             return ref;
         }
 
@@ -128,8 +134,14 @@ namespace Draft {
             auto type = std::type_index(typeid(T));
             if(!m_systems.contains(type))
                 m_order.push_back(type);
+            else if(m_attached)
+                m_systems[type]->on_detach();
 
             m_systems[type] = std::move(systemPtr);
+
+            if(m_attached)
+                ref.on_attach();
+
             return ref;
         }
 
@@ -185,6 +197,9 @@ namespace Draft {
             if(it == m_systems.end())
                 return false;
 
+            if(m_attached)
+                it->second->on_detach();
+
             m_systems.erase(it);
             std::erase(m_order, type);
             return true;
@@ -194,6 +209,9 @@ namespace Draft {
          * @brief Clears all the systems currently registered
          */
         void clear(){
+            if(m_attached)
+                notify_detach_all();
+
             m_order.clear();
             m_systems.clear();
         }
@@ -240,7 +258,11 @@ namespace Draft {
         bool dispatch_event(const Event& event);
 
     private:
+        // Calls on_detach() on every currently-registered system
+        void notify_detach_all();
+
         std::unordered_map<std::type_index, std::unique_ptr<AbstractSystem>> m_systems;
         std::vector<std::type_index> m_order;
+        bool m_attached = false;
     };
 }
