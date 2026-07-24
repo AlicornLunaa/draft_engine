@@ -65,10 +65,15 @@ namespace Draft {
         bool get_loop() const;
         bool is_relative() const;
         Vector3f get_position() const;
+        inline bool is_paused() const { return m_isPaused; }
+        inline bool is_playing() const { return m_isPlaying; }
 
     private:
         // pImpl
         struct Impl;
         std::unique_ptr<Impl> ptr;
+
+        bool m_isPlaying = false;
+        bool m_isPaused = false;
     };
 }

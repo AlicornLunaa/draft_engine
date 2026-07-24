@@ -24,9 +24,22 @@ namespace Draft {
     Music& Music::operator=(Music&& other) noexcept = default;
 
     // Functions
-    void Music::play(){ ptr->music.play(); }
-    void Music::pause(){ ptr->music.pause(); }
-    void Music::stop(){ ptr->music.stop(); }
+    void Music::play(){
+        ptr->music.play();
+        m_isPlaying = true;
+        m_isPaused = false;
+    }
+    
+    void Music::pause(){
+        ptr->music.pause();
+        m_isPaused = true;
+    }
+
+    void Music::stop(){
+        ptr->music.stop();
+        m_isPlaying = false;
+        m_isPaused = false;
+    }
 
     void Music::load(const FileHandle& handle){
         ptr->memory = handle.read_bytes();

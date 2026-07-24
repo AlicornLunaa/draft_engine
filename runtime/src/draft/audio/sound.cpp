@@ -16,7 +16,7 @@ namespace Draft {
     Sound::Sound(Resource<SoundBuffer> buffer) : Sound() { set_buffer(buffer); }
 
     Sound::Sound(const Sound& other) : ptr(std::make_unique<Impl>()) {
-        m_buffer = other.m_buffer;
+        buffer = other.buffer;
         ptr->sound = sf::Sound(other.ptr->sound);
     }
 
@@ -25,7 +25,7 @@ namespace Draft {
     // Operators
     Sound& Sound::operator=(const Sound& other){
         if(this != &other){
-            m_buffer = other.m_buffer;
+            buffer = other.buffer;
             ptr->sound = other.ptr->sound;
         }
 
@@ -33,13 +33,31 @@ namespace Draft {
     }
 
     // Functions
-    void Sound::play(){ ptr->sound.play(); }
-    void Sound::pause(){ ptr->sound.pause(); }
-    void Sound::stop(){ ptr->sound.stop(); }
-    void Sound::reset_buffer(){ ptr->sound.resetBuffer(); }
+    void Sound::play(){
+        ptr->sound.play();
+        m_isPlaying = true;
+        m_isPaused = false;
+    }
+    
+    void Sound::pause(){
+        ptr->sound.pause();
+        m_isPaused = true;
+    }
+
+    void Sound::stop(){
+        ptr->sound.stop();
+        m_isPlaying = false;
+        m_isPaused = false;
+    }
+
+    void Sound::reset_buffer(){
+        ptr->sound.resetBuffer();
+        m_isPlaying = false;
+        m_isPaused = false;
+    }
 
     void Sound::set_buffer(Resource<SoundBuffer> buffer){
-        m_buffer = buffer;
+        this->buffer = buffer;
         ptr->sound.setBuffer(*((const sf::SoundBuffer*)buffer->get_buffer_ptr()));
     }
 
@@ -52,7 +70,7 @@ namespace Draft {
     void Sound::set_attenuation(float attenuation){ ptr->sound.setAttenuation(attenuation); }
     void Sound::set_relative(bool relative){ ptr->sound.setRelativeToListener(relative); }
 
-    Resource<SoundBuffer> Sound::get_buffer() const { return m_buffer; }
+    Resource<SoundBuffer> Sound::get_buffer() const { return buffer; }
     bool Sound::get_loop() const { return ptr->sound.getLoop(); }
     Time Sound::get_playing_offset() const { return Time::microseconds(ptr->sound.getPlayingOffset().asMicroseconds()); }
     float Sound::get_pitch() const { return ptr->sound.getPitch(); }

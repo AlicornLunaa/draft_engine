@@ -1,5 +1,6 @@
 #include "draft/build_tools/asset_pipeline.hpp"
 #include "draft/asset/default_loaders.hpp"
+#include "draft/audio/music.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/ecs/scene.hpp"
 #include "draft/ecs/scene_serializer.hpp"
@@ -34,6 +35,7 @@ namespace Draft {
             case AssetKind::Font: return "Font";
             case AssetKind::Model: return "Model";
             case AssetKind::Sound: return "Sound";
+            case AssetKind::Music: return "Music";
             case AssetKind::Scene: return "Scene";
             case AssetKind::Prefab: return "Prefab";
             case AssetKind::RML: return "Rml Document";
@@ -54,6 +56,7 @@ namespace Draft {
         if (ext == ".ttf") return AssetKind::Font;
         if (ext == ".glb" || ext == ".gltf") return AssetKind::Model;
         if (ext == ".wav" || ext == ".ogg") return AssetKind::Sound;
+        if (ext == ".mp3") return AssetKind::Music;
         if (ext == ".rml") return AssetKind::RML;
         if (ext == ".rcss") return AssetKind::RCSS;
         if (ext == ".anim") return AssetKind::Animation;
@@ -95,6 +98,7 @@ namespace Draft {
         Loaders::register_default_loader<Font>(assets);
         Loaders::register_default_loader<Model>(assets);
         Loaders::register_default_loader<SoundBuffer>(assets);
+        Loaders::register_default_loader<Music>(assets);
         Loaders::register_default_loader<Animation>(assets);
         Loaders::register_default_loader<ParticleProps>(assets);
 
@@ -104,6 +108,7 @@ namespace Draft {
                 case AssetKind::Font: assets.queue<Font>(task.key); break;
                 case AssetKind::Model: assets.queue<Model>(task.key); break;
                 case AssetKind::Sound: assets.queue<SoundBuffer>(task.key); break;
+                case AssetKind::Music: assets.queue<Music>(task.key); break;
                 case AssetKind::Animation: assets.queue<Animation>(task.key); break;
                 case AssetKind::Particle: assets.queue<ParticleProps>(task.key); break;
                 case AssetKind::Language: break; // not validated, only packed

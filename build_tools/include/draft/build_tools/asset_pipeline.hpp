@@ -17,6 +17,7 @@ namespace Draft {
         Font,
         Model,
         Sound,
+        Music,
         Scene,
         Prefab,
         RML,

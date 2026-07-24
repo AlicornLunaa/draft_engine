@@ -13,10 +13,6 @@ namespace Draft {
      * independently of any other Sound sharing the same buffer.
      */
     class Sound {
-    private:
-        // Variables
-        Resource<SoundBuffer> m_buffer;
-
     public:
         // Constructors
         Sound();
@@ -52,11 +48,17 @@ namespace Draft {
         float get_min_distance() const;
         float get_attenuation() const;
         bool is_relative() const;
+        inline bool is_playing() const { return m_isPlaying; }
+        inline bool is_paused() const { return m_isPaused; }
 
-        DRAFT_REFLECTABLE(Sound, m_buffer)
+        DRAFT_REFLECTABLE(Sound, buffer)
 
     private:
         struct Impl;
         std::unique_ptr<Impl> ptr;
+
+        Resource<SoundBuffer> buffer;
+        bool m_isPlaying = false;
+        bool m_isPaused = false;
     };
 }
