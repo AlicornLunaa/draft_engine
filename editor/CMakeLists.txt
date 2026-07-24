@@ -12,6 +12,7 @@ set(HEADERS
     include/draft/editor/prefab.hpp
     include/draft/editor/project.hpp
     include/draft/editor/selection.hpp
+    include/draft/editor/field_widgets/audio_widgets.hpp
     include/draft/editor/field_widgets/camera_widget.hpp
     include/draft/editor/field_widgets/collider_widget.hpp
     include/draft/editor/panels/animation_editor_panel.hpp
@@ -42,6 +43,7 @@ set(SOURCES
     src/draft/editor/prefab.cpp
     src/draft/editor/project.cpp
     src/draft/editor/selection.cpp
+    src/draft/editor/field_widgets/audio_widgets.cpp
     src/draft/editor/field_widgets/camera_widget.cpp
     src/draft/editor/field_widgets/collider_widget.cpp
     src/draft/editor/panels/animation_editor_panel.cpp

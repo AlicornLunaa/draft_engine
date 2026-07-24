@@ -1,6 +1,7 @@
 #include "draft/editor/field_widgets.hpp"
 #include "draft/components/tag_component.hpp"
 #include "draft/editor/editor_application.hpp"
+#include "draft/editor/field_widgets/audio_widgets.hpp" // IWYU pragma: keep
 #include "draft/editor/field_widgets/camera_widget.hpp" // IWYU pragma: keep
 #include "draft/editor/field_widgets/collider_widget.hpp" // IWYU pragma: keep
 #include "draft/editor/project.hpp"
@@ -197,6 +198,7 @@ namespace Draft {
         if(type == typeid(Resource<Texture>)) return draw_field(ctx, name, *static_cast<Resource<Texture>*>(valuePtr));
         if(type == typeid(Resource<Animation>)) return draw_field(ctx, name, *static_cast<Resource<Animation>*>(valuePtr));
         if(type == typeid(Resource<Music>)) return draw_field(ctx, name, *static_cast<Resource<Music>*>(valuePtr));
+        if(type == typeid(Sound)) return draw_field(ctx, name, *static_cast<Sound*>(valuePtr));
 
         // No typed pointer recovery for this field's type so it can't be edited in place like the cases above.
         usedJsonFallback = true;

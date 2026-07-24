@@ -7,6 +7,7 @@ namespace Draft {
             case AssetKind::Font: return "ASSET_FONT";
             case AssetKind::Model: return "ASSET_MODEL";
             case AssetKind::Sound: return "ASSET_SOUND";
+            case AssetKind::Music: return "ASSET_MUSIC";
             case AssetKind::Scene: return "ASSET_SCENE";
             case AssetKind::Prefab: return "ASSET_PREFAB";
             case AssetKind::Animation: return "ASSET_ANIMATION";

@@ -25,6 +25,8 @@ namespace Draft {
     class EditorSelection;
     class EditorApplication;
     class Animation;
+    class Music;
+    class SoundBuffer;
 
     /**
      * @brief Everything a field widget might need beyond the value it's editing: the scene to
@@ -67,6 +69,8 @@ namespace Draft {
     template<typename T> struct AssetKindOf { static constexpr bool has_kind = false; };
     template<> struct AssetKindOf<Texture> { static constexpr bool has_kind = true; static constexpr AssetKind kind = AssetKind::Texture; };
     template<> struct AssetKindOf<Animation> { static constexpr bool has_kind = true; static constexpr AssetKind kind = AssetKind::Animation; };
+    template<> struct AssetKindOf<SoundBuffer> { static constexpr bool has_kind = true; static constexpr AssetKind kind = AssetKind::Sound; };
+    template<> struct AssetKindOf<Music> { static constexpr bool has_kind = true; static constexpr AssetKind kind = AssetKind::Music; };
 
     std::string entity_label(Entity entity);
     bool draw_entity_field(FieldContext& ctx, std::string_view label, Entity& value);

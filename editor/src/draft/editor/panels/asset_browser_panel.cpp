@@ -1,4 +1,5 @@
 #include "draft/editor/panels/asset_browser_panel.hpp"
+#include "draft/audio/music.hpp"
 #include "draft/audio/sound_buffer.hpp"
 #include "draft/editor/asset_drag_drop.hpp"
 #include "draft/editor/editor_application.hpp"
@@ -33,6 +34,7 @@ namespace Draft {
                 case AssetKind::Font:
                 case AssetKind::Model:
                 case AssetKind::Sound:
+                case AssetKind::Music:
                 case AssetKind::Animation:
                 case AssetKind::Particle:
                     return true;
@@ -228,6 +230,7 @@ namespace Draft {
             case AssetKind::Font: reload_or_queue<Font>(m_app.assets, key); break;
             case AssetKind::Model: reload_or_queue<Model>(m_app.assets, key); break;
             case AssetKind::Sound: reload_or_queue<SoundBuffer>(m_app.assets, key); break;
+            case AssetKind::Music: reload_or_queue<Music>(m_app.assets, key); break;
             case AssetKind::Animation: reload_or_queue<Animation>(m_app.assets, key); break;
             case AssetKind::Particle: reload_or_queue<ParticleProps>(m_app.assets, key); break;
             default: break;
