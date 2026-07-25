@@ -96,15 +96,22 @@ namespace Draft {
         /**
          * @brief Clears gameScene and loads @p path into it, tracking it as currentScenePath.
          * Deferred to the next step() (see class doc comment), same as Play/Stop, since it
-         * mutates gameScene's registry/systems.
+         * mutates gameScene's registry/systems. No-op while is_playing().
          */
         void request_open_scene(std::filesystem::path path);
 
         /**
          * @brief Writes a brand new, empty scene to @p path, then opens it the same way
-         * request_open_scene() would. Deferred for the same reason.
+         * request_open_scene() would. Deferred for the same reason, and likewise a no-op while
+         * is_playing().
          */
         void request_new_scene(std::filesystem::path path);
+
+        /**
+         * @brief Records @p path (must be a project asset) as the manifest's "startScene" entry,
+         * merging into manifest.json the same way save_settings() does..
+         */
+        void set_start_scene(const std::filesystem::path& path);
 
         /**
          * @brief Serializes gameScene to @p path and tracks it as currentScenePath. Synchronous -

@@ -178,6 +178,11 @@ namespace Draft {
                 }
                 ImGui::EndDisabled();
 
+                if(child.kind == AssetKind::Scene){
+                    if(ImGui::MenuItem("Set as Start Scene"))
+                        m_app.set_start_scene(m_scannedRoot / child.key);
+                }
+
                 ImGui::EndPopup();
             }
         }

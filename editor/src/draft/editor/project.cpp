@@ -38,4 +38,17 @@ namespace Draft {
 
         return std::filesystem::absolute(m_root / relative);
     }
+
+    std::optional<std::filesystem::path> EditorProject::start_scene_path() const {
+        FileHandle manifest = HostFileSystem().open(manifest_path());
+        if(!manifest.exists())
+            return std::nullopt;
+
+        JSON json(manifest);
+        std::string relative = json.value("startScene", std::string());
+        if(relative.empty())
+            return std::nullopt;
+
+        return std::filesystem::absolute(m_root / relative);
+    }
 }

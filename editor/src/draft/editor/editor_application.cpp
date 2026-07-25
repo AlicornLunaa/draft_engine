@@ -172,13 +172,32 @@ namespace Draft {
     }
 
     void EditorApplication::request_open_scene(std::filesystem::path path){
+        if(m_isPlaying)
+            return;
+
         m_pendingScenePath = std::move(path);
         m_pending = PendingAction::OpenScene;
     }
 
     void EditorApplication::request_new_scene(std::filesystem::path path){
+        if(m_isPlaying)
+            return;
+
         m_pendingScenePath = std::move(path);
         m_pending = PendingAction::NewScene;
+    }
+
+    void EditorApplication::set_start_scene(const std::filesystem::path& path){
+        if(!m_project)
+            return;
+
+        std::filesystem::path relative = std::filesystem::relative(path, m_project->root());
+
+        FileHandle manifest = HostFileSystem().open(m_project->manifest_path());
+        JSON json = manifest.exists() ? JSON(manifest) : JSON::object();
+        json["startScene"] = relative.generic_string();
+
+        manifest.write_string(json.dump(4));
     }
 
     void EditorApplication::save_scene_to(const std::filesystem::path& path){
@@ -223,6 +242,9 @@ namespace Draft {
         m_project.emplace(root);
         load_settings();
         load_game_module(false);
+
+        if(auto startScene = m_project->start_scene_path())
+            open_scene_now(*startScene);
     }
 
     void EditorApplication::load_settings(){

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 
 namespace Draft {
     /**
@@ -31,6 +32,12 @@ namespace Draft {
          * meaning the project hasn't been built.
          */
         std::filesystem::path resolved_module_path() const;
+
+        /**
+         * @brief Resolves the manifest's "startScene" entry (project-root-relative) to an
+         * absolute path, or nullopt if the manifest doesn't exist or has no such entry yet.
+         */
+        std::optional<std::filesystem::path> start_scene_path() const;
 
     private:
         std::filesystem::path m_root;

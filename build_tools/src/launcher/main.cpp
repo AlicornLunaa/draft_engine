@@ -4,6 +4,7 @@
 #include "draft/core/crash_handler.hpp"
 #include "draft/core/engine.hpp"
 #include "draft/ecs/scene.hpp"
+#include "draft/ecs/scene_serializer.hpp"
 #include "draft/interface/rmlui/rml_system.hpp"
 #include "draft/util/files/host_file_system.hpp"
 #include "draft/util/json.hpp"
@@ -33,6 +34,12 @@ namespace {
     std::string load_module_path(const std::string& path){
         JSON json(HostFileSystem().open(path));
         return json.value("module", std::string());
+    }
+
+    // Reads the manifest's optional "startScene" entry
+    std::string load_start_scene_path(const std::string& path){
+        JSON json(HostFileSystem().open(path));
+        return json.value("startScene", std::string());
     }
 }
 
@@ -77,6 +84,18 @@ int main(int argc, char** argv){
         draft_register_game(context, scene);
     #else
         module->register_game(context, scene);
+
+        std::string startScenePathStr = load_start_scene_path(argv[1]);
+        if(!startScenePathStr.empty()){
+            std::filesystem::path startScenePath = std::filesystem::absolute(std::filesystem::path(argv[1]).parent_path() / startScenePathStr);
+            FileHandle startSceneFile = HostFileSystem().open(startScenePath);
+
+            if(startSceneFile.exists()){
+                scene.get_registry().clear();
+                scene.get_systems().clear();
+                load_scene(scene, engine, assets, startSceneFile);
+            }
+        }
     #endif
 
     app.set_scene(&scene);
