@@ -14,6 +14,12 @@
 namespace Draft {
     ViewportPanelSystem::ViewportPanelSystem(EditorApplication& app) : m_app(app) {}
 
+    void ViewportPanelSystem::on_attach(){
+        m_regionAvailableLast = {-1, -1};
+        m_regionHoveredLast = false;
+        m_regionFocusedLast = false;
+    }
+
     void ViewportPanelSystem::render(Time dt, RenderLayer layer){
         if(layer != RenderLayer::Default)
             return;

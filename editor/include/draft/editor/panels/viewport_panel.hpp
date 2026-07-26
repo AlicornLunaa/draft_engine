@@ -16,6 +16,7 @@ namespace Draft {
     public:
         explicit ViewportPanelSystem(EditorApplication& app);
 
+        void on_attach() override;
         void render(Time dt, RenderLayer layer) override;
         bool on_event(const Event& event) override;
 
@@ -27,7 +28,7 @@ namespace Draft {
         Vector2d m_regionLocalCursorPosition{};
         Vector2d m_regionScreenPosition{};
 
-        Vector2d m_regionAvailableLast{};
+        Vector2d m_regionAvailableLast{-1, -1};
         bool m_regionHoveredLast = false;
         bool m_regionFocusedLast = false;
     };
