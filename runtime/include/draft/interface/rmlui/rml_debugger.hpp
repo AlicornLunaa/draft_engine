@@ -13,7 +13,7 @@ namespace Draft {
 
     public:
         // Constructors
-        RmlDebugger(const Vector2i& size);
+        RmlDebugger(const Vector2i& size, Rml::RenderInterface* renderInterface = nullptr);
         ~RmlDebugger();
 
         // Functions

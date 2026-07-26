@@ -18,19 +18,18 @@ namespace Draft {
     class RmlFileInterface;
 
     /**
-     * @brief Owns the global RmlUi backend (SystemInterface_GLFW + RenderInterface_GL3 + RmlFileInterface).
-     * Ref-counted so more than one RmlUiSystem/window pair can coexist in the same process.
+     * @brief Owns the global RmlUi backend (SystemInterface_GLFW + RmlFileInterface)
      */
     class RmlUiSystem : public AbstractSystem {
     private:
-        // Statics
+        // Statics: the parts of the backend that really are process-wide singletons.
         static int s_backendCount;
         static SystemInterface_GLFW* s_systemInterface;
-        static RenderInterface_GL3* s_renderInterface;
         static RmlFileInterface* s_fileInterface;
         static RenderWindow* s_clipboardWindow;
 
         // Variables
+        std::unique_ptr<RenderInterface_GL3> m_renderInterface;
         std::vector<std::unique_ptr<RmlContext>> m_contextPtrs;
 
     public:

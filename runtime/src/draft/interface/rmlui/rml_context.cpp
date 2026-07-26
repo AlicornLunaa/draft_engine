@@ -109,9 +109,9 @@ namespace Draft {
     }
 
     // Constructors
-    RmlContext::RmlContext(const std::string& name, const Vector2i& size){
+    RmlContext::RmlContext(const std::string& name, const Vector2i& size, Rml::RenderInterface* renderInterface){
         // Create context
-        m_context = Rml::CreateContext(name, {size.x, size.y});
+        m_context = Rml::CreateContext(name, {size.x, size.y}, renderInterface);
     }
 
     RmlContext::RmlContext(RmlContext&& other) : m_context(other.m_context) {

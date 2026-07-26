@@ -14,6 +14,10 @@
 #include <type_traits>
 #include <vector>
 
+namespace Rml {
+    class RenderInterface;
+}
+
 namespace Draft {
     namespace detail {
         template<typename T>
@@ -75,7 +79,7 @@ namespace Draft {
 
     public:
         // Constructors
-        RmlContext(const std::string& name, const Vector2i& size);
+        RmlContext(const std::string& name, const Vector2i& size, Rml::RenderInterface* renderInterface = nullptr);
         RmlContext(const RmlContext& other) = delete;
         RmlContext(RmlContext&& other);
         virtual ~RmlContext();

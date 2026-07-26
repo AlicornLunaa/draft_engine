@@ -14,19 +14,16 @@ namespace Draft {
     // Statics
     int RmlUiSystem::s_backendCount = 0;
     SystemInterface_GLFW* RmlUiSystem::s_systemInterface = nullptr;
-    RenderInterface_GL3* RmlUiSystem::s_renderInterface = nullptr;
     RmlFileInterface* RmlUiSystem::s_fileInterface = nullptr;
     RenderWindow* RmlUiSystem::s_clipboardWindow = nullptr;
 
     // Constructors
     RmlUiSystem::RmlUiSystem(const Vector2u& size){
-        // Initialize RML if this is the first object
+        // Initialize the process-wide parts of RML if this is the first object
         if(s_backendCount <= 0){
-            s_renderInterface = new RenderInterface_GL3();
             s_systemInterface = new SystemInterface_GLFW();
             s_fileInterface = new RmlFileInterface();
 
-            Rml::SetRenderInterface(s_renderInterface);
             Rml::SetSystemInterface(s_systemInterface);
             Rml::SetFileInterface(s_fileInterface);
             Rml::Initialise();
@@ -35,23 +32,27 @@ namespace Draft {
                 s_systemInterface->SetWindow(s_clipboardWindow->get_glfw_handle());
         }
 
-        s_renderInterface->SetViewport(size.x, size.y);
+        // Each instance gets its own render interface (see class comment) so its viewport and
+        // layer-stack framebuffers can't be clobbered by another RmlUiSystem's resize/render.
+        m_renderInterface = std::make_unique<RenderInterface_GL3>();
+        m_renderInterface->SetViewport(size.x, size.y);
 
         s_backendCount++;
     }
 
     RmlUiSystem::~RmlUiSystem(){
-        m_contextPtrs.clear();
+        m_contextPtrs.clear(); // Rml::RemoveContext(...) for every context this instance owns
+
+        Rml::ReleaseRenderManagers();
+        m_renderInterface.reset();
 
         s_backendCount--;
 
         if(s_backendCount <= 0){
             Rml::Shutdown();
 
-            delete s_renderInterface;
             delete s_systemInterface;
             delete s_fileInterface;
-            s_renderInterface = nullptr;
             s_systemInterface = nullptr;
             s_fileInterface = nullptr;
         }
@@ -66,14 +67,14 @@ namespace Draft {
     }
 
     RmlDebugger& RmlUiSystem::add_debugger(const Vector2i& size){
-        auto debuggerPtr = std::make_unique<RmlDebugger>(size);
+        auto debuggerPtr = std::make_unique<RmlDebugger>(size, m_renderInterface.get());
         auto& debuggerRef = *debuggerPtr;
         m_contextPtrs.push_back(std::move(debuggerPtr));
         return debuggerRef;
     }
 
     RmlContext& RmlUiSystem::add_context(const std::string& name, const Vector2i& size){
-        m_contextPtrs.push_back(std::make_unique<RmlContext>(name, size));
+        m_contextPtrs.push_back(std::make_unique<RmlContext>(name, size, m_renderInterface.get()));
         return *m_contextPtrs.back();
     }
 
@@ -87,12 +88,12 @@ namespace Draft {
     }
     
     void RmlUiSystem::render(Time, RenderLayer){
-        s_renderInterface->BeginFrame();
+        m_renderInterface->BeginFrame();
 
         for(auto& context : m_contextPtrs)
             context->render();
 
-        s_renderInterface->EndFrame();
+        m_renderInterface->EndFrame();
     }
 
     bool RmlUiSystem::on_event(const Event& event){
@@ -108,7 +109,7 @@ namespace Draft {
     }
 
     void RmlUiSystem::resize(const Vector2u& size){
-        s_renderInterface->SetViewport(size.x, size.y);
+        m_renderInterface->SetViewport(size.x, size.y);
     }
 
     bool RmlUiSystem::wants_keyboard_capture() const {
