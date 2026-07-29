@@ -2,6 +2,7 @@
 
 #include "draft/math/glm.hpp"
 #include "draft/physics/body_type.hpp"
+#include "draft/util/reflectable.hpp"
 
 namespace Draft {
     struct BodyDef {
@@ -24,5 +25,21 @@ namespace Draft {
         bool enabled = true;
 
         float gravityScale = 1.f;
+
+        DRAFT_REFLECTABLE(
+            BodyDef,
+            position,
+            angle,
+            linearVelocity,
+            angularVelocity,
+            linearDamping,
+            angularDamping,
+            allowSleep,
+            awake,
+            fixedRotation,
+            bullet,
+            enabled,
+            gravityScale
+        )
     };
 };
