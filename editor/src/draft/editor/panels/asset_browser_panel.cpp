@@ -67,7 +67,7 @@ namespace Draft {
                     reload_all();
 
                 ImGui::Separator();
-                draw_node(m_root);
+                draw_node(m_root, true);
             }
         }
 
@@ -102,14 +102,13 @@ namespace Draft {
         }
     }
 
-    void AssetBrowserPanelSystem::draw_node(const AssetNode& node){
+    void AssetBrowserPanelSystem::draw_node(const AssetNode& node, bool autoExpand){
         std::vector<const AssetNode*> sorted;
         sorted.reserve(node.children.size());
         for(const auto& [name, child] : node.children)
             sorted.push_back(&child);
 
-        // Folders first, then files grouped by kind (alphabetically by kind name), then
-        // alphabetically by filename within a kind.
+        // Folders first, then files grouped by kind (alphabetically by kind name), then alphabetically by filename within a kind.
         std::sort(sorted.begin(), sorted.end(), [](const AssetNode* a, const AssetNode* b){
             if(a->isDirectory != b->isDirectory)
                 return a->isDirectory;
@@ -126,9 +125,12 @@ namespace Draft {
             ImGuiTreeNodeFlags directoryFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DrawLinesToNodes;
             ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DrawLinesToNodes;
 
+            if(autoExpand)
+                directoryFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+
             if(child.isDirectory){
                 if(ImGui::TreeNodeEx(child.name.c_str(), directoryFlags)){
-                    draw_node(child);
+                    draw_node(child, false);
                     ImGui::TreePop();
                 }
 

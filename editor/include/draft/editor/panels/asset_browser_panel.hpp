@@ -31,7 +31,7 @@ namespace Draft {
         };
 
         void rescan();
-        void draw_node(const AssetNode& node);
+        void draw_node(const AssetNode& node, bool autoExpand = false);
         void open_scene(const std::string& key);
         void instantiate_prefab_at_origin(const std::string& key);
         void open_particle_editor(const std::string& key);
