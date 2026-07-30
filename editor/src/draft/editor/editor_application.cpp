@@ -286,13 +286,13 @@ namespace Draft {
         // process's working directory, the same directory the module itself lives in (an
         // "assets" symlink/copy sits next to it, see test_bench/CMakeLists.txt's POST_BUILD step).
         std::filesystem::current_path(modulePath.parent_path());
+        std::filesystem::path reloadSnapshotPath = reload_snapshot_path();
+        HostFileSystem fs;
+        bool wasPlaying = m_isPlaying;
 
-        bool wasPlaying = preserveScene && m_isPlaying;
-        std::filesystem::path reloadSnapshotPath = wasPlaying ? snapshot_path() : reload_snapshot_path();
-
-        if(preserveScene && !wasPlaying){
-            HostFileSystem().create_directories(reloadSnapshotPath);
-            save_scene(gameScene, gameEngine, assets, HostFileSystem().open(reloadSnapshotPath));
+        if(preserveScene){
+            fs.create_directories(reloadSnapshotPath);
+            save_scene(gameScene, gameEngine, assets, fs.open(reloadSnapshotPath));
         }
 
         GameModuleLoader newModule(modulePath);
@@ -313,11 +313,10 @@ namespace Draft {
             // taken above instead, against the freshly (re)registered catalogs
             gameScene.get_registry().clear();
             gameScene.get_systems().clear();
-            load_scene(gameScene, gameEngine, assets, HostFileSystem().open(reloadSnapshotPath));
+            load_scene(gameScene, gameEngine, assets, fs.open(reloadSnapshotPath));
         }
 
-        // Reload always leaves simulationPaused/m_isPlaying reset above (the module swap itself
-        // requires it), so resume here
+        // Reload always leaves simulationPaused/m_isPlaying reset above (the module swap itself requires it), so resume here
         if(wasPlaying)
             play();
 
