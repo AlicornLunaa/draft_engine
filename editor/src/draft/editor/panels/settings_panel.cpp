@@ -16,11 +16,12 @@ namespace Draft {
             if(!m_app.has_project()){
                 ImGui::TextDisabled("No project open");
             } else {
-                ImGui::TextDisabled("Gizmo snapping");
+                ImGui::TextDisabled("Gizmo settings");
 
                 bool changed = false;
                 changed |= ImGui::DragFloat("Position snap step", &m_app.settings.positionSnapStep, 0.5f, 0.01f, 1000.f);
                 changed |= ImGui::DragFloat("Rotation snap step (degrees)", &m_app.settings.rotationSnapStepDegrees, 0.5f, 0.01f, 360.f);
+                changed |= ImGui::DragFloat("Gizmo scale", &m_app.settings.gizmoScale, 0.001f, 0.01f, 10.f);
 
                 if(changed)
                     m_app.save_settings();

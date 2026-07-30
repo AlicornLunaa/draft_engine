@@ -11,7 +11,8 @@ namespace Draft {
     struct EditorSettings {
         float positionSnapStep = 10.f;
         float rotationSnapStepDegrees = 15.f;
+        float gizmoScale = 1.f;
 
-        DRAFT_REFLECTABLE(EditorSettings, positionSnapStep, rotationSnapStepDegrees)
+        DRAFT_REFLECTABLE(EditorSettings, positionSnapStep, rotationSnapStepDegrees, gizmoScale)
     };
 }

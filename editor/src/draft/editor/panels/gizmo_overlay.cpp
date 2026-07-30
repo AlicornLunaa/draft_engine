@@ -114,9 +114,9 @@ namespace Draft {
 
     bool GizmoOverlaySystem::draw_axis_handle(const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& axisDir, bool isXAxis){
         Vector2f pivotScreen = viewport.world_to_screen(transform.position);
-        Vector2f tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH);
+        Vector2f tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH * m_app.settings.gizmoScale);
 
-        HandleInteraction interaction = hit_test_handle(isXAxis ? "GizmoAxisX" : "GizmoAxisY", tipScreen, AXIS_HANDLE_RADIUS);
+        HandleInteraction interaction = hit_test_handle(isXAxis ? "GizmoAxisX" : "GizmoAxisY", tipScreen, AXIS_HANDLE_RADIUS * m_app.settings.gizmoScale);
 
         if(interaction.justActivated){
             ImVec2 mousePos = ImGui::GetMousePos();
@@ -136,7 +136,7 @@ namespace Draft {
             apply_group_position(axisDir * distance);
 
             pivotScreen = viewport.world_to_screen(transform.position);
-            tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH);
+            tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH * m_app.settings.gizmoScale);
         }
 
         const Vector4f& color = isXAxis ? X_AXIS_COLOR : Y_AXIS_COLOR;
@@ -152,9 +152,9 @@ namespace Draft {
     }
 
     bool GizmoOverlaySystem::draw_rotate_handle(const TransformComponent& transform, const GizmoViewport& viewport, const Vector2f& xAxisDir, const Vector2f& yAxisDir){
-        Vector2f xTipWorld = transform.position + xAxisDir * AXIS_LENGTH;
-        Vector2f yTipWorld = transform.position + yAxisDir * AXIS_LENGTH;
-        Vector2f cornerWorld = xTipWorld + yAxisDir * AXIS_LENGTH;
+        Vector2f xTipWorld = transform.position + xAxisDir * AXIS_LENGTH * m_app.settings.gizmoScale;
+        Vector2f yTipWorld = transform.position + yAxisDir * AXIS_LENGTH * m_app.settings.gizmoScale;
+        Vector2f cornerWorld = xTipWorld + yAxisDir * AXIS_LENGTH * m_app.settings.gizmoScale;
 
         Vector2f xTipScreen = viewport.world_to_screen(xTipWorld);
         Vector2f yTipScreen = viewport.world_to_screen(yTipWorld);
@@ -182,9 +182,9 @@ namespace Draft {
 
             Vector2f freshXAxis = axis_x(transform.rotation);
             Vector2f freshYAxis = axis_y(transform.rotation);
-            xTipScreen = viewport.world_to_screen(transform.position + freshXAxis * AXIS_LENGTH);
-            yTipScreen = viewport.world_to_screen(transform.position + freshYAxis * AXIS_LENGTH);
-            cornerScreen = viewport.world_to_screen(transform.position + freshXAxis * AXIS_LENGTH + freshYAxis * AXIS_LENGTH);
+            xTipScreen = viewport.world_to_screen(transform.position + freshXAxis * AXIS_LENGTH * m_app.settings.gizmoScale);
+            yTipScreen = viewport.world_to_screen(transform.position + freshYAxis * AXIS_LENGTH * m_app.settings.gizmoScale);
+            cornerScreen = viewport.world_to_screen(transform.position + freshXAxis * AXIS_LENGTH * m_app.settings.gizmoScale + freshYAxis * AXIS_LENGTH * m_app.settings.gizmoScale);
         }
 
         const Vector4f& drawColor = (interaction.hovered || interaction.active) ? ROTATE_HOVER_COLOR : ROTATE_COLOR;

@@ -10,6 +10,9 @@ Draft engine is a simple C++ based game engine. The main idea/architecture behin
 
 ### Known bugs
 - [ ] Release build of editor doesn't work with debug build of game
+- [ ] Adding an ImGui system with the systems inspector causes a crash
+- [ ] An invalid scene doesn't even try to load, it crashes on JSON error
+- [ ] Adding a sprite to an entity causes a crash
 
 ## Project Structure
 Example game project:
