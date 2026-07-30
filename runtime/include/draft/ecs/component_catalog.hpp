@@ -5,6 +5,7 @@
 #include "draft/util/serialization/serializer.hpp"
 
 #include <algorithm>
+#include <concepts>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -15,6 +16,19 @@
 #include <vector>
 
 namespace Draft {
+    /// Forward decl
+    struct FieldContext;
+
+    /**
+     * @brief Satisfied by a component T that defines its own
+     * `bool draw_widget(FieldContext&, Entity)` member, opting out of the inspector's generic
+     * per-field reflection loop in favor of drawing its own layout.
+     */
+    template<typename T>
+    concept HasCustomWidget = requires(T& value, FieldContext& ctx, Entity entity) {
+        { value.draw_widget(ctx, entity) } -> std::convertible_to<bool>;
+    };
+
     /**
      * @brief Type-erased base of ComponentTypeCatalogEntry<T>, letting ComponentCatalog hold a
      * heterogeneous collection of registered component types behind one type_index/name-keyed
@@ -69,6 +83,17 @@ namespace Draft {
          * editor code.
          */
         virtual void visit_fields(Entity entity, FieldVisitor& visitor) const = 0;
+
+        /**
+         * @brief True if this component type defines its own draw_widget().
+         */
+        virtual bool has_custom_widget() const = 0;
+
+        /**
+         * @brief Calls this component type's own `draw_widget(ctx, entity)` on @p entity, which must already have(entity).
+         * @return True if the component was edited this frame.
+         */
+        virtual bool draw_widget(Entity entity, FieldContext& ctx) const = 0;
 
         /**
          * @brief Fires this component type's entt on_update signal for @p entity, without
@@ -127,6 +152,16 @@ namespace Draft {
             for_each_field(entity.get_component<T>(), [&](std::string_view name, auto& field){
                 visitor.visit(name, std::type_index(typeid(field)), const_cast<void*>(static_cast<const void*>(std::addressof(field))));
             });
+        }
+
+        bool has_custom_widget() const override { return HasCustomWidget<T>; }
+
+        bool draw_widget(Entity entity, FieldContext& ctx) const override {
+            if constexpr(HasCustomWidget<T>){
+                return entity.get_component<T>().draw_widget(ctx, entity);
+            } else {
+                return false;
+            }
         }
 
         void notify_modified(Entity entity) const override {

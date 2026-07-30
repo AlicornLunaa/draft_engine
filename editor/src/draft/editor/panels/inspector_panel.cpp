@@ -116,31 +116,37 @@ namespace Draft {
         }
 
         if(open && !removed){
-            JSON componentJson;
-            entry.serialize(entity, componentJson);
-
             FieldContext ctx{ m_app.gameScene, m_app.assets, m_app.selection, m_app };
-            FieldDrawVisitor visitor(ctx, componentJson);
-            entry.visit_fields(entity, visitor);
 
-            if(!visitor.changed_fallback_keys().empty()){
-                JSON freshJson;
-                entry.serialize(entity, freshJson);
+            if(entry.has_custom_widget()){
+                if(entry.draw_widget(entity, ctx))
+                    entry.notify_modified(entity);
+            } else {
+                JSON componentJson;
+                entry.serialize(entity, componentJson);
 
-                for(const std::string& key : visitor.changed_fallback_keys())
-                    freshJson[key] = componentJson[key];
+                FieldDrawVisitor visitor(ctx, componentJson);
+                entry.visit_fields(entity, visitor);
 
-                // A hand-edited JSON subtree can be malformed for whatever T's own deserialize expects
-                try {
-                    entry.deserialize(entity, freshJson);
-                } catch(const std::exception& e){
-                    Logger::println(LogLevel::Severe, "Inspector", std::string("Failed to apply edit to ") + entry.name() + ": " + e.what());
+                if(!visitor.changed_fallback_keys().empty()){
+                    JSON freshJson;
+                    entry.serialize(entity, freshJson);
+
+                    for(const std::string& key : visitor.changed_fallback_keys())
+                        freshJson[key] = componentJson[key];
+
+                    // A hand-edited JSON subtree can be malformed for whatever T's own deserialize expects
+                    try {
+                        entry.deserialize(entity, freshJson);
+                    } catch(const std::exception& e){
+                        Logger::println(LogLevel::Severe, "Inspector", std::string("Failed to apply edit to ") + entry.name() + ": " + e.what());
+                    }
                 }
-            }
 
-            // Fire ENTT's on modify hooks
-            if(visitor.any_changed())
-                entry.notify_modified(entity);
+                // Fire ENTT's on modify hooks
+                if(visitor.any_changed())
+                    entry.notify_modified(entity);
+            }
         }
 
         ImGui::PopID();

@@ -8,6 +8,9 @@ Draft engine is a simple C++ based game engine. The main idea/architecture behin
 * Make the engine one giant package that includes everything needed for a game.
 * Intentionally lightweight engine, where main logic is all compiled in with C++.
 
+### Todo
+- [ ] Convert old custom widgets to the new draw_widget function
+
 ### Known bugs
 - [ ] Release build of editor doesn't work with debug build of game
 - [ ] Adding an ImGui system with the systems inspector causes a crash
