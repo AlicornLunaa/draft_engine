@@ -142,6 +142,7 @@ namespace Draft {
     {
         IMGUI_CHECKVERSION();
 
+        auto oldCtx = ImGui::GetCurrentContext();
         ctx = ImGui::CreateContext();
 
         // CreateContext() restores whatever context was current before it ran (if any), it
@@ -155,12 +156,20 @@ namespace Draft {
 
         ImGui::StyleColorsDark();
         ImGui_ImplOpenGL3_Init("#version 450");
+
+        if(oldCtx)
+            ImGui::SetCurrentContext(oldCtx);
     }
 
     ImGuiSystem::~ImGuiSystem(){
+        auto oldCtx = ImGui::GetCurrentContext();
+
         ImGui::SetCurrentContext(ctx);
         ImGui_ImplOpenGL3_Shutdown();
         ImGui::DestroyContext(ctx);
+
+        if(oldCtx)
+            ImGui::SetCurrentContext(oldCtx);
     }
 
     // Functions
