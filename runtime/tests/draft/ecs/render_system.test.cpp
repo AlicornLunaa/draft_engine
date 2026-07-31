@@ -1,6 +1,7 @@
 #define GLFW_INCLUDE_NONE
 
 #include <gtest/gtest.h>
+#include "draft/core/application_interface.hpp"
 #include "draft/ecs/render_system.hpp"
 #include "draft/ecs/entity.hpp"
 #include "draft/ecs/scene.hpp"
@@ -22,6 +23,32 @@ namespace {
     public:
         using Renderer::Renderer;
         void render_frame(Time, SystemRegistry&, const Camera&) override {}
+    };
+
+    class NullKeyboard : public Keyboard {
+    public:
+        bool is_pressed(int) const override { return false; }
+        bool is_just_pressed(int) const override { return false; }
+        int get_modifiers() const override { return 0; }
+        bool is_valid() const override { return true; }
+    };
+
+    class NullMouse : public Mouse {
+    public:
+        void set_position(const Vector2f&) override {}
+        bool is_hovered() const override { return false; }
+        bool is_pressed(int) const override { return false; }
+        bool is_just_pressed(int) const override { return false; }
+        const Vector2d& get_scroll() const override { static Vector2d v{}; return v; }
+        const Vector2d& get_position() const override { static Vector2d v{}; return v; }
+        const Vector2d get_normalized_position() const override { return {}; }
+        bool is_valid() const override { return true; }
+    };
+
+    class TestApplication : public ApplicationInterface {
+    public:
+        using ApplicationInterface::ApplicationInterface;
+        void set_renderer_now(std::unique_ptr<Renderer> renderer){ p_renderer = std::move(renderer); }
     };
 
     const char* SPRITE_VERTEX_SRC =
@@ -87,9 +114,12 @@ RenderWindow* RenderSystemTest::window = nullptr;
 TEST_F(RenderSystemTest, RenderSubmitsSpriteEntitiesIntoTheRendererBatchWithoutError)
 {
     Scene scene;
-    TestRenderer renderer({16, 16});
+    NullKeyboard keyboard;
+    NullMouse mouse;
+    TestApplication app(*window, keyboard, mouse);
+    app.set_renderer_now(std::make_unique<TestRenderer>(Vector2u{16, 16}));
 
-    scene.get_systems().add<RenderSystem>(scene.get_registry(), renderer);
+    scene.get_systems().add<RenderSystem>(scene.get_registry(), app);
 
     // SpriteComponent::shader overrides SpriteCollection's own process-lifetime leaked default
     Resource<Shader> shader = make_shader("render_system_v1.glsl", "render_system_f1.glsl");
@@ -102,16 +132,19 @@ TEST_F(RenderSystemTest, RenderSubmitsSpriteEntitiesIntoTheRendererBatchWithoutE
     scene.render(Time::seconds(0), RenderLayer::Geometry);
 
     glGetError();
-    renderer.batch.flush();
+    static_cast<TestRenderer*>(app.get_renderer())->batch.flush();
     EXPECT_EQ(glGetError(), GL_NO_ERROR);
 }
 
 TEST_F(RenderSystemTest, RenderWithNoSpriteEntitiesDoesNotThrow)
 {
     Scene scene;
-    TestRenderer renderer({16, 16});
+    NullKeyboard keyboard;
+    NullMouse mouse;
+    TestApplication app(*window, keyboard, mouse);
+    app.set_renderer_now(std::make_unique<TestRenderer>(Vector2u{16, 16}));
 
-    scene.get_systems().add<RenderSystem>(scene.get_registry(), renderer);
+    scene.get_systems().add<RenderSystem>(scene.get_registry(), app);
 
     ASSERT_NO_THROW(scene.render(Time::seconds(0), RenderLayer::Geometry));
 }

@@ -2,13 +2,20 @@
 #include "draft/components/animation_component.hpp"
 #include "draft/components/sprite_component.hpp"
 #include "draft/components/transform_component.hpp"
+#include "draft/core/application_interface.hpp"
+#include "draft/rendering/pipeline/renderer.hpp"
 
 namespace Draft {
     // Constructors
-    RenderSystem::RenderSystem(Registry& registryRef, Renderer& rendererRef) : registryRef(registryRef), rendererRef(rendererRef) {}
+    RenderSystem::RenderSystem(Registry& registryRef, ApplicationInterface& appRef) : registryRef(registryRef), appRef(appRef) {}
 
     // Functions
     void RenderSystem::render(Time dt, RenderLayer){
+        Renderer* renderer = appRef.get_renderer();
+
+        if(!renderer)
+            return;
+
         for(const auto& [entity, spriteComponent, transformComponent] : registryRef.view<SpriteComponent, TransformComponent>().each()){
             TextureRegion region = spriteComponent.texture;
 
@@ -29,7 +36,7 @@ namespace Draft {
             mat.baseTexture = region.texture.get();
             mat.shader = spriteComponent.shader ? spriteComponent.shader->get() : nullptr;
 
-            rendererRef.batch.draw({
+            renderer->batch.draw({
                 transformComponent.position,
                 transformComponent.rotation,
                 spriteComponent.size,
