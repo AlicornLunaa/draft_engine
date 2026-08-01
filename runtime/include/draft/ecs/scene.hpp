@@ -48,6 +48,11 @@ namespace Draft {
         void set_active_camera_override(std::optional<Camera> camera);
 
         /**
+         * @brief True while set_active_camera_override() has an active override in place
+         */
+        bool has_active_camera_override() const;
+
+        /**
          * @brief Advances every registered system by a fixed-size @p dt, in registration order.
          * Equivalent to get_systems().update_all(dt). Meant to be called zero or more times per
          * frame from an accumulator loop (deterministic physics among the reasons why)

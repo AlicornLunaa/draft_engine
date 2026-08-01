@@ -116,7 +116,7 @@ namespace Draft {
         Vector2f pivotScreen = viewport.world_to_screen(transform.position);
         Vector2f tipScreen = viewport.world_to_screen(transform.position + axisDir * AXIS_LENGTH * m_app.settings.gizmoScale);
 
-        HandleInteraction interaction = hit_test_handle(isXAxis ? "GizmoAxisX" : "GizmoAxisY", tipScreen, AXIS_HANDLE_RADIUS * m_app.settings.gizmoScale);
+        HandleInteraction interaction = hit_test_handle(isXAxis ? "GizmoAxisX" : "GizmoAxisY", tipScreen, AXIS_HANDLE_RADIUS);
 
         if(interaction.justActivated){
             ImVec2 mousePos = ImGui::GetMousePos();

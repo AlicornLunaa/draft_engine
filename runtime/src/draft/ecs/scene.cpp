@@ -55,6 +55,10 @@ namespace Draft {
         m_cameraOverride = std::move(camera);
     }
 
+    bool Scene::has_active_camera_override() const {
+        return m_cameraOverride.has_value();
+    }
+
     void Scene::update(Time dt){
         m_systems.update_all(dt);
     }
