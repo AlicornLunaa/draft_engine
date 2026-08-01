@@ -10,6 +10,7 @@ namespace Draft {
         constexpr float PAN_SPEED = 400.f; // world units/sec at zoom 1
         constexpr float ZOOM_STEP = 1.1f;
         constexpr float MIN_ZOOM = 0.01f;
+        constexpr float ZOOM_SMOOTHING = 18.f; // higher = snappier convergence to target zoom
     }
 
     FreecamControllerSystem::FreecamControllerSystem(EditorApplication& app) : m_app(app) {}
@@ -59,12 +60,15 @@ namespace Draft {
             double scrollY = m_app.application.mouse.get_scroll().y;
 
             if(scrollY != m_lastScrollY){
-                m_zoom *= scrollY > 0 ? 1.f / ZOOM_STEP : ZOOM_STEP;
-                m_zoom = Math::max(m_zoom, MIN_ZOOM);
+                m_targetZoom *= scrollY > 0 ? 1.f / ZOOM_STEP : ZOOM_STEP;
+                m_targetZoom = Math::max(m_targetZoom, MIN_ZOOM);
                 m_lastScrollY = scrollY;
             }
         }
-        
+
+        // Ease toward the target zoom
+        m_zoom = Math::mix(m_zoom, m_targetZoom, Math::min(1.f, ZOOM_SMOOTHING * dt.as_seconds()));
+
         Vector2u size = Math::max(m_app.gameApp.get_output().get_properties().size, Vector2u(1, 1));
         float aspect = (float)size.x / (float)size.y;
         float halfHeight = size.y * m_zoom;

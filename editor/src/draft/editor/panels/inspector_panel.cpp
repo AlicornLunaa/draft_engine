@@ -156,8 +156,10 @@ namespace Draft {
         if(ImGui::BeginPopup("AddComponentPopup")){
             static std::array<char, 256> s_searchBuffer{};
 
-            if(ImGui::IsWindowAppearing())
+            if(ImGui::IsWindowAppearing()){
                 s_searchBuffer[0] = '\0';
+                ImGui::SetKeyboardFocusHere();
+            }
 
             ImGui::InputTextWithHint("##AddComponentSearch", "Search...", s_searchBuffer.data(), s_searchBuffer.size());
 

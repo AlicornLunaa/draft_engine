@@ -26,6 +26,7 @@ namespace Draft {
 
         Vector2f m_position{0.f, 0.f};
         float m_zoom = 1.f;
+        float m_targetZoom = 1.f;
         double m_lastScrollY = 0.0;
     };
 }
