@@ -2,6 +2,7 @@
 
 #include "draft/ecs/entity.hpp"
 #include "draft/ecs/field_context.hpp"
+#include "draft/ecs/gizmo_context.hpp"
 #include "draft/util/reflectable.hpp"
 #include "draft/util/serialization/serializer.hpp"
 
@@ -25,6 +26,15 @@ namespace Draft {
     template<typename T>
     concept HasCustomWidget = requires(T& value, FieldContext& ctx, Entity entity) {
         { value.draw_widget(ctx, entity) } -> std::convertible_to<bool>;
+    };
+
+    /**
+     * @brief Satisfied by a component T that defines its own `void draw_gizmo(GizmoContext&, Entity)` member,
+     * letting it draw its own visuals into the  editor viewport.
+     */
+    template<typename T>
+    concept HasCustomGizmo = requires(T& value, GizmoContext& ctx, Entity entity) {
+        { value.draw_gizmo(ctx, entity) } -> std::same_as<void>;
     };
 
     /**
@@ -94,6 +104,17 @@ namespace Draft {
         virtual bool draw_widget(Entity entity, FieldContext& ctx) const = 0;
 
         /**
+         * @brief True if this component type defines its own draw_gizmo().
+         */
+        virtual bool has_custom_gizmo() const = 0;
+
+        /**
+         * @brief Calls this component type's own `draw_gizmo(ctx, entity)` on @p entity, which
+         * must already have(entity). No-op if this component type has no custom gizmo.
+         */
+        virtual void draw_gizmo(Entity entity, GizmoContext& ctx) const = 0;
+
+        /**
          * @brief Fires this component type's entt on_update signal for @p entity, without
          * otherwise touching it.
          */
@@ -159,6 +180,14 @@ namespace Draft {
                 return entity.get_component<T>().draw_widget(ctx, entity);
             } else {
                 return false;
+            }
+        }
+
+        bool has_custom_gizmo() const override { return HasCustomGizmo<T>; }
+
+        void draw_gizmo(Entity entity, GizmoContext& ctx) const override {
+            if constexpr(HasCustomGizmo<T>){
+                entity.get_component<T>().draw_gizmo(ctx, entity);
             }
         }
 

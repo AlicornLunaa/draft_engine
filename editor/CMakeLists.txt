@@ -18,6 +18,7 @@ set(HEADERS
     include/draft/editor/panels/animation_editor_panel.hpp
     include/draft/editor/panels/asset_browser_panel.hpp
     include/draft/editor/panels/collider_gizmo.hpp
+    include/draft/editor/panels/component_gizmo.hpp
     include/draft/editor/panels/dockspace_panel.hpp
     include/draft/editor/panels/entity_picker.hpp
     include/draft/editor/panels/gizmo_overlay.hpp
@@ -49,6 +50,7 @@ set(SOURCES
     src/draft/editor/panels/animation_editor_panel.cpp
     src/draft/editor/panels/asset_browser_panel.cpp
     src/draft/editor/panels/collider_gizmo.cpp
+    src/draft/editor/panels/component_gizmo.cpp
     src/draft/editor/panels/dockspace_panel.cpp
     src/draft/editor/panels/entity_picker.cpp
     src/draft/editor/panels/gizmo_overlay.cpp

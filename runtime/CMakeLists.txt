@@ -123,6 +123,7 @@ set(HEADERS
     include/draft/ecs/component_catalog.hpp
     include/draft/ecs/entity.hpp
     include/draft/ecs/field_context.hpp
+    include/draft/ecs/gizmo_context.hpp
     include/draft/ecs/physics_system.hpp
     include/draft/ecs/registry.hpp
     include/draft/ecs/relationship_components.hpp

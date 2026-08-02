@@ -5,6 +5,7 @@
 #include "draft/editor/panels/animation_editor_panel.hpp"
 #include "draft/editor/panels/asset_browser_panel.hpp"
 #include "draft/editor/panels/collider_gizmo.hpp"
+#include "draft/editor/panels/component_gizmo.hpp"
 #include "draft/editor/panels/dockspace_panel.hpp"
 #include "draft/editor/panels/gizmo_overlay.hpp"
 #include "draft/editor/panels/hierarchy_panel.hpp"
@@ -354,6 +355,7 @@ namespace Draft {
         editScene.get_systems().add<ColliderGizmoSystem>(*this);
         editScene.get_systems().add<GizmoOverlaySystem>(*this);
         editScene.get_systems().add<JointGizmoSystem>(*this);
+        editScene.get_systems().add<ComponentGizmoSystem>(*this);
     }
 
     void EditorApplication::register_editor_commands(){
