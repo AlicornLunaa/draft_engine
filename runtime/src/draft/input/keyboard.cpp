@@ -152,4 +152,9 @@ namespace Draft {
             textCallback(codepoint);
         }
     }
+
+    void FakeKeyboard::release_all(){
+        m_pressedKeys.clear();
+        m_lastPressedKeys.clear();
+    }
 }

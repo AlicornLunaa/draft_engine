@@ -203,6 +203,7 @@ namespace Draft {
 
         void key_press(int key, int action, int mods);
         void text_entered(unsigned int codepoint);
+        void release_all();
 
     private:
         mutable std::unordered_map<int, bool> m_lastPressedKeys;

@@ -64,6 +64,15 @@ namespace Draft {
             FakeMouse& mouse = gameApp.fakeMouse;
             FakeKeyboard& keyboard = gameApp.fakeKeyboard;
 
+            // Keyboard input should only reach the game while it's actually playing
+            bool isKeyboardEvent = event.type == Event::KeyPressed || event.type == Event::KeyReleased
+                || event.type == Event::KeyHold || event.type == Event::TextEntered;
+
+            if(isKeyboardEvent && !m_isPlaying){
+                pendingViewportEvents.pop();
+                continue;
+            }
+
             switch(event.type){
                 case Event::Resized:
                     gameApp.resize({event.size.width, event.size.height});
@@ -381,6 +390,7 @@ namespace Draft {
 
         gameApp.simulationPaused = true;
         m_isPlaying = false;
+        gameApp.fakeKeyboard.release_all();
 
         FileHandle snapshot = HostFileSystem().open(snapshot_path());
         if(!snapshot.exists())
