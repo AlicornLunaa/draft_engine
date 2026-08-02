@@ -2,6 +2,8 @@
 
 #include "draft/ecs/registry.hpp"
 
+#include <unordered_set>
+
 namespace Draft {
     class Scene;
 
@@ -15,6 +17,8 @@ namespace Draft {
     private:
         Registry& m_registryRef;
         Scene& m_sceneRef;
+        
+        std::unordered_set<entt::entity> m_tearingDownParents;
 
         void construct_child_func(Registry& reg, entt::entity rawEnt);
         void construct_parent_func(Registry& reg, entt::entity rawEnt);

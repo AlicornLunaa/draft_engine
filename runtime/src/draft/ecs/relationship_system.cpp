@@ -63,6 +63,10 @@ namespace Draft {
             // Parent is not a valid entity, exit
             return;
 
+        if(m_tearingDownParents.contains(static_cast<entt::entity>(parent)))
+            // The parent's own ParentComponent is already being torn down further up the call
+            return;
+
         // Get parents children array
         ParentComponent* childrenCompPtr = nullptr;
 
@@ -88,17 +92,25 @@ namespace Draft {
 
     void RelationshipSystem::deconstruct_parent_func(Registry& reg, entt::entity rawEnt){
         // A parent component was detached, destroy all its children
+        m_tearingDownParents.insert(rawEnt);
+
         ParentComponent& component = reg.get<ParentComponent>(rawEnt);
         std::vector<Entity> children = std::move(component.children);
         component.children.clear();
 
         for(auto& entity : children){
+            // A sibling destroyed earlier in this same loop can cascade into destroying a later one too
+            if(!entity.is_valid())
+                continue;
+
             // Clear the back-reference before destroying
             if(entity.has_component<ChildComponent>())
                 entity.get_component<ChildComponent>().parent = Entity();
 
             entity.destroy();
         }
+
+        m_tearingDownParents.erase(rawEnt);
     }
 
     // Constructors

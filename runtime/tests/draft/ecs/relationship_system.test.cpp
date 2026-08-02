@@ -76,3 +76,36 @@ TEST(RelationshipSystem, DestroyingParentDestroysChildren)
 
     ASSERT_FALSE(child.is_valid());
 }
+
+namespace {
+    struct RelationshipCascadeMarker { bool unused = false; }; // non-empty: entt's emplace<T>() returns void for empty types
+
+    struct RelationshipCascadeDestroyer {
+        Scene* scene;
+        Entity target;
+
+        void on_marker_destroyed(Registry&, entt::entity){
+            Entity(scene, target).destroy();
+        }
+    };
+}
+
+TEST(RelationshipSystem, DestroyingParentSurvivesASiblingCascadeDestroyingAnotherSibling)
+{
+    Scene scene;
+    Entity parent = scene.create_entity();
+    Entity childA = scene.create_entity();
+    Entity childB = scene.create_entity();
+
+    childA.add_component<ChildComponent>(ChildComponent{parent});
+    childB.add_component<ChildComponent>(ChildComponent{parent});
+    childA.add_component<RelationshipCascadeMarker>();
+
+    RelationshipCascadeDestroyer cascade{&scene, childB};
+    scene.get_registry().on_destroy<RelationshipCascadeMarker>().connect<&RelationshipCascadeDestroyer::on_marker_destroyed>(cascade);
+
+    parent.destroy();
+
+    ASSERT_FALSE(childA.is_valid());
+    ASSERT_FALSE(childB.is_valid());
+}
