@@ -1,6 +1,7 @@
 #pragma once
 
 #include "draft/ecs/entity.hpp"
+#include "draft/ecs/field_context.hpp"
 #include "draft/util/reflectable.hpp"
 #include "draft/util/serialization/serializer.hpp"
 
@@ -16,9 +17,6 @@
 #include <vector>
 
 namespace Draft {
-    /// Forward decl
-    struct FieldContext;
-
     /**
      * @brief Satisfied by a component T that defines its own
      * `bool draw_widget(FieldContext&, Entity)` member, opting out of the inspector's generic

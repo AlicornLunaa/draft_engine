@@ -301,7 +301,10 @@ namespace Draft {
         template<typename T, JsonLike J> requires Reflectable<T> && (!JsonSerializable<T>) && (!CustomJsonSerializable<T>)
         inline void deserialize(T& value, J&& json){
             for_each_field(value, [&](std::string_view name, auto& field){
-                deserialize(field, json.at(std::string(name)));
+                std::string key(name);
+                
+                if(json.contains(key))
+                    deserialize(field, json.at(key));
             });
         }
 

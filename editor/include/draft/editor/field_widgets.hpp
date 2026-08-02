@@ -4,6 +4,7 @@
 #include "draft/asset/resource.hpp"
 #include "draft/build_tools/asset_pipeline.hpp"
 #include "draft/ecs/entity.hpp"
+#include "draft/ecs/field_context.hpp"
 #include "draft/ecs/scene.hpp"
 #include "draft/editor/asset_drag_drop.hpp"
 #include "draft/math/glm.hpp"
@@ -22,23 +23,9 @@
 #include <vector>
 
 namespace Draft {
-    class EditorSelection;
-    class EditorApplication;
     class Animation;
     class Music;
     class SoundBuffer;
-
-    /**
-     * @brief Everything a field widget might need beyond the value it's editing: the scene to
-     * browse for an Entity-field picker, the assets manager to resolve a Resource<T>'s key, the
-     * selection so a picked Entity field can be jumped to, and the owning EditorApplication.
-     */
-    struct FieldContext {
-        Scene& scene;
-        AssetManager& assets;
-        EditorSelection& selection;
-        EditorApplication& app;
-    };
 
     /**
      * @brief Customization point: a type that needs bespoke rendering - a dropdown, live setter

@@ -28,6 +28,7 @@ namespace Draft {
 
         DRAFT_REFLECTABLE(
             BodyDef,
+            type,
             position,
             angle,
             linearVelocity,
